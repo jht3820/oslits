@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>공통 테이블</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0" />
+</head>
+
+	<link rel="stylesheet" href="/css/reset.css">
+
+	<style>
+	body { padding: 1%; }
+	h1 { font-size: 40px; font-weight: bold; text-align: center; }
+	
+	/* table 태그 table */
+	.common_table {
+		border-collapse: collapse;
+		text-align: center;
+		background: #fff;
+		margin: 1% auto;
+		border: 1px solid #cccccc;
+		vertical-align: middle;
+	}
+	
+	td { height: 46px; border-top: 1px solid #cccccc; vertical-align: middle; }
+	.back_color { background: #f9f9f9; height: 26px; }
+	.one_td { width: 15%; }
+	.two_td { width: 35%; }
+	.th_td { width: 20%; }
+	.fu_td { width: 10%; }
+	.fi_td { width: 5%; }
+	.si_td { width: 5%; }
+	.se_td { width: 10%; }
+	/* table 태그 table */
+
+	/* a 페이징 */
+	.paginate_complex { padding: 15px 0; line-height: normal; text-align: center; }
+	.paginate_complex a {	display: inline-block; position: relative; padding: 0.5px 6.5px; text-decoration: none; vertical-align: -webkit-baseline-middle; border: 1px solid #cccccc; background-color: #fff; color: #333333; z-index: 2; }
+	.paginate_complex a:hover,
+	.paginate_complex a:active,
+	.paginate_complex a:focus { background-color: #f8f8f8; }
+	.paginate_complex .direction { text-decoration: none !important; padding: 1px 6px; z-index: 1; border: 1px solid #cccccc; }
+	.prev_box { display: inline-block; vertical-align: top; margin-right: 9px; }
+	.next_box { display: inline-block; vertical-align: top; margin-left: 9px; }
+	/* a 페이징 */
+	
+	/* div 태그 table */
+	.div_table { display: inline-block; width: 100%; margin: 1% auto; text-align: center; border-left: 1px solid #cccccc; border-right: 1px solid #cccccc; }
+		.table_top { border-top: 1px solid #cccccc; }
+		.table_bottom {  }
+			.top_back { background: #f9f9f9; height: 18px; padding: 4px 0; }
+			.bottom_back { height: 18px; padding: 14px 0; }
+			.fl { float: left; border-bottom: 1px solid #cccccc; }
+			.one_div { width: 15%; }
+			.two_div { width: 35%; }
+			.th_div { width: 20%; }
+			.fu_div { width: 10%; }
+			.fi_div { width: 5%; }
+			.si_div { width: 5%; }
+			.se_div { width: 10%; }
+	/* div 태그 table*/
+	
+	/* span 페이징 */
+	a { text-decoration: none !important; color: #333; }
+	
+	.span_table { padding: 15px 0; text-align: center; margin: 1% auto;}
+	.span_table .direction_s { padding: 5px 9px; vertical-align: -webkit-baseline-middle; z-index: 1; border: 1px solid #cccccc; }
+	.span_table .direction_s_pn { padding: 2.5px 5px; vertical-align: -webkit-baseline-middle; z-index: 1; border: 1px solid #cccccc; }
+		.span_prev_box { display: inline-block; margin-right: 9px; vertical-align: top; }
+		.span_next_box { display: inline-block; margin-left: 9px; vertical-align: top; }
+		.span_num { display: inline-block; position: relative; padding: 0.5px 6.5px; vertical-align: top; border: 1px solid #cccccc; z-index: 2; }
+		.direction_s:hover,
+		.direction_s:active,
+		.direction_s:focus { background-color: #f8f8f8; }
+	/* span 페이징 */
+	</style>
+<body>
+	<h1>Table 태그 Table</h1><br>
+	<table class="common_table">
+		<tr>
+			<td class="one_td back_color">분류</td>
+			<td class="two_td back_color">요구사항</td>
+			<td class="th_td back_color">기능</td>
+			<td class="fu_td back_color">담당자</td>
+			<td class="fi_td back_color">개발공수</td>
+			<td class="si_td back_color">소요시간</td>
+			<td class="se_td back_color">작업흐름</td>
+		</tr>
+
+		<tr>
+			<td>로그인 및 화면 로그인 및 화면</td>
+			<td>로그인 화면</td>
+			<td>로그인 화면</td>
+			<td>로그인</td>
+			<td>3</td>
+			<td>1</td>
+			<td>진행중</td>
+		</tr>
+
+		<tr>
+			<td>로그인 및 화면 로그인 및 화면</td>
+			<td>로그인 화면</td>
+			<td>로그인 화면</td>
+			<td>로그인</td>
+			<td>3</td>
+			<td>1</td>
+			<td>진행중</td>
+		</tr>
+
+		<tr>
+			<td>로그인 및 화면 로그인 및 화면</td>
+			<td>로그인 화면</td>
+			<td>로그인 화면</td>
+			<td>로그인</td>
+			<td>3</td>
+			<td>1</td>
+			<td>진행중</td>
+		</tr>
+
+		<tr>
+			<td>로그인 및 화면 로그인 및 화면</td>
+			<td>로그인 화면</td>
+			<td>로그인 화면</td>
+			<td>로그인</td>
+			<td>3</td>
+			<td>1</td>
+			<td>진행중</td>
+		</tr>
+
+		<tr>
+			<td>로그인 및 화면 로그인 및 화면</td>
+			<td>로그인 화면</td>
+			<td>로그인 화면</td>
+			<td>로그인</td>
+			<td>3</td>
+			<td>1</td>
+			<td>진행중</td>
+		</tr>
+
+		<tr>
+			<td>로그인 및 화면 로그인 및 화면</td>
+			<td>로그인 화면</td>
+			<td>로그인 화면</td>
+			<td>로그인</td>
+			<td>3</td>
+			<td>1</td>
+			<td>진행중</td>
+		</tr>
+	</table>
+	
+	<div class="paginate_complex">
+		<span class="prev_box">
+			<a href="#" class="direction prev">≪</a>
+			<a href="#" class="direction prev">＜</a>
+		</span>
+		<a href="#">1</a>
+		<a href="#">2</a>
+		<a href="#">3</a>
+		<a href="#">4</a>
+		<a href="#">5</a>
+		<span class="next_box">
+			<a href="#" class="direction next">≫</a>
+			<a href="#" class="direction next">＞</a>
+		</span>
+	</div>
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	
+	<h1>DIV 태그 Table</h1><br>
+	<div class="div_table">
+		<div class="table_top">
+			<div class="top_back fl one_div">분류</div>
+			<div class="top_back fl two_div">요구사항</div>
+			<div class="top_back fl th_div">기능</div>
+			<div class="top_back fl fu_div">담당자</div>
+			<div class="top_back fl fi_div">개발공수</div>
+			<div class="top_back fl si_div">소요시간</div>
+			<div class="top_back fl se_div">작업흐름</div>
+		</div>
+		
+		<div class="table_bottom">
+			<div class="bottom_back fl one_div">로그인 및 화면 로그인 및 화면</div>
+			<div class="bottom_back fl two_div">로그인 화면</div>
+			<div class="bottom_back fl th_div">로그인 화면</div>
+			<div class="bottom_back fl fu_div">로그인</div>
+			<div class="bottom_back fl fi_div">3</div>
+			<div class="bottom_back fl si_div">1</div>
+			<div class="bottom_back fl se_div">진행중</div>
+		</div>
+		
+		<div class="table_bottom">
+			<div class="bottom_back fl one_div">로그인 및 화면 로그인 및 화면</div>
+			<div class="bottom_back fl two_div">로그인 화면</div>
+			<div class="bottom_back fl th_div">로그인 화면</div>
+			<div class="bottom_back fl fu_div">로그인</div>
+			<div class="bottom_back fl fi_div">3</div>
+			<div class="bottom_back fl si_div">1</div>
+			<div class="bottom_back fl se_div">진행중</div>
+		</div>
+		
+		<div class="table_bottom">
+			<div class="bottom_back fl one_div">로그인 및 화면 로그인 및 화면</div>
+			<div class="bottom_back fl two_div">로그인 화면</div>
+			<div class="bottom_back fl th_div">로그인 화면</div>
+			<div class="bottom_back fl fu_div">로그인</div>
+			<div class="bottom_back fl fi_div">3</div>
+			<div class="bottom_back fl si_div">1</div>
+			<div class="bottom_back fl se_div">진행중</div>
+		</div>
+		
+		<div class="table_bottom">
+			<div class="bottom_back fl one_div">로그인 및 화면 로그인 및 화면</div>
+			<div class="bottom_back fl two_div">로그인 화면</div>
+			<div class="bottom_back fl th_div">로그인 화면</div>
+			<div class="bottom_back fl fu_div">로그인</div>
+			<div class="bottom_back fl fi_div">3</div>
+			<div class="bottom_back fl si_div">1</div>
+			<div class="bottom_back fl se_div">진행중</div>
+		</div>
+		
+		<div class="table_bottom">
+			<div class="bottom_back fl one_div">로그인 및 화면 로그인 및 화면</div>
+			<div class="bottom_back fl two_div">로그인 화면</div>
+			<div class="bottom_back fl th_div">로그인 화면</div>
+			<div class="bottom_back fl fu_div">로그인</div>
+			<div class="bottom_back fl fi_div">3</div>
+			<div class="bottom_back fl si_div">1</div>
+			<div class="bottom_back fl se_div">진행중</div>
+		</div>
+	</div>
+	
+	<div class="span_table">
+		<!-- 해당 페이지의 영역을 제외한 이동 가능한 페이지의 영역은 a태그로 감싸준다 -->
+		<span class="span_prev_box">
+			<a href="#"><span class="direction_s_pn prev_s">≪</span></a>
+			<a href="#"><span class="direction_s_pn prev_s">＜</span></a>
+		</span>
+		<span class="span_num direction_s">1</span>
+		<a href="#"><span class="span_num direction_s">2</span></a>
+		<a href="#"><span class="span_num direction_s">3</span></a>
+		<a href="#"><span class="span_num direction_s">4</span></a>
+		<a href="#"><span class="span_num direction_s">5</span></a>
+		<span class="span_next_box">
+			<a href="#"><span class="direction_s_pn next_s">≫</span></a>
+			<a href="#"><span class="direction_s_pn next_s">＞</span></a>
+		</span>
+	</div>
+	
+</body>
+</html>

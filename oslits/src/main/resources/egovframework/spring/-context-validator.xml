@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+				http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+	
+    <!-- Integrated Apache Commons Validator by Spring Modules -->              
+    <bean id="beanValidator" class="org.springmodules.validation.commons.DefaultBeanValidator">
+        <property name="validatorFactory" ref="validatorFactory"/>
+    </bean>
+
+    <bean id="validatorFactory" class="org.springmodules.validation.commons.DefaultValidatorFactory">
+        <property name="validationConfigLocations">
+            <list>
+                <value>/WEB-INF/config/egovframework/validator/validator-rules.xml</value>
+                <value>/WEB-INF/config/egovframework/validator/validator.xml</value>
+            </list>
+        </property>
+    </bean>
+   
+</beans>

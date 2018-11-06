@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans 	xmlns="http://www.springframework.org/schema/beans" 
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:context="http://www.springframework.org/schema/context"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+							http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+	
+	<!-- JDBC Property import -->
+	<context:property-placeholder location="classpath:/egovframework/egovProps/globals.properties" />
+	
+	<!-- DataSource -->
+	<alias name="dataSource-${Globals.DbType}" alias="oslits.dataSource"/>
+    <alias name="dataSource-${Globals.DbType}" alias="dataSource"/>
+	
+    <!-- oslits DB DataSource -->
+    <!-- property 암호화 적용 데이터소스 -->
+	<bean id="dataSource-oracle" class="kr.opensoftlab.sdf.commons.dbcp.BasicDataSourceEnDe" destroy-method="close">
+        <property name="driverClassName" 		value="${Globals.oslits.driver}"/>
+        <property name="url" 					value="${Globals.oslits.url}"/>
+        <property name="username" 				value="${Globals.oslits.username}"/>
+        <property name="password" 				value="${Globals.oslits.password}"/>
+      	<property name="maxActive" 				value="${Globals.oslits.maxActive}" />
+		<property name="maxIdle" 				value="${Globals.oslits.maxIdle}" />
+		<property name="maxWait" 				value="${Globals.oslits.maxWait}" />
+		<property name="validationQuery" 		value="${Globals.oslits.validationQuery}"/>
+		<property name="validationQueryTimeout" value="${Globals.oslits.validationQueryTimeout}"/>
+		<property name="connectionInitSqls">
+			<list>
+				<value>ALTER SESSION SET NLS_DATE_FORMAT='YYYY/MM/DD HH24:MI:SS'</value>
+			</list>
+		</property>
+    </bean>
+    
+    <!-- 
+    <bean id="dataSource-oracle" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" 	value="${Globals.oslits.driver}"/>
+        <property name="url" 				value="${Globals.oslits.url}"/>
+        <property name="username" 			value="${Globals.oslits.username}"/>
+        <property name="password" 			value="${Globals.oslits.password}"/>
+      	<property name="maxActive" 			value="${Globals.oslits.maxActive}" />
+		<property name="maxIdle" 			value="${Globals.oslits.maxIdle}" />
+		<property name="maxWait" 			value="${Globals.oslits.maxWait}" />
+		<property name="validationQuery" 		value="${Globals.oslits.validationQuery}"/>
+		<property name="validationQueryTimeout" value="${Globals.oslits.validationQueryTimeout}"/>
+		<property name="connectionInitSqls">
+			<list>
+				<value>ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'</value>
+			</list>
+		</property>
+    </bean>
+    -->
+     
+</beans>
