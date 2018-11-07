@@ -249,6 +249,13 @@ function fnInGridListSet(_pageNo,ajaxParam){
 		//AJAX 전송 성공 함수
 		ajaxObj.setFnSuccess(function(data){
 			data = JSON.parse(data);
+			
+			// 조회 실패
+	    	if(data.errorYn == 'Y'){ 
+	    		toast.push(data.message);
+	    		return;
+	    	}
+			
 			var list = data.list;
 			var page = data.page;
 			

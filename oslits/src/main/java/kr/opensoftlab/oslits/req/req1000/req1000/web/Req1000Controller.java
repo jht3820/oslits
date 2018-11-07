@@ -194,12 +194,14 @@ public class Req1000Controller {
 			pageMap.put("totalElements", totCnt);
 			pageMap.put("pageSize", _pageSize);
 			
+			model.addAttribute("errorYn", "N");
 			model.addAttribute("page", pageMap);
 			
 			return new ModelAndView("jsonView");
 		}
 		catch(Exception ex){
 			Log.error("selectReq1000ListView()", ex);
+			model.addAttribute("errorYn", "Y");
 			throw new Exception(ex.getMessage());
 		}
 	}
