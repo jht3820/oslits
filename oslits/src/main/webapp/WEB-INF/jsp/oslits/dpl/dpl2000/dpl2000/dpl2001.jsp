@@ -101,7 +101,9 @@ div#contentsFrame > code{    height: 100%;width: 100%;font-size: 10pt;}
 			var logHtml = "";
 			//var hisInfo = JSON.stringify(data.actions); 
 			if(data.messageCode == undefined ){
-				if(data.errorYn == "Y"){
+				if(data.errorYn != "N"){
+					// 조회 실패할경우
+					jAlert(data.message, "알림창");
 					logHtml = gfnReplace(  data.consoleText , "\n" , "</br>");
 					$('#fileContent').html(logHtml);
 				}else{
