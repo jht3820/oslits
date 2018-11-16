@@ -237,6 +237,8 @@ function fnSearchDeptList(){
 	//AJAX 전송 성공 함수
 	ajaxObj.setFnSuccess(function(data){
 		data = JSON.parse(data);
+		
+		var listSize = data.deptList.length;
     	
 		$('#deptInfoFrm')[0].reset();
 		
@@ -277,9 +279,11 @@ function fnSearchDeptList(){
 				showIcon : function(treeId, treeNode) {
 					
 					if(typeof zTree != "undefined" && !treeNode.isParent){
-						treeNode.isParent = true;
-						zTree.updateNode(treeNode);
-						zTree.refresh();
+						if(listSize>1){
+							treeNode.isParent = true;
+							zTree.updateNode(treeNode);
+							zTree.refresh();	
+						}
 					}
 					return true;
 				}
