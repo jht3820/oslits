@@ -122,8 +122,12 @@
 			
 			<img class="logo" src="/images/login/login_logo_osl.png"/> <!--  alt="국방전산정보원 로고" -->
 			<!-- <div class="div_title_txt">SW형상관리시범체계</div> -->
-			<input type="text" name="usrId" id="usrId" placeholder="Username" title="로그인" >
-			<input type="password" name="usrPw" id="usrPw" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;" style="margin-bottom:20px;" title="패스워드" >
+			<input type="text" name="usrId" id="usrId" placeholder="Username" title="로그인" 
+			onkeyup="this.value=this.value.replace(/[^a-zA-Z-_0-9]/g,'');" maxlength="20"
+			>
+			<input type="password" name="usrPw" id="usrPw" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;" style="margin-bottom:20px;" title="패스워드" 
+			maxlength="200"
+			>
 			<a href="javascript:fnLoginAction();"><span class="login_button">Log In</span></a>	
 			<div class="join_find">
 					<c:if test="${not empty joinCheck and joinCheck eq 'Y'?true:false}">
