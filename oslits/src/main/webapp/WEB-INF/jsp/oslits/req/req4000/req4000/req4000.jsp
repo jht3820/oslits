@@ -221,6 +221,8 @@ function fnSearchMenuList(){
 	ajaxObj.setFnSuccess(function(data){
 		data = JSON.parse(data);
     	
+		var listSize = data.reqClsList.length;
+		
     	toast.push(data.message);
     	// zTree 설정 
 	    var setting = {
@@ -263,9 +265,11 @@ function fnSearchMenuList(){
 				},
 				showIcon : function(treeId, treeNode) {
 					if(typeof zTree != "undefined" && treeNode.level != 3 && !treeNode.isParent){
-						treeNode.isParent = true;
-						//zTree.updateNode(treeNode);
-						zTree.refresh();
+						if(listSize>1){
+							treeNode.isParent = true;
+							//zTree.updateNode(treeNode);
+							zTree.refresh();
+						}	
 						
 					}
 					return true;
