@@ -98,7 +98,7 @@ function fnReqSignComplete(rtnData){
 		data = JSON.parse(data);
 		
 		//에러 없는경우
-		if(data.errorYN != "Y"){
+		if(data.errorYn != "Y"){
 			jAlert(data.message,"알림");
 			axdom("#" + mySearch.getItemId("btn_search_sign")).click();
 		}
