@@ -67,8 +67,8 @@ $(document).ready(function() {
 		
 		/* 필수입력값 체크 공통 호출 */
 		var strFormId = "authGrpFrm";
-		var strCheckObjArr = ["authGrpNm", "authGrpDesc", "authGrpOrd", "authGrpUseCd"];
-		var sCheckObjNmArr = ["역할그룹 명", "역할그룹 설명", "우선순위", "사용 유무"];
+		var strCheckObjArr = ["authGrpNm", "authGrpOrd", "authGrpUseCd"];
+		var sCheckObjNmArr = ["역할그룹 명", "우선순위", "사용 유무"];
 		if(!gfnRequireCheck(strFormId, strCheckObjArr, sCheckObjNmArr)){
 			
 			// 저장 전 유효성 검사
