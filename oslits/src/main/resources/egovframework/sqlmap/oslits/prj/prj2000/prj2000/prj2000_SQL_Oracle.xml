@@ -12,7 +12,7 @@
 			SELECT	A.PRJ_ID
 				,	A.AUTH_GRP_ID
 			    ,	A.AUTH_GRP_NM
-			    ,	A.AUTH_GRP_DESC
+			    ,	NVL(A.AUTH_GRP_DESC, ' ') AS AUTH_GRP_DESC
 			    ,	A.CREATE_DT
 			    ,	A.USE_CD
 			    ,	A.ORD
