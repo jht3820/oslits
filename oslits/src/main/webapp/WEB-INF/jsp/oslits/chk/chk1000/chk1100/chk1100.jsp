@@ -37,6 +37,12 @@ $(document).ready(function(){
 function fnRequestEvent(type){
 	var item = firstGrid.list[firstGrid.selectedDataIndexs[0]];
 	
+	 //선택 데이터 없는경우
+	if(gfnIsNull(item)){
+	      jAlert("결재 대기 요구사항을 선택해주세요.","알림창");
+	      return false;
+	}
+	
 	var reqStatusCd = item.signCd;
 	if(reqStatusCd != "01"){
 		jAlert("승인상태가 대기 상태인 요구사항만 승인/반려가 가능합니다.","알림창");
