@@ -2143,6 +2143,10 @@ function gfnIsLength(objName,objDesc,size){
 (function($) {
 	var opt;
 	$.fn.printThis = function(options) {
+		
+	window.print();
+	return false;	
+		
 	opt = $.extend({}, $.fn.printThis.defaults, options);
 	var $element = this instanceof jQuery ? this : $(this);
 	
