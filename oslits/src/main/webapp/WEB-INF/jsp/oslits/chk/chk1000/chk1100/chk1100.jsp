@@ -399,7 +399,7 @@ function fnSearchBoxControl(){
 						}},
 						{label:"", labelWidth:"", type:"button", width:"60",style:"float:right;", key:"btn_excel_newReqDemand",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-file-excel' aria-hidden='true'></i>&nbsp;<span>엑셀</span>",
 							onclick:function(){
-								firstGrid.exportExcel("요구사항 검수 승인_거부 목록.xls");
+								firstGrid.exportExcel("${sessionScope.selMenuNm}.xls");
 						}},
 						
 						{label:"", labelWidth:"", type:"button", width:"55",style:"float:right;", key:"btn_search_sign",valueBoxStyle:"padding-left:0px;padding-right:5px;", value:"<i class='fa fa-list' aria-hidden='true'></i>&nbsp;<span>조회</span>",
