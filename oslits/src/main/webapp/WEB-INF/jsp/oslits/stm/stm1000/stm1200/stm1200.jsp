@@ -235,7 +235,7 @@ function fnSearchBoxControl(){
 						
 						{label:"", labelWidth:"", type:"button", width:"55",style:"float:right;", key:"btn_excel_api",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-file-excel' aria-hidden='true'></i>&nbsp;<span>엑셀</span>",
 							onclick:function(){
-								firstGrid.exportExcel("전체 API 토큰 목록.xls");
+								firstGrid.exportExcel("${sessionScope.selMenuNm}.xls");
 						}},
 						
 						{label:"", labelWidth:"", type:"button", width:"55", key:"btn_search_api",style:"float:right;", valueBoxStyle:"padding:5px;", value:"<i class='fa fa-list' id='btn_search_api' aria-hidden='true'></i>&nbsp;<span>조회</span>",

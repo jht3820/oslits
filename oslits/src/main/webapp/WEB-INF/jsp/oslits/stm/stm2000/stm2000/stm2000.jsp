@@ -273,7 +273,7 @@ function fnSearchBoxControl(){
 						
 						{label:"", labelWidth:"", type:"button", width:"55",style:"float:right;", key:"btn_excel_svn",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-file-excel' aria-hidden='true'></i>&nbsp;<span>엑셀</span>",
 							onclick:function(){
-								firstGrid.exportExcel("REPOSITORY 설정 목록.xls");
+								firstGrid.exportExcel("${sessionScope.selMenuNm}.xls");
 						}},
 						
 						{label : "",labelWidth : "",type : "button",width : "55",key : "btn_delete_svn",style : "float:right;",valueBoxStyle : "padding:5px;",value : "<i class='fa fa-trash-alt' aria-hidden='true'></i>&nbsp;<span>삭제</span>",
