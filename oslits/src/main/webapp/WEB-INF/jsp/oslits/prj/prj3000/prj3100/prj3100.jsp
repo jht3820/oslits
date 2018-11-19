@@ -802,7 +802,7 @@
 					</div>
 					<div class="menu_row menu_oneRow">
 						<div class="menu_col1 oneRow_col1"><label for="docFormFileId">개발문서 마감일</label></div>
-						<div class="menu_col2 oneRow_col2"><input id="docEdDtm" type="text" name="docEdDtm" class="calendar_input" readonly="readonly" tabindex=1 style="width: 41.7%;"/></div>
+						<div class="menu_col2 oneRow_col2"><input id="docEdDtm" type="text" name="docEdDtm" class="calendar_input" disabled="disabled" readonly="readonly" tabindex=1 style="width: 41.7%;"/></div>
  					</div>
 
 					<div class="menu_row menu_oneRow" style="margin-bottom: 20px; height: 70px;">
