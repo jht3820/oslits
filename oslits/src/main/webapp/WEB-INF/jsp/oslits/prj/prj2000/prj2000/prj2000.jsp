@@ -459,37 +459,37 @@ function fnValToChk(chkObj,index){
 								<th class="right_sub_title wd_2_3">메인</th>
 								<th class="right_sub_title wd_2_4" >
 									<div class="prj_chk"> 
-										<input type="checkbox" title="체크박스" style="left:calc(50% - 22px);" name="accessYn" id="prjAuthAll_ch1"/><label></label><span class="title_align">접근</span>
+										<input type="checkbox" title="체크박스" style="left:calc(50% - 23px);" name="accessYn" id="prjAuthAll_ch1"/><label></label><span class="title_align">접근</span>
 									</div>
 								</th>
 								<th class="right_sub_title wd_2_5">
 									<div class="prj_chk">
-										<input type="checkbox" title="체크박스" style="left:calc(50% - 22px);" name="selectYn" id="prjAuthAll_ch2"/><label></label><span class="title_align">조회</span>
+										<input type="checkbox" title="체크박스" style="left:calc(50% - 23px);" name="selectYn" id="prjAuthAll_ch2"/><label></label><span class="title_align">조회</span>
 									</div>
 								</th>
 								<th class="right_sub_title wd_2_6">
 									<div class="prj_chk">
-										<input type="checkbox" title="체크박스" style="left:calc(50% - 22px);" name="regYn" id="prjAuthAll_ch3"/><label></label><span class="title_align">등록</span>
+										<input type="checkbox" title="체크박스" style="left:calc(50% - 23px);" name="regYn" id="prjAuthAll_ch3"/><label></label><span class="title_align">등록</span>
 									</div>
 								</th>
 								<th class="right_sub_title wd_2_7">
 									<div class="prj_chk">
-										<input type="checkbox" title="체크박스" style="left:calc(50% - 22px);" name="modifyYn" id="prjAuthAll_ch4"/><label></label><span class="title_align">수정</span>
+										<input type="checkbox" title="체크박스" style="left:calc(50% - 23px);" name="modifyYn" id="prjAuthAll_ch4"/><label></label><span class="title_align">수정</span>
 									</div>
 								</th>
 								<th class="right_sub_title wd_2_8">
 									<div class="prj_chk">
-										<input type="checkbox" title="체크박스" style="left:calc(50% - 22px);" name="delYn" id="prjAuthAll_ch5"/><label></label><span class="title_align">삭제</span>
+										<input type="checkbox" title="체크박스" style="left:calc(50% - 23px);" name="delYn" id="prjAuthAll_ch5"/><label></label><span class="title_align">삭제</span>
 									</div>
 								</th>
 								<th class="right_sub_title wd_2_9">
 									<div class="prj_chk">
-										<input type="checkbox" title="체크박스" style="left:calc(50% - 22px);" name="excelYn" id="prjAuthAll_ch6"/><label></label><span class="title_align">엑셀</span>
+										<input type="checkbox" title="체크박스" style="left:calc(50% - 23px);" name="excelYn" id="prjAuthAll_ch6"/><label></label><span class="title_align">엑셀</span>
 									</div>
 								</th>
 								<th class="right_sub_title wd_2_10">
 									<div class="prj_chk">
-										<input type="checkbox" title="체크박스" style="left:calc(50% - 22px);" name="printYn" id="prjAuthAll_ch7"/><label></label><span class="title_align">출력</span>
+										<input type="checkbox" title="체크박스" style="left:calc(50% - 31px);" name="printYn" id="prjAuthAll_ch7"/><label></label><span class="title_align">출력</span>
 									</div>
 								</th>
 							</tr>
