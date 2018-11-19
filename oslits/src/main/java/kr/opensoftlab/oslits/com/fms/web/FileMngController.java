@@ -357,7 +357,7 @@ public class FileMngController {
 	    		boolean zipMakeChk = true;
 	    		try{
 	    			//압축 파일 생성
-	    			zipOut = new ZipOutputStream(new FileOutputStream(zipFilePath+zipFileName));
+	    			zipOut = new ZipOutputStream(new FileOutputStream(zipFilePath+zipFileName),Charset.forName("EUC-KR"));
 		    		
 	    			
 	    			//FileSns 루프 돌면서 파일 데이터 가져오기
