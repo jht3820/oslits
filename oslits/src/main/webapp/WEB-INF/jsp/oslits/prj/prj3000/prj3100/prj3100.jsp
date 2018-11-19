@@ -713,7 +713,7 @@
 					if (this.docFileSn != null && this.docFileSn != "") {
 						//배열로 세팅
 						fileInfo = fileInfo + "downFile=" + this.docAtchFileId
-								+ ";" + this.docFileSn + "&";
+								+ ";" + this.docFileSn+";"+this.docNm + "&";
 						fileChk++;
 					}
 				});
