@@ -478,7 +478,7 @@
 									},
 									{label : "",labelWidth : "",type : "button",width : "55",key : "btn_excel_usr",style : "float:right;",valueBoxStyle : "padding:5px;",value : "<i class='fa fa-file-excel' aria-hidden='true'></i>&nbsp;<span>엑셀</span>",
 										onclick : function() {
-											firstGrid.exportExcel("all_user_list.xls");
+											firstGrid.exportExcel("${sessionScope.selMenuNm}.xls");
 										}
 									},
 									{label : "",labelWidth : "",type : "button",width : "55",key : "btn_delete_usr", style : "float:right;",valueBoxStyle : "padding:5px;", value : "<i class='fa fa-trash-alt' aria-hidden='true'></i>&nbsp;<span>삭제</span>",
