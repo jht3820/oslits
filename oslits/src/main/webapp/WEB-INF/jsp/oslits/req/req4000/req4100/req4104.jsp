@@ -1322,7 +1322,7 @@ function fnZipDownload(){
 	var fileInfo = "";
 	$.each($('.file_contents'),function(){
 		//배열로 세팅
-		fileInfo = fileInfo+"downFile="+fileAtchFileId+";"+$(this).attr('filesn')+"&";
+		fileInfo = fileInfo+"downFile="+fileAtchFileId+";"+$(this).attr('filesn')+";zipDownload&";
 	});
 	
 	$.download('/com/fms/ZipFileDown.do',fileInfo.slice(0,-1),'post');

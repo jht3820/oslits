@@ -354,7 +354,7 @@ function fnRequestAccept(){
 				
 				//요구사항 목록페이지인경우 그리드 새로고침
 	    		if(typeof fnInGridListSet == "function"){
-	    			fnInGridListSet(0)
+	    			fnInGridListSet(firstGrid.page.currentPage,mySearch.getParam());
 	    		}
 				
 				//팝업 창 닫기

@@ -212,7 +212,7 @@ img.ui-datepicker-trigger {margin-bottom: 7px; }
            						}},
 							{label:"", labelWidth:"", type:"button", width:"55", key:"btn_excel_newReqDemand",style:"float:right;",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-file-excel' aria-hidden='true'></i>&nbsp;<span>엑셀</span>",
 	       						onclick:function(){
-	       							firstGrid.exportExcel("all_user_login_list.xls");
+	       							firstGrid.exportExcel("${sessionScope.selMenuNm}.xls");
 	       						}},
 							{label:"", labelWidth:"", type:"button", width:"55", key:"btn_search_login",style:"float:right;", valueBoxStyle:"padding:5px;", value:"<i class='fa fa-list' aria-hidden='true'></i>&nbsp;<span>조회</span>",
 							onclick:function(){					
