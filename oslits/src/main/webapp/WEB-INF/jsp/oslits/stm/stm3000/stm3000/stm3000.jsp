@@ -274,7 +274,7 @@ function fnSearchBoxControl(){
 						}},
 						{label:"", labelWidth:"", type:"button", width:"55",style:"float:right;", key:"btn_excel_jenkins",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-file-excel' aria-hidden='true'></i>&nbsp;<span>엑셀</span>",
 							onclick:function(){
-								firstGrid.exportExcel("JENKINS 설정 목록.xls");
+								firstGrid.exportExcel("${sessionScope.selMenuNm}.xls");
 						}},
 						{label : "",labelWidth : "",type : "button",width : "55",key : "btn_delete_jenkins",style : "float:right;",valueBoxStyle : "padding:5px;",value : "<i class='fa fa-trash-alt' aria-hidden='true'></i>&nbsp;<span>삭제</span>",
 							onclick : function() {
