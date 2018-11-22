@@ -234,6 +234,11 @@ public class Req4100ServiceImpl extends EgovAbstractServiceImpl implements Req41
 			
 			data.put("reqOrd", newReqOrd);
 			
+			//atch_file_id 강제 생성
+			String atchFileIdString = idgenService.getNextStringId();
+			fileMngService.insertFileMasterInfo(atchFileIdString);
+			data.put("atchFileId",atchFileIdString);
+			
 			// 엑셀 업로드 요구사항 등록
 			req4100DAO.insertReq4100ReqInfoAjax(data);
 		}
