@@ -2685,6 +2685,7 @@ function fnReqChargerChg(){
 					
 					//PK ID 가져오기
 					fd.append("reqId",reqId);
+					fd.append("reqNm",$('#reqNm').val());
 					fd.append("reqChargerId",objs[0].usrId);
 					
 					$('#reqChargerId').val(objs[0].usrId);
