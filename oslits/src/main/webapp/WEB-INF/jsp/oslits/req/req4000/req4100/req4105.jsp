@@ -52,7 +52,7 @@ div#req4105_reqOptDataList .req4105_default_option {
 .req4105_option_half {float: left;height: 45px;line-height: 30px;width: 25%;border-bottom: 1px solid #ccc;padding:5px;}
 input.req4105_input_text {min-width: 190px;height: 100%;border: 1px solid #ccc;display: block;padding-left: 15px;border-radius: 1px;}
 textarea.req4105_textarea {width: 100%;height: 100%;resize: none;padding: 5px;border: 1px solid #ccc;border-radius: 1px;}
-input.req4105_input_date {width: 195px;float: left;display: block;border-radius: 1px;height: 100% !important;background-color: #fff !important;border: 1px solid #ccc;text-align: center;}
+input.req4105_input_date {width: 100%;float: left;display: block;border-radius: 1px;height: 100% !important;background-color: #fff !important;border: 1px solid #ccc;text-align: center;}
 input.req4105_charger,input.req4105_optCharger,input.req4105_cls,input.req4105_deploy {width: 195px !important;min-width: 100px;display: inline-block;float: left;margin-right: 5px;}
 span.req4105_charger,span.req4105_optCharger,span.req4105_cls,span.req4105_deploy{height: 34px;line-height: 30px;width:30px;min-width: 30px;}
 input.req4105_input_check {width: 100%;height: 80%;}
@@ -869,7 +869,7 @@ function fnTopReqChgDivSetData(reqChgList){
 					'<div class="req4105_dplBox" flowid="'+map.chgFlowId+'">'
 						+'<div class="req4105_option_title">배포 계획</div>'
 						+'<div class="req4105_option_all">'
-						+'	<input type="hidden" name="dplId_'+map.chgFlowId+'" id="dplId_'+map.chgFlowId+'" title="배포 계획" opttype="04" opttarget="03" optflowid="'+map.chgFlowId+'"/>'
+						+'	<input type="hidden" name="dplId_'+map.chgFlowId+'" id="dplId_'+map.chgFlowId+'" title="배포 계획" opttype="05" opttarget="03" optflowid="'+map.chgFlowId+'"/>'
 						+'	<input type="text" title="배포 계획" class="req4105_input_text req4105_deploy" name="dplNm_'+map.chgFlowId+'" id="dplNm_'+map.chgFlowId+'" modifyset="02" flowid="'+map.chgFlowId+'"/>'
 						+'	<span class="button_normal2 fl req4105_deploy btn_select_dplId" id="btn_select_dplId" flowid="'+map.chgFlowId+'"><li class="fa fa-search"></li></span>'
 						+'</div>'
