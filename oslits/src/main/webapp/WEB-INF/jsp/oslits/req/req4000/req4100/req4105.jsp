@@ -1926,7 +1926,9 @@ function fnReqFlowChgBeforeSucc(){
 			selFLowId = $("#req4105_reqRightDataList .req4105_flowFrameBox").attr("id");
 			selFlowNextId = $("#req4105_reqRightDataList .req4105_flowFrameBox").attr("nextid");
 			
-			fnReqFlowChgSucc();
+			if(fnEndFlowCheck(selFlowNextId)){
+				fnReqFlowChgSucc();
+			}
 			return false;
 		}
 		
@@ -1945,6 +1947,25 @@ function fnReqFlowChgBeforeSucc(){
 		});
 	}
 }
+//다음 작업흐름이 최종완료인지 체크하고 작업 시작, 종료일자 필수 넣기
+function fnEndFlowCheck(selFlowNextId){
+	//작업흐름이 필수 일때
+	if(gfnIsNull(selFlowNextId) || selFlowNextId == "null"){
+		//필수 항목
+		var reqStDtmChk = $("#reqStDtm").val();
+		var reqEdDtmChk = $("#reqEdDtm").val();
+		
+		//항목 필수 체크
+		if(gfnIsNull(reqStDtmChk) || gfnIsNull(reqEdDtmChk)){
+			jAlert("요구사항 최종완료 단계에는<br>작업 시작일자, 작업 종료일자 항목이 필수 입니다.","알림창");
+			fnReqFlowChgCancle();
+			return false;
+		}else{
+			return true;
+		}
+	}
+	return true;
+}
 
 //다음 작업흐름 선택창 닫기
 function fnReqFlowChgCancle(){
@@ -1962,9 +1983,11 @@ function fnReqFlowChgSucc(){
 		jAlert("다음 작업흐름 목록에서<br>작업흐름을 선택해주세요.", "알림");
 		return false;
 	}
+	if(fnEndFlowCheck(selFlowNextId)){
+		//실제 저장 처리
+		fnReqFlowChgSuccAction();
+	}
 	
-	//실제 저장 처리
-	fnReqFlowChgSuccAction();
 }
 
 //항목 조회 및 실제 저장 처리
