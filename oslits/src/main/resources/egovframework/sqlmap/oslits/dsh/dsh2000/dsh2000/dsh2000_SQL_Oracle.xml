@@ -228,14 +228,14 @@
 			FROM
 			(
 				SELECT 
-                	CASE WHEN A.REQ_ED_DTM IS NULL THEN
-                    	 	CASE WHEN A.REQ_ED_DU_DTM < SYSDATE THEN '03'
-                            WHEN A.REQ_ED_DU_DTM < (SYSDATE-3) THEN '02'
-                            ELSE '01' END 
-                		ELSE
-                        	CASE WHEN A.REQ_ED_DU_DTM < A.REQ_ED_DTM THEN '04'
-                            ELSE '05' END 
-                        END	AS OVER_TYPE
+                	CASE A.REQ_PRO_TYPE WHEN '04' THEN
+                		CASE WHEN TO_DATE(TO_CHAR(A.REQ_ED_DU_DTM,'YYYY-MM-DD'),'YYYY-MM-DD') < TO_DATE(TO_CHAR(NVL(A.REQ_ED_DTM,SYSDATE),'YYYY-MM-DD'),'YYYY-MM-DD') THEN '04'
+		                ELSE '05' END 
+		            ELSE
+		            	CASE WHEN TO_DATE(TO_CHAR(A.REQ_ED_DU_DTM,'YYYY-MM-DD'),'YYYY-MM-DD') < TO_DATE(TO_CHAR(NVL(A.REQ_ED_DTM,SYSDATE),'YYYY-MM-DD'),'YYYY-MM-DD') THEN '03'
+                        	WHEN TO_DATE(TO_CHAR(A.REQ_ED_DU_DTM,'YYYY-MM-DD'),'YYYY-MM-DD') < TO_DATE(TO_CHAR(NVL(A.REQ_ED_DTM,SYSDATE)-3,'YYYY-MM-DD'),'YYYY-MM-DD') THEN '02'
+                        ELSE '01' END 
+		            END	AS OVER_TYPE
 			        ,A.PROCESS_ID
 			    FROM REQ4100 A
 			    WHERE 1=1
