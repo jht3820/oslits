@@ -52,7 +52,7 @@ div#req4105_reqOptDataList .req4105_default_option {
 .req4105_option_half {float: left;height: 45px;line-height: 30px;width: 25%;border-bottom: 1px solid #ccc;padding:5px;}
 input.req4105_input_text {min-width: 190px;height: 100%;border: 1px solid #ccc;display: block;padding-left: 15px;border-radius: 1px;}
 textarea.req4105_textarea {width: 100%;height: 100%;resize: none;padding: 5px;border: 1px solid #ccc;border-radius: 1px;}
-input.req4105_input_date {width: 195px;float: left;display: block;border-radius: 1px;height: 100% !important;background-color: #fff !important;border: 1px solid #ccc;text-align: center;}
+input.req4105_input_date {width: 100%;float: left;display: block;border-radius: 1px;height: 100% !important;background-color: #fff !important;border: 1px solid #ccc;text-align: center;}
 input.req4105_charger,input.req4105_optCharger,input.req4105_cls,input.req4105_deploy {width: 195px !important;min-width: 100px;display: inline-block;float: left;margin-right: 5px;}
 span.req4105_charger,span.req4105_optCharger,span.req4105_cls,span.req4105_deploy{height: 34px;line-height: 30px;width:30px;min-width: 30px;}
 input.req4105_input_check {width: 100%;height: 80%;}
@@ -869,7 +869,7 @@ function fnTopReqChgDivSetData(reqChgList){
 					'<div class="req4105_dplBox" flowid="'+map.chgFlowId+'">'
 						+'<div class="req4105_option_title">배포 계획</div>'
 						+'<div class="req4105_option_all">'
-						+'	<input type="hidden" name="dplId_'+map.chgFlowId+'" id="dplId_'+map.chgFlowId+'" title="배포 계획" opttype="04" opttarget="03" optflowid="'+map.chgFlowId+'"/>'
+						+'	<input type="hidden" name="dplId_'+map.chgFlowId+'" id="dplId_'+map.chgFlowId+'" title="배포 계획" opttype="05" opttarget="03" optflowid="'+map.chgFlowId+'"/>'
 						+'	<input type="text" title="배포 계획" class="req4105_input_text req4105_deploy" name="dplNm_'+map.chgFlowId+'" id="dplNm_'+map.chgFlowId+'" modifyset="02" flowid="'+map.chgFlowId+'"/>'
 						+'	<span class="button_normal2 fl req4105_deploy btn_select_dplId" id="btn_select_dplId" flowid="'+map.chgFlowId+'"><li class="fa fa-search"></li></span>'
 						+'</div>'
@@ -1926,7 +1926,9 @@ function fnReqFlowChgBeforeSucc(){
 			selFLowId = $("#req4105_reqRightDataList .req4105_flowFrameBox").attr("id");
 			selFlowNextId = $("#req4105_reqRightDataList .req4105_flowFrameBox").attr("nextid");
 			
-			fnReqFlowChgSucc();
+			if(fnEndFlowCheck(selFlowNextId)){
+				fnReqFlowChgSucc();
+			}
 			return false;
 		}
 		
@@ -1945,6 +1947,25 @@ function fnReqFlowChgBeforeSucc(){
 		});
 	}
 }
+//다음 작업흐름이 최종완료인지 체크하고 작업 시작, 종료일자 필수 넣기
+function fnEndFlowCheck(selFlowNextId){
+	//작업흐름이 필수 일때
+	if(gfnIsNull(selFlowNextId) || selFlowNextId == "null"){
+		//필수 항목
+		var reqStDtmChk = $("#reqStDtm").val();
+		var reqEdDtmChk = $("#reqEdDtm").val();
+		
+		//항목 필수 체크
+		if(gfnIsNull(reqStDtmChk) || gfnIsNull(reqEdDtmChk)){
+			jAlert("요구사항 최종완료 단계에는<br>작업 시작일자, 작업 종료일자 항목이 필수 입니다.","알림창");
+			fnReqFlowChgCancle();
+			return false;
+		}else{
+			return true;
+		}
+	}
+	return true;
+}
 
 //다음 작업흐름 선택창 닫기
 function fnReqFlowChgCancle(){
@@ -1962,9 +1983,11 @@ function fnReqFlowChgSucc(){
 		jAlert("다음 작업흐름 목록에서<br>작업흐름을 선택해주세요.", "알림");
 		return false;
 	}
+	if(fnEndFlowCheck(selFlowNextId)){
+		//실제 저장 처리
+		fnReqFlowChgSuccAction();
+	}
 	
-	//실제 저장 처리
-	fnReqFlowChgSuccAction();
 }
 
 //항목 조회 및 실제 저장 처리
@@ -2662,6 +2685,7 @@ function fnReqChargerChg(){
 					
 					//PK ID 가져오기
 					fd.append("reqId",reqId);
+					fd.append("reqNm",$('#reqNm').val());
 					fd.append("reqChargerId",objs[0].usrId);
 					
 					$('#reqChargerId').val(objs[0].usrId);

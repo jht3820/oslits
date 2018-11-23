@@ -234,6 +234,11 @@ public class Req4100ServiceImpl extends EgovAbstractServiceImpl implements Req41
 			
 			data.put("reqOrd", newReqOrd);
 			
+			//atch_file_id 강제 생성
+			String atchFileIdString = idgenService.getNextStringId();
+			fileMngService.insertFileMasterInfo(atchFileIdString);
+			data.put("atchFileId",atchFileIdString);
+			
 			// 엑셀 업로드 요구사항 등록
 			req4100DAO.insertReq4100ReqInfoAjax(data);
 		}
@@ -808,6 +813,22 @@ public class Req4100ServiceImpl extends EgovAbstractServiceImpl implements Req41
 	@SuppressWarnings("rawtypes")
 	public void updateReq4100ReqChargerChgInfoAjax(Map paramMap) throws Exception{
 		req4100DAO.updateReq4100ReqChargerChgInfoAjax(paramMap);
+		
+		String reqId = (String)paramMap.get("reqId");
+		String reqNm = (String)paramMap.get("reqNm");
+		String prjId = (String)paramMap.get("prjId");
+		String prjGrpId = (String)paramMap.get("prjGrpId");
+			//현재 담당자에게 쪽지 발송
+		Map<String,String> armMap = new HashMap<String,String>();
+		armMap.put("usrId", (String) paramMap.get("reqChargerId"));
+		armMap.put("sendUsrId", (String) paramMap.get("usrId"));
+		armMap.put("title", "["+reqNm+"] 접수 완료 요구사항에 담당자로 이관되었습니다.");
+		armMap.put("content", "["+reqNm+"] 접수 완료 요구사항에 담당자로 이관되었습니다.<br>해당 요구사항을 확인해주세요.");
+		armMap.put("reqIds", "<span name='tagReqId' id='tagReqId' prj-grp-id='"+prjGrpId+"' prj-id='"+prjId+"' req-id='"+reqId+"' onclick='fnSpanReq4105Open(this)'>"+reqNm+"<li class='fa fa-share'></li></span>");
+			
+			//쪽지 등록
+		arm1000DAO.insertArm1000AlarmInfo(armMap);
+		
 	}
 	
 	/**

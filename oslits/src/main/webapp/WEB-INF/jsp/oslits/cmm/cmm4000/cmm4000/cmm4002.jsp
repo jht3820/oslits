@@ -49,7 +49,7 @@ $(function(){
 		var popUsrId = $('#popUsrId').val();
 		
 		if(popUsrPw != popUsrPw2){
-			jAlert("재입력한 비밀번호와 비밀번호가 다릅니다.","알림창");
+			jAlert("비밀번호가 일치하지 않습니다.","알림창");
 			return false;
 		}
 		
