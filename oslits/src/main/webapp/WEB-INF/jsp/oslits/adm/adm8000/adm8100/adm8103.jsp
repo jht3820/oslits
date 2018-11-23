@@ -18,16 +18,17 @@
 .report_main{  width: 100%; margin-top: 20px;display:inline-block; }
 
 .sign_table{ border-collapse: collapse; width: 65%;float:right; }
-.sign_table td,th{   border: 0.5px solid  #878787;  }
+.sign_table td,th{   border: 1px solid  #878787;  }
 .sign_table .sign_td1{ height: 25px; }
 .sign_table .sign_td2{ height: 25px;text-align:left; }
 
 .report_table{ border-collapse: collapse; width: 100%; }
-.report_table td{   border: 0.5px solid  #878787; height: 22px; }
+.report_table td{   border: 1px solid  #878787; height: 22px; }
 
 </style>
 <script type="text/javascript">
 	var popSearch;
+	var itemList  = [];
 	$(document).ready(function() {
 		
 		// 팝업 화면 유형 구분값 - 등록/수정/상세
@@ -74,6 +75,7 @@
 			$('#chargerNm').html(reportInfo.chargerNm);
 			$('#pmNm').html(reportInfo.pmNm);
 			var list = data.list;
+			itemList = data.list;
 			var itemCd = "";
 			var lastItemCd = "";
 			var indexCd = "";
@@ -105,7 +107,7 @@
 				html += '	<td>'+nvl(list[i].apprVal)+'</td>';
 				html += '	<td>'+nvl(list[i].optVal)+'</td>';
 				html += '	<td>'+nvl(list[i].modifyApprVal)+'</td>';
-				html += '	<td style="border-right:1px solid  #000000;">'+nvl(list[i].modifyOptVal)+'</td>';
+				html += '	<td id="rep_data_td'+i+'" >'+nvl(list[i].modifyOptVal)+'</td>';
 								
 				
 				html += '</tr>';
@@ -185,25 +187,25 @@
 					</thead>
 					<tbody>
 						<tr>
-							<td class="sign_td1" style="border-top:1px solid  #000000;" >팀장</td>
-							<td class="sign_td2" style="border-right:none;border-top:1px solid  #000000;" >
+							<td class="sign_td1" id="sign_tr1_td1"  >팀장</td>
+							<td class="sign_td2" id="sign_tr1_td2"  >
 								<span id="tmNm" style="margin-left: 20px;" ></span>
 							</td>
-							<td class="sign_td3" style="border-left:none;border-right:1px solid  #000000;border-top:1px solid  #000000;" >(서명)</td>
+							<td class="sign_td3" id="sign_tr1_td3"  >(서명)</td>
 						</tr>
 						<tr>
-							<td class="sign_td1" >담당</td>
-							<td class="sign_td2" style="border-right:none;" >
+							<td class="sign_td1" id="sign_tr2_td1" >담당</td>
+							<td class="sign_td2" id="sign_tr2_td2"  >
 								<span id="chargerNm" style="margin-left: 20px;" ></span>
 							</td>
-							<td class="sign_td3" style="border-left:none;border-right:1px solid  #000000;" >(서명)</td>
+							<td class="sign_td3" id="sign_tr2_td3"  >(서명)</td>
 						</tr>
 						<tr>
-							<td class="sign_td1"  >PM</td>
-							<td class="sign_td2" style="border-right:none;" >
+							<td class="sign_td1" id="sign_tr3_td1" >PM</td>
+							<td class="sign_td2" id="sign_tr3_td2"  >
 								<span id="pmNm" style="margin-left: 20px;" ></span>
 							</td>
-							<td class="sign_td3" style="border-left:none;border-right:1px solid  #000000;" >(서명)</td>
+							<td class="sign_td3" id="sign_tr3_td3"  >(서명)</td>
 						</tr>
 					</tbody>
 				</table>
@@ -223,22 +225,22 @@
 							<td style="width:41.5px;"></td>													
 					</tr>
 					<tr class="headerRow" >
-						<td style="hight:75px;border-top:1px solid  #000000;" rowspan="3">지표<br>구분</td>
-						<td style="hight:75px;border-top:1px solid  #000000;" rowspan="3">측&nbsp;정&nbsp;항&nbsp;목</td>
-						<td style="hight:75px;border-top:1px solid  #000000;" rowspan="3">가중치<br>(%)</td>
-						<td style="hight:75px;border-top:1px solid  #000000;" rowspan="3">보고/<br>평가주기</td>
-						<td style="hight:25px;border-top:1px solid  #000000;" colspan="2">KIDA&nbsp;보고서</td>
-						<td style="hight:25px;border-right:1px solid  #000000;border-top:1px solid  #000000;" colspan="3">검토결과</td>
+						<td id="rep_tr1_td1" style="hight:75px;" rowspan="3">지표<br>구분</td>
+						<td id="rep_tr1_td2" style="hight:75px;" rowspan="3">측&nbsp;정&nbsp;항&nbsp;목</td>
+						<td id="rep_tr1_td3" style="hight:75px;" rowspan="3">가중치<br>(%)</td>
+						<td id="rep_tr1_td4" style="hight:75px;" rowspan="3">보고/<br>평가주기</td>
+						<td id="rep_tr1_td5" style="hight:25px;" colspan="2">KIDA&nbsp;보고서</td>
+						<td id="rep_tr1_td6" style="hight:25px;" colspan="3">검토결과</td>
 					</tr>
 					<tr class="headerRow">
-						<td style="hight:50px;" rowspan="2">측정값</td>
-						<td style="hight:50px;" rowspan="2">평가수준</td>
-						<td style="hight:50px;" rowspan="2">적정<br>/부정적</td>
-						<td style="hight:25px;border-right:1px solid  #000000;" colspan="2">변경값(부적정시)</td>
+						<td id="rep_tr2_td1" style="hight:50px;" rowspan="2">측정값</td>
+						<td id="rep_tr2_td2" style="hight:50px;" rowspan="2">평가수준</td>
+						<td id="rep_tr2_td3" style="hight:50px;" rowspan="2">적정<br>/부정적</td>
+						<td id="rep_tr2_td4" style="hight:25px;" colspan="2">변경값(부적정시)</td>
 					</tr>
 					<tr class="headerRow">
-						<td style="hight:25px;" >측정값</td>
-						<td style="hight:25px;border-right:1px solid  #000000" >평가수준</td>
+						<td id="rep_tr3_td1" style="hight:25px;" >측정값</td>
+						<td id="rep_tr3_td2" style="hight:25px;" >평가수준</td>
 					</tr>
 					
 
