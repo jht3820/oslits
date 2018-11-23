@@ -354,6 +354,8 @@ function fnGetPrjInfoAjax(treeNode){
 			
 			//Mask 제거
 			ax5Mask.close();
+			// 우측 상세정보 화면초기화
+			fnFormReset();
 			
 			//form data 채우기
 			gfnSetData2Form(prjInfo,"prjInfoFrm");
@@ -792,6 +794,13 @@ function fnHeaderHandle(objInfo,type){
 			fnHeaderHandle(parentNode,"update_useCd");
 		}
 	}
+}
+/** 
+ *	우측 상세정보 화면을 초기화 시킨다.
+ */
+function fnFormReset(){
+	$('#searchFrm')[0].reset();
+	$('#prjDesc').val('');
 }
 
 </script>
