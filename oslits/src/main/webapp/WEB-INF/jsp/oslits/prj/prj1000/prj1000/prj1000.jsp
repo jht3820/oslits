@@ -642,7 +642,11 @@ function fnDeletePrjInfoAjax(prjInfo){
        		//현재 선택된 프로젝트가 삭제된경우 새로고침
 			if(prjInfo.prjId == "${sessionScope.selPrjId}"){
 				jAlert("현재 선택된 프로젝트가 삭제되어 새로고침됩니다.","알림창",function(result){
-					location.reload();
+					if($("#header_select option:eq(0)").length > 0){
+						fnGoPrjChg($("#header_select option:eq(0)")[0]);
+					}else{
+						location.reload();
+					}
 				});
 			}
        		
