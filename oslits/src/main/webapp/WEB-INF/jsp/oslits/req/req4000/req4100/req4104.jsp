@@ -1858,22 +1858,26 @@ function fnReqWorkView(workList){
 	work_grid.setData(workList);
 }
 
+var btnFoldFlag = false;
 function fnOnFolding(){
-	var height = $(".req_top_div_fold1").css('height');
-
-	if(height=="690px"){
+	
+	if(btnFoldFlag){
 		$(".req_top_div_fold1").css('height','227px');
 		$('#foldSpan').attr('class','reqFoldingCursor down');
 		$(".req_fold_title_box").css('border-radius','0 0 5px 5px');
 		$('#sub_req_div_view').hide();
 		$(".req_sub_fold_contents").animate({scrollTop:0},0);	// 스크롤 최상단으로 이동
 		$(".req_sub_fold_contents").css('overflow-y','hidden'); // 세로 스크롤 숨기기
+		
+		btnFoldFlag = false;
 	}else{
 		$(".req_top_div_fold1").css('height','690px');
 		$('#foldSpan').attr('class','reqFoldingCursor up');
 		$(".req_fold_title_box").css('border-radius','0 0 5px 5px');
 		$('#sub_req_div_view').show();
 		$(".req_sub_fold_contents").css('overflow-y','auto');	// 글자가 많을 경우 세로 스크롤 활성화
+		
+		btnFoldFlag = true;
 	}
 }
 
