@@ -3122,10 +3122,6 @@ function fnReqDplSetting(reqDplList){
 						<div class="req_sub_right" id="reqNm"></div>
 					</div>
 					<div class="sub_line">
-						<div class="req_sub_left">요청자</div>
-						<div class="req_sub_right" id="reqUsrNm"></div>
-					</div>
-					<div class="sub_line">
 						<div class="req_sub_left">요청일</div>
 						<div class="req_sub_right" id="reqDtm"></div>
 					</div>
