@@ -86,13 +86,13 @@ $(document).ready(function() {
 	
 		//선택 객체가 없는경우 오류
 		if(gfnIsNull(selZtree)){
-			jAlert("프로젝트 그룹 또는 프로젝트를 선택해주세요.");
+			jAlert("프로젝트 그룹 또는 프로젝트를 선택해주세요.", "알림창");
 			return false;
 		}
 		
 		//사용유무 '02'인경우 하위 노드 추가 불가
 		if(selZtree.useCd == "02"){
-			jAlert("미 사용 프로젝트 그룹에는 추가할 수 없습니다.");
+			jAlert("미 사용 프로젝트 그룹에는 추가할 수 없습니다.", "알림창");
 			return false;
 		}
 		
