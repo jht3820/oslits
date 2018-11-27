@@ -73,7 +73,7 @@
 			if(iniYn == 'Y'){
 				
 				var data = { "usrId" : '${requestScope.usrId}'  };
-				gfnLayerPopupOpen('/cmm/cmm4000/cmm4002/selectCmm4002View.do', data , '500', '180','scroll');
+				gfnLayerPopupOpen('/cmm/cmm4000/cmm4002/selectCmm4002View.do', data , '550', '180','scroll');
 			}			
 			
 			//세션이 만료된 경우 세션 만료 메시지 띄움.

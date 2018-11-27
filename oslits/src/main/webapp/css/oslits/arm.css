@@ -14,8 +14,8 @@ div#AXAlarmSearchTarget {border: 1px solid #ccc;border-bottom: none;font-size: 1
 .viewHeaderLeft {float: left;width: 100px;padding: 8px;border-bottom: 1px solid #ccc;border-right: 1px solid #ccc;font-weight: bold;background-color: #ecf0fb;height: 33px;}
 .viewHeaderRight {float: left;width: 477px;padding: 8px;border-bottom: 1px solid #ccc;border-right: 1px solid #ccc;height: 33px;word-break: break-all;overflow-y: auto;}
 .armWriteMain {position: absolute;top: 40px;left: 0;width: 100%;height: 660px;background-color: #fff;font-size: 0.8em;padding: 10px 10px 0 10px;}
-.writeHeaderLeft {float: left;width: 280px;padding: 8px;border-bottom: 1px solid #ccc;border-right: 1px solid #ccc;font-weight: bold;height: 40px;background-color: #ecf0fb;padding-left: 30px;line-height: 20px;}
-.writeHeaderRight {float: left;width: 698px;padding: 4px;border-bottom: 1px solid #ccc;border-right: 1px solid #ccc;height: 40px;}
+.writeHeaderLeft {float: left;width: 279px;padding: 8px;border-bottom: 1px solid #ccc;border-right: 1px solid #ccc;font-weight: bold;height: 40px;background-color: #ecf0fb;padding-left: 30px;line-height: 20px;}
+.writeHeaderRight {float: left;width: 698px;padding: 4px;border-bottom: 1px solid #ccc;border-right: none;height: 40px;}
 .writeHeaderRight>input {width: 100%;height: 100%;}
 .writeHeaderRight>.arm_input_text {width: 150px;height: 100%;float: left;margin-right: 5px;}
 .armWriteBody {width: 100%;height: 380px;border: 1px solid #ccc;}

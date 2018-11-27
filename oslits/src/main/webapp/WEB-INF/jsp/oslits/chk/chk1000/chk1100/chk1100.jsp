@@ -37,6 +37,12 @@ $(document).ready(function(){
 function fnRequestEvent(type){
 	var item = firstGrid.list[firstGrid.selectedDataIndexs[0]];
 	
+	 //선택 데이터 없는경우
+	if(gfnIsNull(item)){
+	      jAlert("결재 대기 요구사항을 선택해주세요.","알림창");
+	      return false;
+	}
+	
 	var reqStatusCd = item.signCd;
 	if(reqStatusCd != "01"){
 		jAlert("승인상태가 대기 상태인 요구사항만 승인/반려가 가능합니다.","알림창");
@@ -98,7 +104,7 @@ function fnReqSignComplete(rtnData){
 		data = JSON.parse(data);
 		
 		//에러 없는경우
-		if(data.errorYN != "Y"){
+		if(data.errorYn != "Y"){
 			jAlert(data.message,"알림");
 			axdom("#" + mySearch.getItemId("btn_search_sign")).click();
 		}
@@ -393,7 +399,7 @@ function fnSearchBoxControl(){
 						}},
 						{label:"", labelWidth:"", type:"button", width:"60",style:"float:right;", key:"btn_excel_newReqDemand",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-file-excel' aria-hidden='true'></i>&nbsp;<span>엑셀</span>",
 							onclick:function(){
-								firstGrid.exportExcel("요구사항 검수 승인_거부 목록.xls");
+								firstGrid.exportExcel("${sessionScope.selMenuNm}.xls");
 						}},
 						
 						{label:"", labelWidth:"", type:"button", width:"55",style:"float:right;", key:"btn_search_sign",valueBoxStyle:"padding-left:0px;padding-right:5px;", value:"<i class='fa fa-list' aria-hidden='true'></i>&nbsp;<span>조회</span>",

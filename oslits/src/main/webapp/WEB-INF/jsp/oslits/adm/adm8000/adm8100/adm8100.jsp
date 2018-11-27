@@ -82,7 +82,7 @@ function fnAxGrid5View(){
                 	                	
                 	var data = {"meaDtm": item.meaDtm, "reportCd": item.reportCd, "reportNm": item.reportNm,"meaFmDtm" : item.meaFmDtm};
 					                	
-					gfnLayerPopupOpen('/adm/adm8000/adm8100/selectAdm8103View.do',data,"680","800",'scroll');
+					gfnLayerPopupOpen('/adm/adm8000/adm8100/selectAdm8103View.do',data,"680","870",'scroll');
                 }
             } ,
             page: {

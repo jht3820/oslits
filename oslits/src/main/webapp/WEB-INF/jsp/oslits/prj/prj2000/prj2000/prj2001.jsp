@@ -67,8 +67,8 @@ $(document).ready(function() {
 		
 		/* 필수입력값 체크 공통 호출 */
 		var strFormId = "authGrpFrm";
-		var strCheckObjArr = ["authGrpNm", "authGrpDesc", "authGrpOrd", "authGrpUseCd"];
-		var sCheckObjNmArr = ["역할그룹 명", "역할그룹 설명", "우선순위", "사용 유무"];
+		var strCheckObjArr = ["authGrpNm", "authGrpOrd", "authGrpUseCd"];
+		var sCheckObjNmArr = ["역할그룹 명", "우선순위", "사용 유무"];
 		if(!gfnRequireCheck(strFormId, strCheckObjArr, sCheckObjNmArr)){
 			
 			// 저장 전 유효성 검사
@@ -82,7 +82,7 @@ $(document).ready(function() {
 				fnUpdateAuthGrp();
 			}else{
 				// 권한그룹 등록 전 유효성 체크
-				fnInsertAuthGrp(newAuthGrpId);
+				fnInsertAuthGrp();
 			}	
 		}
 		
@@ -224,14 +224,14 @@ function fnSelectPrj2000AuthGrpInfoAjax(){
 				<input type="text" title="역할그룹 명" class="input_txt" id="authGrpNm" name="authGrpNm" />
 			</div>
 			
-			<div class="pop_left textarea_height">설명<span class="required_info">&nbsp;*</span></div>
+			<div class="pop_left textarea_height">설명</div>
 			<div class="pop_right textarea_height">
 				<textarea class="input_note" title="역할그룹 설명" id="authGrpDesc" name="authGrpDesc" style="height:100%;"></textarea>
 			</div>
 			
-			<div class="pop_left">우선순위<span class="required_info">&nbsp;*</span></div>
+			<div class="pop_left">정렬순서<span class="required_info">&nbsp;*</span></div>
 			<div class="pop_right">
-				<input type="number" title="우선순위" value="0"  id="authGrpOrd" name="authGrpOrd"/>
+				<input type="number" title="정렬순서" value="0"  id="authGrpOrd" name="authGrpOrd"/>
 			</div>
 			
 			<div class="pop_left">사용자유형<span class="required_info">&nbsp;*</span></div> 

@@ -86,13 +86,13 @@ $(document).ready(function() {
 	
 		//선택 객체가 없는경우 오류
 		if(gfnIsNull(selZtree)){
-			jAlert("프로젝트 그룹 또는 프로젝트를 선택해주세요.");
+			jAlert("프로젝트 그룹 또는 프로젝트를 선택해주세요.", "알림창");
 			return false;
 		}
 		
 		//사용유무 '02'인경우 하위 노드 추가 불가
 		if(selZtree.useCd == "02"){
-			jAlert("미 사용 프로젝트 그룹에는 추가할 수 없습니다.");
+			jAlert("미 사용 프로젝트 그룹에는 추가할 수 없습니다.", "알림창");
 			return false;
 		}
 		
@@ -124,7 +124,7 @@ $(document).ready(function() {
 		
 		//선택 객체가 없는경우 오류
 		if(gfnIsNull(selZtree)){
-			jAlert("프로젝트 그룹 또는 프로젝트를 선택해주세요.");
+			jAlert("프로젝트 그룹 또는 프로젝트를 선택해주세요.", "알림창");
 			return false;
 		}
 		
@@ -190,7 +190,7 @@ $(document).ready(function() {
 		
 		//선택 객체가 없는경우 오류
 		if(gfnIsNull(selZtree)){
-			jAlert("프로젝트 그룹 또는 프로젝트를 선택해주세요.");
+			jAlert("프로젝트 그룹 또는 프로젝트를 선택해주세요.", "알림창");
 			return false;
 		}
 		
@@ -354,6 +354,8 @@ function fnGetPrjInfoAjax(treeNode){
 			
 			//Mask 제거
 			ax5Mask.close();
+			// 우측 상세정보 화면초기화
+			fnFormReset();
 			
 			//form data 채우기
 			gfnSetData2Form(prjInfo,"prjInfoFrm");
@@ -642,7 +644,11 @@ function fnDeletePrjInfoAjax(prjInfo){
        		//현재 선택된 프로젝트가 삭제된경우 새로고침
 			if(prjInfo.prjId == "${sessionScope.selPrjId}"){
 				jAlert("현재 선택된 프로젝트가 삭제되어 새로고침됩니다.","알림창",function(result){
-					location.reload();
+					if($("#header_select option:eq(0)").length > 0){
+						fnGoPrjChg($("#header_select option:eq(0)")[0]);
+					}else{
+						location.reload();
+					}
 				});
 			}
        		
@@ -788,6 +794,13 @@ function fnHeaderHandle(objInfo,type){
 			fnHeaderHandle(parentNode,"update_useCd");
 		}
 	}
+}
+/** 
+ *	우측 상세정보 화면을 초기화 시킨다.
+ */
+function fnFormReset(){
+	$('#searchFrm')[0].reset();
+	$('#prjDesc').val('');
 }
 
 </script>

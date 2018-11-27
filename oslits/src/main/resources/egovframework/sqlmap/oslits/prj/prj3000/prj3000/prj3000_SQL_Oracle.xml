@@ -120,7 +120,7 @@
 			(
 					#newDocId#		,	#docId#			,	'개발문서'			,	#docFormFileId#	
 				,	#docFormFileSn#	,	''				,	#docAtchFileId#	,	#docFileSn#
-			    ,	''				,	#lvl# + 1	    ,	''				
+			    ,	''				,	#lvl# + 1	    ,	(SELECT NVL(MAX(ORD), 0) + 1 FROM PRJ3000 A WHERE 1=1 AND A.UPPER_DOC_ID = #docId#)				
 				,	TO_DATE(REPLACE(#docEdDtm#, '-'), 'YYYYMMDD')		
 			    ,	'01'			
 			    ,	SYSDATE			,	#regUsrId#		,	#regUsrIp#	    ,	SYSDATE			
