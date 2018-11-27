@@ -121,6 +121,18 @@ div.pop_sub .pop_right {width:72%;} /* common.css pop_left width값 오버라이
                 onClick: function () {
                 	popGrid.select(this.doindex, {selected: true});
                 }
+            },
+            page: {
+                navigationItemCount: 9,
+                height: 30,
+                display: true,
+                firstIcon: '<i class="fa fa-step-backward" aria-hidden="true"></i>',
+                prevIcon: '<i class="fa fa-caret-left" aria-hidden="true"></i>',
+                nextIcon: '<i class="fa fa-caret-right" aria-hidden="true"></i>',
+                lastIcon: '<i class="fa fa-step-forward" aria-hidden="true"></i>',
+                onChange: function () {
+                	fnInGridPopListSet(this.page.selectPage,popSearch.getParam());
+                }
             }
         });
         var ajaxParam = "&searchPopTxt=${param.usrNm}";
