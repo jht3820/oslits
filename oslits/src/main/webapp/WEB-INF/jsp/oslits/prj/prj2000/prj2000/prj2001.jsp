@@ -82,7 +82,7 @@ $(document).ready(function() {
 				fnUpdateAuthGrp();
 			}else{
 				// 권한그룹 등록 전 유효성 체크
-				fnInsertAuthGrp(newAuthGrpId);
+				fnInsertAuthGrp();
 			}	
 		}
 		
