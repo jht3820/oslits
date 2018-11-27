@@ -83,7 +83,7 @@ $(document).ready(function() {
 		/* 달력 세팅(시작일, 종료일) */
 		gfnCalRangeSet("startDt", "endDt", prjGrpStartDt, prjGrpEndDt);
 		
-		/* jAlert("프로젝트 그룹 생성을 완료하셨습니다.", "알림", function( result ) {
+		jAlert("프로젝트 그룹 생성을 완료하셨습니다.", "알림", function( result ) {
 			if( result ){
 				jAlert("다음으로  프로젝트를 생성하여야 합니다.", "알림", function( result ) {
 					if( result ){
@@ -91,7 +91,7 @@ $(document).ready(function() {
 					}
 				});
 			}
-		}); */
+		});
 	}else{
 		//호출 오류
 	}

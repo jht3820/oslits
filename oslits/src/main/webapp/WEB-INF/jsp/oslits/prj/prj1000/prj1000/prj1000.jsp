@@ -124,7 +124,7 @@ $(document).ready(function() {
 		
 		//선택 객체가 없는경우 오류
 		if(gfnIsNull(selZtree)){
-			jAlert("프로젝트 그룹 또는 프로젝트를 선택해주세요.");
+			jAlert("프로젝트 그룹 또는 프로젝트를 선택해주세요.", "알림창");
 			return false;
 		}
 		
@@ -190,7 +190,7 @@ $(document).ready(function() {
 		
 		//선택 객체가 없는경우 오류
 		if(gfnIsNull(selZtree)){
-			jAlert("프로젝트 그룹 또는 프로젝트를 선택해주세요.");
+			jAlert("프로젝트 그룹 또는 프로젝트를 선택해주세요.", "알림창");
 			return false;
 		}
 		
