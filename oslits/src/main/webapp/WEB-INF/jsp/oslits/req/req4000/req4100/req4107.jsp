@@ -119,8 +119,11 @@ function fnReq4107SaveAction(){
 		
 		//에러 없는경우
 		if(data.errorYN != "Y"){
-			//대시보드 부분 새로고침
-			fnSubDataLoad('etc',"work");
+			//대시보드 새로고침 함수 존재하는 경우 새로고침
+    		if(typeof fnDashBoardSetting == "function"){
+    			//대시보드새로고침
+				fnDashBoardSetting();
+    		}
 			
 			//그리드 내용 새로고침
 			work_grid.setData(data.workList);
