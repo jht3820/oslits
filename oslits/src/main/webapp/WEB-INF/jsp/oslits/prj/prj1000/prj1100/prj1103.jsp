@@ -316,7 +316,7 @@ function fnItemCodeChg(thisObj){
 		$("#itemLength").attr("disabled","disabled");
 		
 		//공통코드 값 열기
-		$("#itemCommonCode").removeAttr("disabled");
+		$("#itemCommonCode").removeAttr("disabled");	
 	}
 	//첨부파일
 	else if(thisObj.value == "03"){
@@ -332,6 +332,7 @@ function fnItemCodeChg(thisObj){
 		//타입, 길이 선택 불가
 		$("#itemType").attr("disabled","disabled");
 		$("#itemLength").attr("disabled","disabled");
+		$("#itemCommonCode").attr("disabled","disabled");
 	}
 }
 
