@@ -39,7 +39,7 @@ SW구축 · 운영 통합관리 솔루션입니다. SW 구축 · 운영 전 생�
  
  - DB_install_script 디렉토리에 설치 스크립트들을 1번부터 순서대로 설치 진행
   
- - OSL™ ITS DB 접속 주소 및 환경설정
+### 3.2 OSL™ ITS DB 접속 주소 및 환경설정
   ```
       /oslits/src/main/resources/egovframework/egovProps/globals.properties 아래와 같이 설정을 변경합니다.
       
@@ -48,7 +48,7 @@ SW구축 · 운영 통합관리 솔루션입니다. SW 구축 · 운영 전 생�
       Globals.oslits.username= Your DB username
       Globals.oslits.password= Your DB password
    ```   
- - OSL™ ITS 최초 시스템관리자 생성
+### 3.3 OSL™ ITS 최초 시스템관리자 생성
  ```
       /oslits/src/main/resources/egovframework/egovProps/globals.properties 아래와 같이 설정을 변경합니다.
       
