@@ -37,7 +37,7 @@ SW구축 · 운영 통합관리 솔루션입니다. SW 구축 · 운영 전 생�
 
 ### 3.1 ORACLE 11g r2에 OSL™ ITS DB 설치
  
- - DB_install_script 디렉토리에 설치 스크립트들을 1번부터 순서대로 설치 진행
+ - DB_install_script 디렉토리에 설치 스크립트들을 1번부터 순서대로 설치 진행합니다.
   
 ### 3.2 OSL™ ITS DB 접속 주소 및 환경설정
   ```
