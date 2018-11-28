@@ -15,10 +15,12 @@ SW구축 · 운영 통합관리 솔루션입니다. SW 구축 · 운영 전 생�
 # 2. OSL™ ITS 설치 준비
 
 - OSL™ ITS 설치 준비 사항
+ 
  ㄴ Server
   . JDK 1.7 이상
   . Tomcat 7.0 이상
   . Oracle 11g r2 이상
+ 
  ㄴ Client 
   . Chrome 최신버전
   . IE 11 이상
@@ -32,9 +34,22 @@ SW구축 · 운영 통합관리 솔루션입니다. SW 구축 · 운영 전 생�
 # 3. OSL™ ITS 설치
 
  - ORACLE 11g r2에 OSL™ ITS DB 설치
-  . 
+  . DB_install_script 디렉토리에 설치 스크립트들을 1번부터 순서대로 설치 진행
+  
+ - OSL™ ITS DB 접속 주소 및 환경설정
+   . /oslits/src/main/resources/egovframework/egovProps/globals.properties 아래와 같이 설정 변경
+      Globals.oslits.driver= Your DB Driver
+      Globals.oslits.url= Your DB URL
+      Globals.oslits.username= Your DB username
+      Globals.oslits.password= Your DB password
+      
+ - OSL™ ITS 최초 시스템관리자 생성
+    . /oslits/src/main/resources/egovframework/egovProps/globals.properties 아래와 같이 설정 변경 
+      Globals.oslits.userJoin=N -> 해당 항목 Y 로 변경하여 최초 시스템관리자가 회원가입할 수 있도록 설정
+      ㄴ 회원가입을 통해 생성한 ID가 해당 조직의 시스템관리자 권한으로 자동 생성됨.
+      ㄴ 시스템관리자 ID 회원가입을 통해 생성한 후 다시 설정을 'N' 으로 변경하여 회원가입 기능 제거해야함
+      ㄴ 이후 시스템관리자는 시스템의 사용자관리 기능을 통해 해당 시스템을 사용할 사용자들을 등록하여 ID 발급해주어 사용  
  
-
 # 4. OSL™ ITS 사용법
 
 
