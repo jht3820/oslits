@@ -19,7 +19,6 @@ SW구축 · 운영 통합관리 솔루션입니다. SW 구축 · 운영 전 생�
   . JDK 1.7 이상
   . Tomcat 7.0 이상
   . Oracle 11g r2 이상
- 
  ㄴ Client 
   . Chrome 최신버전
   . IE 11 이상
