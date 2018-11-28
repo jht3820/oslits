@@ -16,46 +16,58 @@ SW구축 · 운영 통합관리 솔루션입니다. SW 구축 · 운영 전 생�
 
 - OSL™ ITS 설치 준비 사항
  
- ㄴ Server
-  . JDK 1.7 이상
-  . Tomcat 7.0 이상
-  . Oracle 11g r2 이상
+   - Server
+   ```
+     - JDK 1.7 이상
+     - Tomcat 7.0 이상
+     - Oracle 11g r2 이상
+   ```
+   - Client 
+   ```
+     - Chrome 최신버전
+     - IE 11 이상
+   ```
+ - OSL™ ITS 설치와 실행을 위하여 DB 설치 및 property 설정이 필요합니다.
  
- ㄴ Client 
-  . Chrome 최신버전
-  . IE 11 이상
-
- - OSL™ ITS 설치와 실행을 위하여 DB 설치 및 property 설정이 필요.
+ - DB설치 이후 환경파일 설정 순으로 세팅이 필요합니다.
  
- - DB설치 -> 환경파일 설정 순으로 세팅이 필요.
- 
- - 이하 eGovFramework 표준에 준하여 구동.
+ - 이하 전자정부프레임워크(eGovFramework) 표준에 준하여 구동됩니다.
  
 # 3. OSL™ ITS 설치
 
- - ORACLE 11g r2에 OSL™ ITS DB 설치
-  . DB_install_script 디렉토리에 설치 스크립트들을 1번부터 순서대로 설치 진행
+### 3.1 ORACLE 11g r2에 OSL™ ITS DB 설치
+ 
+ - DB_install_script 디렉토리에 설치 스크립트들을 1번부터 순서대로 설치 진행
   
  - OSL™ ITS DB 접속 주소 및 환경설정
-   . /oslits/src/main/resources/egovframework/egovProps/globals.properties 아래와 같이 설정 변경
+  ```
+      /oslits/src/main/resources/egovframework/egovProps/globals.properties 아래와 같이 설정을 변경합니다.
+      
       Globals.oslits.driver= Your DB Driver
       Globals.oslits.url= Your DB URL
       Globals.oslits.username= Your DB username
       Globals.oslits.password= Your DB password
-      
+   ```   
  - OSL™ ITS 최초 시스템관리자 생성
-    . /oslits/src/main/resources/egovframework/egovProps/globals.properties 아래와 같이 설정 변경 
-      Globals.oslits.userJoin=N -> 해당 항목 Y 로 변경하여 최초 시스템관리자가 회원가입할 수 있도록 설정
-      ㄴ 회원가입을 통해 생성한 ID가 해당 조직의 시스템관리자 권한으로 자동 생성됨.
-      ㄴ 시스템관리자 ID 회원가입을 통해 생성한 후 다시 설정을 'N' 으로 변경하여 회원가입 기능 제거해야함
-      ㄴ 이후 시스템관리자는 시스템의 사용자관리 기능을 통해 해당 시스템을 사용할 사용자들을 등록하여 ID 발급해주어 사용  
- 
+ ```
+      /oslits/src/main/resources/egovframework/egovProps/globals.properties 아래와 같이 설정을 변경합니다.
+      
+      Globals.oslits.userJoin= N → 해당 항목 Y 로 변경하여 최초 시스템관리자가 회원가입할 수 있도록 설정합니다.
+      
+        ㄴ 회원가입을 통해 생성한 ID가 해당 조직의 시스템관리자 권한으로 자동 생성됨니다.
+        ㄴ 시스템관리자 ID 회원가입을 통해 생성한 후 다시 설정을 'N' 으로 변경하여 회원가입 기능 제거해야 합니다.
+        ㄴ 이후 시스템관리자는 시스템의 사용자관리 기능을 통해 해당 시스템을 사용할 사용자들을 등록하여 ID를 
+           발급하여 시스템을 사용하도록 합니다. 
+ ```
 # 4. OSL™ ITS 사용법
 
 
 ### 4.1 최초 계정 생성 및 시스템 설정
 
-- 최초 계정을 생성합니다. 계정 생성 후 최초 로그인 시 프로젝트 그룹과 프로젝트를 생성합니다.
+- 최초 계정을 생성합니다. 회원가입으로 생성된 계정은 시스템관리자 권한을 가집니다. 
+   
+   
+- 계정 생성 후 최초 로그인 시 프로젝트 그룹과 프로젝트를 생성합니다.
 
 
 - 로그인 후 시스템에 필요한 REST API, SVN, JENKINS 정보를 등록합니다.
