@@ -43,10 +43,10 @@ SW구축 · 운영 통합관리 솔루션입니다. SW 구축 · 운영 전 생�
   ```
       /oslits/src/main/resources/egovframework/egovProps/globals.properties 아래와 같이 설정을 변경합니다.
       
-      Globals.oslits.driver= Your DB Driver
-      Globals.oslits.url= Your DB URL
-      Globals.oslits.username= Your DB username
-      Globals.oslits.password= Your DB password
+      Globals.oslits.driver = Your DB Driver
+      Globals.oslits.url = Your DB URL
+      Globals.oslits.username = Your DB username
+      Globals.oslits.password = Your DB password
    ```   
 ### 3.3 OSL™ ITS 최초 시스템관리자 생성
  ```
