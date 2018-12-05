@@ -134,7 +134,7 @@ public class Req4900ServiceImpl  extends EgovAbstractServiceImpl implements Req4
 		}
 		
 		//결재 요청자가 자신경우 쪽지 발송 안함
-		if(!regUsrId.equals(signRegUsrId)){
+		if(!signUsrId.equals(signRegUsrId)){
 			//현재 담당자에게 쪽지 발송
 			Map<String,String> armMap = new HashMap<String,String>();
 			armMap.put("usrId", signRegUsrId);
