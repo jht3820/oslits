@@ -1,139 +1,138 @@
-# 1. OSL™ ITS 소개
+# 1. OSL ™ ITS Introduction
 
-- OSL™ ITS는 기존 비효율적 사업 관리의 문제점(비표준 및 예산중복)을 해결하고 SW 품질을 향상시킬 수 있는 오픈소스 기반의 
-SW구축 · 운영 통합관리 솔루션입니다. SW 구축 · 운영 전 생애주기를 단일화된 시스템에서 관리한 DEV-OPS를 구현합니다.
-
-
-- OSL™ ITS는 공공기관 정보시스템 구축에 폭넓게 활용되는 전자정부 표준프레임워크 기반으로 구축되어 있습니다.
+- OSL ™ ITS is an open source based solution that can solve problems of existing inefficient business management (non-standard and budget duplication) and improve SW quality.
+SW construction and operation integrated management solution. Implement DEV-OPS, which manages the life cycle of SW construction and operation in a unified system.
 
 
-- 오픈소스로 구성되어 지속적으로 업데이트가 될 수 있으며, 다양한 오픈소스 간의 호환이 가능합니다.
+- OSL ™ ITS is built on the e-government standard framework that is widely used for building public institution information systems.
 
 
-- HTML5 웹표준 준수로 멀티 브라우저 지원 및 Non-ActiveX 환경을 준수합니다.
+- It is composed of open source and can be updated continuously. It is compatible with various open sources.
 
-# 2. OSL™ ITS 설치 준비
 
-- OSL™ ITS 설치 준비 사항
+- Compliant with HTML5 web standard to comply with multi-browser support and non-active environment.
+
+# 2. Preparing to Install OSL ™ ITS
+
+- OSL ™ ITS Installation Preparations
  
    - Server
    ```
-     - JDK 1.7 이상
-     - Tomcat 7.0 이상
-     - Oracle 11g r2 이상
+     - JDK 1.7  or later
+     - Tomcat 7.0  or later
+     - Oracle 11g r2  or later
    ```
    - Client 
    ```
-     - Chrome 최신버전
-     - IE 11 이상
+     - Google Chrome latest version
+     - IE 11  or later
    ```
- - OSL™ ITS 설치와 실행을 위하여 DB 설치 및 property 설정이 필요합니다.
+ - DB installation and property setting are required for OSL ™ ITS installation and execution.
  
- - DB설치 이후 환경파일 설정 순으로 세팅이 필요합니다.
+ - After installing the DB, you need to set the environment file.
  
- - 이하 전자정부프레임워크(eGovFramework) 표준에 준하여 구동됩니다.
+ -  It operates in accordance with the eGovFramework standard.
  
-# 3. OSL™ ITS 설치
+# 3. Install OSL ™ ITS
 
-### 3.1 ORACLE 11g r2에 OSL™ ITS DB 설치
+### 3.1 Install OSL ™ ITS DB on ORACLE 11g r2
  
- - DB_install_script 디렉토리에 설치 스크립트들을 1번부터 순서대로 설치 진행합니다.
+ - Install the installation scripts in the DB_install_script directory in order from number 1.
   
-### 3.2 OSL™ ITS DB 접속 주소 및 환경설정
+### 3.2 OSL™ ITS DB Connection Address and Configuration
   ```
-      /oslits/src/main/resources/egovframework/egovProps/globals.properties 아래와 같이 설정을 변경합니다.
+      /oslits/src/main/resources/egovframework/egovProps/globals.properties Change the settings as shown below.
       
       Globals.oslits.driver = Your DB Driver
       Globals.oslits.url = Your DB URL
       Globals.oslits.username = Your DB username
       Globals.oslits.password = Your DB password
    ```   
-### 3.3 OSL™ ITS 최초 시스템관리자 생성
+### 3.3 OSL™ ITS Create the first system administrator
  ```
-      /oslits/src/main/resources/egovframework/egovProps/globals.properties 아래와 같이 설정을 변경합니다.
+      /oslits/src/main/resources/egovframework/egovProps/globals.properties Change the settings as shown below
       
-      Globals.oslits.userJoin= N → 해당 항목 Y 로 변경하여 최초 시스템관리자가 회원가입할 수 있도록 설정합니다.
+      Globals.oslits.userJoin= N → Change it to Y so that the first system administrator can join.
       
-        ㄴ 회원가입을 통해 생성한 ID가 해당 조직의 시스템관리자 권한으로 자동 생성됨니다.
-        ㄴ 시스템관리자 ID 회원가입을 통해 생성한 후 다시 설정을 'N' 으로 변경하여 회원가입 기능 제거해야 합니다.
-        ㄴ 이후 시스템관리자는 시스템의 사용자관리 기능을 통해 해당 시스템을 사용할 사용자들을 등록하여 ID를 
-           발급하여 시스템을 사용하도록 합니다. 
+        ㄴ The ID created through membership is automatically created with the system administrator authority of the organization.
+        ㄴ After creating through the system administrator ID membership, you need to remove the membership function by changing the   setting to 'N' again.
+        ㄴ After that, the system administrator registers the user ID by registering the users who will use the system through the user  management function of the system.
+            Issue it to use the system.
  ```
-# 4. OSL™ ITS 사용법
+ 
+# 4. How to use OSL ™ ITS
 
 
-### 4.1 최초 계정 생성 및 시스템 설정
+### 4.1 Initial account creation and system setup
 
-- 최초 계정을 생성합니다. 회원가입으로 생성된 계정은 시스템관리자 권한을 가집니다. 
+- Create your first account. Account created as a member has system administrator privileges.
    
    
-- 계정 생성 후 최초 로그인 시 프로젝트 그룹과 프로젝트를 생성합니다.
+- Create a project group and project on first login after account creation.
 
 
-- 로그인 후 시스템에 필요한 REST API, SVN, JENKINS 정보를 등록합니다.
+- After login, register the REST API, SVN, JENKINS information necessary for the system.
 
 
-### 4.2 각 권한별 사용법
+### 4.2 Usage by each permission
 
 
-- 시스템에서 기본으로 제공되는 권한은 사업담당자, 업무담당자, 일반사용자 입니다.
+- The basic authority provided by the system is business manager, business manager, and general user.
 
 
-#### 4.2.1 사업담당자
+#### 4.2.1 Project manager
 
 
-1. 사업담당자는 프로젝트 및 프로세스 등 모든 업무 설정을 관리하고 업무 담당자가 수행한 업무 결과를 검수, 결재하는 역할을 합니다.
-   또한 시스템, 프로젝트, 프로세스, 분류, 배포계획에 관한 정보들을 설정합니다.
+1. The project manager manages all work settings such as projects and processes, and inspects and approves the work results performed by the person in charge.
+    It also sets up information about systems, projects, processes, classifications, and deployment plans.
    
    
-2. 시스템 설정으로는 공통코드를 관리하고 사용자 관리 및 조직 정보를 관리합니다.
+2. System settings manage common code, user management and organization information.
 
 
-3. 시스템 설정을 끝내면 업무역할을 설정합니다. 기본으로 제공하는 3가지 업무역할 이외에 필요한 업무역할이 있다면 추가합니다.
+3. When you finish the system setup, you set up a business role. In addition to the three basic business roles provided, add the necessary business roles.
 
 
-4. 업무역할에 등록한 사용자들을 배정하고, 시스템에서 사용할 개발문서 양식을 설정합니다.
+4. Assign users registered in the work role and set the development document form to be used by the system.
 
 
-5. 다음으로 프로젝트에서 사용할 프로세스를 설정합니다. 프로세스를 생성하고 해당 프로세스의 작업흐름을 추가합니다. 프로세스 설정이 끝나면 프로세스를
-   확정 처리합니다. 확정 처리된 프로세스는 대시보드에 나타나게 됩니다.  
-   프로세스의 확정 취소는 가능하나 요구사항이 1건이라도 처리중이라면 확정 취소를 할 수 없습니다.
+5. Next, set up the process you want to use in your project. Create a process and add workflow for that process. When the process is set up, the process is finalized. Confirmed processes will appear in the dashboard.
+You can cancel the process but you cannot cancel the process if there is only one requirement.
    
 
-6. 다음으로 요구사항을 분류할 요구사항 분류를 설정하고, 배포계획을 생성합니다. 생성된 분류와 배포계획은 업무담당자가 요구사항을 처리하는 과정에서
-   각각 해당 요구사항에 지정할 수 있습니다.
+6. Next, set up a requirement classification to classify the requirements, and create a deployment plan. The generated classification and distribution plan will be used by the staff in handling the requirements.
+    Each can be assigned to that requirement.
 
 
-7. 사업담당자는 업무담당자로부터 올라온 결재에 대해서 승인/반려 처리를 합니다.
+7. The project manager will approve / refuse the payment from the person in charge.
 
 
-8. 프로젝트의 요구사항 처리현황을 대시보드를 통해서 확인할 수 있습니다.
+8. You can check the requirements processing status of the project through the dashboard.
 
    
-#### 4.2.2 업무담당자   
+#### 4.2.2 Person in charge
 
 
-1. 업무담당자는 요청 받은 요구사항을 프로세스에 맞게 분류하여 접수하고 프로세스에 설정된 활동별로 업무를 기록 관리합니다.
+1. The task manager classifies the requested requirements into the process and records the work for each activity set in the process.
 
 
-2. 요구사항을 처리하며, 필요에 따라 해당 요구사항을 미리 설정된 분류에 배정하며, 프로세스에 배포 계획이 지정되어 있다면 배포 계획을 추가합니다.
+2. Handles requirements, assigns them to preset classifications as needed, and adds a deployment plan if a process has a deployment plan.
 
 
-3. 요구사항 처리중 결재를 올렸다면, 업무담당자 본인이 올린 결재 현황을 확인할 수 있습니다.
+3. If you made a payment while processing a requirement, you can check the status of your payment.
 
 
-#### 4.2.3 일반사용자
+#### 4.2.3 End user
 
 
-1. 일반 사용자는 요구사항을 시스템에 등록합니다.
+1. End users register their requirements with the system.
 
 
-2. 등록한 요구사항의 처리 현황을 확인합니다.
+2. Check the processing status of the registered requirement.
 
 # 5. Contributing
-- 내용 수정이나 업데이트는 Fork한 다음, 수정하여 Pull Request 로 요청!
+- Fork to modify or update the content, then modify and request with Pull Request!
 
-# 6. 라이센스 정보
+# 6. License Information
 
-
-- OSL™ ITS는 GPL3.0 라이센스를 사용합니다. ([GPL3.0 라이센스 정보](https://www.olis.or.kr/license/Detailselect.do?lId=1072))
+- OSL ™ ITS uses the GPL3.0 license. ([GPL3.0 License Information](https://www.olis.or.kr/license/Detailselect.do?lId=1072))
