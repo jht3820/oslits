@@ -1,9 +1,9 @@
 
 [![HitCount](http://hits.dwyl.io/jht3820/jht3820/oslits.svg)](http://hits.dwyl.io/jht3820/jht3820/oslits)
-https://img.shields.io/github/issues/jht3820/oslits
-https://img.shields.io/github/forks/jht3820/oslits
-https://img.shields.io/github/stars/jht3820/oslits
-https://img.shields.io/github/license/jht3820/oslits
+[![GitHub issues](https://img.shields.io/github/issues/jht3820/oslits)](https://github.com/jht3820/oslits/issues)
+[![GitHub forks](https://img.shields.io/github/forks/jht3820/oslits)](https://github.com/jht3820/oslits/network)
+[![GitHub stars](https://img.shields.io/github/stars/jht3820/oslits)](https://github.com/jht3820/oslits/stargazers)
+[![GitHub license](https://img.shields.io/github/license/jht3820/oslits)](https://github.com/jht3820/oslits/blob/master/LICENSE)
 
 # 1. OSL™ ITS 소개
 
