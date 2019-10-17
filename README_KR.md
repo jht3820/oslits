@@ -1,5 +1,9 @@
 
 [![HitCount](http://hits.dwyl.io/jht3820/jht3820/oslits.svg)](http://hits.dwyl.io/jht3820/jht3820/oslits)
+https://img.shields.io/github/issues/jht3820/oslits
+https://img.shields.io/github/forks/jht3820/oslits
+https://img.shields.io/github/stars/jht3820/oslits
+https://img.shields.io/github/license/jht3820/oslits
 
 # 1. OSL™ ITS 소개
 
