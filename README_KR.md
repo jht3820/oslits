@@ -139,8 +139,15 @@ SW구축 · 운영 통합관리 솔루션입니다. SW 구축 · 운영 전 생�
 2. 등록한 요구사항의 처리 현황을 확인합니다.
 
 
+# 5. 사용자 그룹
 
-# 5. 라이센스 정보
+프로젝트 참여 및 프로젝트에 대한 질문, 토론 [구글 그룹](https://groups.google.com/forum/#!forum/opensoftlab-github-group) 참여
+
+ - 그룹 사이트로 이동하여 구글 계정으로 로그인 후 회원가입 신청을 합니다.
+ - 회원가입 승인 후 그룹에 참여 가능합니다.
+
+
+# 6. 라이센스 정보
 
 
 - OSL™ ITS는 GPL3.0 라이센스를 사용합니다. ([GPL3.0 라이센스 정보](https://www.olis.or.kr/license/Detailselect.do?lId=1072))
