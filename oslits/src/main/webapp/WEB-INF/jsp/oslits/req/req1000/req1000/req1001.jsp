@@ -125,10 +125,7 @@
     padding: 5px 10px;
     overflow-y: auto;
 }
-.serviceDiv_reqNm span ,.serviceDiv_reqDesc span {
-    color: #4b73eb;
-    font-weight: bold;
-}
+.serviceDiv_reqNm span ,.serviceDiv_reqDesc span {color: #4b73eb; font-weight: bold;}
 </style>
 <script>
 var url = "";
