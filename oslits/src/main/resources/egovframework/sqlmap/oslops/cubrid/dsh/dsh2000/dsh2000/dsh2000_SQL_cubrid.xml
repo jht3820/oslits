@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="dsh2000DAO">
+
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias 	alias="dsh2000VO"	type="kr.opensoftlab.oslops.dsh.dsh2000.dsh2000.vo.Dsh2000VO"/>
+	
+	<!-- 계획대비 미처리건수 요구사항목록 -->
+	<sql id="selectDsh2000ReqList">
+		<![CDATA[
+		SELECT
+			T1.*
+			,	COALESCE(T1.REQ_USR_NM, SF_ADM2000_USR_INFO(T1.REQ_USR_ID, '1'))  AS REQ_EXIST_USR_NM
+		FROM
+		(
+			SELECT 			
+					B.PRJ_ID
+				,	B.REQ_ID
+				,	B.REQ_ORD
+				,	B.REQ_CLS_ID
+				,	COALESCE(SF_REQ4000_REQ_CLS_NM(B.PRJ_ID, B.REQ_CLS_ID, '2'), '') AS REQ_CLS_NM
+				,	B.REQ_NO
+				,	B.REQ_USR_ID
+				,	COALESCE(B.REQ_USR_NM, ( SELECT USR_NM FROM ADM2000 WHERE USR_ID = B.REQ_USR_ID))  AS REQ_USR_NM
+				,	B.REQ_DTM
+				,	B.REQ_USR_DEPT_NM
+				,	B.REQ_USR_EMAIL
+				,	B.REQ_USR_NUM
+				,	B.REQ_NM
+				,	SF_REPLACE_ALL (B.REQ_DESC ,'</br>|<br>|<br/>|</BR>|<BR>|<BR/>' , ' ' ) AS REQ_DESC
+				,	B.REQ_CHARGER_ID
+				,	B.REQ_CHARGER_NM
+				,	B.REQ_COMPLETE_RATIO
+				,	B.REQ_FP
+				,	B.REQ_EX_FP
+				, 	B.REQ_ST_DTM
+	    		, 	B.REQ_ED_DTM
+				, 	B.REQ_ST_DU_DTM
+				, 	B.REQ_ED_DU_DTM
+				,	B.REQ_PRO_TYPE
+				,	( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00008' AND SUB_CD = B.REQ_PRO_TYPE ) AS REQ_PRO_TYPE_NM
+				,	B.REQ_NEW_TYPE
+				,   ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00009' AND SUB_CD = B.REQ_NEW_TYPE ) AS REQ_NEW_TYPE_NM
+				,	B.REQ_ACCEPT_TXT
+				,	B.SCL_CD
+				,	( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00011' AND SUB_CD = B.SCL_CD ) AS SCL_NM
+				,	B.REQ_TYPE_CD
+				,   ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00012' AND SUB_CD = B.REQ_TYPE_CD ) AS REQ_TYPE_NM
+				,	B.PIA_CD
+				,   ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'CMM00001' AND SUB_CD = B.PIA_CD ) AS PIA_NM
+				,	B.LAB_INP
+				,	B.ATCH_FILE_ID
+				,	B.CB_ATCH_FILE_ID
+				,	B.MILESTONE_ID
+				,	B.PROCESS_ID
+				,	B.FLOW_ID
+				,	B.USE_CD
+				,	B.REG_DTM
+				,	B.REG_USR_ID
+				,	B.REG_USR_IP
+				,	B.MODIFY_DTM
+				,	B.MODIFY_USR_ID
+				,	B.MODIFY_USR_IP
+				,   B.ORG_REQ_ID
+				,	B.REQ_KEY
+				,	C.PROCESS_NM
+				,	B.REQ_ED_NOW_DTM
+				,	B.CALC_REQ_DAY
+			FROM
+			(
+				SELECT
+							A.PRJ_ID
+						,	A.REQ_ID
+						,	A.REQ_ORD
+						,	A.REQ_CLS_ID
+						,	A.REQ_NO
+						,	A.REQ_USR_ID
+						,	A.REQ_USR_NM
+						,	TO_CHAR(A.REQ_DTM, 'YYYY-MM-DD') AS REQ_DTM
+						,	A.REQ_USR_DEPT_NM
+						,	A.REQ_USR_EMAIL
+						,	A.REQ_USR_NUM
+						,	A.REQ_NM
+						,	A.REQ_DESC
+						,	A.REQ_CHARGER_ID
+						,	D.USR_NM	AS REQ_CHARGER_NM
+						,	A.REQ_COMPLETE_RATIO
+						,	A.REQ_FP
+				    	,	A.REQ_EX_FP
+						, 	IFNULL(TO_CHAR(A.REQ_ST_DTM, 'YYYY-MM-DD HH24:MI') , '') REQ_ST_DTM
+	    		   		, 	IFNULL(TO_CHAR(A.REQ_ED_DTM, 'YYYY-MM-DD HH24:MI') , '') REQ_ED_DTM
+						, 	IFNULL(TO_CHAR(A.REQ_ST_DU_DTM, 'YYYY-MM-DD') , '') REQ_ST_DU_DTM
+						, 	IFNULL(TO_CHAR(A.REQ_ED_DU_DTM, 'YYYY-MM-DD') , '') REQ_ED_DU_DTM
+						,	A.REQ_PRO_TYPE
+						,	A.REQ_NEW_TYPE
+						,	A.REQ_ACCEPT_TXT
+						,	A.SCL_CD
+				    	,	A.REQ_TYPE_CD
+				    	,	A.PIA_CD
+				    	,	A.LAB_INP
+						,	A.ATCH_FILE_ID
+						,	A.CB_ATCH_FILE_ID
+						,	A.MILESTONE_ID
+						,	A.PROCESS_ID
+						,	A.FLOW_ID
+						,	A.USE_CD
+					    ,	TO_CHAR(A.REG_DTM, 'YYYY-MM-DD HH24:MI:SS') AS REG_DTM
+					    ,	TO_CHAR(A.REG_DTM, 'YYYY-MM-DD') AS REG_DTM_DAY
+					    ,	A.REG_USR_ID
+					    ,	A.REG_USR_IP
+					    ,	TO_CHAR(A.MODIFY_DTM, 'YYYY-MM-DD HH24:MI:SS') AS MODIFY_DTM
+					    ,	A.MODIFY_USR_ID
+					    ,	A.MODIFY_USR_IP
+					    ,   A.ORG_REQ_ID
+					    ,	A.REQ_KEY
+						,	COALESCE(A.REQ_ED_DTM,CURRENT_TIMESTAMP) AS REQ_ED_NOW_DTM
+						, TRUNC(DATEDIFF(IFNULL(A.REQ_ED_DTM,CURRENT_TIMESTAMP), A.REQ_ED_DU_DTM)) AS CALC_REQ_DAY
+			    FROM REQ4100 A
+			    LEFT JOIN ADM2000 D	/* 담당자 명을 가지고 오기위해 사용 */
+				ON ( A.REQ_CHARGER_ID = D.USR_ID )
+			    WHERE 1=1
+			    AND A.PRJ_ID = #prjId#
+			    AND TO_DATE(TO_CHAR(A.REQ_ED_DU_DTM,'YYYY-MM-DD'),'YYYY-MM-DD') < TO_DATE(TO_CHAR(IFNULL(A.REQ_ED_DTM,CURRENT_TIMESTAMP),'YYYY-MM-DD'),'YYYY-MM-DD')
+                AND A.REQ_PRO_TYPE <> '01'
+			) B
+			INNER JOIN FLW1000 C
+			ON (B.PRJ_ID = C.PRJ_ID AND B.PROCESS_ID = C.PROCESS_ID)
+			WHERE 1=1
+		]]>	
+		) T1
+		WHERE 1=1
+		<isNotEmpty property="processNm">
+			AND    T1.PROCESS_NM  =	#processNm# /* 계획대비 미처리건수 차트 클릭시 프로세스별 미처리 요구사항 조회에 사용*/
+		</isNotEmpty>
+		AND T1.CALC_REQ_DAY > 0
+		ORDER BY T1.PROCESS_ID, T1.CALC_REQ_DAY DESC
+		
+	</sql>
+	
+	
+	<!-- 대시보드 프로젝트 정보 단건 조회 -->
+	<select id="dsh2000DAO.selectDsh2000PrjReqAllInfo" parameterClass="java.util.Map" resultClass="egovMap">
+			/* dsh2000DAO.selectDsh2000PrjReqAllInfo - 대시보드 프로젝트 정보 단건 조회 */
+			<![CDATA[
+             SELECT		C.PRJ_ID
+            	,	C.PRJ_GRP_ID
+            	,	SF_PRJ1000_GRP_NM(C.PRJ_GRP_ID) AS PRJ_GRP_NM
+				,	C.LIC_GRP_ID
+				,	C.PRJ_NM
+				,	TO_CHAR(TO_DATE(C.START_DT,'YYYYMMDD'),'YYYY-MM-DD') 	AS START_DT 
+				,	TO_CHAR(TO_DATE(C.END_DT,'YYYYMMDD'),'YYYY-MM-DD') 	AS END_DT   
+				,	C.ORD
+				,	C.PRJ_DESC
+				,	C.USE_CD
+				,	C.PRJ_TYPE
+				,	SF_ADM4100_COM_CD_INFO(#licGrpId#, 'PRJ00013', C.PRJ_TYPE, '1') AS PRJ_TYPE_NM
+				,	C.PRJ_GRP_CD
+                ,	COALESCE(C.PRJ_DO_REQ_CNT,0) AS PRJ_DO_REQ_CNT
+                ,	COALESCE(C.PRJ_DONE_REQ_CNT,0) AS PRJ_DONE_REQ_CNT
+				,	C.REG_DTM
+				,	C.REG_USR_ID
+				,	C.REG_USR_IP
+				,	C.MODIFY_DTM
+				,	C.MODIFY_USR_ID
+				,	C.MODIFY_USR_IP
+			FROM
+			(
+				SELECT A.*, B.PRJ_DONE_REQ_CNT, B.PRJ_DO_REQ_CNT
+				FROM  PRJ1000 A
+				LEFT JOIN 
+	            (
+	            	SELECT Z.PRJ_ID, COUNT(DECODE(Z.REQ_PRO_TYPE,'01',1,'02',1,'03',1)) AS PRJ_DO_REQ_CNT, COUNT(DECODE(Z.REQ_PRO_TYPE,'04',1)) AS PRJ_DONE_REQ_CNT
+	                FROM REQ4100 Z
+	                INNER JOIN FLW1100 Y
+	                ON ( Z.PRJ_ID = Y.PRJ_ID AND Z.PROCESS_ID = Y.PROCESS_ID AND Z.FLOW_ID = Y.FLOW_ID AND Z.PRJ_ID = #selPrjId#)
+	                WHERE 1=1
+	                GROUP BY Z.PRJ_ID
+	            ) B
+	            ON (A.PRJ_ID = B.PRJ_ID)
+        	) C
+			WHERE	C.LIC_GRP_ID = #licGrpId#
+			AND		C.PRJ_ID = #selPrjId#
+			ORDER BY C.ORD ASC
+			]]>
+	</select>
+	
+	<!-- 대시보드 프로세스 목록 및 진행상태 조회 -->
+	<select id="dsh2000DAO.selectDsh2000ProcessReqRatioList" parameterClass="java.util.Map" resultClass="egovMap">
+		/* dsh2000DAO.selectDsh2000ProcessReqRatioList - 대시보드 프로세스 목록 및 진행상태 조회 */
+		<![CDATA[
+			SELECT 
+				A.PRJ_ID,					A.PROCESS_ID,				A.PROCESS_NM
+				,A.PROCESS_DESC
+				,A.PROCESS_CONFIRM_CD
+				,A.USE_CD
+                ,COALESCE(B.PRO_DO_REQ_CNT,0) AS PRO_DO_REQ_CNT
+                ,COALESCE(B.PRO_DONE_REQ_CNT,0) AS PRO_DONE_REQ_CNT
+                ,COALESCE(B.PRO_TOTAL_REQ_CNT,0) AS PRO_TOTAL_REQ_CNT
+				,TO_CHAR(A.REG_DTM, 'YYYY-MM-DD HH24:MI:SS') AS REG_DTM
+				,A.REG_USR_ID,				A.REG_USR_IP
+				,TO_CHAR(A.MODIFY_DTM, 'YYYY-MM-DD HH24:MI:SS') AS MODIFY_DTM
+				,A.MODIFY_USR_ID,			A.MODIFY_USR_IP
+			FROM FLW1000 A
+			LEFT JOIN
+            (
+            	SELECT 
+            		Z.PRJ_ID
+            		,Z.PROCESS_ID
+            		, COUNT(DECODE(Z.REQ_PRO_TYPE,'01',1,'02',1,'03',1)) AS PRO_DO_REQ_CNT
+            		, COUNT(DECODE(Z.REQ_PRO_TYPE,'04',1)) AS PRO_DONE_REQ_CNT
+            		, COUNT(*) AS PRO_TOTAL_REQ_CNT
+                FROM REQ4100 Z
+                WHERE 1=1
+                AND	Z.PRJ_ID = #prjId#
+                GROUP BY Z.PRJ_ID,Z.PROCESS_ID
+            ) B
+            ON ( A.PRJ_ID = B.PRJ_ID AND A.PROCESS_ID = B.PROCESS_ID)
+			WHERE 1=1
+			AND A.PRJ_ID = #prjId#
+			AND A.PROCESS_CONFIRM_CD = '02'
+			AND A.USE_CD = '01'
+		]]>
+            <isNotEmpty property="processId">
+				AND A.PROCESS_ID = #processId#
+			</isNotEmpty>
+			ORDER BY A.PROCESS_ORD, A.REG_DTM
+	</select>
+	
+	<!-- 대시보드 작업흐름 목록 및 진행현황 조회 -->
+	<select id="dsh2000DAO.selectDsh2000FlowList" parameterClass="java.util.Map" resultClass="egovMap">
+		/* dsh2000DAO.selectDsh2000FlowList - 대시보드 작업흐름 목록 및 진행현황 조회 */
+		<![CDATA[
+			SELECT 
+				A.PRJ_ID,					A.PROCESS_ID,			A.FLOW_ID,					A.FLOW_NEXT_ID
+			    ,A.FLOW_NM,					A.FLOW_ESSENTIAL_CD,	A.FLOW_SIGN_CD,				A.FLOW_END_CD
+			    ,A.FLOW_WORK_CD
+			    ,A.FLOW_TITLE_BG_COLOR,		A.FLOW_TITLE_COLOR,		A.FLOW_CONTENT_BG_COLOR,	A.FLOW_CONTENT_COLOR
+			    ,A.OPT_CNT
+                ,COALESCE(A.REQ_TOTAL_CNT,0) AS REQ_TOTAL_CNT
+                ,COALESCE(A.REQ_CHARGER_CNT,0) AS REQ_CHARGER_CNT
+			    ,TO_CHAR(A.REG_DTM, 'YYYY-MM-DD HH24:MI:SS') AS REG_DTM
+				,A.REG_USR_ID,				A.REG_USR_IP
+				,TO_CHAR(A.MODIFY_DTM, 'YYYY-MM-DD HH24:MI:SS') AS MODIFY_DTM
+				,A.MODIFY_USR_ID,			A.MODIFY_USR_IP
+			FROM (
+				SELECT B.*,
+					(
+				      SELECT COUNT(*)
+				      FROM FLW1200 Z
+				      WHERE 1=1
+					  AND Z.PRJ_ID = B.PRJ_ID
+					  AND Z.PROCESS_ID = B.PROCESS_ID
+					  AND Z.FLOW_ID = B.FLOW_ID
+				    ) AS OPT_CNT
+	                ,D.REQ_TOTAL_CNT
+	                ,D.REQ_CHARGER_CNT
+			    FROM FLW1100 B
+			    INNER JOIN FLW1000 C
+			    ON ( B.PRJ_ID = C.PRJ_ID AND B.PROCESS_ID = C.PROCESS_ID)
+			    LEFT JOIN
+			    (
+	                  SELECT 
+	                  	Z.PRJ_ID,				Z.PROCESS_ID,			Z.FLOW_ID
+	                  	, COUNT(*) AS REQ_TOTAL_CNT
+	                  	, COUNT(DECODE(Z.REQ_CHARGER_ID,#usrId#,1)) AS REQ_CHARGER_CNT
+	                  FROM REQ4100 Z
+	                  WHERE 1=1
+	                  	AND	Z.PRJ_ID = #prjId#
+	                  GROUP BY Z.PRJ_ID,Z.PROCESS_ID,Z.FLOW_ID
+	            ) D
+	            ON ( B.PRJ_ID = D.PRJ_ID AND B.PROCESS_ID = D.PROCESS_ID AND B.FLOW_ID = D.FLOW_ID)
+				WHERE 1=1
+					AND C.USE_CD = '01'
+					AND C.PROCESS_CONFIRM_CD = '02'
+					AND B.PRJ_ID = #prjId#
+	                AND B.USE_CD = '01'
+	        ]]>
+	                <isNotEmpty property="processId">
+						AND B.PROCESS_ID = #processId#
+					</isNotEmpty>
+			) A
+			START WITH A.FLOW_NEXT_ID IS NULL
+			CONNECT BY PRIOR A.FLOW_ID = A.FLOW_NEXT_ID AND PRIOR A.PROCESS_ID = A.PROCESS_ID
+			ORDER BY A.PRJ_ID, A.PROCESS_ID,LEVEL DESC
+			
+		
+	</select>
+	
+	<!-- 대시보드 요구사항 계획대비 미처리 건수(종료예정기간 , COALESCE(종료기간,현재시간)) -->
+	<select id="dsh2000DAO.selectDsh2000ReqDtmOverList" parameterClass="java.util.Map" resultClass="egovMap">
+		/* dsh2000DAO.selectDsh2000ReqDtmOverList - 대시보드 요구사항 계획대비 미처리 건수(종료예정기간 , COALESCE(종료기간,현재시간)) */
+		<include refid="selectDsh2000ReqList"/>
+	</select>
+	
+	<!--  프로세스별 요구사항 계획대비 미처리 건수 목록 조회 -->
+	<select id="dsh2000DAO.selectDsh2000ProcessReqDtmOverList" parameterClass="dsh2000VO" resultClass="egovMap">
+			/* dsh2000DAO.selectDsh2000ProcessReqDtmOverList - 프로세스별 요구사항 계획대비 미처리 건수 목록 조회 */
+			SELECT *
+			FROM
+			(
+    			SELECT 	ROWNUM RN,
+    			     	T.*
+    			FROM
+    			(
+					<include refid="selectDsh2000ReqList"/>
+	    		 ) T
+	    	)
+	    	WHERE RN BETWEEN (#firstIndex#+1) AND #lastIndex#
+	</select>
+	
+	<!-- 프로세스별 요구사항 계획대비 미처리 건수 목록 총건수. :페이징 처리 부분 -->
+    <select id="dsh2000DAO.selectDsh2000ProcessReqDtmOverListCnt" parameterClass="dsh2000VO"  resultClass="java.lang.Integer">
+	    /* dsh2000DAO.selectDsh2000ProcessReqDtmOverListCnt 프로세스별 요구사항 계획대비 미처리 건수 목록 조회 */
+	    SELECT
+			COUNT(*)
+		FROM	(
+			<include refid="selectDsh2000ReqList"/>
+		) A
+    </select>
+	
+	<!-- 대시보드 산출물 제출예정일 대비 미제출 건수 -->
+	<select id="dsh2000DAO.selectDsh2000DocDtmOverList" parameterClass="java.util.Map" resultClass="egovMap">
+		/* dsh2000DAO.selectDsh2000DocDtmOverList - 대시보드 산출물 제출예정일 대비 미제출 건수 */
+		<![CDATA[
+		SELECT
+			T1.DOC_NM
+			,	T1.PRJ_ID
+			,	T1.DOC_ID
+			,	T1.UPPER_DOC_ID
+			,	SF_PRJ3000_DOC_NM(T1.LIC_GRP_ID, T1.PRJ_ID, T1.DOC_ID, '2') AS UP_DOC_NM
+			,	SF_PRJ3000_DOC_NM(T1.LIC_GRP_ID, T1.PRJ_ID, T1.DOC_ID, '3') AS UPUP_DOC_NM
+			,	T1.LVL
+			,	T1.ORD
+			,	T1.DOC_DESC
+			,	T1.DOC_FORM_FILE_ID
+			,	T1.DOC_FORM_FILE_SN
+			,	T1.DOC_ATCH_FILE_ID
+			,	T1.DOC_FILE_SN
+			,	T1.DOC_ED_DTM
+			,	T1.USE_CD
+			,	T1.DOC_CALC_ED_DAY
+			,	T1.DOC_TOTAL_CNT
+			,	T1.DOC_NULL_CNT
+		FROM
+		(
+			SELECT 
+			B.DOC_NM
+		    , C.LIC_GRP_ID
+			,	B.PRJ_ID
+			,	B.DOC_ID
+			,	B.UPPER_DOC_ID
+			,	B.LVL
+			,	B.ORD
+			,	B.DOC_DESC
+			,	B.DOC_FORM_FILE_ID
+			,	B.DOC_FORM_FILE_SN
+			,	B.DOC_ATCH_FILE_ID
+			,	B.DOC_FILE_SN
+			,	TO_CHAR(B.DOC_ED_DTM, 'YYYY-MM-DD') AS DOC_ED_DTM
+			,	B.USE_CD
+			,	B.DOC_CALC_ED_DAY
+			, B.DOC_TOTAL_CNT
+			, B.DOC_NULL_CNT
+		    FROM
+		    (
+		    	SELECT A.*, TRUNC(DATEDIFF(CURRENT_TIMESTAMP,COALESCE(A.DOC_ED_DTM,CURRENT_TIMESTAMP))) AS DOC_CALC_ED_DAY
+						,(SELECT COUNT(0) FROM PRJ3000 B WHERE 1=1 AND B.PRJ_ID = A.PRJ_ID) AS DOC_TOTAL_CNT
+						,(SELECT COUNT(0) FROM PRJ3000 C WHERE 1=1 AND C.PRJ_ID = A.PRJ_ID AND C.DOC_ED_DTM IS NULL) AS DOC_NULL_CNT
+					FROM PRJ3000 A
+					WHERE 1=1
+					AND A.PRJ_ID = #prjId#
+					AND (A.DOC_FILE_SN = 0 OR A.DOC_FILE_SN IS NULL)
+		    ) B
+			INNER JOIN PRJ1000 C
+			ON ( B.PRJ_ID = C.PRJ_ID  )
+		    WHERE 1=1
+		    AND B.DOC_CALC_ED_DAY > 0
+		) T1
+		]]>
+	</select>
+	
+	<!-- 대시보드 프로세스별 기간 비교 경고-->
+	<!--
+	종료일 없음
+	01 - 그린
+	02 - 주황
+	03 - 레드
+	
+	종료일 있음
+	04 - 레드(채도 DOWN)
+	05 - 파랑 
+	-->
+	<select id="dsh2000DAO.selectDsh2000ReqDtmOverAlertList" parameterClass="java.util.Map" resultClass="egovMap">
+		/* dsh2000DAO.selectDsh2000ReqDtmOverAlertList - 대시보드 프로세스별 기간 비교 경고 */
+		<![CDATA[
+			SELECT B.PROCESS_ID, B.OVER_TYPE, COUNT(*) AS OVER_CNT
+			FROM
+			(
+				SELECT 
+                	CASE A.REQ_PRO_TYPE WHEN '04' THEN
+                		CASE WHEN DATE_FORMAT(A.REQ_ED_DU_DTM,'%Y-%m-%d 23:59') < COALESCE(A.REQ_ED_DTM,CURRENT_TIMESTAMP) THEN '04'
+		                ELSE '05' END 
+		            ELSE
+		            	CASE WHEN DATE_FORMAT(A.REQ_ED_DU_DTM,'%Y-%m-%d 23:59') < COALESCE(A.REQ_ED_DTM,CURRENT_TIMESTAMP)  THEN '03'
+                        	WHEN DATE_FORMAT(ADDDATE(A.REQ_ED_DU_DTM,INTERVAL -3 DAY),'%Y-%m-%d 23:59') < COALESCE(A.REQ_ED_DTM,CURRENT_TIMESTAMP) THEN '02'
+                        ELSE '01' END 
+		            END	AS OVER_TYPE
+			        ,A.PROCESS_ID
+			    FROM REQ4100 A
+			    WHERE 1=1
+			    AND A.REQ_PRO_TYPE != '01'
+			    AND A.REQ_PRO_TYPE != '05'
+			    AND A.PROCESS_ID IS NOT NULL
+			    AND A.PRJ_ID = #prjId#
+		]]>
+				<isNotEmpty property="processId">
+					AND A.PROCESS_ID = #processId#
+				</isNotEmpty>
+			) B
+			GROUP BY B.PROCESS_ID, B.OVER_TYPE
+			ORDER BY B.PROCESS_ID, B.OVER_TYPE
+	</select>
+</sqlMap>

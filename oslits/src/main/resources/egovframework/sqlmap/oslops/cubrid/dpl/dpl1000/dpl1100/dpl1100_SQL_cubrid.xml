@@ -1,0 +1,585 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="dpl1100DAO">
+
+	<!--  in / out class define  -->
+	<typeAlias alias="dpl1100VO"	type="kr.opensoftlab.oslops.dpl.dpl1000.dpl1100.vo.Dpl1100VO"/>
+	<typeAlias  alias="egovMap" 	type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+
+	<!-- 배포 계획에 배정된 요구사항 목록 -->
+	<sql id="selectDpl1100ExistDplList">
+	<![CDATA[
+		SELECT SUBT1.*
+		FROM
+		(
+			SELECT ROWNUM AS RN
+				,	T.PRJ_ID		/* 프로젝트 ID */
+	            , 	T.DPL_ID		/* 배포계획 ID*/
+	            , 	T.DPL_NM		/* 배포 계획 명 */
+	            , 	T.DPL_VER		/* 배포 버전 */
+	            , 	T.DPL_DT		/* 배포 일자 */
+	            ,	T.DPL_USR_ID 	/* 배포자 ID */
+		        , 	SF_ADM2000_USR_INFO(T.DPL_USR_ID, 1) DPL_USR_NM /* 배포자 명 */
+	            , 	T.DPL_STS_CD	/* 배포 진행상태 코드(공통코드: DPL00001) */
+	            , 	SF_ADM4100_COM_CD_INFO(#licGrpId#, 'DPL00001', T.DPL_STS_CD, '1') AS DPL_STS_NM	/* 배포 진행상태 명 */
+	            , 	T.DPL_TYPE_CD 	/* 배포 방법 코드 */
+		        , 	SF_ADM4100_COM_CD_INFO(#licGrpId#, 'DPL00003', T.DPL_TYPE_CD, '1') AS DPL_TYPE_NM /* 배포 방법 명 */
+				, 	SF_REPLACE_ALL(T.DPL_DESC ,'</br>|<br>|<br/>|</BR>|<BR>|<BR/>' , ' ' ) AS DPL_DESC /* 배포 설명 */	
+	            , 	T.PROCESS_ID	/* 프로세스 ID */
+				, 	T.PROCESS_NM	/* 프로세스 명 */
+				, 	T.FLOW_ID		/* 작업흐름 ID */
+				, 	T.FLOW_NM		/* 작업흐름 명 */
+	            , 	T.REQ_ID		/* 요구사항 ID */
+	            , 	T.REQ_ORD		/* 요구사항 순번 */
+	            ,	TO_NUMBER(IFNULL(SF_REPLACE_ALL(T.REQ_ORD ,'[^0-9]',''),0)) AS REQ_ORD_NUMBER
+				, 	T.REQ_NO		/* 공문번호 */
+				, 	T.REQ_NM		/* 요구사항 명 */
+	    		, 	SF_REPLACE_ALL(T.REQ_DESC ,'</br>|<br>|<br/>|</BR>|<BR>|<BR/>' , ' ' ) AS REQ_DESC /* 요구사항 내용 */ 
+				, 	T.REQ_CHARGER_ID	/* 담당자 ID */
+				, 	SF_ADM2000_USR_INFO(T.REQ_CHARGER_ID, '1') AS REQ_CHARGER_NM	/* 담당자 명 */
+				, 	T.REQ_USR_ID		/* 요청자 ID */
+				, 	COALESCE(T.REQ_USR_NM, SF_ADM2000_USR_INFO(T.REQ_USR_ID, '1')) AS REQ_USR_NM	/* 요청자 명 */
+				, 	T.REQ_DTM	/* 요청일자 */
+				, 	T.REQ_ST_DTM	/* 작업 시작일자 */
+	   		   	, 	T.REQ_ED_DTM	/* 작업 종료일자 */
+				, 	T.REQ_ST_DU_DTM	/* 작업 시작 예정일자 */
+				, 	T.REQ_ED_DU_DTM	/* 작업 종료 예정일자 */
+				,	T.REQ_TYPE_CD 	/* 요구사항 유형 코드 (공통코드 : REQ00012)*/
+				, 	SF_ADM4100_COM_CD_INFO(#licGrpId#, 'REQ00012', T.REQ_TYPE_CD, '1') AS REQ_TYPE_NM /* 요구사항 유형 명 */
+				, 	T.REQ_PRO_TYPE	/* 요구사항 처리유형 코드 */
+				, 	SF_ADM4100_COM_CD_INFO(#licGrpId#, 'REQ00008', T.REQ_PRO_TYPE, '1') AS REQ_PRO_TYPE_NM	/* 요구사항 처리유형 명 */
+				, 	T.REQ_NEW_TYPE	/* 요구사항 접수유형 코드 */
+				, 	SF_ADM4100_COM_CD_INFO(#licGrpId#, 'REQ00009', T.REQ_NEW_TYPE, '1') AS REQ_NEW_TYPE_NM	/* 요구사항 접수유형 명 */
+				,	T.REQ_COMPLETE_RATIO	/* 요구사항 진척률 */
+				,	T.REQ_FP				/* 요구사항 FP */
+		    	,	T.REQ_EX_FP				/* 요구사항 예상 FP */
+				,	T.SCL_CD				/* 시스템 구분 코드 */
+				,   SF_ADM4100_COM_CD_INFO(#licGrpId#, 'REQ00011', T.SCL_CD, '1') AS SCL_NM	/* 시스템 구분 명 */
+				,	T.PIA_CD				/* 성능 개선활동 여부 코드 */
+				,   SF_ADM4100_COM_CD_INFO(#licGrpId#, 'CMM00001', T.PIA_CD, '1') AS PIA_NM	/* 성능 개선활동 명 */
+				,	T.LAB_INP				/* 투입인력 */
+				,	T.MILESTONE_ID			/* 마일스톤 ID */
+				,   T.ORG_REQ_ID			/* 각 체계별 요구사항 ID */
+				,	T.REG_DTM /* 최초등록일시 */
+				,	T.REG_USR_ID		/* 최초등록자 ID */
+			    ,	T.REG_USR_IP		/* 최초등록자 IP */
+			    ,	T.MODIFY_DTM	/* 최종수정일시 */
+			    ,	T.MODIFY_USR_ID		/* 최종수정자 ID */
+			    ,	T.MODIFY_USR_IP		/* 최종수정자 IP */
+			FROM
+			(
+				SELECT 
+						Z.PRJ_ID		/* 프로젝트 ID */
+	                , 	Z.DPL_ID		/* 배포계획 ID*/
+	                , 	W.DPL_NM		/* 배포 계획 명 */
+	                , 	W.DPL_VER		/* 배포 버전 */
+	                , 	W.DPL_DT		/* 배포 일자 */
+	                ,	W.DPL_USR_ID 	/* 배포자 ID */
+	                , 	W.DPL_STS_CD	/* 배포 진행상태 코드(공통코드: DPL00001) */
+	                , 	W.DPL_TYPE_CD 	/* 배포 방법 코드 */
+					,	W.DPL_DESC		/* 배포 설명 */
+	                , 	Z.PROCESS_ID	/* 프로세스 ID */
+					, 	V.PROCESS_NM	/* 프로세스 명 */
+					, 	Y.FLOW_ID		/* 작업흐름 ID */
+					, 	Y.FLOW_NM		/* 작업흐름 명 */
+	                , 	Z.REQ_ID		/* 요구사항 ID */
+	                , 	X.REQ_ORD		/* 요구사항 순번 */
+					, 	X.REQ_NO		/* 공문번호 */
+					, 	X.REQ_NM		/* 요구사항 명 */
+		    		, 	X.REQ_DESC	/* 요구사항 내용 */ 
+					, 	X.REQ_CHARGER_ID	/* 담당자 ID */
+					, 	X.REQ_USR_ID		/* 요청자 ID */
+					,	X.REQ_USR_NM
+					, 	TO_CHAR(X.REQ_DTM, 'YYYY-MM-DD') AS REQ_DTM	/* 요청일자 */
+					, 	IFNULL(TO_CHAR(X.REQ_ST_DTM, 'YYYY-MM-DD HH24:MI') , '') REQ_ST_DTM	/* 작업 시작일자 */
+	    		   	, 	IFNULL(TO_CHAR(X.REQ_ED_DTM, 'YYYY-MM-DD HH24:MI') , '') REQ_ED_DTM	/* 작업 종료일자 */
+					, 	IFNULL(TO_CHAR(X.REQ_ST_DU_DTM, 'YYYY-MM-DD') , '') REQ_ST_DU_DTM	/* 작업 시작 예정일자 */
+					, 	IFNULL(TO_CHAR(X.REQ_ED_DU_DTM, 'YYYY-MM-DD') , '') REQ_ED_DU_DTM	/* 작업 종료 예정일자 */
+					,	X.REQ_TYPE_CD 	/* 요구사항 유형 코드 (공통코드 : REQ00012)*/
+					, 	X.REQ_PRO_TYPE	/* 요구사항 처리유형 코드 */
+					, 	X.REQ_NEW_TYPE	/* 요구사항 접수유형 코드 */
+					,	X.REQ_COMPLETE_RATIO	/* 요구사항 진척률 */
+					,	X.REQ_FP				/* 요구사항 FP */
+			    	,	X.REQ_EX_FP				/* 요구사항 예상 FP */
+					,	X.SCL_CD				/* 시스템 구분 코드 */
+					,	X.PIA_CD				/* 성능 개선활동 여부 코드 */
+					,	X.LAB_INP				/* 투입인력 */
+					,	X.MILESTONE_ID			/* 마일스톤 ID */
+					,   X.ORG_REQ_ID			/* 각 체계별 요구사항 ID */
+					,	TO_CHAR(X.REG_DTM, 'YYYY-MM-DD HH24:MI:SS') AS REG_DTM /* 최초등록일시 */
+					,	X.REG_USR_ID		/* 최초등록자 ID */
+				    ,	X.REG_USR_IP		/* 최초등록자 IP */
+				    ,	TO_CHAR(X.MODIFY_DTM, 'YYYY-MM-DD HH24:MI:SS') AS MODIFY_DTM	/* 최종수정일시 */
+				    ,	X.MODIFY_USR_ID		/* 최종수정자 ID */
+				    ,	X.MODIFY_USR_IP		/* 최종수정자 IP */
+				FROM DPL1100 Z /* 배포 요구사항 정보 테이블 */
+				INNER JOIN FLW1100 Y /* 작업흐름 정보 테이블 */
+				ON ( Z.PRJ_ID = #prjId# AND Z.PRJ_ID = Y.PRJ_ID AND Z.PROCESS_ID = Y.PROCESS_ID AND Z.FLOW_ID = Y.FLOW_ID)
+				INNER JOIN REQ4100 X /* 요구사항 정보 테이블 */
+				ON ( Z.PRJ_ID = X.PRJ_ID AND Z.REQ_ID = X.REQ_ID)
+				INNER JOIN DPL1000 W /* 배포 정보 테이블 */
+				ON ( Z.PRJ_ID = W.PRJ_ID AND Z.DPL_ID = W.DPL_ID)
+				INNER JOIN FLW1000 V /* 프로세스 정보 테이블 */
+				ON ( Z.PRJ_ID = V.PRJ_ID AND Z.PROCESS_ID = V.PROCESS_ID)
+				WHERE 1=1
+				AND Z.PRJ_ID = #prjId#
+		]]>
+				<isNotEmpty property="dplId">
+					AND Z.DPL_ID = #dplId#
+				</isNotEmpty>
+				<isNotEmpty property="reqId">
+					AND Z.REQ_ID = #reqId#
+				</isNotEmpty>
+	        ) T
+        ) SUBT1
+        WHERE 1=1
+        <isNotEmpty property="searchSelect">
+			<isNotEmpty property="searchTxt">
+				<isEqual property="searchSelect" compareValue="reqNm"> 
+					AND		UPPER( SUBT1.REQ_NM ) like '%'|| UPPER( #searchTxt# )  ||'%'	/* 요구사항 명 검색 */
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="reqDesc"> 
+					AND		UPPER( SUBT1.REQ_DESC )  like '%'|| UPPER( #searchTxt# )  ||'%'	/* 요구사항 내용 검색 */
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="reqUsrNm"> 
+					AND		UPPER( SUBT1.REQ_USR_NM )  like '%'|| UPPER( #searchTxt# )  ||'%'	/* 요청자 명 검색 */
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="reqChargerNm"> 
+					AND		UPPER( SUBT1.REQ_CHARGER_NM )  like '%'|| UPPER( #searchTxt# )  ||'%'	/* 담당자 명 검색 */
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="processNm"> 
+					AND		UPPER( SUBT1.PROCESS_NM )  like '%'|| UPPER( #searchTxt# )  ||'%'	/* 프로세스 명 검색 */
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="flowNm"> 
+					AND		UPPER( SUBT1.FLOW_NM )  like '%'|| UPPER( #searchTxt# )  ||'%'	/* 작업흐름 명 검색 */
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="reqNo"> 
+					AND		UPPER( SUBT1.REQ_NO )  like '%'|| UPPER( #searchTxt# )  ||'%'	/* 공문번호 검색 */
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="reqOrd"> 
+					AND		UPPER( SUBT1.REQ_ORD )  like '%'|| UPPER( #searchTxt# )  ||'%'	/* 요구사항 순번 검색 */
+				</isEqual>
+			</isNotEmpty>
+		</isNotEmpty>
+		<isNotEmpty property="searchSelect">
+			<isNotEmpty property="searchCd">
+				<isEqual property="searchSelect" compareValue="reqProType">
+					AND		SUBT1.REQ_PRO_TYPE = #searchCd#	/* 처리유형 */
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="reqNewType">
+					AND		SUBT1.REQ_NEW_TYPE = #searchCd#	/* 접수 유형 */
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="reqTypeCd">
+					AND		SUBT1.REQ_TYPE_CD = #searchCd#	/* 요구사항 유형 */
+				</isEqual>
+			</isNotEmpty>
+		</isNotEmpty>
+		ORDER BY SUBT1.REQ_ORD_NUMBER DESC, SUBT1.REQ_DTM, SUBT1.REQ_ID
+	</sql>
+
+	<!-- 배포 계획에 미배정된 요구사항 목록 -->
+	<sql id="selectDpl1100NotExistDplList">
+		SELECT SUBT1.*
+		FROM
+		(
+			SELECT 
+				ROWNUM AS RN
+				,	T.PRJ_ID 		/* 프로젝트 ID */
+				, 	T.PROCESS_ID 	/* 프로세스 ID */
+				, 	T.PROCESS_NM 	/* 프로세스 명 */
+				, 	T.FLOW_ID 		/* 작업흐름 ID */
+				, 	T.FLOW_NM 		/* 작업흐름 명 */
+				, 	T.REQ_ID 		/* 요구사항 ID */
+				, 	T.REQ_ORD 		/* 요구사항 순번 */
+				,   TO_NUMBER(IFNULL(SF_REPLACE_ALL(T.REQ_ORD ,'[^0-9]',''),0)) AS REQ_ORD_NUMBER
+				, 	T.REQ_NO 		/* 공문번호 */
+				, 	T.REQ_NM 		/* 요구사항 명 */
+			<![CDATA[ 
+	    		, sf_Replace_All (T.REQ_DESC ,'</br>|<br>|<br/>|</BR>|<BR>|<BR/>' , '' ) AS REQ_DESC
+	    	]]>
+				, 	T.REQ_CHARGER_ID 	/* 담당자 ID */
+				, 	SF_ADM2000_USR_INFO(T.REQ_CHARGER_ID, '1') AS REQ_CHARGER_NM /* 담당자 명 */
+				, 	T.REQ_USR_ID 		/* 요청자 ID */
+				, 	COALESCE(T.REQ_USR_NM, SF_ADM2000_USR_INFO(T.REQ_USR_ID, '1')) AS REQ_USR_NM	/* 요청자 명 */
+				, 	T.REQ_DTM	/* 요청일자 */
+				, 	T.REQ_ST_DTM /* 작업 시작일자 */
+	   		   	, 	T.REQ_ED_DTM /* 작업 종료일자 */
+				, 	T.REQ_ST_DU_DTM /* 작업 시작 예정일자 */
+				, 	T.REQ_ED_DU_DTM /* 작업 종료 예정일자 */
+				, 	T.REQ_TYPE_CD	/* 요구사항 유형 코드 (공통코드 : REQ00012)*/
+				, 	SF_ADM4100_COM_CD_INFO(#licGrpId#, 'REQ00012', T.REQ_TYPE_CD, '1') AS REQ_TYPE_NM 		/* 요구사항 유형 명 */
+				, 	T.REQ_PRO_TYPE	/* 요구사항 처리유형 코드 (공통코드 : REQ00008) */
+				, 	SF_ADM4100_COM_CD_INFO(#licGrpId#, 'REQ00008', T.REQ_PRO_TYPE, '1') AS REQ_PRO_TYPE_NM 	/* 요구사항 처리유형 명 */
+				, 	T.REQ_NEW_TYPE	/* 요구사항 접수유형 코드 (공통코드 : REQ00009) */
+				, 	SF_ADM4100_COM_CD_INFO(#licGrpId#, 'REQ00009', T.REQ_NEW_TYPE, '1') AS REQ_NEW_TYPE_NM 	/* 요구사항 접수유형 명 */
+				,	T.REQ_COMPLETE_RATIO	/* 요구사항 진척률 */
+				,	T.REQ_FP				/* 요구사항 FP */
+		    	,	T.REQ_EX_FP				/* 요구사항 예상 FP */
+				,	T.SCL_CD				/* 시스템 구분 코드 */
+				,   SF_ADM4100_COM_CD_INFO(#licGrpId#, 'REQ00011', T.SCL_CD, '1') AS SCL_NM	/* 시스템 구분 명 */
+				,	T.PIA_CD				/* 성능 개선활동 여부 코드 */
+				,   SF_ADM4100_COM_CD_INFO(#licGrpId#, 'CMM00001', T.PIA_CD, '1') AS PIA_NM	/* 성능 개선활동 명 */
+				,	T.LAB_INP				/* 투입인력 */
+				,	T.MILESTONE_ID			/* 마일스톤 ID */
+				,   T.ORG_REQ_ID			/* 각 체계별 요구사항 ID */
+				,	T.REG_DTM /* 최초등록일시 */
+				,	T.REG_USR_ID		/* 최초등록자 ID */
+			    ,	T.REG_USR_IP		/* 최초등록자 IP */
+			    ,	T.MODIFY_DTM	/* 최종수정일시 */
+			    ,	T.MODIFY_USR_ID		/* 최종수정자 ID */
+			    ,	T.MODIFY_USR_IP		/* 최종수정자 IP */
+			FROM
+			(
+				SELECT
+							Z.PRJ_ID 		/* 프로젝트 ID */
+						, 	Z.PROCESS_ID 	/* 프로세스 ID */
+						, 	V.PROCESS_NM 	/* 프로세스 명 */
+						, 	Y.FLOW_ID 		/* 작업흐름 ID */
+						, 	Y.FLOW_NM 		/* 작업흐름 명 */
+						, 	Z.REQ_ID 		/* 요구사항 ID */
+						, 	X.REQ_ORD 		/* 요구사항 순번 */
+						, 	X.REQ_NO 		/* 공문번호 */
+						, 	X.REQ_NM 		/* 요구사항 명 */
+			    		, 	X.REQ_DESC  /* 요구사항 내용 */   
+						, 	X.REQ_CHARGER_ID 	/* 담당자 ID */
+						, 	X.REQ_USR_ID 		/* 요청자 ID */
+						, 	X.REQ_USR_NM	/* 요청자 명 */
+						, 	TO_CHAR(X.REQ_DTM, 'YYYY-MM-DD') AS REQ_DTM	/* 요청일자 */
+						, 	IFNULL(TO_CHAR(X.REQ_ST_DTM, 'YYYY-MM-DD HH24:MI') , '') REQ_ST_DTM /* 작업 시작일자 */
+		    		   	, 	IFNULL(TO_CHAR(X.REQ_ED_DTM, 'YYYY-MM-DD HH24:MI') , '') REQ_ED_DTM /* 작업 종료일자 */
+						, 	IFNULL(TO_CHAR(X.REQ_ST_DU_DTM, 'YYYY-MM-DD') , '') REQ_ST_DU_DTM /* 작업 시작 예정일자 */
+						, 	IFNULL(TO_CHAR(X.REQ_ED_DU_DTM, 'YYYY-MM-DD') , '') REQ_ED_DU_DTM /* 작업 종료 예정일자 */
+						, 	X.REQ_TYPE_CD	/* 요구사항 유형 코드 (공통코드 : REQ00012)*/
+						, 	X.REQ_PRO_TYPE	/* 요구사항 처리유형 코드 (공통코드 : REQ00008) */
+						, 	X.REQ_NEW_TYPE	/* 요구사항 접수유형 코드 (공통코드 : REQ00009) */
+						,	X.REQ_COMPLETE_RATIO	/* 요구사항 진척률 */
+						,	X.REQ_FP				/* 요구사항 FP */
+				    	,	X.REQ_EX_FP				/* 요구사항 예상 FP */
+						,	X.SCL_CD				/* 시스템 구분 코드 */
+						,	X.PIA_CD				/* 성능 개선활동 여부 코드 */
+						,	X.LAB_INP				/* 투입인력 */
+						,	X.MILESTONE_ID			/* 마일스톤 ID */
+						,   X.ORG_REQ_ID			/* 각 체계별 요구사항 ID */
+						,	TO_CHAR(X.REG_DTM, 'YYYY-MM-DD HH24:MI:SS') AS REG_DTM /* 최초등록일시 */
+						,	X.REG_USR_ID		/* 최초등록자 ID */
+					    ,	X.REG_USR_IP		/* 최초등록자 IP */
+					    ,	TO_CHAR(X.MODIFY_DTM, 'YYYY-MM-DD HH24:MI:SS') AS MODIFY_DTM	/* 최종수정일시 */
+					    ,	X.MODIFY_USR_ID		/* 최종수정자 ID */
+					    ,	X.MODIFY_USR_IP		/* 최종수정자 IP */
+				FROM REQ4700 Z /* 요구사항 변경이력 정보 테이블 */
+				INNER JOIN FLW1100 Y /* 작업흐름 정보 테이블 */
+				ON ( Z.PRJ_ID = #prjId# AND Z.CHG_FLOW_ID IS NOT NULL AND Z.PRJ_ID = Y.PRJ_ID AND Z.PROCESS_ID = Y.PROCESS_ID AND Z.CHG_FLOW_ID = Y.FLOW_ID AND Y.FLOW_DPL_CD = '01')
+				INNER JOIN REQ4100 X /* 요구사항 정보 테이블 */
+				ON ( Z.PRJ_ID = X.PRJ_ID AND Z.REQ_ID = X.REQ_ID )
+				INNER JOIN FLW1000 V /* 프로세스 정보 테이블 */
+				ON ( Z.PRJ_ID = V.PRJ_ID AND Z.PROCESS_ID = V.PROCESS_ID )
+				WHERE 1=1
+				AND NOT EXISTS
+					(
+						SELECT DP.DPL_ID
+					    FROM DPL1100 DP
+					    WHERE 1=1
+					    AND DP.PRJ_ID = Z.PRJ_ID
+					    AND DP.REQ_ID = Z.REQ_ID
+					    AND DP.PROCESS_ID = Z.PROCESS_ID
+					    AND DP.FLOW_ID = Y.FLOW_ID
+					)
+			) T	
+			WHERE 1=1
+			<isNotEmpty property="searchSelect">
+				<isNotEmpty property="searchTxt">
+					<isEqual property="searchSelect" compareValue="reqNm"> 
+						AND		UPPER( T.REQ_NM ) like '%'|| UPPER( #searchTxt# )  ||'%'	/* 요구사항 명 검색 */
+					</isEqual>
+					<isEqual property="searchSelect" compareValue="reqDesc"> 
+						AND		UPPER( T.REQ_DESC )  like '%'|| UPPER( #searchTxt# )  ||'%'	/* 요구사항 내용 검색 */
+					</isEqual>
+					<isEqual property="searchSelect" compareValue="reqUsrNm"> 
+						AND		UPPER( T.REQ_USR_NM )  like '%'|| UPPER( #searchTxt# )  ||'%'	/* 요청자 명 검색 */
+					</isEqual>
+					<isEqual property="searchSelect" compareValue="reqChargerNm"> 
+						AND		UPPER( T.REQ_CHARGER_NM )  like '%'|| UPPER( #searchTxt# )  ||'%'	/* 담당자 명 검색 */
+					</isEqual>
+					<isEqual property="searchSelect" compareValue="processNm"> 
+						AND		UPPER( T.PROCESS_NM )  like '%'|| UPPER( #searchTxt# )  ||'%'	/* 프로세스 명 검색 */
+					</isEqual>
+					<isEqual property="searchSelect" compareValue="flowNm"> 
+						AND		UPPER( T.FLOW_NM )  like '%'|| UPPER( #searchTxt# )  ||'%'	/* 작업흐름 명 검색 */
+					</isEqual>
+					<isEqual property="searchSelect" compareValue="reqNo"> 
+						AND		UPPER( T.REQ_NO )  like '%'|| UPPER( #searchTxt# )  ||'%'	/* 공문번호 검색 */
+					</isEqual>
+					<isEqual property="searchSelect" compareValue="reqOrd"> 
+						AND		UPPER( T.REQ_ORD )  like '%'|| UPPER( #searchTxt# )  ||'%'	/* 요구사항 순번 검색 */
+					</isEqual>
+				</isNotEmpty>
+			</isNotEmpty>
+			<isNotEmpty property="searchSelect">
+				<isNotEmpty property="searchCd">
+					<isEqual property="searchSelect" compareValue="reqProType">
+						AND		T.REQ_PRO_TYPE = #searchCd#	/* 처리유형 */
+					</isEqual>
+					<isEqual property="searchSelect" compareValue="reqNewType">
+						AND		T.REQ_NEW_TYPE = #searchCd#	/* 접수 유형 */
+					</isEqual>
+					<isEqual property="searchSelect" compareValue="reqTypeCd">
+						AND		T.REQ_TYPE_CD = #searchCd#	/* 요구사항 유형 */
+					</isEqual>
+				</isNotEmpty>
+			</isNotEmpty>
+		) SUBT1
+		ORDER BY SUBT1.REQ_ORD_NUMBER DESC, SUBT1.REQ_DTM, SUBT1.REQ_ID
+	</sql>
+
+
+
+	<!-- 배포 계획에 배정된 요구사항 목록 조회한다. -->
+	<select id="dpl1100DAO.selectDpl1100ExistDplList" parameterClass="dpl1100VO" resultClass="egovMap"> <!-- java.util.Map -->
+			/* dpl1100DAO.selectDpl1100ExistDplList - 	배포 계획에 배정된 요구사항 목록 조회한다.  */
+			SELECT *
+			FROM
+				(
+					<include refid="selectDpl1100ExistDplList"/>
+		    	)
+		   <!-- 
+		   		페이징 처리가 필요여부 구분값을체크
+		   		배포계획에 배정된 요구사항 목록 조회시 페이징 처리 필요
+		   --> 	
+		   <isNotEmpty property="pagingYn">
+				<isEqual property="pagingYn" compareValue="Y">
+						WHERE RN BETWEEN (#firstIndex#+1) AND #lastIndex#
+				</isEqual>
+			</isNotEmpty>	
+	</select>
+	
+	<!-- 배포 계획에 배정된 요구사항 목록 총 건수 : 그리드 페이징 처리 부분 -->
+    <select id="dpl1100DAO.selectDpl1100ExistDplListCnt" parameterClass="dpl1100VO"  resultClass="java.lang.Integer">
+	    	/* dpl1100DAO.selectDpl1100ExistDplListCnt 배포 계획에 배정된 요구사항 목록 총 건수를 조회한다. */
+	    	SELECT
+					COUNT(*)
+			FROM	(
+						<include refid="selectDpl1100ExistDplList"/>
+					) T1
+    </select>
+	
+	
+	<!-- 배포계획 미배정된 요구사항 목록을 조회한다.
+		  미배정 요구사항 : 배포계획 저장이 있는 작업흐름에 속해있으며, 아직 배포계획에 배정되지 않은 요구사항
+	 -->
+	<select id="dpl1100DAO.selectDpl1100NotExistDplList" parameterClass="dpl1100VO" resultClass="egovMap"> <!-- java.util.Map -->
+			/* dpl1100DAO.selectDpl1100NotExistDplList - 배포계획 미배정된 요구사항 목록을 조회한다.  */
+			SELECT *
+			FROM
+				(
+					<include refid="selectDpl1100NotExistDplList"/>
+		    	)
+	    	<!-- 
+		   		페이징 처리가 필요여부 구분값을체크
+		   		배포계획에 미배정된 요구사항 목록 조회시 페이징 처리 필요
+		   	--> 	
+		   	<isNotEmpty property="pagingYn">
+				<isEqual property="pagingYn" compareValue="Y">
+						WHERE RN BETWEEN (#firstIndex#+1) AND #lastIndex#
+				</isEqual>
+			</isNotEmpty>
+	</select>
+	
+	<!-- 배포계획 미배정된 요구사항 목록 총 건수 : 그리드 페이징 처리 부분 -->
+    <select id="dpl1100DAO.selectDpl1100NotExistDplListCnt" parameterClass="dpl1100VO"  resultClass="java.lang.Integer">
+	    	/* dpl1100DAO.selectDpl1100NotExistDplListCnt 배포계획 미배정된 요구사항 목록 총 건수를 조회한다. */
+	    	SELECT
+					COUNT(*)
+			FROM	(
+						<include refid="selectDpl1100NotExistDplList"/>
+					) T1
+    </select>
+    
+    
+    <!-- 배포계획에 요구사항을 배정한다. -->
+	<insert id="dpl1100DAO.insertDpl1100ReqDplInfo" parameterClass="java.util.Map">
+		/* dpl1100DAO.insertDpl1100ReqDplInfo - 배포계획에 요구사항을 배정한다.   */
+		<![CDATA[
+			INSERT INTO DPL1100 /* 배포 요구사항 배정 정보 테이블 */
+			(
+					PRJ_ID			,REQ_ID			,PROCESS_ID		,FLOW_ID
+				,	DPL_ID			,REG_DTM		,REG_USR_ID		,REG_USR_IP
+				,	MODIFY_DTM		,MODIFY_USR_ID	,MODIFY_USR_IP
+			)
+			VALUES
+			(
+					#prjId#					,#reqId#			,#processId#		,#flowId#
+				,	#dplId#					,CURRENT_TIMESTAMP			,#regUsrId#			,#regUsrIp#
+				,	CURRENT_TIMESTAMP	,#regUsrId#			,#regUsrIp#
+			)		
+		
+		]]>
+	</insert>
+	
+	
+	<!-- 배포계획에서 요구사항을 배정제외 한다. -->
+	<delete id="dpl1100DAO.deleteDpl1100ReqDplInfo" parameterClass="java.util.Map">
+		/* dpl1100DAO.deleteDpl1100ReqDplInfo - 배포계획에서 요구사항을 배정제외 한다.  */
+		<![CDATA[
+			DELETE FROM DPL1100 A /* 배포 요구사항 배정 정보 테이블 */
+			WHERE 1=1
+				AND		A.PRJ_ID		= #prjId#
+				AND		A.REQ_ID		= #reqId#
+				AND		A.PROCESS_ID 	= #processId#
+				AND		A.FLOW_ID 		= #flowId#
+		]]>
+		<isNotEmpty property="dplId">
+				AND 	A.DPL_ID 		= #dplId#
+		</isNotEmpty>
+	</delete>
+
+	
+	<!-- 요구사항이 배정된 배포 계획 목록 (req4100Controller에 사용 )-->
+	<select id="dpl1100DAO.selectDpl1100ReqDplList" parameterClass="java.util.Map" resultClass="egovMap">
+			/* dpl1100DAO.selectDpl1100ReqDplList - 요구사항 배포 계획 목록  */
+			<![CDATA[
+				SELECT 					
+						T.PRJ_ID		/* 프로젝트 ID */
+					,	T.REQ_ID		/* 요구사항 ID */
+					,	T.PROCESS_ID	/* 프로세스 ID */
+					,	T.FLOW_ID		/* 작업흐름 ID */
+					,	T.DPL_ID		/* 배포계획 ID */
+					,	T.DPL_NM		/* 배포 명 */
+					,	T.DPL_VER		/* 배포 버전 */
+					, 	SF_REPLACE_ALL(T.DPL_DESC ,'</br>|<br>|<br/>|</BR>|<BR>|<BR/>' , ' ' ) AS DPL_DESC /* 배포 설명 */	
+					,	T.DPL_STS_CD	/* 배포 상태*/
+				 ]]>				
+			FROM (
+					SELECT
+							A.PRJ_ID		/* 프로젝트 ID */
+						,	A.REQ_ID		/* 요구사항 ID */
+						,	A.PROCESS_ID	/* 프로세스 ID */
+						,	A.FLOW_ID		/* 작업흐름 ID */
+						,	A.DPL_ID		/* 배포계획 ID */
+						,	B.DPL_NM		/* 배포 명 */
+						,	B.DPL_VER		/* 배포 버전 */
+						,	B.DPL_DESC		/* 배포 설명 */
+						,	B.DPL_STS_CD	/* 배포 상태*/
+						
+					FROM DPL1100 A	/* 배포 요구사항 배정 정보 테이블 */
+					INNER JOIN DPL1000 B	/* 배포 정보 테이블 */
+					ON ( A.PRJ_ID = B.PRJ_ID AND A.DPL_ID = B.DPL_ID )
+					WHERE 1=1
+					AND A.PRJ_ID = #prjId#  
+					AND A.REQ_ID = #reqId#
+					AND A.PROCESS_ID = #processId#
+					<isEmpty property="dshType">
+						<isNotEmpty property="flowId">
+							AND A.FLOW_ID = #flowId#
+						</isNotEmpty>
+					</isEmpty>
+					<isNotEmpty property="dplId">
+						AND A.DPL_ID = #dplId#
+					</isNotEmpty>
+				 ) T
+	</select>
+	
+	
+	<!-- 	요구사항 배포 계획 배정 update -->
+	<update id="dpl1100DAO.updateDpl1200ReqDplInfo" parameterClass="java.util.Map">
+		<![CDATA[ 
+			/* dpl1100DAO.updateDpl1200ReqDplInfo - 요구사항 배포 계획 배정 update  */
+			UPDATE DPL1100 A  /* 배포 요구사항 배정 정보 테이블 */
+			SET 
+				DPL_ID = #dplId#
+				,MODIFY_USR_ID = #modifyUsrId#
+				,MODIFY_DTM = CURRENT_TIMESTAMP
+				,MODIFY_USR_IP = #modifyUsrIp#
+			WHERE 1=1
+			AND A.PRJ_ID = #prjId#
+			AND A.REQ_ID = #reqId#
+			AND A.PROCESS_ID = #processId# 
+			AND A.FLOW_ID = #flowId#
+			AND A.DPL_ID = #beforeDplId#
+		]]>
+	</update>
+	
+	
+	
+	
+	
+	
+	
+	<!-- ****************************************************** -->
+	
+	<update id="dpl1100DAO.updateDpl1100Dpl" parameterClass="java.util.Map">
+		<![CDATA[ 
+			/* dpl1100DAO.updateDpl1100Dpl - 배포버젼 반영  */
+			UPDATE REQ4100
+			SET 
+			
+		]]>
+			<isEqual property="dplId" compareValue="null">
+				DPL_ID = null,  		/* 배포ID 값 null  */  
+			</isEqual>
+			<isNotEqual property="dplId" compareValue="null">
+				DPL_ID = #dplId#,  		/* 배포ID 값 입력  */  
+			</isNotEqual>
+		<![CDATA[ 
+				MODIFY_USR_ID = #modifyUsrId#,  		 /*최종수정자 ID*/
+				MODIFY_DTM = CURRENT_TIMESTAMP , 		/*최종수정일시*/
+				MODIFY_USR_IP = #modifyUsrIp# /*최종수정자 IP*/
+				
+			WHERE PRJ_ID = #selPrjId#  /* 프로젝트  ID  */ 
+			AND REQ_ID = #reqId#  /* 요구사항  ID  */
+		]]>
+	</update>
+	
+	
+	<insert id="dpl1100DAO.insertDpl1100logHistory" parameterClass="java.util.Map">
+		
+		<![CDATA[ 
+			INSERT    INTO  DPL1100
+				   (
+				            PRJ_ID             , /* 프로젝트 ID */ 
+				            DPL_ID             , /* 배포 ID */ 
+				            DPL_SEQ            , /* 배포 순번 */ 
+				            BLD_NUM            , /* 빌드 번호 */ 
+				            REG_DTM            , /* 최초등록일시 */ 
+				            REG_USR_ID         , /* 최초등록자ID */ 
+				            REG_USR_IP         , /* 최초등록자IP */
+				            JEN_ID             ,
+				            LIC_GRP_ID 
+				   )
+			VALUES
+				   (
+			                #prjId#, 
+			                #dplId#, 
+			                ( SELECT 
+			                       COALESCE( MAX(A.DPL_SEQ) , 0 ) +1 
+			                  FROM 
+			                        DPL1100 A 
+			                  WHERE A.PRJ_ID = #prjId# 
+			                    AND A.DPL_ID = #dplId# 
+			                    AND A.JEN_ID = #jenId# )
+			                , 
+			                #bldNum#, 
+			                CURRENT_TIMESTAMP, 
+			                #regUsrId#, 
+			                #regUsrIp#,
+			                #jenId# ,
+			                #licGrpId#
+				   )
+		]]>
+	</insert>
+	
+	
+	
+	<select id="dpl1100DAO.selectDpl1100ExistBuildInfo" parameterClass="java.util.Map" resultClass="java.lang.String">
+			/* dpl1100DAO.selectDpl1100ExistBuildInfo - 	배포 계획 빌드이력 조회  */
+				SELECT 
+				       COALESCE(1,0) AS USE_YN 
+				  FROM 
+					   DPL1100 A 
+				 WHERE A.PRJ_ID = #prjId#  
+				   AND A.DPL_ID = #dplId# 
+				   AND A.LIC_GRP_ID = #licGrpId#
+				   LIMIT 1
+	</select>
+	
+</sqlMap>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="stm2200DAO">
+	<typeAlias alias="egovMap" 		type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias alias="stm2200VO"	type="kr.opensoftlab.oslops.stm.stm2000.stm2200.vo.Stm2200VO"/>
+
+   	<resultMap id="resultMapSelectStm2200Project" class="stm2200VO">
+		<result property="rn"  			column="RN"/>
+		<result property="svnRepId"     column="SVN_REP_ID" /> 	<!-- SVN Repository 코드 --> 
+		<result property="svnRepNm"     column="SVN_REP_NM" /> 	<!-- SVN Repository 명 --> 
+		<result property="svnRepUrl"    column="SVN_REP_URL" /> <!-- SVN Repository URL --> 
+		<result property="svnTxt"       column="SVN_TXT" /> 	<!-- SVN RepositoryI Comment --> 
+		<result property="useCd"        column="USE_CD" /> 		<!-- 사용여부(코드 : CMM00001) --> 
+		<result property="useCd"  		column="USE_CD"/>
+		<result property="regDtm"  		column="REG_DTM"/>
+		<result property="useNm"  		column="USE_NM"/>
+		<result property="regUsrId"  	column="REG_USR_ID"/>
+		<result property="prjNm"  	    column="PRJ_NM"/>
+    </resultMap>
+	
+	
+	<!-- 프로젝트별 배정된 SVN Repository 전체  목록 조회 -->		
+	<sql id="selectStm2200ProjectList">
+		<![CDATA[
+			SELECT 
+					T.LIC_GRP_ID
+				,	T.PRJ_NM 
+				,	T.SVN_REP_ID        
+			    ,	T.SVN_REP_NM          
+			    ,	T.SVN_REP_URL   
+			    ,	COALESCE(T.SVN_TXT, SF_REPLACE_ALL(T.SVN_TXT ,'</br>|<br>|<br/>|</BR>|<BR>|<BR/>' , '' ), ' ')  AS SVN_TXT   
+			    ,	T.USE_CD              
+			    ,	SF_ADM4100_COM_CD_INFO(#licGrpId#, 'CMM00001', T.USE_CD, '1') AS USE_NM 
+				,	T.REG_DTM
+			    ,	T.REG_USR_ID       
+			    ,	T.REG_USR_IP           
+				,	T.MODIFY_DTM    
+			    ,   T.MODIFY_USR_ID         
+			    ,	T.MODIFY_USR_IP         
+			FROM 
+			(	
+				SELECT
+						A.LIC_GRP_ID		/* 라이선스 그룹 ID */
+			        ,	A.SVN_REP_ID        /* SVN Repository 코드 */ 
+			        ,	A.SVN_REP_NM        /* SVN Repository 명 */ 
+			        ,	A.SVN_REP_URL       /* SVN Repository URL */ 
+			        ,	A.SVN_TXT           /* SVN RepositoryI Comment */ 
+			        ,	A.USE_CD            /* 사용여부(코드 : CMM00001) */
+					,	TO_CHAR(A.REG_DTM, 'YYYY-MM-DD HH24:MI:SS') AS REG_DTM      	/* 최초등록 일시 */ 
+			        ,	A.REG_USR_ID        /* 최초등록자 ID */ 
+			        ,	A.REG_USR_IP        /* 최초등록자 IP */ 
+					,	TO_CHAR(A.MODIFY_DTM , 'YYYY-MM-DD HH24:MI:SS') AS MODIFY_DTM   /* 최종수정일시 */ 
+			        ,   A.MODIFY_USR_ID     /* 최종수정자 ID */ 
+			        ,	A.MODIFY_USR_IP     /* 최종수정자 IP */
+			        ,	C.PRJ_NM 			/* 프로젝트 명 */
+				FROM SVN1000 A 
+			    INNER JOIN SVN1100 B
+			    ON ( A.SVN_REP_ID = B.SVN_REP_ID AND A.LIC_GRP_ID = B.LIC_GRP_ID)
+			   	INNER JOIN PRJ1000 C
+			    ON ( B.LIC_GRP_ID = C.LIC_GRP_ID AND  B.PRJ_ID = C.PRJ_ID )
+			) T        
+			WHERE 1=1
+			AND	T.LIC_GRP_ID = #licGrpId#
+		]]>
+		<isNotEmpty property="searchSelect">
+			<isNotEmpty property="searchTxt">
+				<isEqual property="searchSelect" compareValue="svnRepNm"> 
+					AND		UPPER( T.SVN_REP_NM) like '%'|| UPPER( #searchTxt# ) ||'%'
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="svnTxt"> 
+					AND		UPPER( T.SVN_TXT ) like '%'|| UPPER( #searchTxt# ) ||'%'
+				</isEqual>
+			</isNotEmpty>
+		</isNotEmpty>
+		
+		<isNotEmpty property="searchSelect">
+			<isNotEmpty property="searchCd">
+				<isEqual property="searchSelect" compareValue="useCd">
+					AND		T.USE_CD = #searchCd#
+				</isEqual>
+			</isNotEmpty>
+		</isNotEmpty>
+		ORDER BY T.PRJ_NM ASC, T.SVN_REP_NM ASC
+    </sql>
+    
+     <!-- 프로젝트별 배정된 SVN Repository 전체 목록 조회  -->
+    <select id="stm2200DAO.selectStm2200RepProjectList" parameterClass="stm2200VO"  resultMap="resultMapSelectStm2200Project">
+	    /* stm2200DAO.selectStm2200RepProjectList 프로젝트별 배정된 SVN Repository 전체 목록 조회한다.*/
+		SELECT *
+		FROM
+		(
+    		SELECT	ROWNUM RN
+    			,	A.*
+    		FROM
+    		(
+					<include refid="selectStm2200ProjectList"/>
+	    	) A
+	    )
+	   	WHERE RN BETWEEN (#firstIndex#+1) AND #lastIndex#
+    </select>
+    
+    <!-- 프로젝트별 배정된 SVN Repository 전체 목록 총 건수 : 페이징 처리 부분 -->
+    <select id="stm2200DAO.selectStm2200RepProjectListCnt" parameterClass="stm2200VO"  resultClass="java.lang.Integer">
+	    /* stm2200DAO.selectStm2200RepProjectListCnt 프로젝트별 배정된 SVN Repository 전체 목록 총 건수 조회 */
+	    	SELECT
+					COUNT(*)
+			FROM	(
+						<include refid="selectStm2200ProjectList"/>
+					) A
+    </select>
+    	
+</sqlMap>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="rpt1000DAO">
+
+	 <!--  in / out class define  -->
+	<typeAlias alias="egovMap"	 	type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	
+    <!-- 관리과 전체 통계 (프로세스별 관리 항목) -->
+    <select id="rpt1000DAO.selectRpt1000ReportMngDataList" parameterClass="java.util.Map"  resultClass="egovMap">
+    	/* rpt1000DAO.selectRpt1000ReportMngDataList 관리과 전체 통계 (프로세스별 관리 항목)*/
+		SELECT
+			T1.SUB_CD
+			,T1.SUB_CD_NM
+			,T1.REQ_MNG_01_CNT
+			,T1.REQ_MNG_02_CNT
+			,T1.REQ_MNG_03_CNT
+			,T1.REQ_MNG_04_CNT
+			,T1.REQ_MNG_05_CNT
+			,(T1.REQ_MNG_01_CNT + T1.REQ_MNG_02_CNT + T1.REQ_MNG_03_CNT + T1.REQ_MNG_04_CNT + T1.REQ_MNG_05_CNT  ) AS SUM_COUNT
+		FROM
+		(
+			SELECT A.SUB_CD
+				, A.SUB_CD_NM
+				, COUNT(DECODE(B.REQ_MNG_TYPE_CD,'01',1)) AS REQ_MNG_01_CNT
+				, COUNT(DECODE(B.REQ_MNG_TYPE_CD,'02',1)) AS REQ_MNG_02_CNT
+				, COUNT(DECODE(B.REQ_MNG_TYPE_CD,'03',1)) AS REQ_MNG_03_CNT
+				, COUNT(DECODE(B.REQ_MNG_TYPE_CD,'04',1)) AS REQ_MNG_04_CNT
+				, COUNT(DECODE(B.REQ_MNG_TYPE_CD,'05',1)) AS REQ_MNG_05_CNT
+			FROM ADM4100 A
+			LEFT JOIN REQ4100 B
+			ON (
+				B.PRJ_ID = #prjId#
+				AND B.REQ_MNG_TASK_TYPE_CD = A.SUB_CD
+				AND B.REQ_PRO_TYPE = '04'
+				AND B.REQ_ED_DTM IS NOT NULL
+				<isNotEmpty property="searchStDtm">
+					<![CDATA[
+						AND B.REQ_ED_DTM >= TO_DATETIME(#searchStDtm# || ' 00:00', 'YYYY-MM-DD HH24:MI')
+					]]>
+				</isNotEmpty>
+				<isNotEmpty property="searchEdDtm">
+					<![CDATA[
+						AND B.REQ_ED_DTM <= TO_DATETIME(#searchEdDtm# || ' 23:59', 'YYYY-MM-DD HH24:MI')
+					]]>
+				</isNotEmpty>
+				<![CDATA[
+					AND B.REQ_PRO_TYPE <> '05'
+					AND B.REQ_PRO_TYPE <> '06'
+				]]>
+			)
+			WHERE 1=1
+			AND A.LIC_GRP_ID = #licGrpId#
+			AND A.MST_CD = 'REQ00018'
+			GROUP BY A.SUB_CD, A.SUB_CD_NM
+			ORDER BY A.SUB_CD
+		) T1
+    </select>
+    
+    
+    <!-- 관리과 요구사항 통계 (세부 항목) -->
+    <select id="rpt1000DAO.selectRpt1000ReportMngDetailDataList" parameterClass="java.util.Map"  resultClass="egovMap">
+	    /* rpt1000DAO.selectRpt1000ReportMngDetailDataList 관리과 요구사항 통계 (세부 항목) */
+	    SELECT
+	    	T1.SUB_CD
+			, T1.SUB_CD_NM
+			, T1.MNG_DETAIL_CD
+			, T1.MNG_DETAIL_NM
+			, T1.SUB_CD_REF1
+			, ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00016' AND SUB_CD = T1.SUB_CD_REF1 ) AS SUB_CD_REF1_NM
+			, T1.REQ_MNG_DETAIL_CNT
+		FROM
+		(
+			SELECT A.SUB_CD
+			, A.SUB_CD_NM
+			, B.SUB_CD AS MNG_DETAIL_CD
+			, B.SUB_CD_NM AS MNG_DETAIL_NM
+			, B.SUB_CD_REF1
+			, COUNT(C.REQ_ID) AS REQ_MNG_DETAIL_CNT
+			FROM ADM4100 A
+			LEFT JOIN ADM4100 B
+			ON ( A.LIC_GRP_ID = B.LIC_GRP_ID AND B.MST_CD = 'REQ00017' )
+			LEFT JOIN REQ4100 C
+			ON (
+				C.PRJ_ID = #prjId#
+				AND C.REQ_MNG_TASK_TYPE_CD = A.SUB_CD
+				AND C.REQ_MNG_TYPE_CD = B.SUB_CD_REF1
+				AND C.REQ_MNG_DETAIL_CD = B.SUB_CD
+				AND C.REQ_ED_DTM IS NOT NULL
+				AND C.REQ_PRO_TYPE = '04'
+				<isNotEmpty property="searchStDtm">
+					<![CDATA[
+						AND C.REQ_ED_DTM >= TO_DATETIME(#searchStDtm# || ' 00:00', 'YYYY-MM-DD HH24:MI')
+					]]>
+				</isNotEmpty>
+				<isNotEmpty property="searchEdDtm">
+					<![CDATA[
+						AND C.REQ_ED_DTM <= TO_DATETIME(#searchEdDtm# || ' 23:59', 'YYYY-MM-DD HH24:MI')
+					]]>
+				</isNotEmpty>
+				<![CDATA[
+					AND C.REQ_PRO_TYPE <> '05'
+					AND C.REQ_PRO_TYPE <> '06'
+				]]>
+			)
+			WHERE 1=1
+			AND A.LIC_GRP_ID = #licGrpId#
+			AND A.MST_CD = 'REQ00018'
+			AND B.SUB_CD_REF1 = #reqMngDetailCd#
+			GROUP BY A.SUB_CD, A.SUB_CD_NM, B.SUB_CD, B.SUB_CD_NM, B.SUB_CD_REF1
+		) T1
+    </select>
+   
+</sqlMap>

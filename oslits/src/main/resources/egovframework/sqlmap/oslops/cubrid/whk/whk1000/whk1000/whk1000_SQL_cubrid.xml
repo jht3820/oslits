@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="whk1000DAO">
+
+	<!--  in / out class define  -->
+	<typeAlias alias="egovMap"	 	type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias alias="whk1000VO"	type="kr.opensoftlab.oslops.whk.whk1000.whk1000.vo.Whk1000VO"/>
+
+	<!-- Map Define -->
+   	<resultMap id="resultMapSelectWhk1000" class="whk1000VO">
+		<result property="rn"  					column="RN"/>
+		<result property="prjId"				column="PRJ_ID"/>
+		<result property="webhookId"			column="WEBHOOK_ID"/>
+		<result property="webhookNm"			column="WEBHOOK_NM"/>
+		<result property="platformTypeCd"		column="PLATFORM_TYPE_CD"/>
+		<result property="platformTypeNm"		column="PLATFORM_TYPE_NM"/>
+		<result property="webhookUrl"			column="WEBHOOK_URL"/>
+		<result property="whkReqUpdateCd"		column="WHK_REQ_UPDATE_CD"/>
+		<result property="whkReqUpdateNm"		column="WHK_REQ_UPDATE_NM"/>
+		<result property="whkReqDeleteCd"		column="WHK_REQ_DELETE_CD"/>
+		<result property="whkReqDeleteNm"		column="WHK_REQ_DELETE_NM"/>
+		<result property="whkFlowChgCd"			column="WHK_FLOW_CHG_CD"/>
+		<result property="whkFlowChgNm"			column="WHK_FLOW_CHG_NM"/>
+		<result property="whkNewInsertCd"		column="WHK_NEW_INSERT_CD"/>
+		<result property="whkNewInsertNm"		column="WHK_NEW_INSERT_NM"/>
+		<result property="whkNewAcceptCd"		column="WHK_NEW_ACCEPT_CD"/>
+		<result property="whkNewAcceptNm"		column="WHK_NEW_ACCEPT_NM"/>
+		<result property="whkNewRejectCd"		column="WHK_NEW_REJECT_CD"/>
+		<result property="whkNewRejectNm"		column="WHK_NEW_REJECT_NM"/>
+		<result property="whkSignRequestCd"		column="WHK_SIGN_REQUEST_CD"/>
+		<result property="whkSignRequestNm"		column="WHK_SIGN_REQUEST_NM"/>
+		<result property="whkSignAcceptCd"		column="WHK_SIGN_ACCEPT_CD"/>
+		<result property="whkSignAcceptNm"		column="WHK_SIGN_ACCEPT_NM"/>
+		<result property="whkSignRejectCd"		column="WHK_SIGN_REJECT_CD"/>
+		<result property="whkSignRejectNm"		column="WHK_SIGN_REJECT_NM"/>
+		<result property="whkUserChgCd"			column="WHK_USER_CHG_CD"/>
+		<result property="whkUserChgNm"			column="WHK_USER_CHG_NM"/>
+		<result property="whkReqDoneCd"			column="WHK_REQ_DONE_CD"/>
+		<result property="whkReqDoneNm"			column="WHK_REQ_DONE_NM"/>
+		<result property="useCd"				column="USE_CD"/>
+		<result property="useNm"				column="USE_NM"/>
+		<result property="regDtm"				column="REG_DTM"/>
+		<result property="regUsrId"				column="REG_USR_ID"/>
+		<result property="regUsrIp"				column="REG_USR_IP"/>
+		<result property="modifyDtm"			column="MODIFY_DTM"/>
+		<result property="modifyUsrId"			column="MODIFY_USR_ID"/>
+		<result property="modifyUsrIp"			column="MODIFY_USR_IP"/>
+    </resultMap>
+    
+	<!-- 프로젝트 웹훅 목록 조회-->
+	<sql id="whk1000DAO.selectWhk1000PrjWhkListRef">
+		<![CDATA[
+			SELECT 
+					RN
+				,	T1.PRJ_ID
+				,	T1.PRJ_NM
+				,	T1.LIC_GRP_ID
+				,	T1.WEBHOOK_ID
+				,	T1.WEBHOOK_NM
+				,	T1.PLATFORM_TYPE_CD
+				,	T1.PLATFORM_TYPE_NM
+				,	T1.WEBHOOK_URL
+				,	T1.WHK_REQ_UPDATE_CD
+				,	T1.WHK_REQ_UPDATE_NM
+				,	T1.WHK_REQ_DELETE_CD
+				,	T1.WHK_REQ_DELETE_NM
+				,	T1.WHK_FLOW_CHG_CD
+				,	T1.WHK_FLOW_CHG_NM
+				,	T1.WHK_NEW_INSERT_CD
+				,	T1.WHK_NEW_INSERT_NM
+				,	T1.WHK_NEW_ACCEPT_CD
+				,	T1.WHK_NEW_ACCEPT_NM
+				,	T1.WHK_NEW_REJECT_CD
+				,	T1.WHK_NEW_REJECT_NM
+				,	T1.WHK_SIGN_REQUEST_CD
+				,	T1.WHK_SIGN_REQUEST_NM
+				,	T1.WHK_SIGN_ACCEPT_CD
+				,	T1.WHK_SIGN_ACCEPT_NM
+				,	T1.WHK_SIGN_REJECT_CD
+				,	T1.WHK_SIGN_REJECT_NM
+				,	T1.WHK_USER_CHG_CD
+				,	T1.WHK_USER_CHG_NM
+				,	T1.WHK_REQ_DONE_CD
+				,	T1.WHK_REQ_DONE_NM
+				,	T1.USE_CD
+				,	T1.USE_NM
+				,	T1.REG_DTM
+			    ,	T1.REG_USR_ID
+			    ,	T1.REG_USR_IP
+			    ,	T1.MODIFY_DTM
+			    ,	T1.MODIFY_USR_ID
+			    ,	T1.MODIFY_USR_IP
+			FROM
+			(
+				SELECT
+						ROWNUM AS RN 
+					,	A.PRJ_ID
+					,	B.PRJ_NM
+					,	B.LIC_GRP_ID
+					,	A.WEBHOOK_ID
+					,	A.WEBHOOK_NM
+					,	A.PLATFORM_TYPE_CD
+					,	(SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = B.LIC_GRP_ID AND MST_CD = 'CMM00004' AND SUB_CD = A.PLATFORM_TYPE_CD) AS PLATFORM_TYPE_NM
+					,	A.WEBHOOK_URL
+					,	A.WHK_REQ_UPDATE_CD
+					,	(SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = B.LIC_GRP_ID AND MST_CD = 'CMM00001' AND SUB_CD = A.WHK_REQ_UPDATE_CD) AS WHK_REQ_UPDATE_NM
+					,	A.WHK_REQ_DELETE_CD
+					,	(SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = B.LIC_GRP_ID AND MST_CD = 'CMM00001' AND SUB_CD = A.WHK_REQ_DELETE_CD) AS WHK_REQ_DELETE_NM
+					,	A.WHK_FLOW_CHG_CD
+					,	(SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = B.LIC_GRP_ID AND MST_CD = 'CMM00001' AND SUB_CD = A.WHK_FLOW_CHG_CD) AS WHK_FLOW_CHG_NM
+					,	A.WHK_NEW_INSERT_CD
+					,	(SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = B.LIC_GRP_ID AND MST_CD = 'CMM00001' AND SUB_CD = A.WHK_NEW_INSERT_CD) AS WHK_NEW_INSERT_NM
+					,	A.WHK_NEW_ACCEPT_CD
+					,	(SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = B.LIC_GRP_ID AND MST_CD = 'CMM00001' AND SUB_CD = A.WHK_NEW_ACCEPT_CD) AS WHK_NEW_ACCEPT_NM
+					,	A.WHK_NEW_REJECT_CD
+					,	(SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = B.LIC_GRP_ID AND MST_CD = 'CMM00001' AND SUB_CD = A.WHK_NEW_REJECT_CD) AS WHK_NEW_REJECT_NM
+					,	A.WHK_SIGN_REQUEST_CD
+					,	(SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = B.LIC_GRP_ID AND MST_CD = 'CMM00001' AND SUB_CD = A.WHK_SIGN_REQUEST_CD) AS WHK_SIGN_REQUEST_NM
+					,	A.WHK_SIGN_ACCEPT_CD
+					,	(SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = B.LIC_GRP_ID AND MST_CD = 'CMM00001' AND SUB_CD = A.WHK_SIGN_ACCEPT_CD) AS WHK_SIGN_ACCEPT_NM
+					,	A.WHK_SIGN_REJECT_CD
+					,	(SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = B.LIC_GRP_ID AND MST_CD = 'CMM00001' AND SUB_CD = A.WHK_SIGN_REJECT_CD) AS WHK_SIGN_REJECT_NM
+					,	A.WHK_USER_CHG_CD
+					,	(SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = B.LIC_GRP_ID AND MST_CD = 'CMM00001' AND SUB_CD = A.WHK_USER_CHG_CD) AS WHK_USER_CHG_NM
+					,	A.WHK_REQ_DONE_CD
+					,	(SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = B.LIC_GRP_ID AND MST_CD = 'CMM00001' AND SUB_CD = A.WHK_REQ_DONE_CD) AS WHK_REQ_DONE_NM
+					,	A.USE_CD
+					,	(SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = B.LIC_GRP_ID AND MST_CD = 'CMM00001' AND SUB_CD = A.USE_CD) AS USE_NM
+					,	TO_CHAR(A.REG_DTM, 'YYYY-MM-DD HH24:MI:SS') AS REG_DTM
+				    ,	A.REG_USR_ID
+				    ,	A.REG_USR_IP
+				    ,	TO_CHAR(A.MODIFY_DTM, 'YYYY-MM-DD HH24:MI:SS') AS MODIFY_DTM
+				    ,	A.MODIFY_USR_ID
+				    ,	A.MODIFY_USR_IP
+				FROM WHK1000 A
+				LEFT JOIN PRJ1000 B
+				ON ( A.PRJ_ID = B.PRJ_ID )
+				WHERE 1=1
+				AND A.PRJ_ID = #prjId#
+				AND B.USE_CD = '01'
+			) T1
+			WHERE 1=1
+		]]>	
+			<isNotEmpty property="searchSelect">
+				<isNotEmpty property="searchTxt">
+				<isEqual property="searchSelect" compareValue="webhookId">
+					AND T1.WEBHOOK_ID LIKE '%'||#searchTxt#||'%'
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="webhookNm">
+					AND T1.WEBHOOK_NM LIKE '%'||#searchTxt#||'%'
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="webhookUrl">
+					AND T1.WEBHOOK_URL LIKE '%'||#searchTxt#||'%'
+				</isEqual>
+				</isNotEmpty>
+			</isNotEmpty>
+			<isNotEmpty property="searchSelect">
+				<isNotEmpty property="searchCd">
+					<isEqual property="searchSelect" compareValue="platformTypeCd">
+						AND T1.PLATFORM_TYPE_CD LIKE '%'||#searchCd#||'%'
+					</isEqual>
+				</isNotEmpty>
+			</isNotEmpty>
+			ORDER BY T1.REG_DTM DESC
+	</sql>
+
+	<!-- 웹훅 정보 등록 -->
+	<insert id="whk1000DAO.insertWhk1000PrjWhkInfo" parameterClass="java.util.Map">
+		<selectKey resultClass="java.lang.String" keyProperty="newWebhookId">
+		<![CDATA[
+			/* whk1000DAO.insertWhk1000PrjWhkInfo - 웹훅 정보 등록(새로운 WEBHOOK_ID)*/ 
+			SELECT	COALESCE( 
+							SUBSTR(NEW_WEBHOOK_ID, 1, 11) || LPAD( (TO_NUMBER(SUBSTR(NEW_WEBHOOK_ID, 12, 5)) + 1) , 5, '0')
+						,	'WHK' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDD') || '00001'
+            		) AS NEW_WEBHOOK_ID 
+			FROM	(
+			            SELECT	MAX(WEBHOOK_ID)  AS NEW_WEBHOOK_ID
+			            FROM	WHK1000 A
+			            WHERE	1=1
+                        AND		A.PRJ_ID = #prjId#
+			            AND		A.WEBHOOK_ID LIKE 'WHK' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDD') || '%'
+					)
+		]]>
+		</selectKey>
+		<![CDATA[ 
+			/* whk1000DAO.insertWhk1000PrjWhkInfo - 웹훅 정보 등록 */ 
+			INSERT INTO WHK1000
+			(
+			        PRJ_ID,						WEBHOOK_ID,					WEBHOOK_NM			
+			        ,PLATFORM_TYPE_CD,			WEBHOOK_URL,				WHK_REQ_UPDATE_CD
+			        ,WHK_REQ_DELETE_CD,			WHK_FLOW_CHG_CD,			WHK_NEW_INSERT_CD
+			        ,WHK_NEW_ACCEPT_CD,			WHK_NEW_REJECT_CD,			WHK_SIGN_REQUEST_CD
+			        ,WHK_SIGN_ACCEPT_CD,		WHK_SIGN_REJECT_CD,			WHK_USER_CHG_CD
+			        ,WHK_REQ_DONE_CD,			USE_CD
+			        ,REG_DTM,					REG_USR_ID,					REG_USR_IP
+			        ,MODIFY_DTM,				MODIFY_USR_ID,				MODIFY_USR_IP
+			)                    
+			VALUES
+			(
+					#prjId#,					#newWebhookId#,				#webhookNm#				
+					,#platformTypeCd#,			#webhookUrl#,				#whkReqUpdateCd#
+					,#whkReqDeleteCd#,			#whkFlowChgCd#,				#whkNewInsertCd#
+					,#whkNewAcceptCd#,			#whkNewRejectCd#,			#whkSignRequestCd#
+					,#whkSignAcceptCd#,			#whkSignRejectCd#,			#whkUserChgCd#
+					,#whkReqDoneCd#,			#useCd#
+					,CURRENT_TIMESTAMP,					#regUsrId#,					#regUsrIp#
+					,CURRENT_TIMESTAMP,					#modifyUsrId#,				#modifyUsrIp#
+			)
+		]]>
+	</insert>
+	
+    <!-- 웹훅 목록 총건수. :페이징 처리 부분 -->
+    <select id="whk1000DAO.selectWhk1000PrjWhkListCnt" parameterClass="whk1000VO"  resultClass="java.lang.Integer">
+	    /* whk1000DAO.selectWhk1000PrjWhkListCnt 웹훅 목록 총건수를 조회한다.*/
+	    SELECT
+			COUNT(*)
+		FROM	(
+			<include refid="whk1000DAO.selectWhk1000PrjWhkListRef"/>
+		) A
+    </select>
+    
+    <!-- 웹훅 목록 조회 -->
+    <select id="whk1000DAO.selectWhk1000PrjWhkList" parameterClass="whk1000VO"  resultMap="resultMapSelectWhk1000" >
+	    /* whk1000DAO.updateWhk1000PrjWhkInfo 웹훅 목록 조회*/
+		SELECT *
+		FROM
+			(
+				<include refid="whk1000DAO.selectWhk1000PrjWhkListRef"/>
+	    	)
+	    WHERE RN BETWEEN (#firstIndex#+1) AND #lastIndex#
+    </select>
+        
+    <!-- 웹훅 전체 목록 조회 (no paging)-->
+    <select id="whk1000DAO.selectWhk1000PrjWhkAllList" parameterClass="java.util.Map"  resultClass="egovMap">
+	    /* whk1000DAO.selectWhk1000PrjWhkAllList 웹훅 전체 목록 조회 (no paging)*/
+		SELECT *
+		FROM
+			(
+				<include refid="whk1000DAO.selectWhk1000PrjWhkListRef"/>
+	    	) T2
+	    WHERE 1=1
+	    AND	T2.USE_CD = '01'
+    </select>
+        
+    <!-- 웹훅 단건 조회-->
+    <select id="whk1000DAO.selectWhk1000PrjWhkInfo" parameterClass="java.util.Map"  resultClass="egovMap">
+	    /* whk1000DAO.selectWhk1000PrjWhkInfo 웹훅 단건 조회 */
+		SELECT *
+		FROM
+			(
+				<include refid="whk1000DAO.selectWhk1000PrjWhkListRef"/>
+	    	) T2
+	    WHERE 1=1
+	    	AND T2.PRJ_ID = #prjId#
+	    	AND T2.WEBHOOK_ID = #webhookId#
+    </select>
+	
+	
+	<!-- 웹훅 정보 수정 -->
+	<update id="whk1000DAO.updateWhk1000PrjWhkInfo" parameterClass="java.util.Map">
+		/* whk1000DAO.updateWhk1000PrjWhkInfo - 웹훅 정보 수정 */ 
+		UPDATE 	WHK1000 A
+		SET		A.PLATFORM_TYPE_CD		= #platformTypeCd#
+			,	A.WEBHOOK_NM			= #webhookNm#
+			,	A.WEBHOOK_URL			= #webhookUrl#
+			,	A.WHK_REQ_UPDATE_CD		= #whkReqUpdateCd#
+			,	A.WHK_REQ_DELETE_CD		= #whkReqDeleteCd#
+			,	A.WHK_FLOW_CHG_CD		= #whkFlowChgCd#
+			,	A.WHK_NEW_INSERT_CD		= #whkNewInsertCd#
+			,	A.WHK_NEW_ACCEPT_CD		= #whkNewAcceptCd#
+			,	A.WHK_NEW_REJECT_CD		= #whkNewRejectCd#
+			,	A.WHK_SIGN_REQUEST_CD	= #whkSignRequestCd#
+			,	A.WHK_SIGN_ACCEPT_CD	= #whkSignAcceptCd#
+			,	A.WHK_SIGN_REJECT_CD	= #whkSignRejectCd#
+			,	A.WHK_USER_CHG_CD		= #whkUserChgCd#
+			,	A.WHK_REQ_DONE_CD		= #whkReqDoneCd#
+		    ,	A.USE_CD				= #useCd#
+		    ,	A.MODIFY_DTM			= CURRENT_TIMESTAMP
+		    ,	A.MODIFY_USR_ID			= #modifyUsrId#
+		    ,	A.MODIFY_USR_IP			= #modifyUsrIp#
+		WHERE	1=1
+		AND		A.PRJ_ID = #prjId#
+		AND		A.WEBHOOK_ID = #webhookId#
+	</update>
+	
+	<!-- 웹훅 정보 삭제 -->
+	<delete id="whk1000DAO.deleteWhk1000PrjWhkInfo" parameterClass="java.util.Map">
+		/* whk1000DAO.deleteWhk1000PrjWhkInfo - 웹훅 정보 삭제 */
+		<![CDATA[
+			DELETE 	FROM WHK1000
+			WHERE 	1=1
+			AND		PRJ_ID = #prjId#
+			AND		WEBHOOK_ID = #webhookId#
+		]]>	
+	</delete>
+</sqlMap>
