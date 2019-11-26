@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="stm3200DAO">
+	<typeAlias alias="egovMap" 		type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias alias="stm3200VO"	type="kr.opensoftlab.oslops.stm.stm3000.stm3200.vo.Stm3200VO"/>
+
+
+    
+    
+    <resultMap id="resultMapSelectStm3200Project" class="stm3200VO">
+		<result property="rn"  			    column="RN"/>
+		<result property="licGrpId"         column="LIC_GRP_ID" /> 		<!-- 라이선스 그룹 ID --> 
+		<result property="prjId"            column="PRJ_ID" />			<!-- 프로젝트 ID --> 
+		<result property="prjNm"            column="PRJ_NM" />			<!-- 프로젝트 명 --> 
+		<result property="jenId"            column="JEN_ID" />  		<!-- JENKINS ID -->
+		<result property="jenNm"            column="JEN_NM" />			<!-- JENKINS 사며 -->
+		<result property="jenUrl"           column="JEN_URL" /> 		<!-- JENKINS URL --> 
+		<result property="jobId"            column="JOB_ID" /> 			<!-- JOB ID(NAME) --> 
+		<result property="jobRestoreId" 	column="JOB_RESTORE_ID" /> 	<!-- 원복 JOB ID(NAME)  --> 
+		<result property="jobTypeCd"        column="JOB_TYPE_CD" /> 	<!-- JOB TYPE(코드 : DPL00002) -->
+		<result property="jobTypeNm"        column="JOB_TYPE_NM" /> 	<!-- JOB TYPE 명 -->
+		<result property="jobDesc"        	column="JOB_DESC" /> 		<!-- JOB 설명 -->
+		<result property="useCd"            column="USE_CD" /> 			<!-- 사용여부 코드(코드 : CMM00001) --> 
+		<result property="useNm"            column="USE_NM" /> 			<!-- 사용여부 코드 명(코드 : CMM00001) -->
+		<result property="regDtm"           column="REG_DTM" /> 		<!-- 최초등록 일시 --> 
+		<result property="regUsrId"         column="REG_USR_ID" /> 		<!-- 최초등록자 ID --> 
+		<result property="regUsrIp"         column="REG_USR_IP" /> 		<!-- 최초등록자 IP --> 
+		<result property="modifyDtm"        column="MODIFY_DTM" /> 		<!-- 최종수정일시 --> 
+		<result property="modifyUsrId"      column="MODIFY_USR_ID" /> 	<!-- 최종수정자 ID --> 
+		<result property="modifyUsrIp"      column="MODIFY_USR_IP" /> 	<!-- 최종수정자 IP --> 
+    </resultMap>
+    
+	
+	<sql id="selectJen1200ProjectJenkinsJobAllList">
+		SELECT SUBT2.*
+		FROM
+		(
+			SELECT
+				SUBT1.LIC_GRP_ID 		/* 라이선스그룹 ID	*/
+	            ,	SUBT1.JEN_ID			/* JENKINS ID */
+	            ,	SUBT1.JEN_NM			/* JENKINS 명 */
+	            ,	SUBT1.JEN_URL			/* JENKINS URL */
+	            ,	SUBT1.JOB_ID			/* JOB ID */
+	            ,	SUBT1.JOB_TYPE_CD		/* JOB 타입 코드 */
+	            ,	SF_ADM4100_COM_CD_INFO( #licGrpId#, 'DPL00002', SUBT1.JOB_TYPE_CD, '1') AS JOB_TYPE_NM /* JOB 타입 명 */
+	            ,	SUBT1.JOB_RESTORE_ID	/* 원복 JOB ID */
+	            ,	SUBT1.JOB_DESC			/* JOB 설명 	*/
+	            ,	SUBT1.USE_CD			/* JOB 사용여부 코드 */
+	            ,	SF_ADM4100_COM_CD_INFO( #licGrpId#, 'CMM00001', SUBT1.USE_CD, '1') AS USE_NM /* JOB 사용여부 명 */
+	            , 	SUBT1.PRJ_ID 			/* 프로젝트 ID */
+	            ,	SF_PRJ1000_GRP_NM(SUBT1.PRJ_ID) AS PRJ_NM /* 프로젝트 명 */
+	            ,	SUBT1.REG_DTM			/* 최초등록일시 	*/
+			    ,	SUBT1.REG_USR_ID		/* 최초등록자 ID */
+			    ,	SUBT1.REG_USR_IP		/* 최초등록자 IP */
+			    ,	SUBT1.MODIFY_DTM		/* 최종수정일시 	*/
+			    ,	SUBT1.MODIFY_USR_ID		/* 최종수정자 ID */
+			    ,	SUBT1.MODIFY_USR_IP		/* 최종수정자 IP */
+			FROM
+			(
+				SELECT
+				      	A.LIC_GRP_ID 		/* 라이선스그룹 ID	*/
+		            ,	A.JEN_ID			/* JENKINS ID */
+		            ,	C.JEN_NM			/* JENKINS 명 */
+		            ,	C.JEN_URL			/* JENKINS URL */
+		            ,	B.JOB_ID			/* JOB ID */
+		            ,	B.JOB_TYPE_CD		/* JOB 타입 코드 */
+		            ,	B.JOB_RESTORE_ID	/* 원복 JOB ID */
+		            ,	B.JOB_DESC			/* JOB 설명 	*/
+		            ,	B.USE_CD			/* JOB 사용여부 코드 */
+		            , 	A.PRJ_ID 			/* 프로젝트 ID */
+		            ,	A.REG_DTM			/* 최초등록일시 	*/
+				    ,	A.REG_USR_ID		/* 최초등록자 ID */
+				    ,	A.REG_USR_IP		/* 최초등록자 IP */
+				    ,	A.MODIFY_DTM		/* 최종수정일시 	*/
+				    ,	A.MODIFY_USR_ID		/* 최종수정자 ID */
+				    ,	A.MODIFY_USR_IP		/* 최종수정자 IP */
+				 FROM JEN1200 A 
+		         LEFT JOIN JEN1100 B
+		         ON (A.LIC_GRP_ID = B.LIC_GRP_ID AND A.JEN_ID = B.JEN_ID AND A.JOB_ID = B.JOB_ID)
+		         LEFT JOIN JEN1000 C
+		         ON (B.LIC_GRP_ID = C.LIC_GRP_ID AND B.JEN_ID = C.JEN_ID)
+				 WHERE   1=1
+				 AND A.LIC_GRP_ID = #licGrpId#
+				 <isNotEmpty property="searchSelect">
+					<isNotEmpty property="searchTxt">
+						<isEqual property="searchSelect" compareValue="jenNm"> 
+							AND		UPPER( C.JEN_NM ) like '%'|| UPPER( #searchTxt# )  ||'%'
+						</isEqual>
+						<isEqual property="searchSelect" compareValue="jobId"> 
+							AND		UPPER( B.JOB_ID ) like '%'|| UPPER( #searchTxt# )  ||'%'
+						</isEqual>
+						<isEqual property="searchSelect" compareValue="jobRestoreId"> 
+							AND		UPPER( B.JOB_RESTORE_ID ) like '%'|| UPPER( #searchTxt# )  ||'%'
+						</isEqual>
+						<isEqual property="searchSelect" compareValue="jobDesc"> 
+							AND		UPPER( B.JOB_DESC ) like '%'|| UPPER( #searchTxt# )  ||'%'
+						</isEqual>
+					</isNotEmpty>
+				</isNotEmpty>
+				<isNotEmpty>
+					<isNotEmpty property="searchSelect">
+						<isNotEmpty property="searchCd">
+							<isEqual property="searchSelect" compareValue="prjId">
+								AND 	A.PRJ_ID LIKE '%'||#searchCd#||'%'
+							</isEqual>
+							<isEqual property="searchSelect" compareValue="jobTypeCd">
+								AND 	B.JOB_TYPE_CD LIKE '%'||#searchCd#||'%'
+							</isEqual>
+							<isEqual property="searchSelect" compareValue="useCd">
+								AND 	B.USE_CD LIKE '%'||#searchCd#||'%'
+							</isEqual>
+						</isNotEmpty>
+					</isNotEmpty>
+				</isNotEmpty>
+			) SUBT1
+		) SUBT2
+		ORDER BY SUBT2.PRJ_NM, SUBT2.JOB_ID
+    </sql>
+    
+    <!-- 라이선스 그룹의 각 프로젝트에 배정된 JENKINS JOB 전체 목록을 조회한다. -->
+    <select id="stm3200DAO.selectJen1200ProjectJenkinsJobAllList" parameterClass="stm3200VO"  resultMap="resultMapSelectStm3200Project">
+	    /* stm3200DAO.selectJen1200ProjectJenkinsJobAllList 라이선스 그룹의 각 프로젝트에 배정된 JENKINS JOB 전체 목록을 조회한다. */
+		SELECT *
+		FROM
+			(
+    		SELECT  ROWNUM RN,
+    			    T.*
+    		FROM
+    		(
+					<include refid="selectJen1200ProjectJenkinsJobAllList"/>
+	    			) T
+	    	)
+	    	 WHERE RN BETWEEN (#firstIndex#+1) AND #lastIndex#
+    </select>
+    
+    <!-- 라이선스 그룹의 각 프로젝트에 배정된 JENKINS JOB 전체 목록 총건수. : 그리드 페이징 처리 부분 -->
+    <select id="stm3200DAO.selectJen1200ProjectJenkinsJobAllListCnt" parameterClass="stm3200VO"  resultClass="java.lang.Integer">
+	    	/* stm3200DAO.selectJen1200ProjectJenkinsJobAllListCnt 라이선스 그룹의 각 프로젝트에 배정된 JENKINS JOB 전체 목록 총건수를 조회한다.*/
+	    	SELECT
+					COUNT(*)
+			FROM	(
+						<include refid="selectJen1200ProjectJenkinsJobAllList"/>
+					) A
+    </select>
+    
+	
+</sqlMap>

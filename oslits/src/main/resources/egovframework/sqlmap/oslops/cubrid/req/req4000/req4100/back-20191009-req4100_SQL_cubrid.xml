@@ -1,0 +1,1502 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="req4100DAO">
+
+	<!--  in / out class define  -->
+    <typeAlias alias="req4100VO"	type="kr.opensoftlab.oslops.req.req4000.req4100.vo.Req4100VO"/>
+	<typeAlias alias="egovMap"	 	type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	
+	<!-- Map Define -->
+   	<resultMap id="resultMapSelectReq4100" class="req4100VO">
+		<result property="rn"  				column="RN"/>
+		<result property="prjId"				column="PRJ_ID"/>
+		<result property="reqId"				column="REQ_ID"/>
+		<result property="reqClsId"				column="REQ_CLS_ID"/>
+		<result property="reqClsNm"				column="REQ_CLS_NM"/>
+		<result property="reqNo"				column="REQ_NO"/>
+		<result property="reqUsrId"				column="REQ_USR_ID"/>
+		<result property="reqUsrNm"				column="REQ_USR_NM"/>
+		<result property="reqDtm"				column="REQ_DTM"/>
+		<result property="reqUsrDeptNm"			column="REQ_USR_DEPT_NM"/>
+		<result property="reqUsrPositionNm"			column="REQ_USR_POSITION_NM"/>
+		<result property="reqUsrDutyNm"			column="REQ_USR_DUTY_NM"/>
+		<result property="reqUsrEmail"			column="REQ_USR_EMAIL"/>
+		<result property="reqUsrNum"			column="REQ_USR_NUM"/>
+		<result property="reqNm"				column="REQ_NM"/>
+		<result property="reqDesc"				column="REQ_DESC"/>
+		<result property="reqChargerId"			column="REQ_CHARGER_ID"/>
+		<result property="reqCompleteRatio"		column="REQ_COMPLETE_RATIO"/>
+		<result property="reqFp"				column="REQ_FP"/>
+		<result property="reqExFp"				column="REQ_EX_FP"/>
+		<result property="reqStDtm"				column="REQ_ST_DTM"/>
+		<result property="reqEdDtm"				column="REQ_ED_DTM"/>
+		<result property="reqStDuDtm"			column="REQ_ST_DU_DTM"/>
+		<result property="reqEdDuDtm"			column="REQ_ED_DU_DTM"/>
+		<result property="reqProType"			column="REQ_PRO_TYPE"/>
+		<result property="reqProTypeNm"			column="REQ_PRO_TYPE_NM"/>
+		<result property="reqNewType"			column="REQ_NEW_TYPE"/>
+		<result property="reqNewTypeNm"			column="REQ_NEW_TYPE_NM"/>		
+		<result property="reqAcceptTxt"			column="REQ_ACCEPT_TXT"/>	
+		<result property="sclCd"				column="SCL_CD"/>
+		<result property="reqTypeCd"			column="REQ_TYPE_CD"/>
+		<result property="piaCd"				column="PIA_CD"/>
+		<result property="labInp"				column="LAB_INP"/>	
+		<result property="atchFileId"			column="ATCH_FILE_ID"/>
+		<result property="cbAtchFileId"			column="CB_ATCH_FILE_ID"/>
+		<result property="milestoneId"			column="MILESTONE_ID"/>
+		<result property="processId"			column="PROCESS_ID"/>
+		<result property="processNm"			column="PROCESS_NM"/>
+		<result property="flowId"				column="FLOW_ID"/>
+		<result property="flowNm"				column="FLOW_NM"/>
+		<result property="useCd"				column="USE_CD"/>
+ 		<result property="regDtmDay"			column="REG_DTM_DAY"/>
+ 		<result property="reqKey"				column="REQ_KEY"/>
+    </resultMap>
+
+	<!-- 요구사항의 리비전 목록 조회 -->
+	<sql id="req4100DAO.selectReq4100RevisionList">
+		<![CDATA[
+			SELECT
+				T1.SVN_REP_ID,
+				T1.REVISION_COMMENT,
+				T1.REVISION_NUM,
+		       	T1.REG_DTM,
+		       	T1.SVN_REP_NM,
+		       	T1.USE_CD ,
+		       	( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'CMM00001' AND SUB_CD = T1.USE_CD ) AS USE_CD_NM	 
+			FROM
+			(
+				SELECT 	A.SVN_REP_ID,
+						A.REVISION_COMMENT,
+						A.REVISION_NUM,
+				       	A.REG_DTM,
+				       	B.SVN_REP_NM,
+				       	B.USE_CD 
+				  FROM 	FLW1400 A
+				  INNER JOIN SVN1000 B
+				  ON (A.PRJ_ID = #prjId# AND A.REQ_ID = #reqId# AND A.SVN_REP_ID = B.SVN_REP_ID AND B.LIC_GRP_ID = #licGrpId#)
+				WHERE 1=1
+			) T1
+			ORDER BY T1.REG_DTM DESC
+		]]>	
+	</sql>
+
+
+
+	<!-- 요구사항 정보 등록 -->
+	<insert id="req4100DAO.insertReq4100ReqInfoAjax" parameterClass="java.util.Map">
+		<selectKey resultClass="java.lang.String" keyProperty="newReqId">
+		<![CDATA[
+			/* req4100DAO.insertReq4100ReqInfoAjax - 요구사항 등록(새로운 REQ_ID 따기)*/ 
+			SELECT	COALESCE( 
+							SUBSTR(NEW_REQ_ID, 1, 11) || LPAD( (TO_NUMBER(SUBSTR(NEW_REQ_ID, 12, 5)) + 1) , 5, '0')
+						,	'REQ' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDD') || '00001'
+            		) AS NEW_REQ_ID 
+			FROM	(
+			            SELECT	MAX(REQ_ID)  AS NEW_REQ_ID
+			            FROM	REQ4100 A
+			            WHERE	1=1
+                        AND		A.PRJ_ID = #prjId#
+                        
+			            AND		A.REQ_ID LIKE 'REQ' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDD') || '%'
+					)
+		]]>
+		</selectKey>
+		<![CDATA[ 
+			/* req4100DAO.insertReq4100ReqInfoAjax - 요구사항 정보 등록 */ 
+			INSERT INTO REQ4100
+			(
+			        PRJ_ID,				REQ_ID,				REQ_CLS_ID,			REQ_NO,					REQ_ORD
+			        ,REQ_USR_ID,		REQ_USR_NM,			REQ_DTM,			REQ_USR_DEPT_NM,		REQ_USR_POSITION_NM
+			        ,REQ_USR_DUTY_NM,	REQ_USR_EMAIL,		REQ_USR_NUM,		REQ_NM,					REQ_DESC
+			        ,REQ_CHARGER_ID,	REQ_ST_DTM,			REQ_ED_DTM,			REQ_ST_DU_DTM,			REQ_ED_DU_DTM
+			        ,REQ_PRO_TYPE,		REQ_NEW_TYPE,		ATCH_FILE_ID,		CB_ATCH_FILE_ID
+			        ,MILESTONE_ID,		PROCESS_ID,			FLOW_ID,			REQ_KEY
+			        ,USE_CD,				REG_DTM,			REG_USR_ID
+			        ,REG_USR_IP,		MODIFY_DTM,			MODIFY_USR_ID,		MODIFY_USR_IP
+			)                    
+			VALUES
+			(
+					#prjId#,			#newReqId#,			#reqClsId#,			#reqNo#,		#reqOrd#
+					,#reqUsrId#,		#reqUsrNm#
+					,TO_DATE(REPLACE(#reqDtm#, '-',CHR(10)), 'YYYYMMDD')
+					,#reqUsrDeptNm#, 	#reqUsrPositionNm#,	#reqUsrDutyNm#,		#reqUsrEmail#
+					,#reqUsrNum#,		#reqNm#,			#reqDesc#,			#reqChargerId#
+					,TO_DATETIME(REPLACE(#reqStDtm#, '-',CHR(10)), 'YYYYMMDD HH24:MI')
+					,TO_DATETIME(REPLACE(#reqEdDtm#, '-',CHR(10)), 'YYYYMMDD HH24:MI')
+					,TO_DATE(REPLACE(#reqSTDuDtm#, '-',CHR(10)), 'YYYYMMDD')
+					,TO_DATE(REPLACE(#reqEdDuDtm#, '-',CHR(10)), 'YYYYMMDD')
+					,#reqProType#
+					,#reqNewType#,		#atchFileId#,		#cbAtchFileId#,		#milestroneId#
+					,#processId#,		#flowId#,			#reqKey#		
+					,'01',				CURRENT_TIMESTAMP,			#regUsrId#,			#regUsrIp#
+					,CURRENT_TIMESTAMP,			#modifyUsrId#,		#modifyUsrIp#
+			)
+		]]>
+	</insert>
+	
+	<!-- 요구사항 엑셀 업로드시 사용자 ID 검색 -->
+	<select id="req4100DAO.selectReq4100ReqUsrChk" parameterClass="java.util.Map" resultClass="int">
+		/* req4100DAO.selectReq4100ReqUsrChk 요구사항 엑셀 업로드시 사용자 ID 검색 */
+		<![CDATA[ 
+			SELECT	COUNT(*) AS CNT
+			FROM	ADM2000 A
+			WHERE	1=1
+			AND		A.LIC_GRP_ID = #licGrpId#
+			AND		A.USR_ID = #reqUsrId#
+ 		]]> 
+	</select>
+	
+	<!-- 요구사항 정보 수정 -->
+	<update id="req4100DAO.updateReq4100ReqInfoAjax" parameterClass="java.util.Map">
+		/* req4100DAO.updateReq4100ReqInfoAjax - 요구사항 정보 수정 */ 
+		UPDATE 	REQ4100 A
+		SET	
+			<isNotEmpty property="reqNm">
+					REQ_NM			= #reqNm#
+				,	REQ_NO			= #reqNo#
+			    ,	REQ_DESC		= #reqDesc#
+			    ,	REQ_USR_ID		= #reqUsrId#	
+			    ,	REQ_USR_NM		= #reqUsrNm#
+			    ,	REQ_DTM			= TO_DATE(REPLACE(#reqDtm#, '-',CHR(10)), 'YYYYMMDD')
+			    ,	REQ_USR_DEPT_NM = #reqUsrDeptNm#
+			    ,	REQ_USR_POSITION_NM = #reqUsrPositionNm#
+		 		,	REQ_USR_DUTY_NM = #reqUsrDutyNm#
+			    ,	REQ_USR_EMAIL	= #reqUsrEmail#
+			    ,	REQ_USR_NUM		= #reqUsrNum#
+			    ,	MODIFY_DTM		= CURRENT_TIMESTAMP
+			    ,	MODIFY_USR_ID	= #modifyUsrId#
+			    ,	MODIFY_USR_IP	= #modifyUsrIp#
+				,	REQ_PRO_TYPE	= #reqProType#
+			    ,	REQ_NEW_TYPE	= #reqNewType#,
+		    </isNotEmpty>
+		    	ATCH_FILE_ID	= #atchFileId#
+		WHERE	1=1
+		AND		A.PRJ_ID = #prjId#
+		AND		A.REQ_ID = #reqId#
+	</update>
+	
+	<!-- 요구사항 키값 수정 
+		프로젝트 ID와 요구사항 등록 시 생성된 요구사항 ID를 조합하여 암호화 시킨 후
+		요구사항 키로 등록하여 요구사항의 고유한 해시값으로 사용한다.
+	-->
+	<update id="req4100DAO.updateReq4100ReqKey" parameterClass="java.util.Map">
+		/* req4100DAO.updateReq4100ReqKey - 요구사항 키값 수정 */ 
+		UPDATE 	REQ4100 A
+		SET		REQ_KEY		= #reqKey# 	
+		WHERE	1=1
+		AND		A.PRJ_ID = #prjId#
+		AND		A.REQ_ID = #reqId#
+	</update>
+	
+	<!-- 요구사항 작업흐름 변경 -->
+	<update id="req4100DAO.updateReq4100ReqFlowChgInfoAjax" parameterClass="java.util.Map">
+		/* req4100DAO.updateReq4100ReqFlowChgInfoAjax - 요구사항 작업흐름 변경 */ 
+		UPDATE 	REQ4100 A
+		SET	
+			<isEmpty property="signCd">
+					
+			    	REQ_ST_DU_DTM		= TO_DATE(REPLACE(#reqStDuDtm#, '-',CHR(10)), 'YYYYMMDD')
+			    ,	REQ_ED_DU_DTM		= TO_DATETIME(REPLACE(#reqEdDuDtm#, '-',CHR(10)) || '23:59', 'YYYYMMDDHH24:MI')
+			    <isNotEmpty property="reqStDtm">
+			    ,	REQ_ST_DTM			= TO_DATETIME(REPLACE(#reqStDtm#, '-',CHR(10)), 'YYYYMMDD HH24:MI')
+			    </isNotEmpty>
+			    <isNotEmpty property="reqEdDtm">
+			    ,	REQ_ED_DTM			= TO_DATETIME(REPLACE(#reqEdDtm#, '-',CHR(10)), 'YYYYMMDD HH24:MI')
+			    </isNotEmpty>
+			    ,	REQ_CHARGER_ID		= #reqChargerId#
+			    ,	REQ_COMPLETE_RATIO	= #reqCompleteRatio#
+			    ,	REQ_FP				= #reqFp#
+			    ,	REQ_EX_FP			= #reqExFp#
+			    ,	REQ_CLS_ID			= #reqClsId#
+			    ,	SCL_CD				= #sclCd#
+			    ,	REQ_TYPE_CD			= #reqTypeCd#
+			    ,	PIA_CD				= #piaCd#
+			    ,	LAB_INP				= #labInp#
+			    ,	LAB_INP_RESULT		= #labInpResult#
+			    ,	REQ_TASK_TYPE_CD	= #reqTaskTypeCd#
+			    ,	REQ_WORK_TYPE_CD	= #reqWorkTypeCd#
+			    ,	REQ_GRUND_TXT		= #reqGrundTxt#
+			    ,	REQ_MNG_TYPE_CD		= #reqMngTypeCd#
+				,	REQ_MNG_DETAIL_CD	= #reqMngDetailCd#
+				,	REQ_MNG_TASK_TYPE_CD= #reqMngTaskTypeCd#
+							    
+			    <isNotEmpty property="flowSignCd">
+			    	<isNotEqual property="flowSignCd" compareValue="01">
+			    		,	FLOW_ID				= #flowNextId#
+			    		<isNotEmpty property="reqProType">
+					    	,	REQ_PRO_TYPE	= #reqProType#
+					    </isNotEmpty>
+			    	</isNotEqual>
+			    </isNotEmpty>
+			</isEmpty>
+			<isNotEmpty property="signCd">
+				<isEqual property="signCd" compareValue="02">
+						FLOW_ID	= #signFlowId#
+						<isNotEmpty property="reqProType">
+					    	,	REQ_PRO_TYPE	= #reqProType#
+					    </isNotEmpty>
+				</isEqual>			
+			</isNotEmpty>
+			    ,	MODIFY_DTM			= CURRENT_TIMESTAMP
+			    ,	MODIFY_USR_ID		= #modifyUsrId#
+			    ,	MODIFY_USR_IP		= #modifyUsrIp#
+		WHERE	1=1
+		AND		A.PRJ_ID = #prjId#
+		AND		A.REQ_ID = #reqId#
+	</update>
+	
+	<!-- 요구사항 atchFileId, fileSn 수정-->
+	<update id="req4100DAO.updateReq4100ReqFileInfoAjax" parameterClass="java.util.Map">
+		/* req4100DAO.updateReq4100ReqFileInfoAjax - 요구사항 atchFileId, fileSn 수정 */ 
+		UPDATE 	REQ4100 A
+		SET		
+		    	ATCH_FILE_ID	= #atchFileId#
+		    ,	MODIFY_DTM		= CURRENT_TIMESTAMP
+		    ,	MODIFY_USR_ID	= #modifyUsrId#
+		    ,	MODIFY_USR_IP	= #modifyUsrIp#
+		WHERE	1=1
+		AND		A.PRJ_ID = #prjId#
+		AND		A.REQ_ID = #reqId#
+	</update>
+
+	<!-- 요구사항 접수 완료,반려 -->
+	<update id="req4100DAO.updateReq4106NewReqAccpetInfoAjax" parameterClass="java.util.Map">
+		/* req4100DAO.updateReq4106NewReqAccpetInfoAjax - 요구사항 접수 완료,반려 */ 
+		UPDATE 	REQ4100 A
+		SET	
+					REQ_ACCEPT_TXT		= #reqAcceptTxt#
+					,	REQ_CLS_ID		= #reqClsId#
+					,   REQ_CHARGER_ID		= #reqChargerId#
+				<isEqual property="processId" compareValue="reject">
+					,	REQ_PRO_TYPE		= '03'
+				</isEqual>
+				<isNotEqual property="processId" compareValue="reject">
+					,   REQ_COMPLETE_RATIO	= #reqCompleteRatio#
+					,	REQ_ST_DTM	= TO_DATETIME(REPLACE(#reqStDtm#, '-',CHR(10)), 'YYYYMMDD HH24:MI')
+					,  	REQ_ED_DTM	= TO_DATETIME(REPLACE(#reqEdDtm#, '-',CHR(10)), 'YYYYMMDD HH24:MI')
+					,	REQ_ST_DU_DTM	= TO_DATE(REPLACE(#reqStDuDtm#, '-',CHR(10)), 'YYYYMMDD')
+					,	REQ_ED_DU_DTM	= TO_DATE(REPLACE(#reqEdDuDtm#, '-',CHR(10)), 'YYYYMMDD')
+			    	,	PROCESS_ID			= #processId#
+			    	,	FLOW_ID				= #flowId#
+			    	,	REQ_PRO_TYPE		= '02'
+				</isNotEqual>
+			    ,	MODIFY_DTM			= CURRENT_TIMESTAMP
+			    ,	MODIFY_USR_ID		= #modifyUsrId#
+			    ,	MODIFY_USR_IP		= #modifyUsrIp#
+		WHERE	1=1
+		AND		A.PRJ_ID = #prjId#
+		AND		A.REQ_ID = #reqId#
+	</update>
+	
+	<!-- 요구사항 정보 삭제 -->
+	<delete id="req4100DAO.deleteReq4100ReqInfoAjax" parameterClass="java.util.Map" >
+		DELETE FROM REQ4100 A
+		WHERE	1=1
+		AND		A.PRJ_ID = #prjId#
+		AND		A.REQ_ID = #reqId#
+	</delete>
+	
+	<sql id="req4100DAO.selectReq4100List">
+		SELECT T2.*
+		FROM
+		(
+			SELECT 
+					T1.PRJ_ID
+				, ( SELECT PRJ_NM FROM PRJ1000 WHERE PRJ_ID = T1.PRJ_ID ) AS PRJ_NM
+				,	T1.REQ_ID
+				,	T1.REQ_ORD
+				,	TO_NUMBER(IFNULL(SF_REPLACE_ALL(T1.REQ_ORD ,'[^0-9]',''),0)) AS REQ_ORD_NUMBER
+				,	T1.REQ_CLS_ID
+				,	COALESCE(SF_REQ4000_REQ_CLS_NM(T1.PRJ_ID, T1.REQ_CLS_ID, '2'), '') AS REQ_CLS_NM
+				,	T1.REQ_NO
+				,	T1.REQ_USR_ID
+				,	COALESCE(T1.REQ_USR_NM, ( SELECT USR_NM FROM ADM2000 WHERE USR_ID = T1.REQ_USR_ID))  AS REQ_USR_NM
+				,	T1.REQ_DTM
+				,	T1.REQ_USR_DEPT_NM
+				,	T1.REQ_USR_POSITION_NM
+				,	T1.REQ_USR_DUTY_NM
+				,	T1.REQ_USR_EMAIL
+				,	T1.REQ_USR_NUM
+				,	T1.REQ_NM
+				<isNotEmpty property="reqId">
+	   				,	T1.REQ_DESC
+	   			</isNotEmpty>
+				<isEmpty property="reqId">
+					<![CDATA[ 
+	   				, sf_Replace_All (T1.REQ_DESC ,'</br>|<br>|<br/>|</BR>|<BR>|<BR/>' , '' ) AS REQ_DESC    
+	   				]]>
+	   			</isEmpty>
+				,	T1.REQ_CHARGER_ID
+				,	T1.REQ_COMPLETE_RATIO
+				,	T1.REQ_FP
+		    	,	T1.REQ_EX_FP
+				,	T1.REQ_CHARGER_NM
+				, 	T1.REQ_ST_DTM
+	  		   	, 	T1.REQ_ED_DTM
+				, 	T1.REQ_ST_DU_DTM
+				, 	T1.REQ_ED_DU_DTM
+				,	T1.REQ_PRO_TYPE
+				,	( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00008' AND SUB_CD = T1.REQ_PRO_TYPE ) AS REQ_PRO_TYPE_NM	 
+				,	T1.REQ_NEW_TYPE
+				,   ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00009' AND SUB_CD = T1.REQ_NEW_TYPE ) AS REQ_NEW_TYPE_NM	
+				,	T1.REQ_ACCEPT_TXT
+				,	T1.SCL_CD
+		    	,	T1.REQ_TYPE_CD
+		    	,	T1.PIA_CD
+		    	,   ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00011' AND SUB_CD = T1.SCL_CD ) AS SCL_NM	    	
+		    	,   ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00012' AND SUB_CD = T1.REQ_TYPE_CD ) AS REQ_TYPE_NM	    	
+		    	,   ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'CMM00001' AND SUB_CD = T1.PIA_CD ) AS PIA_NM
+		    	,	T1.LAB_INP
+		    	,	T1.LAB_INP_RESULT
+		    	,	T1.REQ_GRUND_TXT
+		    	,	T1.REQ_TASK_TYPE_CD
+		    	,	T1.REQ_WORK_TYPE_CD
+		    	,	T1.REQ_MNG_TYPE_CD
+				,	T1.REQ_MNG_DETAIL_CD
+				,	T1.REQ_MNG_TASK_TYPE_CD
+				,   ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00014' AND SUB_CD = T1.REQ_TASK_TYPE_CD ) AS REQ_TASK_TYPE_NM    	
+		    	,   ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00015' AND SUB_CD = T1.REQ_WORK_TYPE_CD ) AS REQ_WORK_TYPE_NM	    	
+		    	,   ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00016' AND SUB_CD = T1.REQ_MNG_TYPE_CD ) AS REQ_MNG_TYPE_NM
+		    	,   ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00017' AND SUB_CD = T1.REQ_MNG_DETAIL_CD ) AS REQ_MNG_DETAIL_NM	    	
+		    	,   ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00018' AND SUB_CD = T1.REQ_MNG_TASK_TYPE_CD ) AS REQ_MNG_TASK_TYPE_NM	    	
+				,	T1.ATCH_FILE_ID
+				,	T1.CB_ATCH_FILE_ID
+				,	T1.MILESTONE_ID
+				,	T1.PROCESS_ID
+				,	T1.PROCESS_NM
+				,	T1.FLOW_ID
+				,	T1.FLOW_NM
+				,	T1.FLOW_NEXT_ID
+				,	T1.USE_CD
+				,	T1.SIGN_CD
+				,	COALESCE(( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00004' AND SUB_CD = T1.SIGN_CD ),'없음') AS SIGN_CD_NM
+	            ,	T1.SIGN_USR_ID
+	            ,	COALESCE(( SELECT USR_NM FROM ADM2000 WHERE USR_ID = T1.SIGN_USR_ID),'없음')  AS SIGN_USR_NM
+			    ,	T1.REG_DTM
+			    ,	T1.REG_DTM_DAY
+			    ,	T1.REG_USR_ID
+			    ,	T1.REG_USR_IP
+			    ,	T1.MODIFY_DTM
+			    ,	T1.MODIFY_USR_ID
+			    ,	T1.MODIFY_USR_IP
+			    ,   T1.ORG_REQ_ID
+			    ,	T1.REQ_KEY
+				,	ROWNUM RN
+			FROM
+			(
+				SELECT
+							A.PRJ_ID
+						,	A.REQ_ID
+						,	A.REQ_ORD
+						,	A.REQ_CLS_ID
+						,	A.REQ_NO
+						,	A.REQ_USR_ID
+						,	A.REQ_USR_NM
+						,	TO_CHAR(A.REQ_DTM, 'YYYY-MM-DD') AS REQ_DTM
+						,	A.REQ_USR_DEPT_NM
+						,	A.REQ_USR_POSITION_NM
+						,	A.REQ_USR_DUTY_NM
+						,	A.REQ_USR_EMAIL
+						,	A.REQ_USR_NUM
+						,	A.REQ_NM
+						,	A.REQ_DESC
+						,	A.REQ_CHARGER_ID
+						,	A.REQ_COMPLETE_RATIO
+						,	A.REQ_FP
+				    	,	A.REQ_EX_FP
+						,	D.USR_NM			AS REQ_CHARGER_NM
+						, 	IFNULL(TO_CHAR(A.REQ_ST_DTM, 'YYYY-MM-DD HH24:MI') , '') REQ_ST_DTM
+	    		   		, 	IFNULL(TO_CHAR(A.REQ_ED_DTM, 'YYYY-MM-DD HH24:MI') , '') REQ_ED_DTM
+						, 	IFNULL(TO_CHAR(A.REQ_ST_DU_DTM, 'YYYY-MM-DD') , '') REQ_ST_DU_DTM
+						, 	IFNULL(TO_CHAR(A.REQ_ED_DU_DTM, 'YYYY-MM-DD') , '') REQ_ED_DU_DTM
+						,	A.REQ_PRO_TYPE
+						,	A.REQ_NEW_TYPE
+						,	A.REQ_ACCEPT_TXT
+						,	A.SCL_CD
+				    	,	A.REQ_TYPE_CD
+				    	,	A.PIA_CD
+				    	,	A.LAB_INP
+				    	,	A.LAB_INP_RESULT
+				    	,	A.REQ_GRUND_TXT
+				    	,	A.REQ_TASK_TYPE_CD
+				    	,	A.REQ_WORK_TYPE_CD
+				    	,	A.REQ_MNG_TYPE_CD
+						,	A.REQ_MNG_DETAIL_CD
+						,	A.REQ_MNG_TASK_TYPE_CD
+						,	A.ATCH_FILE_ID
+						,	A.CB_ATCH_FILE_ID
+						,	A.MILESTONE_ID
+						,	A.PROCESS_ID
+						,	B.PROCESS_NM
+						,	A.FLOW_ID
+						,	C.FLOW_NM
+						,	C.FLOW_NEXT_ID
+						,	A.USE_CD
+						,	E.SIGN_CD
+	                    ,	E.SIGN_USR_ID
+					    ,	TO_CHAR(A.REG_DTM, 'YYYY-MM-DD HH24:MI:SS') AS REG_DTM
+					    ,	TO_CHAR(A.REG_DTM, 'YYYY-MM-DD') AS REG_DTM_DAY
+					    ,	A.REG_USR_ID
+					    ,	A.REG_USR_IP
+					    ,	TO_CHAR(A.MODIFY_DTM, 'YYYY-MM-DD HH24:MI:SS') AS MODIFY_DTM
+					    ,	A.MODIFY_USR_ID
+					    ,	A.MODIFY_USR_IP
+					    ,   A.ORG_REQ_ID
+					    ,	A.REQ_KEY
+			    FROM
+			    (
+			    	SELECT * FROM REQ4100 WHERE 1 = 1
+			    	<isEmpty property="popupPrjId">
+						<isNotEmpty property="selPrjId">
+							AND	PRJ_ID = COALESCE(#prjId#,#selPrjId#)
+						</isNotEmpty>
+					</isEmpty>
+					<isNotEmpty property="popupPrjId">
+							AND PRJ_ID = #popupPrjId#
+					</isNotEmpty>
+					<isNotEmpty property="restApiReqUsrNm">
+					AND		REQ_USR_NM LIKE '%' || #restApiReqUsrNm# || '%'
+					</isNotEmpty>
+				) A
+			    LEFT JOIN FLW1000 B
+			    ON ( A.PRJ_ID = B.PRJ_ID AND A.PROCESS_ID = B.PROCESS_ID)
+				LEFT JOIN FLW1100 C
+				ON ( B.PRJ_ID = C.PRJ_ID AND B.PROCESS_ID = C.PROCESS_ID AND A.FLOW_ID = C.FLOW_ID)
+				LEFT JOIN ADM2000 D
+				ON ( A.REQ_CHARGER_ID = D.USR_ID )
+				LEFT JOIN
+				(
+	                 SELECT Y.*
+	                 FROM REQ4900 Y
+	                 INNER JOIN
+	                 (
+	                 	SELECT Z.REQ_ID
+	                 			, MAX(REG_DTM) AS REG_DTM
+	                 	FROM REQ4900 Z
+	                 	GROUP BY Z.REQ_ID
+	                 ) X
+	                 ON ( Y.REQ_ID = X.REQ_ID  AND Y.REG_DTM = X.REG_DTM )
+	                 WHERE 1=1
+		        ) E
+		        ON ( A.PRJ_ID = E.PRJ_ID AND A.REQ_ID = E.REQ_ID)
+			    WHERE 1=1
+			) T1 WHERE 1 = 1
+			
+			<isEmpty property="popupPrjId">
+				<isNotEmpty property="prjId">
+					AND		T1.PRJ_ID = #prjId#
+				</isNotEmpty>
+				<isEmpty property="prjId">
+					<isNotEmpty property="selPrjId">
+						AND		T1.PRJ_ID = #selPrjId#
+					</isNotEmpty>
+				</isEmpty>
+			</isEmpty>
+			<isNotEmpty property="popupPrjId">
+					AND T1.PRJ_ID = #popupPrjId#
+			</isNotEmpty>
+			
+			<isNotEmpty property="reportMode">
+				<isEqual property="reportMode" compareValue="rpt2000">
+					AND T1.REQ_PRO_TYPE = '04'
+					<![CDATA[ 
+						AND T1.REQ_PRO_TYPE <> '05'
+						AND T1.REQ_PRO_TYPE <> '06'
+					]]>
+					<isNotEmpty property="searchStDtm">
+						<![CDATA[
+							AND T1.REQ_ED_DTM >= TO_DATETIME(#searchStDtm# || ' 00:00', 'YYYY-MM-DD HH24:MI')
+						]]>
+					</isNotEmpty>
+					<isNotEmpty property="searchEdDtm">
+						<![CDATA[
+							AND T1.REQ_ED_DTM <= TO_DATETIME(#searchEdDtm# || ' 23:59', 'YYYY-MM-DD HH24:MI')
+						]]>
+					</isNotEmpty>
+				</isEqual>
+			</isNotEmpty>
+			<isNotEmpty property="srchReqClsNm">
+				AND		T1.REQ_CLS_NM LIKE '%' || #srchReqClsNm# || '%'
+			</isNotEmpty>
+			
+			<isNotEmpty property="srchReqNm">
+				AND		T1.REQ_NM LIKE '%' || #srchReqNm# || '%'
+			</isNotEmpty>
+			
+			<isNotEmpty property="srchReqDesc">
+				AND		T1.REQ_DESC LIKE '%' || #srchReqDesc# || '%'
+			</isNotEmpty>
+	
+			<isNotEmpty property="searchSelect" >
+				<isNotEmpty property="searchTxt">
+				<isEqual property="searchSelect" compareValue="reqNm">
+					AND		T1.REQ_NM LIKE '%' || #searchTxt# || '%'
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="reqDesc">
+					AND		T1.REQ_DESC LIKE '%' || #searchTxt# || '%'
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="reqUsrNm">
+					AND		T1.REQ_USR_NM LIKE '%' || #searchTxt# || '%'
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="reqChargerNm">
+					AND		T1.REQ_CHARGER_NM LIKE '%' || #searchTxt# || '%'
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="reqNo">
+					AND		T1.REQ_NO LIKE '%' || #searchTxt# || '%'
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="reqId">
+					AND		T1.REQ_ID LIKE '%' || #searchTxt# || '%'
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="processNm">
+					AND		T1.PROCESS_NM LIKE '%' || #searchTxt# || '%'
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="reqOrd"> 
+					AND		T1.REQ_ORD LIKE '%'|| UPPER(#searchTxt#) ||'%'
+				</isEqual>	
+				</isNotEmpty>
+			</isNotEmpty>
+			<isNotEmpty>
+				<isNotEmpty property="searchSelect">
+					<isNotEmpty property="searchCd">
+						<isEqual property="searchSelect" compareValue="reqProType">
+							AND 	T1.REQ_PRO_TYPE LIKE '%'||#searchCd#||'%'
+						</isEqual>
+						<isEqual property="searchSelect" compareValue="reqTypeCd">
+							AND 	T1.REQ_TYPE_CD LIKE '%'||#searchCd#||'%'
+						</isEqual>
+						<isEqual property="searchSelect" compareValue="reqNewType">
+							AND 	T1.REQ_NEW_TYPE LIKE '%'||#searchCd#||'%'
+						</isEqual>
+					</isNotEmpty>
+				</isNotEmpty>
+			</isNotEmpty>
+			<isNotEmpty property="srchFromDt">
+					AND T1.REQ_DTM &gt;= TO_DATE(#srchFromDt#, 'YYYY-MM-DD')
+			</isNotEmpty>
+			<isNotEmpty property="srchToDt">
+					AND T1.REQ_DTM &lt;=   TO_DATE(#srchToDt#, 'YYYY-MM-DD')
+			</isNotEmpty>
+			<!-- TODO type -->
+			<isNotEmpty property="type">
+				AND T1.PROCESS_ID = #processId#
+				AND T1.FLOW_ID = #flowId#
+				<isNotEmpty property="type">
+					<isEqual property="type" compareValue="charge">
+						AND T1.REQ_CHARGER_ID = #usrId#
+					</isEqual>
+				</isNotEmpty>
+			</isNotEmpty>
+		) T2
+		ORDER BY T2.REQ_PRO_TYPE ASC, T2.REQ_ORD_NUMBER DESC, T2.REQ_DTM DESC, T2.REG_DTM DESC
+    </sql>
+    
+    <!-- 요구사항 목록 조회 -->
+    <select id="req4100DAO.selectReq4100List" parameterClass="req4100VO"  resultClass="egovMap" >
+	    /*req4100DAO.selectReq4100List 요구사항 목록을 조회한다.*/
+		SELECT *
+		FROM
+		(
+			<include refid="req4100DAO.selectReq4100List"/>
+    	) T2
+	    WHERE RN BETWEEN (#firstIndex#+1) AND #lastIndex#
+    </select>
+    
+    <!-- 요구사항 목록 엑셀 다운로드  -->
+    <select id="req4100DAO.selectReq4100ExcelList" parameterClass="java.util.Map"  resultClass="egovMap" >
+	    /*req4100DAO.selectReq4100ExcelList 요구사항 목록 엑셀 다운로드 */
+		SELECT *
+		FROM
+		(
+			<include refid="req4100DAO.selectReq4100List"/>
+    	) T2
+    </select>
+    
+    <!-- 요구사항 목록 총건수. :페이징 처리 부분 -->
+    <select id="req4100DAO.selectReq4100ListCnt" parameterClass="req4100VO"  resultClass="java.lang.Integer">
+	    /*req4100DAO.selectReq4100ListCnt 요구사항 목록 총건수를 조회한다.*/
+	    SELECT
+			COUNT(*)
+		FROM	(
+			<include refid="req4100DAO.selectReq4100List"/>
+		) A
+    </select>
+	
+		<!-- 요구사항 정보 조회(단건) -->
+	<select id="req4100DAO.selectReq4102ReqInfoAjax" parameterClass="java.util.Map"  resultClass="egovMap">
+		/* req4100DAO.selectReq4102ReqInfoAjax - 요구사항 정보 조회(단건) */
+		SELECT T2.*
+		FROM
+		(
+			<include refid="req4100DAO.selectReq4100List"/>
+		) T2
+		WHERE 1=1
+		<isNotEmpty property="reqId">
+	    	AND		T2.REQ_ID = #reqId#
+	    </isNotEmpty>
+	    <isNotEmpty property="orgReqId">
+	    	AND		T2.ORG_REQ_ID = #orgReqId#
+	    </isNotEmpty>
+	    
+	</select>
+	
+	
+	<!-- 요구사항 목록 엑셀 조회 (목록 전체 조회) -->
+    <select id="req4100DAO.selectReq4100AllList" parameterClass="req4100VO"  resultClass="egovMap" >
+	    /*req4100DAO.selectReq4100AllList 요구사항 목록을 전체 조회한다.*/
+		<include refid="req4100DAO.selectReq4100List"/>
+
+    </select>
+    
+    <!-- 프로세스, 작업흐름 별 요구사항 수 조회 -->
+    <select id="req4100DAO.selectReq4100ProcessFlowReqCnt" parameterClass="java.util.Map"  resultClass="java.lang.Integer" >
+	    /*req4100DAO.selectReq4100ProcessFlowReqList 프로세스, 작업흐름 별 요구사항 조회*/
+	    SELECT
+	    	 	COUNT(*) AS TOT_CNT
+	    FROM
+	    (
+			<include refid="req4100DAO.selectReq4100List"/>
+		) T2
+		<!-- 
+		WHERE 1=1
+		AND T2.PROCESS_ID = #processId#
+		AND T2.FLOW_ID = #flowId#
+		<isNotEmpty property="type">
+			<isEqual property="type" compareValue="charge">
+				AND T2.REQ_CHARGER_ID = #usrId#
+			</isEqual>
+		</isNotEmpty>
+		 -->
+    </select>
+    <!-- TODO -->
+    <!-- 프로세스, 작업흐름 별 요구사항 조회 -->
+    <select id="req4100DAO.selectReq4100ProcessFlowReqList" parameterClass="java.util.Map"  resultClass="egovMap" >
+	    /*req4100DAO.selectReq4100ProcessFlowReqList 프로세스, 작업흐름 별 요구사항 조회*/
+	    SELECT
+	    	 	X.*
+	    FROM
+	    (
+			<include refid="req4100DAO.selectReq4100List"/>
+		) X
+		WHERE 1=1
+		AND RN BETWEEN (#firstIndex#+1) AND #lastIndex#
+    </select>
+    
+    <!-- 요구사항 작업흐름별 작업 목록 조회-->
+    <select id="req4100DAO.selectReq4100ReqFlowWorkList" parameterClass="java.util.Map"  resultClass="egovMap" >
+	    /*req4100DAO.selectReq4100ReqFlowWorkList 요구사항 작업흐름별 작업 목록 조회 */
+		SELECT A.PRJ_ID				,A.REQ_ID					,A.PROCESS_ID			,A.FLOW_ID
+			,	A.WORK_ID			,A.WORK_STATUS_CD			,A.WORK_CONTENT
+			,	A.WORK_CHARGER_ID
+			,	( SELECT USR_NM FROM ADM2000 WHERE USR_ID = A.WORK_CHARGER_ID) AS WORK_CHARGER_NM
+			,	IFNULL(TO_CHAR(A.WORK_ST_DTM, 'YYYY-MM-DD') , '') WORK_ST_DTM
+			,	IFNULL(TO_CHAR(A.WORK_ED_DTM, 'YYYY-MM-DD') , '') WORK_ED_DTM
+			,	TO_CHAR(A.REG_DTM, 'YYYY-MM-DD HH24:MI:SS') AS REG_DTM
+		    ,	A.REG_USR_ID
+		    ,	A.REG_USR_IP
+		    ,	TO_CHAR(A.MODIFY_DTM, 'YYYY-MM-DD HH24:MI:SS') AS MODIFY_DTM
+		    ,	A.MODIFY_USR_ID
+		    ,	A.MODIFY_USR_IP
+		FROM REQ4400 A
+		WHERE 1=1
+		<isNotEmpty property="selPrjId">
+			AND		A.PRJ_ID = #selPrjId#
+		</isNotEmpty>
+		<isEmpty property="selPrjId">
+			AND		A.PRJ_ID = #prjId#
+		</isEmpty>
+		AND A.REQ_ID = #reqId#
+		AND A.PROCESS_ID = #processId#
+		AND A.FLOW_ID = #flowId#
+    </select>
+	
+	
+	<!-- 요구사항 변경이력 정보 가져오기-->
+	<select id="req4100DAO.selectReq4700ReqHistoryList" parameterClass="java.util.Map" resultClass="egovMap">
+		<![CDATA[
+			/* req4100DAO.selectReq4700ReqHistoryList - 요구사항 변경이력 정보 가져오기  */
+			SELECT 
+				'CHG' AS TYPE 
+				,T1.PRJ_ID
+				,T1.REQ_ID
+				,T1.REQ_NM
+				,T1.REQ_CHG_ID
+				,T1.REQ_CHG_TYPE
+				,T1.CHG_USR_ID
+				,( SELECT USR_NM FROM ADM2000 WHERE USR_ID = T1.CHG_USR_ID) AS CHG_USR_NM
+				,( SELECT EMAIL FROM ADM2000 WHERE USR_ID = T1.CHG_USR_ID) AS CHG_USR_EMAIL
+				,T1.CHG_DTM
+				,T1.PROCESS_ID
+				,T1.PROCESS_NM
+				,T1.PRE_FLOW_ID
+				,T1.PRE_FLOW_NM
+				,T1.PRE_FLOW_ESSENTIAL_CD
+				,T1.PRE_FLOW_SIGN_CD
+				,T1.PRE_FLOW_SIGN_STOP_CD
+				,T1.PRE_FLOW_END_CD
+				,T1.PRE_FLOW_WORK_CD
+				,T1.PRE_FLOW_REVISION_CD
+				,T1.PRE_FLOW_DPL_CD
+				,T1.PRE_FLOW_AUTH_CD
+				,T1.PRE_FLOW_NEXT_ID
+				,T1.PRE_FLOW_OPT_CNT
+				,T1.PRE_FLOW_TITLE_BG_COLOR
+				,T1.PRE_FLOW_TITLE_COLOR
+				,T1.PRE_FLOW_CONTENT_BG_COLOR
+				,T1.PRE_FLOW_CONTENT_COLOR 
+				,T1.CHG_FLOW_ID
+				,T1.CHG_FLOW_NM
+				,T1.CHG_FLOW_ESSENTIAL_CD
+				,T1.CHG_FLOW_SIGN_CD
+				,T1.CHG_FLOW_SIGN_STOP_CD
+				,T1.CHG_FLOW_END_CD
+				,T1.CHG_FLOW_WORK_CD
+				,T1.CHG_FLOW_REVISION_CD
+				,T1.CHG_FLOW_DPL_CD
+				,T1.CHG_FLOW_AUTH_CD
+				,T1.CHG_FLOW_NEXT_ID
+				,T1.CHG_FLOW_OPT_CNT
+				,T1.CHG_FLOW_TITLE_BG_COLOR
+				,T1.CHG_FLOW_TITLE_COLOR
+				,T1.CHG_FLOW_CONTENT_BG_COLOR
+				,T1.CHG_FLOW_CONTENT_COLOR 
+				,T1.PRE_CHARGER_ID
+				,( SELECT USR_NM FROM ADM2000 WHERE USR_ID = T1.PRE_CHARGER_ID) AS PRE_CHARGER_NM
+				,( SELECT USR_IMG_ID FROM ADM2000 WHERE USR_ID = T1.PRE_CHARGER_ID) AS PRE_CHARGER_IMG
+				,T1.CHG_CHARGER_ID
+				,( SELECT USR_NM FROM ADM2000 WHERE USR_ID = T1.CHG_CHARGER_ID) AS CHG_CHARGER_NM
+				,( SELECT USR_IMG_ID FROM ADM2000 WHERE USR_ID = T1.CHG_CHARGER_ID) AS CHG_CHARGER_IMG
+				,T1.REG_DTM
+			FROM
+			(
+				SELECT A.PRJ_ID
+						,A.REQ_ID
+						,D.REQ_NM
+						,A.REQ_CHG_ID
+						,A.REQ_CHG_TYPE
+						,A.CHG_USR_ID
+						,A.CHG_DTM
+						,A.PROCESS_ID
+						,E.PROCESS_NM
+						,A.PRE_FLOW_ID
+						,B.FLOW_NM AS PRE_FLOW_NM
+						,B.FLOW_ESSENTIAL_CD AS PRE_FLOW_ESSENTIAL_CD
+						,B.FLOW_SIGN_CD AS PRE_FLOW_SIGN_CD
+						,B.FLOW_SIGN_STOP_CD AS PRE_FLOW_SIGN_STOP_CD
+						,B.FLOW_END_CD AS PRE_FLOW_END_CD
+						,B.FLOW_WORK_CD AS PRE_FLOW_WORK_CD
+						,B.FLOW_REVISION_CD AS PRE_FLOW_REVISION_CD
+						,B.FLOW_DPL_CD AS PRE_FLOW_DPL_CD
+						,B.FLOW_AUTH_CD AS PRE_FLOW_AUTH_CD
+						,B.FLOW_NEXT_ID AS PRE_FLOW_NEXT_ID
+						,(
+						  SELECT COUNT(*)
+						  FROM FLW1200 Z
+						  WHERE 1=1
+						  AND Z.PRJ_ID = B.PRJ_ID
+						  AND Z.PROCESS_ID = B.PROCESS_ID
+						  AND Z.FLOW_ID = B.FLOW_ID
+						) AS PRE_FLOW_OPT_CNT
+						,B.FLOW_TITLE_BG_COLOR AS PRE_FLOW_TITLE_BG_COLOR
+						,B.FLOW_TITLE_COLOR AS PRE_FLOW_TITLE_COLOR
+						,B.FLOW_CONTENT_BG_COLOR AS PRE_FLOW_CONTENT_BG_COLOR
+						,B.FLOW_CONTENT_COLOR AS PRE_FLOW_CONTENT_COLOR 
+						,A.CHG_FLOW_ID
+						,C.FLOW_NM AS CHG_FLOW_NM
+						,C.FLOW_ESSENTIAL_CD AS CHG_FLOW_ESSENTIAL_CD
+						,C.FLOW_SIGN_CD AS CHG_FLOW_SIGN_CD
+						,C.FLOW_SIGN_STOP_CD AS CHG_FLOW_SIGN_STOP_CD
+						,C.FLOW_END_CD AS CHG_FLOW_END_CD
+						,C.FLOW_WORK_CD AS CHG_FLOW_WORK_CD
+						,C.FLOW_REVISION_CD AS CHG_FLOW_REVISION_CD
+						,C.FLOW_DPL_CD AS CHG_FLOW_DPL_CD
+						,C.FLOW_AUTH_CD AS CHG_FLOW_AUTH_CD
+						,C.FLOW_NEXT_ID AS CHG_FLOW_NEXT_ID
+						,(
+						  SELECT COUNT(*)
+						  FROM FLW1200 Z
+						  WHERE 1=1
+						  AND Z.PRJ_ID = C.PRJ_ID
+						  AND Z.PROCESS_ID = C.PROCESS_ID
+						  AND Z.FLOW_ID = C.FLOW_ID
+						) AS CHG_FLOW_OPT_CNT
+						,C.FLOW_TITLE_BG_COLOR AS CHG_FLOW_TITLE_BG_COLOR
+						,C.FLOW_TITLE_COLOR AS CHG_FLOW_TITLE_COLOR
+						,C.FLOW_CONTENT_BG_COLOR AS CHG_FLOW_CONTENT_BG_COLOR
+						,C.FLOW_CONTENT_COLOR AS CHG_FLOW_CONTENT_COLOR 
+						,A.PRE_CHARGER_ID
+						,A.CHG_CHARGER_ID
+						,A.REG_DTM
+				FROM REQ4700 A
+				LEFT JOIN FLW1100 B
+				ON ( A.PRJ_ID = B.PRJ_ID AND A.PROCESS_ID = B.PROCESS_ID AND A.PRE_FLOW_ID = B.FLOW_ID)
+				LEFT JOIN FLW1100 C
+				ON ( A.PRJ_ID = C.PRJ_ID AND A.PROCESS_ID = C.PROCESS_ID AND A.CHG_FLOW_ID = C.FLOW_ID)
+				LEFT JOIN REQ4100 D
+				ON ( A.PRJ_ID = D.PRJ_ID AND A.REQ_ID = D.REQ_ID)
+				LEFT JOIN FLW1000 E
+				ON ( A.PRJ_ID = E.PRJ_ID AND A.PROCESS_ID = E.PROCESS_ID)
+			) T1
+			WHERE 1=1
+		]]>
+		<isEmpty property="chgAllView">
+			AND T1.REQ_CHG_TYPE != '02'
+		</isEmpty>
+		<isNotEmpty property="popupPrjId">
+			AND	T1.PRJ_ID = #popupPrjId#
+		</isNotEmpty>
+		<isEmpty property="popupPrjId">
+			AND	T1.PRJ_ID = #prjId#
+		</isEmpty>
+		<isNotEmpty property="reqId">
+			AND T1.REQ_ID = #reqId#
+		</isNotEmpty>
+		ORDER BY T1.CHG_DTM
+	</select>
+	
+	<!-- 요구사항 결재 정보 가져오기-->
+	<select id="req4100DAO.selectReq4900ReqSignList" parameterClass="java.util.Map" resultClass="egovMap">
+		<![CDATA[
+			/* req4100DAO.selectReq4900ReqSignList - 요구사항 결재 정보 가져오기  */
+			SELECT 
+				'CHK' TYPE  
+				,T1.PRJ_ID
+				,T1.REQ_ID
+				,T1.REQ_NM
+				,T1.SIGN_ID
+				,T1.PROCESS_ID
+				,T1.PREV_FLOW_ID
+				,T1.SIGN_FLOW_ID
+				,T1.SIGN_FLOW_NM
+				,T1.SIGN_FLOW_TITLE_BG_COLOR
+				,T1.SIGN_FLOW_TITLE_COLOR
+				,T1.SIGN_USR_ID
+				,( SELECT USR_NM FROM ADM2000 WHERE USR_ID = T1.SIGN_USR_ID) AS SIGN_USR_NM
+				,( SELECT USR_IMG_ID FROM ADM2000 WHERE USR_ID = T1.SIGN_USR_ID) AS SIGN_USR_IMG
+				,T1.SIGN_CD
+				,COALESCE(( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00004' AND SUB_CD = T1.SIGN_CD ),'없음') AS SIGN_CD_NM
+				,sf_Replace_All (T1.SIGN_REJECT_CMNT ,'</br>|<br>|<br/>|</BR>|<BR>|<BR/>' , '&nbsp;&nbsp;' ) AS SIGN_REJECT_CMNT    
+				,T1.SIGN_DTM
+				,T1.REG_DTM
+				,T1.REG_USR_ID
+				,( SELECT USR_NM FROM ADM2000 WHERE USR_ID = T1.REG_USR_ID) AS REG_USR_NM
+				,( SELECT USR_IMG_ID FROM ADM2000 WHERE USR_ID = T1.REG_USR_ID) AS REG_USR_IMG
+				,T1.REG_USR_IP
+			FROM
+			(
+				SELECT 
+					A.PRJ_ID
+					,A.REQ_ID
+					,C.REQ_NM
+					,A.SIGN_ID
+					,A.PROCESS_ID
+					,A.SIGN_PREV_FLOW_ID AS PREV_FLOW_ID
+					,A.SIGN_FLOW_ID
+					,B.FLOW_NM AS SIGN_FLOW_NM
+					,B.FLOW_TITLE_BG_COLOR AS SIGN_FLOW_TITLE_BG_COLOR
+					,B.FLOW_TITLE_COLOR AS SIGN_FLOW_TITLE_COLOR
+					,A.SIGN_USR_ID
+					,A.SIGN_CD
+					,A.SIGN_REJECT_CMNT
+					,A.SIGN_DTM
+					,A.REG_DTM
+					,A.REG_USR_ID
+					,A.REG_USR_IP
+				FROM REQ4900 A
+				LEFT JOIN FLW1100 B
+				ON ( A.PRJ_ID = B.PRJ_ID AND A.PROCESS_ID = B.PROCESS_ID AND A.SIGN_FLOW_ID = B.FLOW_NEXT_ID)
+				LEFT JOIN REQ4100 C
+				ON ( A.PRJ_ID = C.PRJ_ID AND A.REQ_ID = C.REQ_ID )
+				]]>
+				<isNotEmpty property="signUsrId">
+					INNER JOIN (SELECT A.PRJ_ID, A.REQ_ID, MAX(REG_DTM) AS MAX_REG_DTM FROM REQ4900 A GROUP BY A.PRJ_ID,A.REQ_ID) D
+					ON ( A.PRJ_ID = D.PRJ_ID AND A.REQ_ID = D.REQ_ID AND A.REG_DTM = D.MAX_REG_DTM)
+				</isNotEmpty>
+				WHERE 1=1
+				<isNotEmpty property="popupPrjId">
+					AND		A.PRJ_ID = #popupPrjId#
+				</isNotEmpty>
+				<isEmpty property="popupPrjId">
+					AND		A.PRJ_ID = #prjId#
+				</isEmpty>
+				<isNotEmpty property="reqId">
+					AND A.REQ_ID = #reqId#
+				</isNotEmpty>
+				<isNotEmpty property="signUsrId">
+					AND A.SIGN_USR_ID = #signUsrId#
+				</isNotEmpty>
+			) T1
+			ORDER BY T1.REG_DTM
+	</select>
+    
+   <!-- 요구사항 요청자 정보 조회 - 소속 명, 이메일, 연락처 -->
+	<select id="req4100DAO.selectReq4100ReqUserInfo" parameterClass="java.util.Map" resultClass="egovMap">
+		/* req4100DAO.selectReq4100ReqUserInfo 요구사항 요청자  정보 조회 - 소속 명, 이메일, 연락처  */
+		<![CDATA[
+			SELECT 
+						A.USR_NM
+					,	SF_ADM7000_DEPT_NM(#licGrpId#, A.DEPT_ID, '2') AS DEPT_NM
+					,	A.EMAIL
+					,	A.TELNO
+					,  	A.USR_POSITION_CD
+					, 	COALESCE(( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'ADM00007' AND SUB_CD = A.USR_POSITION_CD ),' ') AS USR_POSITION_NM
+					, 	A.USR_DUTY_CD	
+					, 	COALESCE(( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'ADM00008' AND SUB_CD = A.USR_DUTY_CD ),' ') AS USR_DUTY_NM		
+			FROM 
+				ADM2000 A
+			WHERE 1=1
+			AND A.LIC_GRP_ID 	= #licGrpId#
+			AND A.USR_ID 		= #reqUsrId#
+		]]>
+	</select>
+    
+	 <!-- 요구사항 정보 조회(단건) -->
+    <select id="req4100DAO.selectReq4100ReqInfo" parameterClass="java.util.Map" resultClass="egovMap">
+		/* req4100DAO.selectReq4100ReqInfo - 요구사항 정보 조회(단건) */
+			SELECT *
+			FROM (
+				<include refid="req4100DAO.selectReq4100List"/>
+			) T3
+			WHERE 1=1
+      		AND 	T3.REQ_ID 			= #reqId#
+	</select>
+	
+	
+		<!-- 요구사항 정보 등록 -->
+	<insert id="req4100DAO.insertReq4100ReqInfo" parameterClass="java.util.Map">
+		<selectKey resultClass="java.lang.String" keyProperty="newReqId">
+		<![CDATA[
+			/* req4100DAO.insertReq4100ReqInfo - 신규 요구사항 등록(새로운 REQ_ID 따기)*/ 
+			SELECT	COALESCE( 
+							SUBSTR(NEW_REQ_ID, 1, 11) || LPAD( (TO_NUMBER(SUBSTR(NEW_REQ_ID, 12, 5)) + 1) , 5, '0')
+						,	'REQ' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDD') || '00001'
+            		) AS NEW_REQ_ID 
+			FROM	(
+			            SELECT	MAX(REQ_ID)  AS NEW_REQ_ID
+			            FROM	REQ4100 A
+			            WHERE	1=1
+                        AND		A.PRJ_ID = #prjId#
+			            AND		A.REQ_ID LIKE 'REQ' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDD') || '%'
+					)
+		]]>
+		</selectKey>
+		<![CDATA[ 
+			/* req4100DAO.insertReq4100ReqInfo - 요구사항 정보 등록 */ 
+			INSERT INTO REQ4100
+			(
+			        PRJ_ID,				REQ_ID,				REQ_CLS_ID,			REQ_NO,					REQ_ORD
+			        ,REQ_USR_ID,		REQ_DTM,			REQ_USR_DEPT_NM,	REQ_USR_POSITION_NM,	REQ_USR_DUTY_NM	
+			        ,REQ_USR_EMAIL,		REQ_USR_NUM,		REQ_NM,				REQ_DESC,				REQ_CHARGER_ID
+			        ,REQ_ST_DTM,		REQ_ED_DTM,			REQ_ST_DU_DTM,		REQ_ED_DU_DTM,			REQ_PRO_TYPE
+			        ,REQ_NEW_TYPE,		ATCH_FILE_ID,		CB_ATCH_FILE_ID,	MILESTONE_ID		
+			        ,PROCESS_ID,		FLOW_ID,			REQ_KEY
+			        ,USE_CD,			REG_DTM,			REG_USR_ID,			REG_USR_IP
+			        ,MODIFY_DTM,		MODIFY_USR_ID,		MODIFY_USR_IP
+			)                    
+			VALUES
+			(
+					#prjId#,			#newReqId#,			#reqClsId#,			#reqNo#,	#reqOrd#
+					,#regUsrId#
+					,TO_DATE(REPLACE(#reqDtm#, '-',CHR(10)), 'YYYYMMDD')
+					,#reqUsrDeptNm#,	#reqUsrPositionNm#,	#reqUsrDutyNm#,		#reqUsrEmail#
+					,#reqUsrNum#,		#reqNm#,			#reqDesc#,			#reqChargerId#
+					,TO_DATETIME(REPLACE(#reqStDtm#, '-',CHR(10)), 'YYYYMMDD HH24:MI')
+					,TO_DATETIME(REPLACE(#reqEdDtm#, '-',CHR(10)), 'YYYYMMDD HH24:MI')
+					,TO_DATE(REPLACE(#reqStDuDtm#, '-',CHR(10)), 'YYYYMMDD')
+					,TO_DATE(REPLACE(#reqEdDuDtm#, '-',CHR(10)), 'YYYYMMDD')
+					,'01'
+					,#reqNewType#,		#atchFileId#,		#cbAtchFileId#,		#milestroneId#
+					,#processId#,		#flowId#,			#reqKey#
+					,'01',				CURRENT_TIMESTAMP,			#regUsrId#,			#regUsrIp#
+					,CURRENT_TIMESTAMP,			#modifyUsrId#,		#modifyUsrIp#
+			)
+		]]>
+	</insert>
+	
+	<!-- 요구사항 정보 수정 -->
+	<update id="req4100DAO.updateReq4100ReqInfo" parameterClass="java.util.Map">
+		/* req4100DAO.updateReq4100ReqInfo - 요구사항 정보 수정 */ 
+		UPDATE 	REQ4100 A
+		SET		REQ_NM			= #reqNm# 	
+			,	REQ_NO			= #reqNo#
+		    ,	REQ_DESC		= #reqDesc#
+		    ,	REQ_USR_POSITION_NM = #reqUsrPositionNm#
+		    ,	REQ_USR_DUTY_NM = #reqUsrDutyNm#
+		    ,   REQ_NEW_TYPE    = #reqNewType#
+		    ,	ATCH_FILE_ID	= #atchFileId#
+		    ,	USE_CD			= #useCd#
+		    ,	MODIFY_DTM		= CURRENT_TIMESTAMP
+		    ,	MODIFY_USR_ID	= #modifyUsrId#
+		    ,	MODIFY_USR_IP	= #modifyUsrIp#
+		    , 	REQ_ST_DTM	= TO_DATETIME(REPLACE(#reqStDtm#, '-',CHR(10)), 'YYYYMMDD HH24:MI')
+		    , 	REQ_ED_DTM	= TO_DATETIME(REPLACE(#reqEdDtm#, '-',CHR(10)), 'YYYYMMDD HH24:MI')
+		    ,	REQ_ST_DU_DTM	= TO_DATE(REPLACE(#reqStDuDtm#, '-',CHR(10)), 'YYYYMMDD')
+		    ,	REQ_ED_DU_DTM	= TO_DATE(REPLACE(#reqEdDuDtm#, '-',CHR(10)), 'YYYYMMDD')
+		WHERE	1=1
+		AND		A.PRJ_ID = #prjId#
+		AND		A.REQ_ID = #reqId#
+	</update>
+	 
+	<!-- 요구사항 순번 조회 -->
+	<select id="req4100DAO.selectReq4100NextReqOrd" parameterClass="java.util.Map" resultClass="egovMap">
+		/* req4100DAO.selectReq4100NextReqOrd 요구사항 순번 조회 */
+		<![CDATA[
+            SELECT  CAST(TO_NUMBER(COALESCE(MAX(T.NEXT_REQ_ORD), '0')) +1 AS VARCHAR) AS REQ_ORD
+            	,	DATE_FORMAT(CURRENT_TIMESTAMP, '%Y%m%d') AS REQ_DT
+			FROM (
+					SELECT TO_NUMBER(RIGHT(A.REQ_ORD, INSTR(REVERSE(A.REQ_ORD), '-')-1))
+			       				AS NEXT_REQ_ORD   
+					FROM	REQ4100 A
+					WHERE	1=1
+			        AND		A.PRJ_ID = #prjId# 
+			) T  
+		]]>
+	</select>
+	
+	<!-- 요구사항의 첨부파일 정보 삭제 -->
+	<delete id="req4100DAO.deleteReq4100ReqAtchFile" parameterClass="java.util.Map">
+		/* req4100DAO.deleteReq4100ReqAtchFile - 삭제하려는 요구사항의 첨부파일 정보 삭제 */
+		<![CDATA[
+			DELETE 	FROM COMTNFILE
+			WHERE 	1=1
+			AND		ATCH_FILE_ID = #atchFileId#
+		]]>	
+	</delete>
+	
+	<!-- 요구사항의 첨부파일 상세정보 삭제 -->
+	<delete id="req4100DAO.deleteReq4100ReqAtchFileDetail" parameterClass="java.util.Map">
+		/* req4100DAO.deleteReq4100ReqAtchFileDetail - 삭제하려는 요구사항의 첨부파일 상세정보 삭제 */
+		<![CDATA[
+			DELETE 	FROM COMTNFILEDETAIL
+			WHERE 	1=1
+			AND		ATCH_FILE_ID = #atchFileId#
+		]]>	
+	</delete>
+	
+	<!-- 요구사항에 포함된 리비젼 목록 조회(Grid page) -->
+	<select id="req4100DAO.selectReq4100RevisionList" parameterClass="req4100VO" resultClass="egovMap">
+		/* req4100DAO.selectReq4100RevisionList - 요구사항에 포함된 리비젼 목록 조회(Grid page) */
+		SELECT *
+		FROM
+			(
+	    		SELECT ROWNUM RN,
+	    			     T.*
+	    		FROM
+	    		(
+					<include refid="req4100DAO.selectReq4100RevisionList"/>
+	    		) T
+	    	)
+	    	 WHERE RN BETWEEN (#firstIndex#+1) AND #lastIndex#
+	</select>
+	
+	 <!-- 요구사항에 포함된 리비젼 목록 총 건수 조회(Grid page) -->
+    <select id="req4100DAO.selectReq4100RevisionListCnt" parameterClass="req4100VO"  resultClass="java.lang.Integer">
+	    /* req4100DAO.selectReq4100RevisionListCnt 요구사항에 포함된 리비젼 목록 총 건수 조회(Grid page)*/
+	    SELECT
+				COUNT(*)
+		FROM(
+				<include refid="req4100DAO.selectReq4100RevisionList"/>
+		) T2
+    </select>
+	
+	<!-- 권한있는 프로젝트의 요구사항 검색 -->
+    <select id="req4100DAO.selectReq4100PrjAuthReqList" parameterClass="java.util.Map"  resultClass="egovMap" >
+	    /* req4100DAO.selectReq4100PrjAuthReqList 권한있는 프로젝트의 요구사항 검색*/
+	    SELECT
+	    		T2.*
+	    FROM
+	    (	
+			SELECT 
+				T1.PRJ_ID
+				,	T1.REQ_ID
+				,	T1.REQ_ORD
+				,	TO_NUMBER(IFNULL(SF_REPLACE_ALL(T1.REQ_ORD ,'[^0-9]',''),0)) AS REQ_ORD_NUMBER
+				,	T1.REQ_CLS_ID
+				,	COALESCE(SF_REQ4000_REQ_CLS_NM(T1.PRJ_ID, T1.REQ_CLS_ID, '2'), '') AS REQ_CLS_NM
+				,	T1.REQ_NO
+				,	T1.REQ_USR_ID
+				,	COALESCE(T1.REQ_USR_NM, ( SELECT USR_NM FROM ADM2000 WHERE USR_ID = T1.REQ_USR_ID))  AS REQ_USR_NM
+				,	T1.REQ_DTM
+				,	T1.REQ_USR_DEPT_NM
+				,	T1.REQ_USR_POSITION_NM
+		    	,	T1.REQ_USR_DUTY_NM
+				,	T1.REQ_USR_EMAIL
+				,	T1.REQ_USR_NUM
+				,	T1.REQ_NM
+				<isNotEmpty property="reqId">
+	   				,	T1.REQ_DESC
+	   			</isNotEmpty>
+				<isEmpty property="reqId">
+					<![CDATA[ 
+	   				, sf_Replace_All (T1.REQ_DESC ,'</br>|<br>|<br/>|</BR>|<BR>|<BR/>' , '' ) AS REQ_DESC    
+	   				]]>
+	   			</isEmpty>
+				,	T1.REQ_CHARGER_ID
+				,	T1.REQ_COMPLETE_RATIO
+				,	T1.REQ_FP
+		    	,	T1.REQ_EX_FP
+				,	T1.REQ_CHARGER_NM
+				, 	T1.REQ_ST_DTM
+	  		   	, 	T1.REQ_ED_DTM
+				, 	T1.REQ_ST_DU_DTM
+				, 	T1.REQ_ED_DU_DTM
+				,	T1.REQ_PRO_TYPE
+				,	( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00008' AND SUB_CD = T1.REQ_PRO_TYPE ) AS REQ_PRO_TYPE_NM	
+				,	T1.REQ_NEW_TYPE
+				,   ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00009' AND SUB_CD = T1.REQ_NEW_TYPE ) AS REQ_NEW_TYPE_NM	
+				,	T1.REQ_ACCEPT_TXT
+				,	T1.SCL_CD
+		    	,	T1.REQ_TYPE_CD
+		    	,	T1.PIA_CD
+		    	,   ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00011' AND SUB_CD = T1.SCL_CD ) AS SCL_NM	    	
+		    	,   ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00012' AND SUB_CD = T1.REQ_TYPE_CD ) AS REQ_TYPE_NM	    	
+		    	,   ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'CMM00001' AND SUB_CD = T1.PIA_CD ) AS PIA_NM
+		    	,	T1.LAB_INP
+		    	,	T1.LAB_INP_RESULT
+		    	,	T1.REQ_GRUND_TXT
+		    	,	T1.REQ_TASK_TYPE_CD
+		    	,	T1.REQ_WORK_TYPE_CD
+		    	,	T1.REQ_MNG_TYPE_CD
+				,	T1.REQ_MNG_DETAIL_CD
+				,	T1.REQ_MNG_TASK_TYPE_CD
+				,   ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00014' AND SUB_CD = T1.REQ_TASK_TYPE_CD ) AS REQ_TASK_TYPE_NM    	
+		    	,   ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00015' AND SUB_CD = T1.REQ_WORK_TYPE_CD ) AS REQ_WORK_TYPE_NM	    	
+		    	,   ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00016' AND SUB_CD = T1.REQ_MNG_TYPE_CD ) AS REQ_MNG_TYPE_NM
+		    	,   ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00017' AND SUB_CD = T1.REQ_MNG_DETAIL_CD ) AS REQ_MNG_DETAIL_NM	    	
+		    	,   ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00018' AND SUB_CD = T1.REQ_MNG_TASK_TYPE_CD ) AS REQ_MNG_TASK_TYPE_NM
+				,	T1.ATCH_FILE_ID
+				,	T1.CB_ATCH_FILE_ID
+				,	T1.MILESTONE_ID
+				,	T1.PROCESS_ID
+				,	T1.PROCESS_NM
+				,	T1.FLOW_ID
+				,	T1.FLOW_NM
+				,	T1.FLOW_NEXT_ID
+				,	T1.USE_CD
+				,	T1.SIGN_CD
+				,	COALESCE(( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00004' AND SUB_CD = T1.SIGN_CD ),'없음') AS SIGN_CD_NM
+	            ,	T1.SIGN_USR_ID
+	            ,	COALESCE(( SELECT USR_NM FROM ADM2000 WHERE USR_ID = T1.SIGN_USR_ID),'없음')  AS SIGN_USR_NM
+			    ,	T1.REG_DTM
+			    ,	T1.REG_DTM_DAY
+			    ,	T1.REG_USR_ID
+			    ,	T1.REG_USR_IP
+			    ,	T1.MODIFY_DTM
+			    ,	T1.MODIFY_USR_ID
+			    ,	T1.MODIFY_USR_IP
+			    ,   T1.ORG_REQ_ID
+			    ,	T1.REQ_KEY
+				,	ROWNUM RN
+			FROM
+			(
+				SELECT
+							A.PRJ_ID
+						,	A.REQ_ID
+						,	A.REQ_ORD
+						,	A.REQ_CLS_ID
+						,	A.REQ_NO
+						,	A.REQ_USR_ID
+						,	A.REQ_USR_NM
+						,	TO_CHAR(A.REQ_DTM, 'YYYY-MM-DD') AS REQ_DTM
+						,	A.REQ_USR_DEPT_NM
+						,	A.REQ_USR_POSITION_NM
+		    			,	A.REQ_USR_DUTY_NM
+						,	A.REQ_USR_EMAIL
+						,	A.REQ_USR_NUM
+						,	A.REQ_NM
+						,	A.REQ_DESC
+						,	A.REQ_CHARGER_ID
+						,	A.REQ_COMPLETE_RATIO
+						,	A.REQ_FP
+				    	,	A.REQ_EX_FP
+						,	D.USR_NM			AS REQ_CHARGER_NM
+						, 	IFNULL(TO_CHAR(A.REQ_ST_DTM, 'YYYY-MM-DD HH24:MI') , '') REQ_ST_DTM
+	    		   		, 	IFNULL(TO_CHAR(A.REQ_ED_DTM, 'YYYY-MM-DD HH24:MI') , '') REQ_ED_DTM
+						, 	IFNULL(TO_CHAR(A.REQ_ST_DU_DTM, 'YYYY-MM-DD') , '') REQ_ST_DU_DTM
+						, 	IFNULL(TO_CHAR(A.REQ_ED_DU_DTM, 'YYYY-MM-DD') , '') REQ_ED_DU_DTM
+						,	A.REQ_PRO_TYPE
+						,	A.REQ_NEW_TYPE
+						,	A.REQ_ACCEPT_TXT
+						,	A.SCL_CD
+				    	,	A.REQ_TYPE_CD
+				    	,	A.PIA_CD
+				    	,	A.LAB_INP
+				    	,	A.LAB_INP_RESULT
+				    	,	A.REQ_GRUND_TXT
+				    	,	A.REQ_TASK_TYPE_CD
+				    	,	A.REQ_WORK_TYPE_CD
+				    	,	A.REQ_MNG_TYPE_CD
+						,	A.REQ_MNG_DETAIL_CD
+						,	A.REQ_MNG_TASK_TYPE_CD
+						,	A.ATCH_FILE_ID
+						,	A.CB_ATCH_FILE_ID
+						,	A.MILESTONE_ID
+						,	A.PROCESS_ID
+						,	B.PROCESS_NM
+						,	A.FLOW_ID
+						,	C.FLOW_NM
+						,	C.FLOW_NEXT_ID
+						,	A.USE_CD
+						,	E.SIGN_CD
+	                    ,	E.SIGN_USR_ID
+					    ,	TO_CHAR(A.REG_DTM, 'YYYY-MM-DD HH24:MI:SS') AS REG_DTM
+					    ,	TO_CHAR(A.REG_DTM, 'YYYY-MM-DD') AS REG_DTM_DAY
+					    ,	A.REG_USR_ID
+					    ,	A.REG_USR_IP
+					    ,	TO_CHAR(A.MODIFY_DTM, 'YYYY-MM-DD HH24:MI:SS') AS MODIFY_DTM
+					    ,	A.MODIFY_USR_ID
+					    ,	A.MODIFY_USR_IP
+					    ,   A.ORG_REQ_ID
+					    ,	A.REQ_KEY
+			    FROM REQ4100 A
+			    LEFT JOIN FLW1000 B
+			    ON ( A.PRJ_ID = B.PRJ_ID AND A.PROCESS_ID = B.PROCESS_ID)
+				LEFT JOIN FLW1100 C
+				ON ( B.PRJ_ID = C.PRJ_ID AND B.PROCESS_ID = C.PROCESS_ID AND A.FLOW_ID = C.FLOW_ID)
+				LEFT JOIN ADM2000 D
+				ON ( A.REQ_CHARGER_ID = D.USR_ID )
+				LEFT JOIN
+				(
+	                 SELECT Y.*
+	                 FROM REQ4900 Y
+	                 INNER JOIN (SELECT Z.REQ_ID, MAX(REG_DTM) AS REG_DTM FROM REQ4900 Z GROUP BY Z.REQ_ID) X
+	                 ON ( Y.REQ_ID = X.REQ_ID AND Y.REG_DTM = X.REG_DTM)
+	                 WHERE 1=1
+		        ) E
+		        ON ( A.PRJ_ID = E.PRJ_ID AND A.REQ_ID = E.REQ_ID)
+		        INNER JOIN
+		        (            
+			          SELECT	A.PRJ_ID
+			              	,	A.USR_ID
+			          FROM	ADM1300 A
+			          INNER JOIN ADM1100 B
+			          ON ( A.PRJ_ID = B.PRJ_ID AND A.AUTH_GRP_ID = B.AUTH_GRP_ID)
+			          WHERE	1=1
+			          AND A.USR_ID = #usrId#
+			          GROUP BY A.PRJ_ID, A.USR_ID
+				) F
+				ON ( E.PRJ_ID = F.PRJ_ID )
+			    WHERE 1=1
+			) T1
+		) T2
+		ORDER BY T2.REQ_PRO_TYPE ASC, T2.REQ_ORD_NUMBER DESC, T2.REQ_DTM DESC, T2.REG_DTM DESC	
+    </select>
+    
+	<!-- 요구사항 담당자 변경 -->
+	<update id="req4100DAO.updateReq4100ReqChargerChgInfoAjax" parameterClass="java.util.Map">
+		/* req4100DAO.updateReq4100ReqChargerChgInfoAjax - 요구사항 담당자 변경 */ 
+		UPDATE 	REQ4100 A
+		SET	
+			REQ_CHARGER_ID			= #reqChargerId#
+		    ,	MODIFY_DTM			= CURRENT_TIMESTAMP
+		    ,	MODIFY_USR_ID		= #modifyUsrId#
+		    ,	MODIFY_USR_IP		= #modifyUsrIp#
+		WHERE	1=1
+		AND		A.PRJ_ID = #prjId#
+		AND		A.REQ_ID = #reqId#
+	</update>
+	
+	
+    <!-- 프로세스별 요구사항 조회 -->
+    <select id="req4100DAO.selectReq4100ProcessReqList" parameterClass="java.util.Map"  resultClass="egovMap" >
+	    /*req4100DAO.selectReq4100ProcessReqList 프로세스별 요구사항 조회*/
+	    SELECT
+	    	 	T2.*
+	    FROM
+	    (
+			<include refid="req4100DAO.selectReq4100List"/>
+			
+		) T2
+		WHERE 1=1
+		AND T2.PROCESS_ID = #processId#
+		ORDER BY decode(T2.REQ_CHARGER_ID, #regUsrId#,1), T2.PROCESS_ID, T2.FLOW_ID
+    </select>
+    
+
+    
+    <!-- 외부 팝업 요구사항 조회 - 요구사항 상세정보를 조회한다. -->
+    <select id="req4100DAO.selectReq4110ReqInfo" parameterClass="java.util.Map"  resultClass="egovMap" >
+	   	 /* req4100DAO.selectReq4110ReqInfo 외부 팝업 요구사항 조회 - 요구사항 상세정보를 조회한다. */
+	   	SELECT 
+	   		T1.LIC_GRP_ID
+			,	T1.PRJ_ID
+			, ( SELECT PRJ_NM FROM PRJ1000 WHERE PRJ_ID = T1.PRJ_ID ) AS PRJ_NM
+			,	T1.REQ_ID
+			,	T1.REQ_ORD
+			,	T1.REQ_CLS_ID
+			,	COALESCE(SF_REQ4000_REQ_CLS_NM(T1.PRJ_ID, T1.REQ_CLS_ID, '2'), '') AS REQ_CLS_NM
+			,	T1.REQ_NO
+			,	T1.REQ_USR_ID
+			,	COALESCE(T1.REQ_USR_NM, ( SELECT USR_NM FROM ADM2000 WHERE USR_ID = T1.REQ_USR_ID))  AS REQ_USR_NM
+			,	T1.REQ_DTM
+			,	T1.REQ_USR_DEPT_NM
+			,	T1.REQ_USR_POSITION_NM
+	    	,	T1.REQ_USR_DUTY_NM
+			,	T1.REQ_USR_EMAIL
+			,	T1.REQ_USR_NUM
+			,	T1.REQ_NM
+			<isNotEmpty property="reqId">
+   				,	T1.REQ_DESC
+   			</isNotEmpty>
+			<isEmpty property="reqId">
+				<![CDATA[ 
+   				, sf_Replace_All (T1.REQ_DESC ,'</br>|<br>|<br/>|</BR>|<BR>|<BR/>' , '' ) AS REQ_DESC
+   				]]>
+   			</isEmpty>
+			,	T1.REQ_CHARGER_ID
+			,	T1.REQ_COMPLETE_RATIO
+			,	T1.REQ_FP
+	    	,	T1.REQ_EX_FP
+			,	T1.REQ_CHARGER_NM
+			,	T1.REQ_CHARGER_IMG_ID
+			, 	T1.REQ_ST_DTM
+  		   	, 	T1.REQ_ED_DTM
+			, 	T1.REQ_ST_DU_DTM
+			, 	T1.REQ_ED_DU_DTM
+			,	T1.REQ_PRO_TYPE
+			,	T1.REQ_PRO_TYPE_NM
+			,	T1.REQ_NEW_TYPE
+			,	T1.REQ_NEW_TYPE_NM
+			,	T1.REQ_ACCEPT_TXT
+			,	T1.SCL_CD
+	    	,	T1.REQ_TYPE_CD
+	    	,	T1.PIA_CD
+	    	,	T1.SCL_NM
+	    	,	T1.REQ_TYPE_NM
+          	,	T1.PIA_NM
+	    	,	T1.LAB_INP
+	    	,	T1.LAB_INP_RESULT
+	    	,	T1.REQ_GRUND_TXT
+	    	,	T1.REQ_TASK_TYPE_CD
+	    	,	T1.REQ_WORK_TYPE_CD
+	    	,	T1.REQ_MNG_TYPE_CD
+			,	T1.REQ_MNG_DETAIL_CD
+			,	T1.REQ_MNG_TASK_TYPE_CD
+			,   ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00014' AND SUB_CD = T1.REQ_TASK_TYPE_CD ) AS REQ_TASK_TYPE_NM    	
+		    	,   ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00015' AND SUB_CD = T1.REQ_WORK_TYPE_CD ) AS REQ_WORK_TYPE_NM	    	
+		    	,   ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00016' AND SUB_CD = T1.REQ_MNG_TYPE_CD ) AS REQ_MNG_TYPE_NM
+		    	,   ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00017' AND SUB_CD = T1.REQ_MNG_DETAIL_CD ) AS REQ_MNG_DETAIL_NM	    	
+		    	,   ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00018' AND SUB_CD = T1.REQ_MNG_TASK_TYPE_CD ) AS REQ_MNG_TASK_TYPE_NM
+			,	T1.ATCH_FILE_ID
+			,	T1.CB_ATCH_FILE_ID
+			,	T1.MILESTONE_ID
+			,	T1.PROCESS_ID
+			,	T1.PROCESS_NM
+			,	T1.FLOW_ID
+			,	T1.FLOW_NM
+			,	T1.FLOW_NEXT_ID
+			,	T1.USE_CD
+			,	T1.SIGN_CD
+			,	T1.SIGN_CD_NM
+            ,	T1.SIGN_USR_ID
+            ,	COALESCE(( SELECT USR_NM FROM ADM2000 WHERE USR_ID = T1.SIGN_USR_ID),'없음')  AS SIGN_USR_NM
+		    ,	T1.REG_DTM
+		    ,	T1.REG_DTM_DAY
+		    ,	T1.REG_USR_ID
+		    ,	T1.REG_USR_IP
+		    ,	T1.MODIFY_DTM
+		    ,	T1.MODIFY_USR_ID
+		    ,	T1.MODIFY_USR_IP
+		    ,   T1.ORG_REQ_ID
+		    , 	T1.REQ_KEY
+		FROM
+		(
+			SELECT
+						F.LIC_GRP_ID
+					,	A.PRJ_ID
+					,	A.REQ_ID
+					,	A.REQ_ORD
+					,	A.REQ_CLS_ID
+					,	A.REQ_NO
+					,	A.REQ_USR_ID
+					,	A.REQ_USR_NM
+					,	TO_CHAR(A.REQ_DTM, 'YYYY-MM-DD') AS REQ_DTM
+					,	A.REQ_USR_DEPT_NM
+					,	A.REQ_USR_POSITION_NM
+		    		,	A.REQ_USR_DUTY_NM
+					,	A.REQ_USR_EMAIL
+					,	A.REQ_USR_NUM
+					,	A.REQ_NM
+	    			,	A.REQ_DESC
+					,	A.REQ_CHARGER_ID
+					,	A.REQ_COMPLETE_RATIO
+					,	A.REQ_FP
+			    	,	A.REQ_EX_FP
+					,	D.USR_NM			AS REQ_CHARGER_NM
+					,	D.USR_IMG_ID		AS REQ_CHARGER_IMG_ID
+					, 	IFNULL(TO_CHAR(A.REQ_ST_DTM, 'YYYY-MM-DD HH24:MI') , '') REQ_ST_DTM
+    		   		, 	IFNULL(TO_CHAR(A.REQ_ED_DTM, 'YYYY-MM-DD HH24:MI') , '') REQ_ED_DTM
+					, 	IFNULL(TO_CHAR(A.REQ_ST_DU_DTM, 'YYYY-MM-DD') , '') REQ_ST_DU_DTM
+					, 	IFNULL(TO_CHAR(A.REQ_ED_DU_DTM, 'YYYY-MM-DD') , '') REQ_ED_DU_DTM
+					,	A.REQ_PRO_TYPE
+					,	(SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = F.LIC_GRP_ID AND MST_CD = 'REQ00008' AND SUB_CD = A.REQ_PRO_TYPE) AS REQ_PRO_TYPE_NM
+					,	A.REQ_NEW_TYPE
+					,	(SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = F.LIC_GRP_ID AND MST_CD = 'REQ00009' AND SUB_CD = A.REQ_NEW_TYPE) AS REQ_NEW_TYPE_NM
+					,	A.REQ_ACCEPT_TXT
+					,	A.SCL_CD
+			    	,	A.REQ_TYPE_CD
+			    	,	A.PIA_CD
+			    	,	(SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = F.LIC_GRP_ID AND MST_CD = 'REQ00011' AND SUB_CD = A.SCL_CD) AS SCL_NM
+			    	,	(SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = F.LIC_GRP_ID AND MST_CD = 'REQ00012' AND SUB_CD = A.REQ_TYPE_CD) AS REQ_TYPE_NM
+            		,	(SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = F.LIC_GRP_ID AND MST_CD = 'CMM00001' AND SUB_CD = A.PIA_CD) AS PIA_NM
+			    	,	A.LAB_INP
+			    	,	A.LAB_INP_RESULT
+			    	,	A.REQ_GRUND_TXT
+			    	,	A.REQ_TASK_TYPE_CD
+			    	,	A.REQ_WORK_TYPE_CD
+			    	,	A.REQ_MNG_TYPE_CD
+					,	A.REQ_MNG_DETAIL_CD
+					,	A.REQ_MNG_TASK_TYPE_CD
+					,	A.ATCH_FILE_ID
+					,	A.CB_ATCH_FILE_ID
+					,	A.MILESTONE_ID
+					,	A.PROCESS_ID
+					,	B.PROCESS_NM
+					,	A.FLOW_ID
+					,	C.FLOW_NM
+					,	C.FLOW_NEXT_ID
+					,	A.USE_CD
+					,	E.SIGN_CD
+					,	COALESCE(( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'REQ00004' AND SUB_CD = E.SIGN_CD ),'없음') AS SIGN_CD_NM
+                    ,	E.SIGN_USR_ID
+				    ,	TO_CHAR(A.REG_DTM, 'YYYY-MM-DD HH24:MI:SS') AS REG_DTM
+				    ,	TO_CHAR(A.REG_DTM, 'YYYY-MM-DD') AS REG_DTM_DAY
+				    ,	A.REG_USR_ID
+				    ,	A.REG_USR_IP
+				    ,	TO_CHAR(A.MODIFY_DTM, 'YYYY-MM-DD HH24:MI:SS') AS MODIFY_DTM
+				    ,	A.MODIFY_USR_ID
+				    ,	A.MODIFY_USR_IP
+				    ,   A.ORG_REQ_ID
+				    , 	A.REQ_KEY
+		    FROM REQ4100 A
+		    LEFT JOIN FLW1000 B
+		    ON ( A.PRJ_ID = B.PRJ_ID AND A.PROCESS_ID = B.PROCESS_ID)
+			LEFT JOIN FLW1100 C
+			ON ( A.PRJ_ID = C.PRJ_ID AND A.PROCESS_ID = C.PROCESS_ID AND A.FLOW_ID = C.FLOW_ID)
+			LEFT JOIN ADM2000 D
+			ON ( A.REQ_CHARGER_ID = D.USR_ID )
+			LEFT JOIN
+			(
+                 SELECT Y.*
+                 FROM REQ4900 Y
+                 INNER JOIN
+                 (
+                 	SELECT Z.REQ_ID, MAX(REG_DTM) AS REG_DTM
+                 	FROM REQ4900 Z
+                 	GROUP BY Z.REQ_ID
+                 ) X
+                 ON ( Y.REQ_ID = X.REQ_ID AND Y.REG_DTM = X.REG_DTM )
+                 WHERE 1=1
+	        ) E
+	        ON ( A.PRJ_ID = E.PRJ_ID AND A.REQ_ID = E.REQ_ID)
+	        LEFT JOIN PRJ1000 F
+	        ON ( A.PRJ_ID = F.PRJ_ID ) 
+		    WHERE 1=1
+		) T1 
+		WHERE 	1 = 1
+		AND		T1.REQ_KEY = #reqKey#
+    </select> 
+    
+    
+</sqlMap>

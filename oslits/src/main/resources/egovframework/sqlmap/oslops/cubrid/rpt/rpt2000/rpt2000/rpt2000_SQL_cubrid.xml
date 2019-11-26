@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="rpt2000DAO">
+
+	 <!--  in / out class define  -->
+	<typeAlias alias="egovMap"	 	type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	
+    <!-- 보고서 출력용 요구사항 마지막 결재자 정보 -->
+    <select id="rpt2000DAO.selectRpt2000ReqLastSignDataInfo" parameterClass="java.util.Map"  resultClass="egovMap">
+    	/* rpt2000DAO.selectRpt2000ReqLastSignDataInfo 보고서 출력용 요구사항 마지막 결재자 정보 */
+		SELECT A.PRJ_ID
+			,A.REQ_ID
+			,A.SIGN_ID
+			,A.PROCESS_ID
+			,A.SIGN_PREV_FLOW_ID AS PREV_FLOW_ID
+			,A.SIGN_FLOW_ID
+			,A.SIGN_USR_ID
+			,B.USR_NM AS SIGN_USR_NM
+			,SF_ADM7000_DEPT_NM(#licGrpId#, B.DEPT_ID, '2') AS SIGN_USR_DEPT_NM
+			,( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'ADM00007' AND SUB_CD = B.USR_POSITION_CD ) AS USR_POSITION_NM
+			,A.SIGN_CD
+			,A.SIGN_REJECT_CMNT
+			,A.SIGN_DTM
+			,A.REG_DTM
+			,A.REG_USR_ID
+			,A.REG_USR_IP
+		FROM REQ4900 A
+		LEFT JOIN ADM2000 B
+		ON ( A.SIGN_USR_ID = B.USR_ID )
+		WHERE 1=1
+		AND A.PRJ_ID = #prjId#
+		AND A.REQ_ID = #reqId#
+		ORDER BY A.REG_DTM DESC
+		LIMIT 1
+    </select>
+</sqlMap>

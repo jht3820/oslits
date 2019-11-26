@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="dsh4000DAO">
+	<typeAlias alias="dsh4000VO"	type="kr.opensoftlab.oslops.dsh.dsh4000.dsh4000.vo.Dsh4000VO"/>
+	<typeAlias alias="egovMap"	 	type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	
+    <resultMap id="dsh4000resultMap" class="dsh4000VO">
+		<result property="meaDtm"              column="MEA_DTM" /> <!-- 측정연월 --> 
+		<result property="meaFmDtm"              column="MEA_FM_DTM" /> <!-- 측정연월 --> 
+		<result property="reportCd"              column="REPORT_CD" /> <!-- 보고서 구분 코드 --> 
+		<result property="reportNm"              column="REPORT_NM" /> <!-- 보고서 구분명 --> 
+
+		<result property="confYn"              column="CONF_YN" /> <!-- 확정여부 --> 
+		<result property="writeYn"              column="WRITE_YN" /> <!-- 작성여부 --> 
+		<result property="confYnNm"              column="CONF_YN_NM" /> <!-- 확정여부 --> 
+		<result property="writeYnNm"              column="WRITE_YN_NM" /> <!-- 작성여부 -->
+		<result property="tmNm"              column="TM_NM" />
+		<result property="chargerNm"              column="CHARGER_NM" />
+		<result property="pmNm"              column="PM_NM" /> 
+		 
+    </resultMap>
+	
+	
+	<sql id="selectDsh4000ReportList">
+	
+			SELECT 		A.MEA_DTM ,
+						SUBSTR( A.MEA_DTM  ,0, 4) || ' 년  '||  SUBSTR( A.MEA_DTM  ,5) || '월' AS MEA_FM_DTM,
+						A.REPORT_CD, 
+						A.REPORT_NM,
+						A.CONF_YN,
+						SF_ADM4100_COM_CD_INFO(#licGrpId#, 'RPT00001', A.CONF_YN, '1') AS CONF_YN_NM  ,
+						A.WRITE_YN,
+						SF_ADM4100_COM_CD_INFO(#licGrpId#, 'RPT00004', A.WRITE_YN, '1') AS WRITE_YN_NM ,
+						A.TM_NM ,
+						A.CHARGER_NM,
+						A.PM_NM 
+			FROM 		RPT1200 A 
+			WHERE 		1=1
+			AND 		A.LIC_GRP_ID = #licGrpId#
+			AND 		A.PRJ_ID = #prjId#
+			AND 		A.MEA_DTM BETWEEN REPLACE( #startDt# ,'-',CHR(10)) AND REPLACE(#endDt# ,'-',CHR(10))
+			AND         A.CONF_YN = '01' /*  01 확정  */
+			ORDER BY	A.REPORT_CD , A.MEA_DTM
+
+    </sql>
+    
+    <!-- 보고서 목록 조회 -->
+    <select id="dsh4000DAO.selectDsh4000ReportList" parameterClass="dsh4000VO"  resultMap="dsh4000resultMap">
+	    /*adm8100DAO.selectAdm8100ReportList 보고서 목록 조회한다.*/
+		SELECT *
+		FROM
+			(
+    		SELECT ROWNUM RN,
+    			     A.*
+    		FROM
+    		(
+					<include refid="selectDsh4000ReportList"/>
+	    			) A
+	    	)
+	    	 WHERE RN BETWEEN (#firstIndex#+1) AND #lastIndex#
+    </select>
+    
+    <!-- 보고서 목록 총건수. :페이징 처리 부분 -->
+    <select id="dsh4000DAO.selectDsh4000ReportListCnt" parameterClass="dsh4000VO"  resultClass="java.lang.Integer">
+	    /*adm8100DAO.selectAdm8100ReportListCnt 보고서 목록 총건수를 조회한다.*/
+	    SELECT
+			COUNT(*)
+		FROM	(
+			<include refid="selectDsh4000ReportList"/>
+						) A
+    </select>
+	
+	
+	
+</sqlMap>

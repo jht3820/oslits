@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="adm8100DAO">
+	<typeAlias alias="adm8100VO"	type="kr.opensoftlab.oslops.adm.adm8000.adm8100.vo.Adm8100VO"/>
+	<typeAlias alias="egovMap"	 	type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	
+    <resultMap id="adm8100resultMap" class="adm8100VO">
+		<result property="meaDtm"              column="MEA_DTM" /> <!-- 측정연월 --> 
+		<result property="meaFmDtm"              column="MEA_FM_DTM" /> <!-- 측정연월 --> 
+		<result property="reportCd"              column="REPORT_CD" /> <!-- 보고서 구분 코드 --> 
+		<result property="reportNm"              column="REPORT_NM" /> <!-- 보고서 구분명 --> 
+
+		<result property="confYn"              column="CONF_YN" /> <!-- 확정여부 --> 
+		<result property="writeYn"              column="WRITE_YN" /> <!-- 작성여부 --> 
+		<result property="confYnNm"              column="CONF_YN_NM" /> <!-- 확정여부 --> 
+		<result property="writeYnNm"              column="WRITE_YN_NM" /> <!-- 작성여부 -->
+		<result property="tmNm"              column="TM_NM" />
+		<result property="chargerNm"              column="CHARGER_NM" />
+		<result property="pmNm"              column="PM_NM" /> 
+		 
+    </resultMap>
+	
+	
+	<sql id="selectAdm8100ReportList">
+	
+			SELECT 		A.MEA_DTM ,
+						SUBSTR( A.MEA_DTM  ,0, 4) || ' 년  '||  SUBSTR( A.MEA_DTM  ,5) || '월' AS MEA_FM_DTM,
+						A.REPORT_CD, 
+						A.REPORT_NM,
+						A.CONF_YN,
+						SF_ADM4100_COM_CD_INFO(#licGrpId#, 'RPT00001', A.CONF_YN, '1') AS CONF_YN_NM  ,
+						A.WRITE_YN,
+						SF_ADM4100_COM_CD_INFO(#licGrpId#, 'RPT00004', A.WRITE_YN, '1') AS WRITE_YN_NM ,
+						A.TM_NM ,
+						A.CHARGER_NM,
+						A.PM_NM 
+			FROM 		RPT1200 A 
+			WHERE 		1=1
+			AND 		A.LIC_GRP_ID = #licGrpId#
+			AND 		A.PRJ_ID = #prjId#
+			
+			AND 		A.MEA_DTM BETWEEN REPLACE( #startDt# ,'-',CHR(10)) AND REPLACE(#endDt# ,'-',CHR(10))
+			 
+			ORDER BY	A.REPORT_CD , A.MEA_DTM    			
+
+    </sql>
+    
+    <!-- 보고서 목록 조회 -->
+    <select id="adm8100DAO.selectAdm8100ReportList" parameterClass="adm8100VO"  resultMap="adm8100resultMap">
+	    /*adm8100DAO.selectAdm8100ReportList 보고서 목록 조회한다.*/
+		SELECT *
+		FROM
+			(
+    		SELECT ROWNUM RN,
+    			     A.*
+    		FROM
+    		(
+					<include refid="selectAdm8100ReportList"/>
+	    			) A
+	    	)
+	    	 WHERE RN BETWEEN (#firstIndex#+1) AND #lastIndex#
+    </select>
+    
+    <!-- 보고서 목록 총건수. :페이징 처리 부분 -->
+    <select id="adm8100DAO.selectAdm8100ReportListCnt" parameterClass="adm8100VO"  resultClass="java.lang.Integer">
+	    /*adm8100DAO.selectAdm8100ReportListCnt 보고서 목록 총건수를 조회한다.*/
+	    SELECT
+			COUNT(*)
+		FROM	(
+			<include refid="selectAdm8100ReportList"/>
+						) A
+    </select>
+	
+	<!-- 보고서 연간 생성 -->
+	<insert id="adm8100DAO.insertAdm8100ReportMasterInfo" parameterClass="java.util.Map" >
+		INSERT     INTO     RPT1200
+		(
+		            LIC_GRP_ID             , /* 라이선스그룹 ID */ 
+		            PRJ_ID             , /* 프로젝트 ID */ 
+		            MEA_DTM             , /* 측정연월 */ 
+		            REPORT_CD             , /* 보고서 구분 코드 */ 
+		            REPORT_NM             , /* 보고서 구분 코드 */ 
+		            CONF_YN             , /* 확정여부 */ 
+		            WRITE_YN             , /* 작성여부 */ 
+		            REG_DTM             , /* 최초등록 일시 */ 
+		            REG_USR_ID             , /* 최초등록자 ID */ 
+		            REG_USR_IP             , /* 최초등록자 IP */ 
+		            MODIFY_DTM             , /* 최종수정일시 */ 
+		            MODIFY_USR_ID             , /* 최종수정자 ID */ 
+		            MODIFY_USR_IP              /* 최종수정자 IP */ 
+		)
+		SELECT 
+					A.LIC_GRP_ID,              /* 라이선스그룹 ID */ 
+		            A.PRJ_ID,              /* 프로젝트 ID */ 
+		            A.REPORT_YEAR || C.SUB_CD_NM AS MEA_DTM,              /* 기준연도 */ 
+		            A.REPORT_CD ,              /* 보고서 구분 코드 */ 
+		            A.REPORT_NM ,
+		            '02' ,
+		            '02' ,
+		            CURRENT_TIMESTAMP AS REG_DTM,             /* 최초등록 일시 */ 
+				    #regUsrId# AS REG_USR_ID,       /* 최초등록자 ID */ 
+				    #regUsrIp# AS REG_USR_IP,       /* 최초등록자 IP */ 
+				    CURRENT_TIMESTAMP AS MODIFY_DTM,          /* 최종수정일시 */ 
+				    #modifyUsrId# AS MODIFY_USR_ID, /* 최종수정자 ID */ 
+				    #modifyUsrIp# AS MODIFY_USR_IP  /* 최종수정자 IP */  
+		FROM RPT1000 A
+		LEFT JOIN
+		(
+			SELECT LIC_GRP_ID, SUB_CD_NM
+			FROM ADM4100
+			WHERE 1=1
+			AND MST_CD = 'CMM00003'
+		) C
+		ON ( A.LIC_GRP_ID = C.LIC_GRP_ID )
+		WHERE 1=1
+		  
+		AND 		A.LIC_GRP_ID = #licGrpId# 
+		AND 		A.PRJ_ID = #prjId# 
+		AND 		A.REPORT_YEAR = #stdReportYear#
+		AND 		A.CONF_YN ='01' /* 작성  */
+		AND NOT EXISTS
+		(
+		 	SELECT Z.*
+			FROM RPT1200 Z
+			WHERE Z.LIC_GRP_ID = A.LIC_GRP_ID
+			AND Z.PRJ_ID = A.PRJ_ID
+			AND Z.MEA_DTM = A.REPORT_YEAR || C.SUB_CD_NM
+			AND Z.REPORT_CD = A.REPORT_CD
+		)
+	</insert>
+	<!-- 보고서 연간 생성 -->
+	<insert id="adm8100DAO.insertAdm8100ReportInfo" parameterClass="java.util.Map" >
+		/* adm8100DAO.insertAdm8100ReportInfo 보고서 생성 */
+		<![CDATA[ 
+		INSERT     INTO     RPT1300
+		(
+		            LIC_GRP_ID             , /* 라이선스그룹 ID */ 
+		            PRJ_ID             , /* 프로젝트 ID */ 
+		            MEA_DTM             , /* 측정연월 */ 
+		            REPORT_CD             , /* 보고서 구분 코드 */ 
+		            ITEM_CD             , /* 측정항목 코드 */ 
+		            ITEM_NM             , /* 측정항목 명 */ 
+		            INDEX_CD             , /* 지표구분 코드 */ 
+		            INDEX_NM             , /* 지표구분 명 */ 
+		            WEIGHT_VAL             , /* 가중치 */ 
+		            PERIOD_CD             , /* 보고/평가주기 코드 */ 
+		            PERIOD_NM             , /* 보고/평가주기 명 */ 
+		            PERIOD_ORD             , /* 순번 */ 
+		            PROCESS_ID             , /* 프로세스 ID */  
+		            ITEM_TYPE_CD			,
+		            REG_DTM             , /* 최초등록 일시 */ 
+		            REG_USR_ID             , /* 최초등록자 ID */ 
+		            REG_USR_IP             , /* 최초등록자 IP */ 
+		            MODIFY_DTM             , /* 최종수정일시 */ 
+		            MODIFY_USR_ID             , /* 최종수정자 ID */ 
+		            MODIFY_USR_IP              /* 최종수정자 IP */ 
+		)
+		SELECT
+			SUBT1.LIC_GRP_ID,              /* 라이선스그룹 ID */ 
+            SUBT1.PRJ_ID,              /* 프로젝트 ID */ 
+            SUBT1.MEA_DTM,              /* 기준연도 */ 
+            SUBT1.REPORT_CD,              /* 보고서 구분 코드 */ 
+            SUBT1.ITEM_CD,              /* 측정항목 코드 */ 
+            SUBT1.ITEM_NM,              /* 측정항목 명 */ 
+            SUBT1.INDEX_CD,              /* 지표구분 코드 */ 
+            SF_ADM4100_COM_CD_INFO(#licGrpId#, 'RPT00002', SUBT1.INDEX_CD, '1') AS INDEX_NM ,
+            SUBT1.WEIGHT_VAL,              /* 가중치 */ 
+            SUBT1.PERIOD_CD,              /* 보고./평가주기 코드 */ 
+            SF_ADM4100_COM_CD_INFO(#licGrpId#, 'RPT00003', SUBT1.PERIOD_CD, '1') AS PERIOD_NM ,
+            SUBT1.PERIOD_ORD,              /* 순번 */ 
+            SUBT1.PROCESS_ID,              /* 프로세스 ID */ 
+          	SUBT1.ITEM_TYPE_CD,
+            SUBT1.REG_DTM,             /* 최초등록 일시 */ 
+		    SUBT1.REG_USR_ID,       /* 최초등록자 ID */ 
+		    SUBT1.REG_USR_IP,       /* 최초등록자 IP */ 
+		    SUBT1.MODIFY_DTM,          /* 최종수정일시 */ 
+		    SUBT1.MODIFY_USR_ID, /* 최종수정자 ID */ 
+		    SUBT1.MODIFY_USR_IP  /* 최종수정자 IP */  
+		FROM
+		(
+			SELECT  	A.LIC_GRP_ID,              /* 라이선스그룹 ID */ 
+			            A.PRJ_ID,              /* 프로젝트 ID */ 
+			            A.REPORT_YEAR || C.SUB_CD_NM AS MEA_DTM,              /* 기준연도 */ 
+			            A.REPORT_CD,              /* 보고서 구분 코드 */ 
+			            B.ITEM_CD,              /* 측정항목 코드 */ 
+			            B.ITEM_NM,              /* 측정항목 명 */ 
+			            B.INDEX_CD,              /* 지표구분 코드 */ 
+			            B.WEIGHT_VAL,              /* 가중치 */ 
+			            B.PERIOD_CD,              /* 보고./평가주기 코드 */ 
+			            B.PERIOD_ORD,              /* 순번 */ 
+			            B.PROCESS_ID,              /* 프로세스 ID */ 
+			          	B.ITEM_TYPE_CD,
+			            CURRENT_TIMESTAMP AS REG_DTM,             /* 최초등록 일시 */ 
+					    #regUsrId# AS REG_USR_ID,       /* 최초등록자 ID */ 
+					    #regUsrIp# AS REG_USR_IP,       /* 최초등록자 IP */ 
+					    CURRENT_TIMESTAMP AS MODIFY_DTM,          /* 최종수정일시 */ 
+					    #modifyUsrId# AS MODIFY_USR_ID, /* 최종수정자 ID */ 
+					    #modifyUsrIp# AS MODIFY_USR_IP  /* 최종수정자 IP */  
+			FROM RPT1000 A
+	        INNER JOIN RPT1100 B
+	        ON ( A.LIC_GRP_ID = B.LIC_GRP_ID AND A.PRJ_ID = B.PRJ_ID AND A.REPORT_YEAR = B.REPORT_YEAR AND A.REPORT_CD = B.REPORT_CD)
+	        LEFT JOIN
+	        (
+	        	SELECT LIC_GRP_ID, SUB_CD_NM
+	        	FROM ADM4100
+	        	WHERE 1=1
+	        	AND MST_CD = 'CMM00003'
+	        ) C
+	        ON ( A.LIC_GRP_ID = C.LIC_GRP_ID )
+			WHERE 1=1
+			AND 		A.LIC_GRP_ID = #licGrpId# 
+			AND 		A.PRJ_ID = #prjId# 
+			AND 		A.REPORT_YEAR = #stdReportYear#
+			AND 		A.CONF_YN ='01' /* 작성  */
+			AND NOT EXISTS
+			(
+			 	SELECT Z.*
+				FROM RPT1300 Z
+				WHERE Z.LIC_GRP_ID = A.LIC_GRP_ID
+				AND Z.PRJ_ID = A.PRJ_ID
+				AND Z.MEA_DTM = A.REPORT_YEAR || C.SUB_CD_NM
+				AND Z.REPORT_CD = A.REPORT_CD
+				AND Z.ITEM_CD = B.ITEM_CD
+			)
+		) SUBT1
+	    ]]>
+	</insert>
+	
+	
+	<!-- 보고서 상세 조회 -->
+    <select id="adm8100DAO.selectAdm8100ReportInfo" parameterClass="java.util.Map"  resultClass="egovMap">
+	    /*adm8100DAO.selectAdm8100ReportInfo 보고서 상세  조회한다.*/
+		SELECT 
+				LIC_GRP_ID,              /* 라이선스그룹 ID */ 
+	            PRJ_ID,              /* 프로젝트 ID */ 
+	            MEA_DTM,              /* 측정연월 */ 
+	            REPORT_CD,              /* 보고서 구분 코드 */ 
+	            ITEM_CD,              /* 측정항목 코드 */ 
+	            ITEM_NM,              /* 측정항목 명 */ 
+	            INDEX_CD,              /* 지표구분 코드 */ 
+	            INDEX_NM,              /* 지표구분 명 */ 
+	            WEIGHT_VAL,              /* 가중치 */ 
+	            PERIOD_CD,              /* 보고/평가주기 코드 */ 
+	            PERIOD_NM,              /* 보고/평가주기 명 */ 
+	            PERIOD_ORD,              /* 순번 */ 
+	            PROCESS_ID,              /* 프로세스 ID */ 
+	            MEA_VAL,              /* 측정값 */ 
+	            APPR_VAL,              /* 평가수준 */ 
+	            OPT_VAL,              /* 적정/부적정 */ 
+	            MODIFY_APPR_VAL,              /* 변경 측정값 */ 
+	            MODIFY_OPT_VAL ,              /* 변경 평가수준 */ 
+	            CASE WHEN PROCESS_ID = '' THEN NULL
+	                 WHEN PERIOD_CD = '01' OR PERIOD_CD =  '02' THEN NULL
+	                 ELSE DECODE( ITEM_TYPE_CD , '01' , SF_REQ4100_REQ_PROCESS_RATE(PRJ_ID,PROCESS_ID,MEA_DTM , DECODE(PERIOD_CD,'03', '2' ,'04', '1' ))   /* 03 분기 04 반기 */  
+	            							   , '02' , SF_REQ4100_REQ_UPGRADE_ACT(PRJ_ID,PROCESS_ID,MEA_DTM ,  DECODE(PERIOD_CD,'03', '2' ,'04', '1' )) 
+	            	  			)
+	            END AS CAL_VAL /* 측정 참조 */
+		FROM 	RPT1300
+		WHERE 	1=1
+		AND 	LIC_GRP_ID 	= #licGrpId# 
+		AND 	PRJ_ID 		=  #prjId# 
+		AND 	REPORT_CD 	=  #reportCd# 
+		AND 	MEA_DTM 	=  #meaDtm# 
+		ORDER BY PERIOD_ORD ASC
+    </select>
+
+	<!-- 보고서 상세 조회 -->
+    <select id="adm8100DAO.selectAdm8100ReportMasterInfo" parameterClass="java.util.Map"  resultClass="egovMap">
+	    /*adm8100DAO.selectAdm8100ReportMasterInfo 보고서 상세  조회한다.*/
+		SELECT
+		            LIC_GRP_ID,              /* 라이선스그룹 ID */ 
+		            PRJ_ID,              /* 프로젝트 ID */ 
+		            MEA_DTM,              /* 측정연월 */ 
+		            REPORT_CD,              /* 보고서 구분 코드 */ 
+		            TM_NM,              /* 팀장명 */ 
+		            CHARGER_NM,              /* 담당자명 */ 
+		            PM_NM,              /* PM명 */ 
+		            CONF_YN,              /* 확정여부 */ 
+		            WRITE_YN              /* 작성여부 */ 
+		FROM
+		            RPT1200
+		WHERE 	1=1
+		AND 	LIC_GRP_ID 	= #licGrpId# 
+		AND 	PRJ_ID 		=  #prjId# 
+		AND 	REPORT_CD 	=  #reportCd# 
+		AND 	MEA_DTM 	=  #meaDtm# 
+
+    </select>
+	<!-- 보고서 작성 -->	
+	<update id="adm8100DAO.updateAdm8100ReportInfo" parameterClass="adm8100VO" >
+		UPDATE	    RPT1300     SET 
+		            MEA_VAL = COALESCE( #meaVal# , '-' )             		, /* 측정값 */ 
+		            APPR_VAL =COALESCE(  #apprVal#  , '-' )             		, /* 평가수준 */ 
+		            OPT_VAL = COALESCE(  #optVal#   , '-' )            		, /* 적정/부적정 */ 
+		            MODIFY_APPR_VAL = COALESCE(  #modifyApprVal# , '-' )     , /* 변경 측정값 */ 
+		            MODIFY_OPT_VAL = COALESCE(  #modifyOptVal#   , '-' )     , /* 변경 평가수준 */ 
+		             
+		        
+		            MODIFY_DTM = CURRENT_TIMESTAMP	             				, /* 최종수정일시 */ 
+		            MODIFY_USR_ID = #modifyUsrId#             			, /* 최종수정자 ID */ 
+		            MODIFY_USR_IP = #modifyUsrIp#              			  /* 최종수정자 IP */ 
+		WHERE 1=1
+		AND   		LIC_GRP_ID = #licGrpId#    				        	/* 라이선스그룹 ID */ 
+		AND   		PRJ_ID = #prjId#              						/* 프로젝트 ID */ 
+		AND   		MEA_DTM = #meaDtm#              					/* 측정연월 */ 
+		AND			REPORT_CD = #reportCd#              				/* 보고서 구분 코드 */ 
+		AND   		ITEM_CD = #itemCd#              					/* 측정항목 코드 */ 
+	</update>
+	
+	<!--  보고서 작성    -->
+	<update id="adm8100DAO.updateAdm8100ReportWriteYn" parameterClass="java.util.Map"  >
+		/* adm8100DAO.updateAdm8100ReportWriteYn 보고서 작성 */
+		UPDATE	    RPT1200     SET 
+		            TM_NM = #tmNm#             							, /* 팀장명 */ 
+		            CHARGER_NM = #chargerNm#            				, /* 담당자명 */ 
+		            PM_NM = #pmNm#             							, /* PM명 */  
+		            WRITE_YN = '01'             						, /* 확정여부 */ 
+		            MODIFY_DTM = CURRENT_TIMESTAMP	             				, /* 최종수정일시 */ 
+		            MODIFY_USR_ID = #modifyUsrId#             			, /* 최종수정자 ID */ 
+		            MODIFY_USR_IP = #modifyUsrIp#              			  /* 최종수정자 IP */ 
+		WHERE 1=1
+		AND   		LIC_GRP_ID = #licGrpId#    				        	/* 라이선스그룹 ID */ 
+		AND   		PRJ_ID = #prjId#              						/* 프로젝트 ID */ 
+		AND   		MEA_DTM = #meaDtm#              					/* 측정연월 */ 
+		AND			REPORT_CD = #reportCd#              				/* 보고서 구분 코드 */ 
+		 
+	</update>
+	
+	<!-- 보고서를 확정한다. -->
+	<update id="adm8100DAO.updateAdm8100ReporConfirm" parameterClass="adm8100VO" >
+		/* adm8100DAO.updateAdm8100ReporConfirm 보고서를 확정한다. */
+		UPDATE	RPT1200 
+		SET      
+				CONF_YN = '01', 					/* 확정여부 */ 
+				MODIFY_DTM = CURRENT_TIMESTAMP, 	/* 최종수정일시 */ 
+				MODIFY_USR_ID = #modifyUsrId#, 		/* 최종수정자 ID */ 
+				MODIFY_USR_IP = #modifyUsrIp#		/* 최종수정자 IP */ 
+		WHERE 1=1
+		AND LIC_GRP_ID = #licGrpId#    				/* 라이선스그룹 ID */ 
+		AND PRJ_ID = #prjId#              			/* 프로젝트 ID */ 
+		AND MEA_DTM = #meaDtm#              		/* 측정연월 */ 
+		AND	REPORT_CD = #reportCd#              	/* 보고서 구분 코드 */ 
+		 
+	</update>
+	
+	
+</sqlMap>

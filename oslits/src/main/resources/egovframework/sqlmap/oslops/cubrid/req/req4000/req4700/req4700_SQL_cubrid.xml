@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="req4700DAO">
+	 <!-- out class define  -->
+	<typeAlias alias="egovMap"	 	type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+
+	
+	<!-- 요구사항 변경 내용 등록 -->
+	<insert id="req4700DAO.insertReq4700ReqChangeLogInfo" parameterClass="java.util.Map">
+		<selectKey resultClass="java.lang.String" keyProperty="newReqChgId">
+		<![CDATA[
+			/* req4700DAO.insertReq4700ReqChangeLogInfo - 요구사항 변경 내용 등록(새로운 REQ_CHG_ID 따기)*/ 
+			SELECT	COALESCE( 
+							SUBSTR(NEW_REQ_CHG_ID, 1, 11) || LPAD( (TO_NUMBER(SUBSTR(NEW_REQ_CHG_ID, 12, 5)) + 1) , 5, '0')
+						,	'CHG' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDD') || '00001'
+            		) AS NEW_REQ_CHG_ID 
+			FROM	(
+			            SELECT	MAX(REQ_CHG_ID)  AS NEW_REQ_CHG_ID
+			            FROM	REQ4700 A
+			            WHERE	1=1
+                        AND		A.PRJ_ID = #prjId#
+                        AND		A.REQ_ID = #reqId#
+			            AND		A.REQ_CHG_ID LIKE 'CHG' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDD') || '%'
+					)
+		]]>
+		</selectKey>
+		<![CDATA[ 
+			/* req4700DAO.insertReq4700ReqChangeLogInfo - 요구사항 변경 내용 등록  */
+			INSERT INTO REQ4700
+	        (
+	           PRJ_ID,					REQ_ID,					REQ_CHG_ID,				REQ_CHG_TYPE
+	           ,CHG_USR_ID,				CHG_DTM,				PROCESS_ID,				PRE_FLOW_ID
+	           ,CHG_FLOW_ID,			PRE_CHARGER_ID,			CHG_CHARGER_ID
+	           ,REG_DTM,				REG_USR_ID,				REG_USR_IP
+	           ,MODIFY_DTM,				MODIFY_USR_ID,			MODIFY_USR_IP
+	        )
+	        VALUES
+	        (
+	        	#prjId#,			#reqId#,				#newReqChgId#,			#reqChgType#
+	        	,#chgUsrId#,		CURRENT_TIMESTAMP,				#processId#,			#preFlowId#
+	        	,#chgFlowId#,		#preChargerId#,			#chgChargerId#
+	        	,CURRENT_TIMESTAMP,			#regUsrId#,				#regUsrIp#
+	        	,CURRENT_TIMESTAMP,			#modifyUsrId#,			#modifyUsrIp#
+	        )
+		]]>
+	</insert>	
+</sqlMap>

@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="stm9000DAO">
+
+	<!--  in / out class define  -->
+    <typeAlias alias="stm9000VO"	type="kr.opensoftlab.oslops.stm.stm9000.stm9000.vo.Stm9000VO"/>
+	<typeAlias alias="egovMap"	 	type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	
+	<!-- Map Define -->
+   	<resultMap id="resultMapSelectStm9000" class="stm9000VO">
+		<result property="rn"  				column="RN"/>
+	
+		<result property="reqId"              column="REQ_ID" /> 
+		<result property="orgReqId"              column="ORG_REQ_ID" /> 
+		<result property="reqNm"              column="REQ_NM" /> 
+		<result property="reqDesc"              column="REQ_DESC" /> 
+		<result property="reqProTypeNm"              column="REQ_PRO_TYPE_NM" /> 
+		<result property="regDtm"              column="REG_DTM" /> 
+		<result property="reqUsrNm"              column="REQ_USR_NM" /> 
+		<result property="reqStDtm"              column="REQ_ST_DTM" /> 
+		<result property="reqEdDtm"              column="REQ_ED_DTM" /> 
+		<result property="reqStDuDtm"              column="REQ_ST_DU_DTM" /> 
+		<result property="reqEdDuDtm"              column="REQ_ED_DU_DTM" /> 
+
+    </resultMap>
+
+
+	
+	<sql id="selectStm9000List">
+		<![CDATA[
+		SELECT ROWNUM RN ,
+			   T1.* 
+		FROM
+		(
+			
+			SELECT
+					B.ORG_REQ_ID          
+				, 	B.REQ_NM
+        		, 	SF_REPLACE_ALL (B.REQ_DESC ,'</br>|<br>|<br/>|</BR>|<BR>|<BR/>' , ' ' ) AS REQ_DESC  
+	          	, 	SF_ADM4100_COM_CD_INFO(#licGrpId#, 'REQ00008', B.REQ_PRO_TYPE, '1') AS REQ_PRO_TYPE_NM
+	          	,	B.REG_DTM
+	          	,	B.REQ_USR_NM
+	          	,	B.REQ_ST_DTM
+  		  		,	B.REQ_ED_DTM
+				,	B.REQ_ST_DU_DTM
+				,	B.REQ_ED_DU_DTM
+			FROM (
+				SELECT
+					A.REQ_ID
+         			, 	A.ORG_REQ_ID          
+					, 	A.REQ_NM
+         			, 	A.REQ_DESC
+         			,	A.REQ_PRO_TYPE  
+		          	,	TO_CHAR(A.REG_DTM, 'YYYY-MM-DD') AS REG_DTM
+		          	,	COALESCE(A.REQ_USR_NM, SF_ADM2000_USR_INFO(A.REQ_USR_ID, '1'))  AS REQ_USR_NM
+		          	,	IFNULL(TO_CHAR(A.REQ_ST_DTM, 'YYYY-MM-DD') , '') REQ_ST_DTM
+   		  			,	IFNULL(TO_CHAR(A.REQ_ED_DTM, 'YYYY-MM-DD') , '') REQ_ED_DTM
+					,	IFNULL(TO_CHAR(A.REQ_ST_DU_DTM, 'YYYY-MM-DD') , '') REQ_ST_DU_DTM
+					,	IFNULL(TO_CHAR(A.REQ_ED_DU_DTM, 'YYYY-MM-DD') , '') REQ_ED_DU_DTM
+			    FROM REQ4100  A
+			    INNER JOIN PRJ1000 B
+			    ON ( A.PRJ_ID = B.PRJ_ID )
+			    WHERE 1 = 1
+			    AND A.PRJ_ID = #prjId#
+			    AND B.LIC_GRP_ID = #licGrpId#
+		    ) B
+		    WHERE 1=1
+		    ]]>
+            <isNotEmpty property="restApiReqUsrNm">
+				AND		B.REQ_USR_NM LIKE '%' || #restApiReqUsrNm# || '%'
+			</isNotEmpty>
+			<isNotEmpty property="srchFromDt">
+				AND 	B.REG_DTM &gt;= TO_DATE(#srchFromDt#, 'YYYY-MM-DD')
+			</isNotEmpty>
+			<isNotEmpty property="srchToDt">
+				AND 	B.REG_DTM &lt;=   TO_DATE(#srchToDt#, 'YYYY-MM-DD') + 1
+			</isNotEmpty>
+		    ORDER BY  B.REG_DTM DESC
+		) T1			
+		    
+
+    </sql>
+    
+   
+    <!-- 요구사항 목록 조회 -->
+    <select id="stm9000DAO.selectStm9000List" parameterClass="Stm9000VO"   resultClass="egovMap"  >
+	    /*req4100DAO.selectReq4100List 요구사항 목록을 조회한다.*/
+		SELECT *
+		FROM
+			(
+				<include refid="selectStm9000List"/>
+	    	)
+	    	WHERE RN BETWEEN (#firstIndex#+1) AND #lastIndex#
+    </select>
+    
+    <!-- 요구사항 목록 총건수. :페이징 처리 부분 -->
+    <select id="stm9000DAO.selectStm9000ListCnt" parameterClass="Stm9000VO"  resultClass="java.lang.Integer">
+	    /*req4100DAO.selectReq4100ListCnt 요구사항 목록 총건수를 조회한다.*/
+	    SELECT
+			COUNT(*)
+		FROM	(
+			<include refid="selectStm9000List"/>
+		) A
+    </select>
+    
+    <!-- 요구사항 정보 조회(단건) -->
+	<select id="stm9000DAO.selectStm9000DetailInfo" parameterClass="java.util.Map"  resultClass="egovMap">
+		/* stm9000DAO.selectStm9000DetailInfo - 요구사항 정보 조회(단건) */
+		<![CDATA[
+			SELECT 
+				SUBT1.REQ_ORD ,
+		        SUBT1.REQ_ID ,
+		       	SF_ADM4100_COM_CD_INFO(#licGrpId#, 'REQ00009', SUBT1.REQ_NEW_TYPE, '1') AS REQ_NEW_TYPE_NM ,
+		       	COALESCE(SUBT1.REQ_USR_NM, SF_ADM2000_USR_INFO(SUBT1.REQ_USR_ID, '1'))              AS REQ_USR_NM ,
+		       	SUBT1.REQ_USR_EMAIL ,
+		       	SUBT1.REQ_NM ,
+		       	SF_REPLACE_ALL (SUBT1.REQ_DESC ,'</br>|<br>|<br/>|</BR>|<BR>|<BR/>' , ' ' )                 AS REQ_DESC ,
+		       	SF_ADM4100_COM_CD_INFO(#licGrpId#, 'REQ00008', SUBT1.REQ_PRO_TYPE, '1') AS REQ_PRO_TYPE_NM ,
+		       	SUBT1.REQ_DTM ,
+		       	SUBT1.REQ_ST_DTM ,
+		       	SUBT1.REQ_ED_DTM ,
+		       	SUBT1.REQ_ST_DU_DTM ,
+		       	SUBT1.REQ_ED_DU_DTM ,
+		       	COALESCE(SF_REQ4000_REQ_CLS_NM(SUBT1.PRJ_ID, SUBT1.REQ_CLS_ID, '2'), '')           AS REQ_CLS_NM ,
+		       	SF_ADM4100_COM_CD_INFO(#licGrpId#, 'REQ00012', SUBT1.REQ_TYPE_CD, '1') AS REQ_TYPE_NM ,
+		       	SUBT1.REQ_USR_DEPT_NM ,
+		       	SF_ADM4100_COM_CD_INFO(#licGrpId#, 'REQ00011', SUBT1.SCL_CD, '1') AS SCL_NM
+			FROM
+			(
+				SELECT
+					A.PRJ_ID ,
+					A.REQ_ORD ,
+			        A.REQ_ID ,
+			       	A.REQ_NEW_TYPE ,
+			       	A.REQ_USR_ID ,
+			       	A.REQ_USR_EMAIL ,
+			       	A.REQ_NM ,
+			       	A.REQ_DESC ,
+			       	A.REQ_PRO_TYPE ,
+			       	TO_CHAR(A.REQ_DTM, 'YYYY-MM-DD')                                       AS REQ_DTM ,
+			       	IFNULL(TO_CHAR(A.REQ_ST_DTM, 'YYYY-MM-DD HH24:MI') , '') REQ_ST_DTM ,
+			       	IFNULL(TO_CHAR(A.REQ_ED_DTM, 'YYYY-MM-DD HH24:MI') , '') REQ_ED_DTM ,
+			       	IFNULL(TO_CHAR(A.REQ_ST_DU_DTM, 'YYYY-MM-DD') , '') REQ_ST_DU_DTM ,
+			       	IFNULL(TO_CHAR(A.REQ_ED_DU_DTM, 'YYYY-MM-DD') , '') REQ_ED_DU_DTM ,
+			       	A.REQ_CLS_ID,
+			       	A.REQ_TYPE_CD ,
+			       	A.REQ_USR_DEPT_NM ,
+			       	A.SCL_CD
+				FROM REQ4100 A
+				INNER JOIN PRJ1000 B
+				ON ( A.PRJ_ID = B.PRJ_ID )
+				WHERE  1 =1
+				AND    A.PRJ_ID =  #prjId#
+				AND		B.LIC_GRP_ID = #licGrpId#
+			]]>
+			<isNotEmpty property="reqId">
+		    	AND	   A.REQ_ID = #reqId#
+		    </isNotEmpty>
+		    <isNotEmpty property="orgReqId">
+		    	AND	   A.ORG_REQ_ID = #orgReqId#
+		    </isNotEmpty>
+	    ) SUBT1
+	</select>
+	
+	
+	
+	<!-- 요구사항 변경이력 정보 가져오기-->
+	<select id="stm9000DAO.selectStm9000ReqHistoryList" parameterClass="java.util.Map" resultClass="egovMap">
+		<![CDATA[
+			/* stm9000DAO.selectStm9000ReqHistoryList - 요구사항 변경이력 정보 가져오기  */
+			SELECT
+				SUBT1.TYPE 
+				,SUBT1.PRJ_ID
+				,SUBT1.REQ_ID
+				,SUBT1.REQ_NM
+				,SUBT1.REQ_CHG_ID
+				,SUBT1.REQ_CHG_TYPE
+				,SUBT1.CHG_USR_ID
+				,SF_ADM2000_USR_INFO(SUBT1.CHG_USR_ID,'1') AS CHG_USR_NM
+				,SF_ADM2000_USR_INFO(SUBT1.CHG_USR_ID,'2') AS CHG_USR_EMAIL
+				,SUBT1.CHG_DTM
+				,SUBT1.PROCESS_ID
+				,SUBT1.PROCESS_NM
+				,SUBT1.PRE_FLOW_ID
+				,SUBT1.PRE_FLOW_NM
+				,SUBT1.PRE_FLOW_ESSENTIAL_CD
+				,SUBT1.PRE_FLOW_SIGN_CD
+				,SUBT1.PRE_FLOW_SIGN_STOP_CD
+				,SUBT1.PRE_FLOW_END_CD
+				,SUBT1.PRE_FLOW_WORK_CD
+				,SUBT1.PRE_FLOW_REVISION_CD
+				,SUBT1.PRE_FLOW_DPL_CD
+				,SUBT1.PRE_FLOW_AUTH_CD
+				,SUBT1.PRE_FLOW_NEXT_ID
+				,SUBT1.PRE_FLOW_OPT_CNT
+				,SUBT1.CHG_FLOW_ID
+				,SUBT1.CHG_FLOW_NM
+				,SUBT1.CHG_FLOW_ESSENTIAL_CD
+				,SUBT1.CHG_FLOW_SIGN_CD
+				,SUBT1.CHG_FLOW_SIGN_STOP_CD
+				,SUBT1.CHG_FLOW_END_CD
+				,SUBT1.CHG_FLOW_WORK_CD
+				,SUBT1.CHG_FLOW_REVISION_CD
+				,SUBT1.CHG_FLOW_DPL_CD
+				,SUBT1.CHG_FLOW_AUTH_CD
+				,SUBT1.CHG_FLOW_NEXT_ID
+				,SUBT1.CHG_FLOW_OPT_CNT
+				,SUBT1.PRE_CHARGER_ID
+				,SF_ADM2000_USR_INFO(SUBT1.PRE_CHARGER_ID,'1') AS PRE_CHARGER_NM
+				,SUBT1.CHG_CHARGER_ID
+				,SF_ADM2000_USR_INFO(SUBT1.CHG_CHARGER_ID,'1') AS CHG_CHARGER_NM
+			FROM
+			(
+				SELECT 
+					'CHG' AS TYPE 
+					,A.PRJ_ID
+					,A.REQ_ID
+					,D.REQ_NM
+					,A.REQ_CHG_ID
+					,A.REQ_CHG_TYPE
+					,A.CHG_USR_ID
+					,A.CHG_DTM
+					,A.PROCESS_ID
+					,E.PROCESS_NM
+					,A.PRE_FLOW_ID
+					,B.FLOW_NM AS PRE_FLOW_NM
+					,B.FLOW_ESSENTIAL_CD AS PRE_FLOW_ESSENTIAL_CD
+					,B.FLOW_SIGN_CD AS PRE_FLOW_SIGN_CD
+					,B.FLOW_SIGN_STOP_CD AS PRE_FLOW_SIGN_STOP_CD
+					,B.FLOW_END_CD AS PRE_FLOW_END_CD
+					,B.FLOW_WORK_CD AS PRE_FLOW_WORK_CD
+					,B.FLOW_REVISION_CD AS PRE_FLOW_REVISION_CD
+					,B.FLOW_DPL_CD AS PRE_FLOW_DPL_CD
+					,B.FLOW_AUTH_CD AS PRE_FLOW_AUTH_CD
+					,B.FLOW_NEXT_ID AS PRE_FLOW_NEXT_ID
+					,(
+					  SELECT COUNT(*)
+					  FROM FLW1200 Z
+					  WHERE 1=1
+					  AND Z.PRJ_ID = B.PRJ_ID
+					  AND Z.PROCESS_ID = B.PROCESS_ID
+					  AND Z.FLOW_ID = B.FLOW_ID
+					) AS PRE_FLOW_OPT_CNT
+					,A.CHG_FLOW_ID
+					,C.FLOW_NM AS CHG_FLOW_NM
+					,C.FLOW_ESSENTIAL_CD AS CHG_FLOW_ESSENTIAL_CD
+					,C.FLOW_SIGN_CD AS CHG_FLOW_SIGN_CD
+					,C.FLOW_SIGN_STOP_CD AS CHG_FLOW_SIGN_STOP_CD
+					,C.FLOW_END_CD AS CHG_FLOW_END_CD
+					,C.FLOW_WORK_CD AS CHG_FLOW_WORK_CD
+					,C.FLOW_REVISION_CD AS CHG_FLOW_REVISION_CD
+					,C.FLOW_DPL_CD AS CHG_FLOW_DPL_CD
+					,C.FLOW_AUTH_CD AS CHG_FLOW_AUTH_CD
+					,C.FLOW_NEXT_ID AS CHG_FLOW_NEXT_ID
+					,(
+					  SELECT COUNT(*)
+					  FROM FLW1200 Z
+					  WHERE 1=1
+					  AND Z.PRJ_ID = C.PRJ_ID
+					  AND Z.PROCESS_ID = C.PROCESS_ID
+					  AND Z.FLOW_ID = C.FLOW_ID
+					) AS CHG_FLOW_OPT_CNT
+					,A.PRE_CHARGER_ID
+					,A.CHG_CHARGER_ID
+				FROM REQ4700 A
+				LEFT JOIN FLW1100 B
+				ON ( A.PRJ_ID = B.PRJ_ID AND A.PROCESS_ID = B.PROCESS_ID AND A.PRE_FLOW_ID = B.FLOW_ID)
+				LEFT JOIN FLW1100 C
+				ON ( A.PRJ_ID = C.PRJ_ID AND A.PROCESS_ID = C.PROCESS_ID AND A.CHG_FLOW_ID = C.FLOW_ID)
+				LEFT JOIN REQ4100 D
+				ON ( A.PRJ_ID = D.PRJ_ID AND A.REQ_ID = D.REQ_ID)
+				LEFT JOIN FLW1000 E
+				ON ( A.PRJ_ID = E.PRJ_ID AND A.PROCESS_ID = E.PROCESS_ID)
+				WHERE 1=1
+				AND A.REQ_CHG_TYPE != '02'
+				AND	A.PRJ_ID = #prjId#
+				AND A.REQ_ID = #reqId#
+			) SUBT1
+		]]>
+	</select>
+	
+	<!-- 요구사항 결재 정보 가져오기-->
+	<select id="stm9000DAO.selectStm9000ReqSignList" parameterClass="java.util.Map" resultClass="egovMap">
+		<![CDATA[
+			/* stm9000DAO.selectStm9000ReqSignList - 요구사항 결재 정보 가져오기  */
+			SELECT
+				T1.TYPE  
+				,T1.PRJ_ID
+				,T1.REQ_ID
+				,T1.REQ_NM
+				,T1.SIGN_ID
+				,T1.PROCESS_ID
+				,T1.FLOW_ID AS PREV_FLOW_ID
+				,T1.SIGN_FLOW_ID
+				,T1.FLOW_NM AS SIGN_FLOW_NM
+				,T1.SIGN_USR_ID
+				,SF_ADM2000_USR_INFO(T1.SIGN_USR_ID,'1') AS SIGN_USR_NM
+				,T1.SIGN_CD
+				,SF_ADM4100_COM_CD_INFO(#licGrpId#,'REQ00004',T1.SIGN_CD,'1') AS SIGN_CD_NM
+				,SF_REPLACE_ALL (T1.SIGN_REJECT_CMNT ,'</br>|<br>|<br/>|</BR>|<BR>|<BR/>' , ' ' ) AS SIGN_REJECT_CMNT
+				,T1.SIGN_DTM
+				,T1.REG_DTM
+				,T1.REG_USR_ID
+				,SF_ADM2000_USR_INFO(T1.REG_USR_ID,'1') AS REG_USR_NM
+			FROM
+			(
+				SELECT 
+					'CHK' TYPE
+					,A.PRJ_ID
+					,A.REQ_ID
+					,C.REQ_NM
+					,A.SIGN_ID
+					,A.PROCESS_ID
+					,B.FLOW_ID AS PREV_FLOW_ID
+					,A.SIGN_FLOW_ID
+					,B.FLOW_NM AS SIGN_FLOW_NM
+					,A.SIGN_USR_ID
+					,A.SIGN_CD
+					,T1.SIGN_REJECT_CMNT
+					,A.SIGN_DTM
+					,A.REG_DTM
+					,A.REG_USR_ID
+				FROM REQ4900 A
+				LEFT JOIN FLW1100 B
+				ON ( A.PRJ_ID = B.PRJ_ID AND A.PROCESS_ID = B.PROCESS_ID AND A.SIGN_FLOW_ID = B.FLOW_NEXT_ID)
+				LEFT JOIN REQ4100 C
+				ON ( A.PRJ_ID = C.PRJ_ID AND A.REQ_ID = C.REQ_ID)
+				]]>
+				WHERE 1=1
+					AND	A.PRJ_ID = #prjId#
+					AND A.REQ_ID = #reqId#
+			) SUBT1
+	</select>
+	
+	<!-- 요구사항 수정이력 목록 가져오기 -->
+	<select id="stm9000DAO.selectStm9000ChgDetailList" parameterClass="java.util.Map" resultClass="egovMap">
+		<![CDATA[
+			/* stm9000DAO.selectStm9000ChgDetailList - 요구사항 수정이력 목록 가져오기 */ 
+			SELECT 'MOD' AS TYPE ,
+				A.PRJ_ID,					A.REQ_ID,				A.CHG_DETAIL_ID,			A.CHG_DETAIL_NUM
+	            ,A.CHG_DETAIL_TYPE,			A.CHG_DETAIL_NM
+	            ,CASE A.CHG_DETAIL_OPT_TYPE
+                	WHEN '02' THEN SF_ADM4100_COM_CD_INFO(#licGrpId#,A.CHG_DETAIL_COMMON_CD, A.PRE_DETAIL_VAL,'1')
+					WHEN '03' THEN SF_ADM2000_USR_INFO(A.PRE_DETAIL_VAL,'1')
+					WHEN '04' THEN (SELECT REQ_CLS_NM FROM REQ4000 WHERE 1=1 AND PRJ_ID = A.PRJ_ID AND REQ_CLS_ID = A.PRE_DETAIL_VAL)
+                    ELSE A.PRE_DETAIL_VAL
+                END AS PRE_DETAIL_VAL
+                ,CASE A.CHG_DETAIL_OPT_TYPE
+                	WHEN '02' THEN SF_ADM4100_COM_CD_INFO(#licGrpId#,A.CHG_DETAIL_COMMON_CD, A.CHG_DETAIL_VAL,'1')
+					WHEN '03' THEN SF_ADM2000_USR_INFO(A.CHG_DETAIL_VAL,'1')
+					WHEN '04' THEN (SELECT REQ_CLS_NM FROM REQ4000 WHERE 1=1 AND PRJ_ID = A.PRJ_ID AND REQ_CLS_ID = A.CHG_DETAIL_VAL)
+                    ELSE A.CHG_DETAIL_VAL
+                END AS CHG_DETAIL_VAL
+	            ,SF_ADM2000_USR_INFO(A.REG_USR_ID,'1') AS REG_USR_NM
+				,SF_ADM2000_USR_INFO(A.REG_USR_ID,'2') AS REG_USR_EMAIL
+	            , A.REG_DTM
+	            , A.REG_USR_ID
+			FROM REQ4800 A
+			WHERE 1=1
+		]]>
+			AND		A.PRJ_ID = #prjId#
+			AND		A.REQ_ID = #reqId#
+	</select>
+	
+</sqlMap>

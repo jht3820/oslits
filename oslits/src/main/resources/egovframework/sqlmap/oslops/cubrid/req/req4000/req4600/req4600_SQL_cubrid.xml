@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="req4600DAO">
+	 <!-- out class define  -->
+	<typeAlias alias="req4600VO"	type="kr.opensoftlab.oslops.req.req4600.req4600.vo.Req4600VO"/>
+	<typeAlias alias="egovMap"	 	type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	
+	
+	<resultMap id="clipBoardResultMap" class="HashMap">
+		<result property="prjId" column="PRJ_ID" />
+		<result property="reqId" column="REQ_ID" />
+		<result property="reqCbSeq" column="REQ_CB_SEQ" />
+		<result property="cbFileSn" column="CB_FILE_SN" />
+		<result property="cbGbCd" column="CB_GB_CD" />
+		<result property="cbContentText" column="CB_CONTENT_TEXT"/>
+		<result property="cbThumViewCd" column="CB_THUM_VIEW_CD" />		
+		<result property="usrNm" column="USR_NM" />
+		<result property="regDtm" column="REG_DTM" />
+		<result property="regUsrId" column="REG_USR_ID" />
+		<result property="regUsrIp" column="REG_USR_IP" />
+		<result property="modifyDtm" column="MODIFY_DTM" />
+		<result property="modifyUsrId" column="MODIFY_USR_ID" />
+		<result property="modifyUsrIp" column="MODIFY_USR_IP" />
+		<result property="modifyUsrNm" column="MODIFY_USR_NM" />
+	</resultMap>
+	
+	
+	<!-- 차트 스크립트 양식에 맞게 변경 -->
+	<resultMap id="wbsMap" class="HashMap">
+		<result property="prjId" column="PRJ_ID" />
+		<result property="reqId" column="REQ_ID" />
+		<result property="reqNm" column="REQ_NM" />
+		<result property="reqDesc" column="REQ_DESC" />
+		<result property="reqStDuDtm" column="REQ_ST_DU_DTM" />
+		<result property="reqEdDuDtm" column="REQ_ED_DU_DTM" />
+		<result property="reqStDtm" column="REQ_ST_DTM" />
+		<result property="reqEdDtm" column="REQ_ED_DTM" />
+		<result property="progress" column="REQ_COMPLETE_RATIO" />
+		<result property="chargerNm" column="REQ_CHARGER_NM" />
+		<result property="proTypeCd" column="REQ_PRO_TYPE" />
+		<result property="proTypeNm" column="REQ_PRO_TYPE_NM" />
+		<result property="status" column="REQ_STATUS" />
+	</resultMap>
+	
+	
+	
+	<!-- 요구사항 클립보드 내용 등록 -->
+	<insert id="req4600DAO.insertReq4600CBPaste" parameterClass="java.util.Map">
+		<![CDATA[ 
+			/* req4600DAO.insertReq4600CBPaste - 요구사항 클립보드 내용 등록  */
+			INSERT INTO REQ4600
+	        (
+	            PRJ_ID,				REQ_ID,
+	            REQ_CB_SEQ,
+	            CB_FILE_SN,
+	            CB_GB_CD,			CB_CONTENT_TEXT,	CB_THUM_VIEW_CD,
+	            REG_DTM,        	REG_USR_ID,
+	            REG_USR_IP,         MODIFY_DTM,			MODIFY_USR_ID,      MODIFY_USR_IP
+	        )
+	        VALUES
+	        (
+	        	#prjId#,			#reqId#,			
+	        	(
+				      SELECT	COALESCE(MAX(A.REQ_CB_SEQ)+1,1)
+				      FROM		REQ4600	A
+				      WHERE		A.PRJ_ID 	= #prjId#
+				      AND		A.REQ_ID 	= #reqId#
+				),
+				#cbFileSn#,
+	        	#cbGbCd#,			#cbContentText#,	#cbThumViewCd#,
+	        	CURRENT_TIMESTAMP,			#regUsrId#,
+	        	#regUsrIp#,			CURRENT_TIMESTAMP,			#modifyUsrId#,      #modifyUsrIp#
+	        )
+		]]>
+	</insert>
+	
+	<!-- 요구사항 CB_ATCH_FILE_ID 등록 -->
+	<update id="req4600DAO.updateReq4100CbAtchFileId" parameterClass="java.util.Map">
+		<![CDATA[
+			/* req4600DAO.updateReq4100CbAtchFileId - 요구사항 CB_ATCH_FILE_ID 등록   */
+			UPDATE REQ4100 A
+			SET
+				A.CB_ATCH_FILE_ID = #cbAtchFileId#
+			WHERE 1=1
+			AND 	A.PRJ_ID 	= #prjId#
+			AND		A.REQ_ID 	= #reqId#
+		]]>
+	</update>
+	
+	<!-- 요구사항 클립보드 데이터 불러오기 -->
+	<select id="req4600DAO.selectReq4600CBContentList" parameterClass="java.util.Map" resultMap="clipBoardResultMap">
+		<![CDATA[
+			/* req4600DAO.selectReq4600CBContentList - 요구사항 클립보드 데이터 불러오기   */		
+			SELECT	A.PRJ_ID,				A.REQ_ID,				A.REQ_CB_SEQ,			A.CB_FILE_SN,
+	            	A.CB_GB_CD,				COALESCE(CLOB_TO_CHAR(A.CB_CONTENT_TEXT),' ') AS CB_CONTENT_TEXT,	A.CB_THUM_VIEW_CD,
+	            	SF_ADM2000_USR_INFO(A.REG_USR_ID,'1') AS USR_NM,
+	            	A.REG_DTM,            	A.REG_USR_ID,         	A.REG_USR_IP,         A.MODIFY_DTM,	
+					A.MODIFY_USR_ID,		A.MODIFY_USR_IP,		SF_ADM2000_USR_INFO(A.MODIFY_USR_ID,'1') AS MODIFY_USR_NM
+					
+			FROM	REQ4600	A
+			WHERE 1=1
+			AND 	A.PRJ_ID 	= #prjId#
+			AND		A.REQ_ID 	= #reqId#
+			ORDER BY A.REQ_CB_SEQ DESC
+		]]>
+	</select>	
+	
+	<!-- 요구사항 클립보드 데이터 FILE_SN값 구하기 -->
+	<select id="req4600DAO.selectReq4600CBFileSnMax" parameterClass="java.util.Map" resultClass="java.lang.Integer">
+		<![CDATA[
+			/* req4600DAO.selectReq4600CBFileSnMax - 요구사항 클립보드 데이터 FILE_SN값 구하기   */		
+			SELECT COALESCE(MAX(CB_FILE_SN),0) AS MAX_CB_FILE_SN
+			FROM REQ4600 A
+			WHERE 1=1
+			AND 	A.PRJ_ID 	= #prjId#
+			AND		A.REQ_ID 	= #reqId#
+		]]>
+	</select>
+	
+	<!-- 요구사항 클립보드 데이터 단건 조회 -->
+	<select id="req4600DAO.selectReq4600CBContentInfo" parameterClass="java.util.Map" resultMap="clipBoardResultMap">
+		<![CDATA[
+			/* req4600DAO.selectReq4600CBContentInfo - 요구사항 클립보드 데이터 단건 조회   */		
+			SELECT	A.PRJ_ID,				A.REQ_ID,				A.REQ_CB_SEQ,			A.CB_FILE_SN,
+	            	A.CB_GB_CD,				COALESCE(CLOB_TO_CHAR(A.CB_CONTENT_TEXT),' ') AS CB_CONTENT_TEXT,	A.CB_THUM_VIEW_CD,
+	            	SF_ADM2000_USR_INFO(A.REG_USR_ID,'1') AS USR_NM,
+	            	A.REG_DTM,            	A.REG_USR_ID,         	A.REG_USR_IP,         A.MODIFY_DTM,	
+					A.MODIFY_USR_ID,		A.MODIFY_USR_IP,		SF_ADM2000_USR_INFO(A.MODIFY_USR_ID,'1') AS MODIFY_USR_NM
+			FROM	REQ4600	A
+			WHERE 1=1
+			AND 	A.PRJ_ID 		= #prjId#
+			AND		A.REQ_ID 		= #reqId#
+			AND		A.REQ_CB_SEQ	= #reqCbSeq#
+		]]>
+	</select>		
+	
+	<!-- 요구사항 클립보드 데이터 단건 삭제 -->
+	<delete id="req4600DAO.deleteReq4600CBContentInfo" parameterClass="java.util.Map">
+		<![CDATA[
+			/* req4600DAO.deleteReq4600CBContentInfo - 요구사항 클립보드 데이터 단건 삭제   */		
+			DELETE	FROM	REQ4600
+			WHERE 1=1
+			AND 	PRJ_ID 		= #prjId#
+			AND		REQ_ID 		= #reqId#
+			AND		REQ_CB_SEQ	= #reqCbSeq#
+		]]>
+	</delete>	
+	
+	<!-- 요구사항 클립보드 데이터 단건 수정 -->
+	<update id="req4600DAO.updateReq4600CBContentInfo" parameterClass="java.util.Map">
+		<![CDATA[
+			/* req4600DAO.updateReq4600CBContentInfo - 요구사항 클립보드 데이터 단건 수정  */		
+			UPDATE REQ4600 A
+			SET
+				A.CB_CONTENT_TEXT	= #cbContentText#
+				,A.CB_THUM_VIEW_CD	= #cbThumViewCd#
+				,A.MODIFY_DTM		= CURRENT_TIMESTAMP
+				,A.MODIFY_USR_ID	= #modifyUsrId#
+				,A.MODIFY_USR_IP	= #modifyUsrIp#
+			WHERE 1=1
+			AND 	A.PRJ_ID 		= #prjId#
+			AND		A.REQ_ID 		= #reqId#
+			AND		A.REQ_CB_SEQ	= #reqCbSeq#
+		]]>
+	</update>	
+	
+	<!-- 요구사항 클립보드 다음 SEQ 구하기-->
+	<select id="req4600DAO.selectReq4600CBMaxSeq" parameterClass="java.util.Map" resultClass="java.lang.Integer">
+		<![CDATA[
+			/* req4600DAO.selectReq4600CBMaxSeq - 요구사항 클립보드 다음 SEQ 구하기   */		
+			 SELECT		COALESCE(MAX(A.REQ_CB_SEQ)+1,1) as MAX_REQ_CB_SEQ
+		      FROM		REQ4600	A
+		      WHERE		A.PRJ_ID 	= #prjId#
+		      AND		A.REQ_ID 	= #reqId#
+		]]>
+	</select>		
+	
+	
+	
+	 
+   	<!-- 프로젝트 요구사항 WBS 차트 -->
+    <select id="req4600DAO.selectReq4600ReqWbsListAjax" parameterClass="java.util.Map" resultMap="wbsMap">
+    	/* req4600DAO.selectReq4600ReqWbsListAjax - 요구사항 WBS차트 */ 
+    	<![CDATA[
+    	SELECT 
+    		T1.PRJ_ID	/* 프로젝트 ID */
+   			,	T1.REQ_ID	/* 요구사항 ID */
+   			,	T1.REQ_NM	/* 요구사항 명 */
+    		, 	SF_REPLACE_ALL(T1.REQ_DESC ,'</br>|<br>|<br/>|</BR>|<BR>|<BR/>' , '' ) AS REQ_DESC /* 요구사항 설명 */    	
+   			, 	T1.REQ_ST_DU_DTM	/* 작업시작 예정일자 */
+			, 	T1.REQ_ED_DU_DTM /* 작업 종료 예정일자 */
+   			, 	T1.REQ_ST_DTM	/* 작업 시작일자 */
+   		   	, 	T1.REQ_ED_DTM	/* 작업 종료일자 */
+   			,	T1.REQ_COMPLETE_RATIO	/* 진척률 */
+   			,	T1.REQ_CHARGER_NM	/* 담당자 */
+   			,	T1.REQ_PRO_TYPE	/* 요구사항 처리유형 코드*/
+   			,	SF_ADM4100_COM_CD_INFO(#licGrpId#, 'REQ00008', T1.REQ_PRO_TYPE, '1') AS REQ_PRO_TYPE_NM	/* 요구사항 처리유형 명 */  
+   			,	T1.REQ_STATUS /* 간트차트의 요구사항 상태 - 신호등 */
+    	FROM
+    	(
+	    	SELECT 
+						A.PRJ_ID	/* 프로젝트 ID */
+	    			,	A.REQ_ID	/* 요구사항 ID */
+	    			,	A.REQ_NM	/* 요구사항 명 */
+		    		, 	A.REQ_DESC /* 요구사항 설명 */    	
+	    			, 	TO_CHAR(A.REQ_ST_DU_DTM, 'YYYY-MM-DD') AS REQ_ST_DU_DTM	/* 작업시작 예정일자 */
+					, 	TO_CHAR(A.REQ_ED_DU_DTM, 'YYYY-MM-DD') AS REQ_ED_DU_DTM /* 작업 종료 예정일자 */
+	    			, 	IFNULL(TO_CHAR(A.REQ_ST_DTM, 'YYYY-MM-DD') , '') REQ_ST_DTM	/* 작업 시작일자 */
+	    		   	, 	IFNULL(TO_CHAR(A.REQ_ED_DTM, 'YYYY-MM-DD') , '') REQ_ED_DTM	/* 작업 종료일자 */
+	    			,	A.REQ_COMPLETE_RATIO	/* 진척률 */
+	    			,	B.USR_NM AS REQ_CHARGER_NM	/* 담당자 */
+	    			,	A.REQ_PRO_TYPE	/* 요구사항 처리유형 코드*/
+	    			,	(CASE A.REQ_PRO_TYPE WHEN '04' THEN
+	                		CASE WHEN TO_DATE(TO_CHAR(A.REQ_ED_DU_DTM,'YYYY-MM-DD'),'YYYY-MM-DD') < TO_DATE(TO_CHAR(COALESCE(A.REQ_ED_DTM,CURRENT_TIMESTAMP),'YYYY-MM-DD'),'YYYY-MM-DD') THEN 'STATUS_FAILED' /* 실패 */
+			                ELSE 'STATUS_DONE' END /* 적기 */
+			            ELSE
+			            	CASE WHEN TO_DATE(TO_CHAR(A.REQ_ED_DU_DTM,'YYYY-MM-DD'),'YYYY-MM-DD') < TO_DATE(TO_CHAR(COALESCE(A.REQ_ED_DTM,CURRENT_TIMESTAMP),'YYYY-MM-DD'),'YYYY-MM-DD') THEN 'STATUS_SUSPENDED' /* 초과 */
+	                        	WHEN TO_DATE(TO_CHAR(A.REQ_ED_DU_DTM-3,'YYYY-MM-DD'),'YYYY-MM-DD') < TO_DATE(TO_CHAR(COALESCE(A.REQ_ED_DTM,CURRENT_TIMESTAMP),'YYYY-MM-DD'),'YYYY-MM-DD') THEN 'STATUS_WAITING' /* 임박 */
+	                        ELSE 'STATUS_ACTIVE' END /* 여유 */
+			            END)	AS REQ_STATUS /* 간트차트의 요구사항 상태 - 신호등 */
+	    	FROM REQ4100 A
+	    	INNER JOIN ADM2000 B
+	    	ON (A.REQ_CHARGER_ID = B.USR_ID)
+			WHERE   	1 = 1
+	    	AND   		A.PRJ_ID = #prjId#
+	    	AND 		A.REQ_PRO_TYPE != '01' /* 접수대기가 아닌 요구사항만 조회 */
+	    	AND 		A.REQ_ST_DU_DTM IS NOT NULL
+	    	AND 		A.REQ_ED_DU_DTM IS NOT NULL
+	    	]]>
+	    	<isNotEmpty property="searchSelect" >
+				<isNotEmpty property="searchTxt">
+				<isEqual property="searchSelect" compareValue="reqNm">
+					AND		A.REQ_NM LIKE '%' || #searchTxt# || '%'
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="reqDesc">
+					AND		A.REQ_DESC LIKE '%' || #searchTxt# || '%'
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="reqUsrNm">
+					AND		A.REQ_USR_NM LIKE '%' || #searchTxt# || '%'
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="reqChargerNm">
+					AND		B.USR_NM LIKE '%' || #searchTxt# || '%'
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="reqId">
+					AND		A.REQ_ID LIKE '%' || #searchTxt# || '%'
+				</isEqual>
+				</isNotEmpty>
+			</isNotEmpty>
+			
+			<isNotEmpty>
+				<isNotEmpty property="searchSelect">
+					<isNotEmpty property="searchCd">
+						<isEqual property="searchSelect" compareValue="reqProType">
+							AND 	A.REQ_PRO_TYPE LIKE '%'||#searchCd#||'%'
+						</isEqual>
+					</isNotEmpty>
+				</isNotEmpty>
+			</isNotEmpty>
+			
+	    	<isNotEmpty property="srchFromDt">
+	    		<![CDATA[
+				AND A.REQ_ST_DU_DTM >= TO_DATE(  #srchFromDt# , 'YYYY-MM-DD')
+				
+				]]>
+			</isNotEmpty>
+	    	<isNotEmpty property="srchToDt">
+	    		<![CDATA[
+				AND A.REQ_ED_DU_DTM <= TO_DATE( #srchToDt#, 'YYYY-MM-DD')
+				]]>
+			</isNotEmpty>
+		) T1
+		ORDER BY T1.REQ_ST_DU_DTM DESC
+    </select>
+    
+     <!-- WBS 차트 요구사항 진행률 수정 -->
+    <update id="req4600DAO.updateReq4600ProgresInfo" parameterClass="java.util.Map">
+		<![CDATA[
+			/* req4600DAO.updateReq4600ProgresInfo - WBS 차트 요구사항 진행률 수정  */		
+			UPDATE REQ4100
+			SET
+					  REQ_COMPLETE_RATIO	= #progress#
+					, MODIFY_DTM			= CURRENT_TIMESTAMP
+					, MODIFY_USR_ID			= #modifyUsrId#
+					, MODIFY_USR_IP			= #modifyUsrIp#
+			WHERE 	1=1
+			AND 	PRJ_ID 	= #prjId#
+			AND		REQ_ID 	= #reqId#
+		]]>
+	</update>
+   
+    
+</sqlMap>
