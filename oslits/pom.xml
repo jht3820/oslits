@@ -79,7 +79,7 @@
 		<!-- 전자정부프레임워크 저장소 -->
 		<repository>
 			<id>egovframe</id>
-			<url>http://www.egovframe.go.kr/maven/</url>
+			<url>http://maven.egovframe.kr:8080/maven/</url>
 			<releases>
 				<enabled>true</enabled>
 			</releases>
