@@ -15,6 +15,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<maven.test.skip>true</maven.test.skip>
+		<webapp.lib>${basedir}/src/main/webapp/WEB-INF/lib</webapp.lib>
 	</properties>
 	
 	
@@ -103,6 +104,15 @@
 	</repositories>
 
 	<dependencies>
+		<!-- for Libraries (lib/sdf.jar) -->
+		<dependency>
+			<groupId>kr.opensoftlab.sdf</groupId>
+			<artifactId>kr.opensoftlab.sdf</artifactId>
+			<version> 1.0</version>
+			<scope>system</scope>
+			<systemPath>${webapp.lib}/sdf.jar</systemPath>
+		</dependency>
+	
 		<!-- 표준프레임워크 lib start -->
 		<dependency>
 			<groupId>egovframework.rte</groupId>
