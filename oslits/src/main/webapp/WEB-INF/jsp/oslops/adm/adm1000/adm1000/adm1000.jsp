@@ -1,8 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ include file="/WEB-INF/jsp/oslits/top/header.jsp" %>
-<jsp:include page="/WEB-INF/jsp/oslits/top/aside.jsp" />
+<%@ include file="/WEB-INF/jsp/oslops/top/header.jsp" %>
+<jsp:include page="/WEB-INF/jsp/oslops/top/aside.jsp" />
 
-<link rel='stylesheet' href='<c:url value='/css/oslits/adm.css'/>' type='text/css'>
+<link rel='stylesheet' href='<c:url value='/css/oslops/adm.css'/>' type='text/css'>
 <link rel='stylesheet' href='<c:url value='/css/ztree/zTreeStyle/zTreeStyle.css'/>' type='text/css'>
 <script type="text/javascript" src="/js/ztree/jquery.ztree.all.min.js"></script>
 
@@ -27,8 +27,19 @@ var arrChkObj = {"menuNm":{"type":"length","msg":"메뉴 명은 200byte까지 �
 
 //페이지 로드 될때 이벤트 세팅
 $(document).ready(function() {
-
+	//가이드 상자 호출
+	gfnGuideStack("add",fnAdm1000GuideShow);
+	
 	gfnInputValChk(arrChkObj);
+	
+	
+	$("#tabMenu").click(function(){
+		gfnGuideStack("add",fnAdm1000GuideShow);
+	});
+	
+	$("#tabAuth").click(function(){
+		gfnGuideStack("add",fnAdm1000AuthGuideShow);
+	});
 	
 	//트리메뉴 도움말 클릭
 	$(".menu_tree_help").click(function(){
@@ -118,18 +129,18 @@ $(document).ready(function() {
 		/* 필수입력값 체크 공통 호출 */
 		var strFormId = "menuInfoFrm";
 		var strCheckObjArr = [];
-		var sCheckObjNmArr = [];
+		var CheckObjNmArr = [];
 		/* 소메뉴 일 때   */
 		if(menu.level == 3){
 			strCheckObjArr = ["menuNm", "menuPath" , "menuUrl" , "useCd","selPrjType", "ord"];
-			sCheckObjNmArr = ["메뉴명", "메뉴 경로" , "메뉴 URL" , "사용 여부","프로젝트 유형", "순번"];
+			CheckObjNmArr = ["메뉴명", "메뉴 경로" , "메뉴 URL" , "사용 여부","프로젝트 유형", "순번"];
 		}else{
 			strCheckObjArr = ["menuNm", "useCd","selPrjType", "ord"];
 			CheckObjNmArr = ["메뉴명", "사용 여부" ,  "프로젝트 유형",    "순번"];
 		}
 		
 		
-		if(gfnRequireCheck(strFormId, strCheckObjArr, sCheckObjNmArr)){
+		if(gfnRequireCheck(strFormId, strCheckObjArr, CheckObjNmArr)){
 			return;	
 		}
 		if(gfnIsNumeric('ord')){
@@ -206,16 +217,7 @@ $(document).ready(function() {
 	/********************************************************************
 	*	권한 관리 기능 부분 정의 시작												*
 	*********************************************************************/
-	// 권한 목록 클릭시 소메뉴 권한 목록 조회
-	$('.left_table tbody tr').on("click",function(){
-	    $('.left_table tbody tr').removeClass("table_active");
-	    $('.left_table tbody tr').addClass("table_inactive");
-	    $(this).addClass("table_active");
-	    $(this).removeClass("table_inactive");
-	    
-	    //소메뉴 권한 목록 조회
-	    fnAuthGrpSmallMenuList($(this).attr("id"), 'ROOTSYSTEM_PRJ');
-	});
+
 	
 	// 그룹메뉴명 전체 체크/전체 해제 이벤트 처리
 	// 전체체크박스는 form에 담지 않기 위해 밸류값을 변경하지 않는다.
@@ -248,7 +250,7 @@ $(document).ready(function() {
 		gfnLayerPopupOpen("/adm/adm1000/adm1000/selectAdm1001View.do", data, '660', '630','auto');
 		*/
 		var data = { "type":"admin" };
-		gfnLayerPopupOpen('/prj/prj2000/prj2000/selectPrj2001View.do', data, '730', '650','auto');
+		gfnLayerPopupOpen('/prj/prj2000/prj2000/selectPrj2001View.do', data, '730', '730','auto');
 	});
 	
 	// 권한그룹 - 추가버튼 클릭 시 팝업 창 나타나기
@@ -263,7 +265,7 @@ $(document).ready(function() {
 		
 		
 		var data = { "type":"admin" ,"gb" : "update" , "authGrpId" : authGrpId};
-		gfnLayerPopupOpen('/prj/prj2000/prj2000/selectPrj2001View.do', data , '730', '645','scroll');
+		gfnLayerPopupOpen('/prj/prj2000/prj2000/selectPrj2001View.do', data , '730', '730','scroll');
 	
 	});
 	
@@ -294,7 +296,7 @@ $(document).ready(function() {
 	});
 	
 	
-	
+	fnSelectAdm1000PrjAuthGrpList();
 	/********************************************************************
 	*	권한 관리 기능 부분 정의 종료												*
 	*********************************************************************/
@@ -313,7 +315,7 @@ function fnGetMenuInfoAjax(menuId){
 	var licGrpId = '${sessionScope.loginVO.licGrpId}'; 
 	//AJAX 설정
 	var ajaxObj = new gfnAjaxRequestAction(
-			{"url":"<c:url value='/adm/adm1000/adm1000/selectAdm1000MenuInfoAjax.do'/>"}
+			{"url":"<c:url value='/adm/adm1000/adm1000/selectAdm1000MenuInfoAjax.do'/>","loadingShow":false}
 			,{ "menuId":menuId, "licGrpId":licGrpId });
 	
 	fnInit();
@@ -323,7 +325,15 @@ function fnGetMenuInfoAjax(menuId){
 			
 		//디테일폼 세팅
     	gfnSetData2Form(data, "menuInfoFrm");
-		
+
+		// 트리에서 메뉴 노드 선택시 inputError로 붉게 표시된 부분 초기화
+		var menuChild = $('.menu_col2').children();
+		$(menuChild).each(function(idx, val){
+    		if($(this).hasClass("inputError")){
+            	$(this).removeClass("inputError");
+      		}
+    	});
+
 		if(data.prjType==""){
 			$('#selPrjType').val('03');	
 			$('#prjType').val('03');
@@ -391,23 +401,6 @@ function fnSearchMenuList(){
 						$("#lbMenuPath").html('메뉴 경로');
 						$("#lbMenuUrl").html('메뉴 URL');
 					}					
-				},
-				/* onRightClick : function(event, treeId, treeNode){
-					//메뉴명 변경 상자 나타내기
-					zTree.editName(treeNode);
-				},
-				onRename : function(event, treeId, treeNode){
-					//메뉴명 변경 이벤트 일어 날 경우, 메뉴명 수정 이벤트 
-					fnUpdateMenuInfoAjax(treeNode,"editRename",false);
-				}, */
-				onDblClick : function(event, treeId, treeNode){
-					//노드 더블 클릭시 발생
-					if(!gfnIsNull(treeNode)){
-						//자식노드가 없는 노드 더블 클릭시 사용유무 변경
-						if(!treeNode.isParent && typeof treeNode.children == "undefined"){
-							fnUpdateMenuInfoAjax(treeNode,"editUseCd",false);
-						}
-					}
 				}
 			},
 			view : {
@@ -679,6 +672,12 @@ function fnAuthGrpSmallMenuList(authGrpId, selPrjId){
     	//기존 조회 정보 모두 제거
     	$("#authTblBody").children().remove();
     	
+    	//rowspan 대상 ID
+    	var prevUpupMenuId = '';
+    	
+    	//메뉴 rowspan 담기
+    	var menuIdRowSpan = {};
+    	
     	//반복하며 그리기
     	$.each(data.authGrpSmallMenuList,function(idx, data){
     		//tr 태그 id 부여하여 생성
@@ -687,15 +686,24 @@ function fnAuthGrpSmallMenuList(authGrpId, selPrjId){
     		//생성한 tr태그 객체 얻기
     		var trObj = $("#tr" + data.menuId );
     		
-    		//각 그룹에서 첫번째 로우이면
-    		if(data.grpRank == '1'){
-    			//첫번째 로우이면서 자식 메뉴의 갯수가 2개 이상이면 rowspan 처리함.
-    			if(data.grpCnt == '1'){
-    				trObj.append("<td class='right_con wd1'>" + data.upupMenuNm + "</td>");
-    			}else{
-    				trObj.append("<td class='right_con wd1' rowspan='" + data.grpCnt + "'>" + data.upupMenuNm + "</td>");	
+    		//새로운 대 메뉴인경우
+    		if(gfnIsNull(prevUpupMenuId) || prevUpupMenuId != data.upupMenuId){
+    			trObj.append("<td class='right_con wd1' id='menuRow_"+data.upupMenuId+"' rowspan='1'>" + data.upupMenuNm + "</td>");	
+    		}else{
+    			//menuId별 rowspan 생성
+    			if(gfnIsNull(menuIdRowSpan[data.upupMenuId])){
+    				menuIdRowSpan[data.upupMenuId] = 1;
     			}
+    			
+    			//오류 처리 안함
+   				try{
+   					//대메뉴 rowspan +1
+    				var upObjRowspan = parseInt(menuIdRowSpan[data.upupMenuId]);
+    				menuIdRowSpan[data.upupMenuId] = (upObjRowspan+1);
+   				}catch(err){console.log(err);}
     		}
+    		
+    		prevUpupMenuId = data.upupMenuId;
     		
     		trObj.append("<td class='right_con wd2'>" + data.upMenuNm + " &#62; " + data.menuNm + "</td>");
     		
@@ -714,6 +722,9 @@ function fnAuthGrpSmallMenuList(authGrpId, selPrjId){
     			trObj.append("<td class='right_con wd" + cnt + " adm_chk'><input type='hidden' name='" + hidMenuId + "' id='" + hidMenuId + "' value='" + eval("data." + val) + "' /> <input type='checkbox' title='체크박스' onclick='fnValToChk(this);' name='" + strMenuId + "' id='" + strMenuId + "' value='" + eval("data." + val) + "' /><label for='chk" + data.menuId + "'></label></td>");
     		});
     		
+    		// 가로로 전체 체크가능한 체크박스 
+    		trObj.append("<td class='right_con wd10 adm_chk' style='text-align: center;' ><input type='checkbox' title='체크박스'  name="+data.menuId+"'_prjAuthHorizon' id='"+data.menuId+"_prjAuthHorizon' onclick='fnHorizonChk(this);' /><label for=''></label></td>");
+    		
     		//밸류값 확인하여 체크 상태 변경
     		$.each(strArrYn, function(idx, val){
     			var objYn = $("#" + data.menuId + val);
@@ -727,11 +738,46 @@ function fnAuthGrpSmallMenuList(authGrpId, selPrjId){
     		
     	});
 
+    	//rowspan 걸기
+    	$.each(menuIdRowSpan, function(idx, map){
+    		$("#menuRow_"+idx).attr("rowspan",map);
+    	});
+    	
     	toast.push(data.message);
+
+    	//출력 감추기
+    	$("input[name$=printYn]").parent().hide();
 	});
 	
 	//AJAX 전송
 	ajaxObj.send();
+}
+
+
+/*
+ *	권한관리의 해당 메뉴의 가로 전체 체크/전체 해제 처리
+ * @param chkObj 가로 전체체크 체크박스
+ */
+function fnHorizonChk(chkObj){
+	
+	// 체크박스의 ID를 가져온다
+	var horizonChkId = $(chkObj).attr("id"); 
+	// 체크박스 ID에서 메뉴 ID를 추출
+	var horizonMenuId = horizonChkId.split("_")[0];
+	
+	// 가로 전체체크 할 경우
+	if($(chkObj).is(':checked')){
+		$("input[name^=" + horizonMenuId + "]").prop("checked", true);
+		$("input[name^=" + horizonMenuId + "]").val("Y");
+		$("input[name^=hidden" + horizonMenuId + "]").val("Y");
+		$("input[name^=status" + horizonMenuId + "]").val("U");
+	// 가로 전체 체크해제 할 경우	
+	}else{
+		$("input[name^=" + horizonMenuId + "]").prop("checked", false);
+		$("input[name^=" + horizonMenuId + "]").val("N");
+		$("input[name^=hidden" + horizonMenuId + "]").val("N");
+		$("input[name^=status" + horizonMenuId + "]").val("U");
+	}
 }
 
 /**
@@ -843,6 +889,11 @@ function fnDeleteAuthGrp(){
 		return;
 	}
 	
+	//사업 담당자 삭제 불가능
+	if(authGrpId == "AUT0000000000001"){
+		jAlert("사업 담당자 권한은 관리자 필수 권한입니다.</br>삭제 할 수 없습니다.","경고");
+		return false;
+	}
 	
 	if(!confirm('삭제하면 되돌릴 수 없습니다. 삭제하시겠습니까?')){
 		return;
@@ -881,6 +932,86 @@ function fnInit(){
 	$('#menuInfoFrm')[0].reset();
 }
 
+/* 권한그룹 목록 조회 */
+function fnSelectAdm1000PrjAuthGrpList(){
+	
+	//AJAX 설정
+	var ajaxObj = new gfnAjaxRequestAction(
+			{"url":"<c:url value='/adm/adm1000/adm1000/selectAdm1000PrjAuthGrpList.do'/>"}
+			,{});
+	//AJAX 전송 성공 함수
+	ajaxObj.setFnSuccess(function(data){
+		data = JSON.parse(data);
+
+    	//기존 조회 정보 모두 제거
+    	$("#prjAuthGrpList").children().remove();
+    	
+    	//반복하며 그리기
+    	$.each(data.prjAuthGrpList,function(idx, data){
+    		//tr 태그 id 부여하여 생성
+    		var html = '';
+    		html += '<tr class="left_con" id="'+data.authGrpId+'">';
+    		html += '	<td class="left_con">'+data.authGrpNm+'</td>';
+    		html += '	<td class="left_con" title="'+data.authGrpDesc+'">'+gfnCutStrLen(data.authGrpDesc, 60)+'</td>';
+    		html += '	<td class="left_con">'+data.usrTypNm+'</td>';
+    		/* html += '	<td class="left_con">'+fnNvl(data.acceptUseNm)+'</td>'; */
+    		html += '</tr>';
+    		
+			$("#prjAuthGrpList").append(html);
+    		
+    	});
+    	
+    	// 권한 목록 클릭시 소메뉴 권한 목록 조회
+    	$('.left_table tbody tr').on("click",function(){
+    	    $('.left_table tbody tr').removeClass("table_active");
+    	    $('.left_table tbody tr').addClass("table_inactive");
+    	    $(this).addClass("table_active");
+    	    $(this).removeClass("table_inactive");
+    	    
+    	    //소메뉴 권한 목록 조회
+    	    fnAuthGrpSmallMenuList($(this).attr("id"), 'ROOTSYSTEM_PRJ');
+    	});
+
+    	toast.push(data.message);
+	});
+	
+	//AJAX 전송
+	ajaxObj.send();
+}
+
+function fnNvl(str){
+	if(str==null){
+		return "";
+	}else{
+		return str;
+	}
+}
+
+//가이드 상자
+function fnAdm1000GuideShow(){
+	var mainObj = $(".main_contents");
+	
+	//mainObj가 없는경우 false return
+	if(mainObj.length == 0){
+		return false;
+	}
+	//guide box setting
+	var guideBoxInfo = globals_guideContents["adm1000"];
+	gfnGuideBoxDraw(true,mainObj,guideBoxInfo);
+}
+
+//가이드 상자
+function fnAdm1000AuthGuideShow(){
+	var mainObj = $(".main_contents");
+	
+	//mainObj가 없는경우 false return
+	if(mainObj.length == 0){
+		return false;
+	}
+	//guide box setting
+	var guideBoxInfo = globals_guideContents["adm1000"];
+	//gfnGuideBoxDraw(true,mainObj,guideBoxInfo);
+}
 /********************************************************************
 * 권한 관리 기능 부분 정의 종료												*
 *********************************************************************/
@@ -892,8 +1023,8 @@ function fnInit(){
 	<div class="tab_title">${sessionScope.selMenuNm }</div>
 	<div class="tab_menu">
 		<ul class="tab_box">
-			<li class="ok_bottom_line on"><a>메뉴 관리</a></li>
-			<li><a>권한 그룹 관리</a></li>
+			<li id="tabMenu" class="ok_bottom_line on"><a>메뉴 관리</a></li>
+			<li id="tabAuth" ><a>권한 그룹 관리</a></li>
 		</ul>
 		
 		<div class="tab_contents authority">
@@ -908,20 +1039,16 @@ function fnInit(){
 					<caption>권한 그룹</caption>
 					<thead>
 						<tr>
-							<th class="left_sub_title" style="width: 20%;">그룹 명</th>
-							<th class="left_sub_title" style="width: 50%;">설명</th>
-							<th class="left_sub_title" style="width: 30%;">사용자유형</th>
+							<th class="left_sub_title" style="width: 30%;padding-left: 0px;">그룹 명</th>
+							<th class="left_sub_title" style="width: 30%;padding-left: 0px;">설명</th>
+							<th class="left_sub_title" style="width: 20%;padding-left: 0px;">사용자<br/>유형</th>
+							<!-- 모든 권한 접수 허용 -->
+							<!-- <th class="left_sub_title non_right_line" style="width: 20%;padding-left: 0px;">접수권한<br/>유무</th> -->
 						</tr>
 					</thead>
 					
-					<tbody>
-						<c:forEach items="${requestScope.prjAuthGrpList }" var="map">
-							<tr class="left_con" id="${map.authGrpId}">
-								<td class="left_con">${map.authGrpNm}</td>
-								<td class="left_con"> ${map.authGrpDesc}</td>
-								<td class="left_con"> ${map.usrTypNm}</td>
-							</tr>
-						</c:forEach>
+					<tbody id="prjAuthGrpList" >
+						
 					</tbody>
 				</table>
 			</div>
@@ -945,7 +1072,8 @@ function fnInit(){
 								<th class="right_sub_title wd6 adm_chk"><input type="checkbox" title="체크박스" name="modifyYn" id="all_ch4"/><label for="all_ch4"></label><span class="title_align">수정</span></th>
 								<th class="right_sub_title wd7 adm_chk"><input type="checkbox" title="체크박스" name="delYn" id="all_ch5"/><label for="all_ch5"></label><span class="title_align">삭제</span></th>
 								<th class="right_sub_title wd8 adm_chk"><input type="checkbox" title="체크박스" name="excelYn" id="all_ch6"/><label for="all_ch6"></label><span class="title_align">엑셀</span></th>
-								<th class="right_sub_title wd9 adm_chk right_line"><input type="checkbox" title="체크박스" name="printYn" id="all_ch7"/><label for="all_ch7"></label><span class="title_align">출력</span></th>
+								<!-- <th class="right_sub_title wd9 adm_chk"><input type="checkbox" title="체크박스" name="printYn" id="all_ch7"/><label for="all_ch7"></label><span class="title_align">출력</span></th> -->
+								<th class="right_sub_title wd10 non_right_line"><label for="chk8"></label><span class="title_align">전체체크</span></th>
 							</tr>
 						</thead>
 						
@@ -982,7 +1110,7 @@ function fnInit(){
 			
 			<div class="menu_wrap">
 				<div class="menu_ctrl_wrap">
-					<div class="menu_ctrl_btn_wrap">
+					<div class="menu_ctrl_btn_wrap" guide="addDelMenu" >
 						<span class="button_normal2 btn_menu_add" id="btn_inseret_menuAddInfo"><i class='fa fa-edit' aria-hidden='true'></i>&nbsp;추가</span>
 						<span class="button_normal2 btn_menu_del" id="btn_delete_menuDelInfo"><i class='fa fa-trash-alt' aria-hidden='true'></i>&nbsp;삭제</span>
 						<div class="menu_all_wrap">
@@ -1042,7 +1170,7 @@ function fnInit(){
 						</div>
 						<div class="menu_row">
 							<div class="menu_col1"><label for="prjType">프로젝트유형<span class="required_info">&nbsp;*</span></label></div>
-							<div class="menu_col2"><span class="search_select"><select name="selPrjType" id="selPrjType" class="code_select" style="max-width: 60%;"></select></span></div> <!-- class="w200" -->
+							<div class="menu_col2" guide="projectType" ><span class="search_select"><select name="selPrjType" id="selPrjType" class="code_select" style="max-width: 60%;"></select></span></div> <!-- class="w200" -->
 						</div>
 						<div class="menu_row">
 							<div class="menu_col1"><label for="menuDesc">메뉴설명</label></div>
@@ -1062,4 +1190,4 @@ function fnInit(){
 	
 </div>
 
-<jsp:include page="/WEB-INF/jsp/oslits/bottom/footer.jsp" />
+<jsp:include page="/WEB-INF/jsp/oslops/bottom/footer.jsp" />
