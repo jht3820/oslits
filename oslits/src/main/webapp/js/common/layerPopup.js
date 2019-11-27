@@ -41,14 +41,7 @@ $(function(){
 	});
 });
 
-/**
- * 	function 명 	: layer_popup
- *  function 설명	: 레이어 팝업을 호출한다.
- *  url			: 호출 URL
- *  data		: 1. json 형식 ex> {"key1" : "value1", "key2" : "value2"}
- *  			  2. form serialize 형식 ex> $("#formObj").serialize(); => id=jht&pw=jht
- *  <div class="close_btn white"></div>
- */
+
 var layer_popup = function(url, data,loadingShow){
 	var layerIndex = $(".layer_popup_box").length;
 	var layerBoxDivId = "lpx"+layerIndex;
@@ -79,6 +72,14 @@ var layer_popup = function(url, data,loadingShow){
 		$("#"+layerBoxDivId+" .ajax_box").html(data);
 		$("#"+layerBoxDivId).show();
 		$("body").addClass("bhpf");
+		
+		//팝업 가이드 상자 존재하는경우
+		if(typeof globals_guideChkFn == "function"){
+			gfnGuideStack("add",globals_guideChkFn);
+		}else{
+			//없는경우 팝업 이전 화면에서 가이드 상자 호출을 막기위해 빈 함수 삽입
+			gfnGuideStack("add",$.noop);
+		}
 		
 		xhr.complete(function(){
         	//마우스 드래그로 팝업창 움직일 수 있도록  jQuery UI
