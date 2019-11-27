@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ include file="/WEB-INF/jsp/oslits/top/header.jsp" %>
-<jsp:include page="/WEB-INF/jsp/oslits/top/aside.jsp" />
+<%@ include file="/WEB-INF/jsp/oslops/top/header.jsp" %>
+<jsp:include page="/WEB-INF/jsp/oslops/top/aside.jsp" />
 <link rel='stylesheet' href='<c:url value='/css/common/fileUpload.css'/>' type='text/css'>
 <link rel='stylesheet' href='<c:url value='/css/oslits/prs.css'/>' type='text/css'>
 <script src="<c:url value='/js/common/oslFile.js'/>"></script>
@@ -932,4 +932,4 @@ table, tbody tr, td:hover { background: none !important; }
 		   multi_selector.addElement( document.getElementById( 'egovFileUpload' ) );
 		</script>
 </div>
-<jsp:include page="/WEB-INF/jsp/oslits/bottom/footer.jsp" />
+<jsp:include page="/WEB-INF/jsp/oslops/bottom/footer.jsp" />

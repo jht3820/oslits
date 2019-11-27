@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
-<%@ include file="/WEB-INF/jsp/oslits/top/header.jsp" %>
+<%@ include file="/WEB-INF/jsp/oslops/top/header.jsp" %>
 <script type="text/javascript" src="<c:url value='/js/chart/chartJs/Chart.bundle.js'/>"></script>
 <link rel='stylesheet' href="<c:url value='/css/oslits/dsh.css'/>" type='text/css'>
 <style>
@@ -1026,4 +1026,4 @@ function fnDsh3000PrjSel(thisObj){
 			</div>
 		</div>
 	</div>
-<jsp:include page="/WEB-INF/jsp/oslits/bottom/footer.jsp" />
+<jsp:include page="/WEB-INF/jsp/oslops/bottom/footer.jsp" />
