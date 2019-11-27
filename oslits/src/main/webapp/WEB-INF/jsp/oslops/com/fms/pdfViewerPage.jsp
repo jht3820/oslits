@@ -147,4 +147,4 @@
 	</div>
 	<canvas id="pdfViewDiv" style="width:100%;height:910px"></canvas>
 	
-<jsp:include page="/WEB-INF/jsp/oslits/bottom/footer.jsp" />
+<jsp:include page="/WEB-INF/jsp/oslops/bottom/footer.jsp" />

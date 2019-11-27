@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ include file="/WEB-INF/jsp/oslits/top/header.jsp" %>
-<jsp:include page="/WEB-INF/jsp/oslits/top/aside.jsp" />
+<%@ include file="/WEB-INF/jsp/oslops/top/header.jsp" %>
+<jsp:include page="/WEB-INF/jsp/oslops/top/aside.jsp" />
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <script type="text/javascript" src="<c:url value='/js/axisj/dist/ax5/ax5select.min.js'/>"></script>
 <link rel='stylesheet' href='<c:url value='/css/oslits/req.css'/>' type='text/css'>
@@ -687,4 +687,4 @@ input[type="text"].search_txt { float: none; width: 250px; height: 28px; line-he
 				<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px;"></div>
 			</div>
 		</div>
-<jsp:include page="/WEB-INF/jsp/oslits/bottom/footer.jsp" />
+<jsp:include page="/WEB-INF/jsp/oslops/bottom/footer.jsp" />

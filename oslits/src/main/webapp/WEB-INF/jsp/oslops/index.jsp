@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ include file="/WEB-INF/jsp/oslits/top/header.jsp" %>
-<jsp:include page="/WEB-INF/jsp/oslits/top/aside.jsp" />
+<%@ include file="/WEB-INF/jsp/oslops/top/header.jsp" %>
+<jsp:include page="/WEB-INF/jsp/oslops/top/aside.jsp" />
 
 <link rel="stylesheet" href="<c:url value='/css/oslits/index.css'/>">
 <script src='/js/common/layerPopup.js'></script>
@@ -28,4 +28,4 @@ $(function(){
 	<button class="ajax">ajax</button>
 
 </div>
-<jsp:include page="/WEB-INF/jsp/oslits/bottom/footer.jsp" />
+<jsp:include page="/WEB-INF/jsp/oslops/bottom/footer.jsp" />

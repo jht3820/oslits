@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ include file="/WEB-INF/jsp/oslits/top/header.jsp" %>
-<jsp:include page="/WEB-INF/jsp/oslits/top/aside.jsp" />
+<%@ include file="/WEB-INF/jsp/oslops/top/header.jsp" %>
+<jsp:include page="/WEB-INF/jsp/oslops/top/aside.jsp" />
 
 <!-- css는 adm5000(로그인 이력 log)과 공유 -->
 <link rel="stylesheet" href="<c:url value='/css/oslits/adm.css'/>">
@@ -285,4 +285,4 @@ img.ui-datepicker-trigger {margin-bottom: 7px; }
 		<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px;"></div>
 	</div>
 </div>
-<jsp:include page="/WEB-INF/jsp/oslits/bottom/footer.jsp" />
+<jsp:include page="/WEB-INF/jsp/oslops/bottom/footer.jsp" />
