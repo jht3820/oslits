@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="cmm1400DAO">
+
+	<!--  in / out class define  -->
+	<typeAlias  alias="egovMap" 	type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	    
+    <select id="cmm1400DAO.selectCmm1400SVNRepositoryList" parameterClass="java.util.Map"  resultClass="egovMap">
+	    /*cmm1400DAO.selectCmm1400SVNRepositoryList */
+		SELECT
+            	A.LIC_GRP_ID		/* 라이선스 그룹 ID */ 
+           	,	A.SVN_REP_ID 		/* SVN Repository 코드 */ 
+            ,	A.SVN_REP_NM		/* SVN Repository 명 */ 
+            ,	A.SVN_TXT			/* SVN RepositoryI Comment */ 
+            ,	A.USE_CD			/* 사용여부(코드 : CMM00001) */ 
+            ,	TO_CHAR(A.REG_DTM, 'YYYY-MM-DD HH24:MI:SS') AS REG_DTM          /* 최초등록 일시 */ 
+            ,	A.REG_USR_ID		/* 최초등록자 ID */ 
+            ,	A.REG_USR_IP		/* 최초등록자 IP */        
+            ,	TO_CHAR(A.MODIFY_DTM, 'YYYY-MM-DD HH24:MI:SS') AS MODIFY_DTM 	/* 최종수정일시 */
+            ,	A.MODIFY_USR_ID		/* 최종수정자 ID */ 
+            ,	A.MODIFY_USR_IP		/* 최종수정자 IP */ 
+		FROM SVN1000 A
+		INNER JOIN SVN1100 B
+		ON ( A.LIC_GRP_ID = B.LIC_GRP_ID AND A.SVN_REP_ID = B.SVN_REP_ID )
+		WHERE 1=1
+    	AND A.LIC_GRP_ID = #licGrpId#
+    	AND B.PRJ_ID = #prjId#
+    </select>
+	
+</sqlMap>

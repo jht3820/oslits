@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="stm4000DAO">
+	<typeAlias alias="egovMap" 		type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	
+	<!-- Stm4000, 전체 프로젝트 생성 관리 - 라이센스 그룹에 있는 모든 프로젝트를 조회한다.-->
+	<select id="stm4000DAO.selectPrj1000LicGrpPrjList" parameterClass="java.util.Map" resultClass="egovMap">
+			/* stm4000DAO.selectPrj1000LicGrpPrjList - 라이센스 그룹에 있는 모든 프로젝트를 조회 */
+			SELECT 	 	
+					Z.*
+				,	CONNECT_BY_ISLEAF AS LEAF
+	     	FROM(
+		      		SELECT  
+					            A.PRJ_ID		/* 프로젝트 ID */
+					        ,	A.PRJ_GRP_ID	/* 프로젝트 그룹 ID */
+					        ,	A.LIC_GRP_ID	/* 라이선스 그룹 ID */
+					        ,	A.PRJ_NM		/* 프로젝트 명 */
+					        ,	TO_CHAR(TO_DATE(A.START_DT,'YYYYMMDD'),'YYYY-MM-DD') AS START_DT 	/* 프로젝트 시작일 */
+					        ,	TO_CHAR(TO_DATE(A.END_DT,'YYYYMMDD'),'YYYY-MM-DD') 	AS END_DT   	/* 프로젝트 종료일 */
+					        ,	A.ORD			/* 순번 */
+					        ,	A.PRJ_DESC		/* 프로젝트 설명 */
+					        ,	A.USE_CD		/* 사용유무 */
+					        ,	A.PRJ_TYPE		/* 프로젝트 타입 코드 - 개발 : 01, 운영 : 02 */
+					        ,	SF_ADM4100_COM_CD_INFO(#licGrpId#, 'PRJ00013', A.PRJ_TYPE, '1') AS PRJ_TYPE_NM	/* 프로젝트 타입명 */
+					        ,	A.PRJ_ACRM		/* 프로젝트 약어 */
+					        ,	A.PRJ_GRP_CD	/* 프로젝트 그룹 유무 코드 - 그룹 : 01, 프로젝트 : 02 */
+					        ,	A.REG_DTM		/* 최초 등록일시 */
+					        ,	A.REG_USR_ID	/* 최초 등록자 ID */
+					        ,	A.REG_USR_IP	/* 최초 등록자 IP */
+					        ,	A.MODIFY_DTM	/* 최종 수정자 ID */
+					        ,	A.MODIFY_USR_ID	/* 최종 수정자 ID */
+					        ,	A.MODIFY_USR_IP	/* 최종 수정자 IP */
+		       		FROM 
+		       				PRJ1000 A
+		       		WHERE 	1=1
+		    		AND 	A.LIC_GRP_ID =  #licGrpId#
+		    		<!-- viewType가 all 일 경우 사용유무가 사용인 프로젝트만 조회 -->
+		    		<isNotEqual property="viewType" compareValue="all">
+			    		AND A.USE_CD = '01'
+			    	</isNotEqual>
+	     	) Z
+	     	START WITH Z.PRJ_GRP_ID IS NULL 
+	      	CONNECT BY PRIOR Z.PRJ_ID = Z.PRJ_GRP_ID 
+			ORDER SIBLINGS BY Z.ORD, Z.PRJ_NM
+	</select>
+	
+
+	<!-- 라이선스 그룹에서 관리 권한 있는 프로젝트 목록 검색 -->
+	<select id="stm4000DAO.selectPrj1000LicGrpAdminPrjList" parameterClass="java.util.Map" resultClass="egovMap">
+			/* stm4000DAO.selectPrj1000LicGrpAdminPrjList - 라이선스 그룹에서 관리 권한 있는 프로젝트 목록 검색  */
+      		SELECT B.PRJ_ID
+					, B.PRJ_NM
+					, COALESCE(B.PRJ_DESC,' ') AS PRJ_DESC
+			FROM
+			(
+				SELECT DISTINCT Z.PRJ_ID
+				FROM ADM1100 Z 
+				INNER JOIN ADM1300 X
+				ON ( Z.PRJ_ID = X.PRJ_ID AND Z.AUTH_GRP_ID = X.AUTH_GRP_ID )
+				WHERE 1=1
+				AND Z.USR_TYP = '02'	/* 사용자 유형이 관리자 */
+				AND Z.LIC_GRP_ID = #licGrpId#
+			) A
+			INNER JOIN PRJ1000 B
+			ON ( A.PRJ_ID = B.PRJ_ID )
+			WHERE 1=1
+			AND B.USE_CD = '01'
+			ORDER BY B.ORD
+	</select>
+	
+</sqlMap>

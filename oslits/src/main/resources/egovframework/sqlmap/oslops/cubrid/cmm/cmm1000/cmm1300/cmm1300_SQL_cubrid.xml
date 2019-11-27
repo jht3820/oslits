@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="cmm1300DAO">
+
+	<!--  in / out class define  -->
+	<typeAlias  alias="egovMap" 	type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	    
+    <select id="cmm1300DAO.selectCmm1300List" parameterClass="java.util.Map"  resultClass="egovMap">
+	    /*cmm1300DAO.selectCmm1300List 공통코드 목록을 조회한다.*/
+			SELECT
+				  A.MST_CD
+				, A.SUB_CD
+				, A.SUB_CD_NM
+				, A.SUB_CD_REF1
+				, A.SUB_CD_REF2
+				, A.SUB_CD_REF3
+				, A.SUB_CD_REF4
+				, A.SUB_CD_REF5
+				, A.SUB_CD_DESC
+				, A.ORD
+				, A.USE_YN
+			FROM ADM4100 A
+			WHERE A.LIC_GRP_ID = #licGrpId#
+			AND A.MST_CD = #mstCd#
+			<isNotEmpty property="searchPopTxt">
+			AND A.SUB_CD_NM like  '%' || #searchPopTxt# || '%'
+			</isNotEmpty>
+    </select>
+	
+</sqlMap>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="stm1200DAO">
+	 <!--  in / out class define  -->
+    <typeAlias alias="stm1200VO"	type="kr.opensoftlab.oslops.stm.stm1000.stm1200.vo.Stm1200VO"/>
+	<typeAlias alias="egovMap"	 	type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	
+    
+    <resultMap id="resultMapSelectStm1200Project" class="stm1200VO">
+		<result property="rn"  			column="RN"/>
+		<result property="apiId"  		column="API_ID"/>
+		<result property="apiUrl"  		column="API_URL"/>		
+		<result property="apiNm"  		column="API_NM"/>
+		<result property="apiTxt"  		column="API_TXT"/>
+		<result property="apiTok"  		column="API_TOK"/>
+		<result property="useCd"  		column="USE_CD"/>
+		<result property="regDtm"  		column="REG_DTM"/>
+		<result property="useNm"  		column="USE_NM"/>
+		<result property="regUsrId"  	column="REG_USR_ID"/>
+		<result property="prjNm"  		column="PRJ_NM"/>
+		
+    </resultMap>
+	
+	
+	<!-- 프로젝트 별  전체 API 목록을 조회한다. -->
+	<sql id="selectStm1200ProjectList">
+		SELECT 
+				T.*
+			,	SF_ADM4100_COM_CD_INFO(#licGrpId#, 'CMM00001', T.USE_CD, '1') AS USE_NM 
+		FROM
+		(
+			SELECT 
+					A.API_ID
+		    	,	A.API_NM
+				,	A.API_URL
+				,	A.API_TXT
+				,	C.API_TOK
+				,	A.USE_CD
+				,   A.REG_USR_ID
+				,   TO_CHAR(A.REG_DTM, 'YYYY-MM-DD HH24:MI:SS') AS REG_DTM
+				,   B.PRJ_NM
+			FROM API1000 A 
+			INNER JOIN API1100 C 
+			ON ( A.API_ID = C.API_ID  AND A.LIC_GRP_ID = C.LIC_GRP_ID )
+			INNER JOIN PRJ1000 B 
+			ON ( B.PRJ_ID = C.PRJ_ID AND  B.LIC_GRP_ID = C.LIC_GRP_ID )
+			WHERE 1=1
+			AND A.LIC_GRP_ID = #licGrpId#
+			<isNotEmpty property="searchSelect">
+				<isNotEmpty property="searchTxt">
+					<isEqual property="searchSelect" compareValue="apiNm"> 
+						AND	UPPER( A.API_NM ) like '%'|| UPPER( #searchTxt# ) ||'%'
+					</isEqual>
+				</isNotEmpty>
+			</isNotEmpty>
+			<isNotEmpty property="searchSelect">
+				<isNotEmpty property="searchCd">
+					<isEqual property="searchSelect" compareValue="useCd">
+						AND	A.USE_CD = #searchCd#
+					</isEqual>
+				</isNotEmpty>
+			</isNotEmpty>
+			<isNotEmpty property="prjId">
+				AND C.PRJ_ID = #prjId#
+			</isNotEmpty>
+		) T
+		ORDER BY PRJ_NM ASC, API_NM ASC
+    </sql>
+    
+    <!-- 프로젝트 별  전체 API 목록을 조회한다. -->
+    <select id="stm1200DAO.selectStm1200ProjectList" parameterClass="stm1200VO"  resultMap="resultMapSelectStm1200Project">
+	    /* stm1200DAO.selectStm1200ProjectList 프로젝트 별  전체 API 목록을 조회한다. */
+		SELECT *
+		FROM
+			(
+    		SELECT ROWNUM RN,
+    			     A.*
+    		FROM
+    		(
+					<include refid="selectStm1200ProjectList"/>
+	    			) A
+	    	)
+	    	 WHERE RN BETWEEN (#firstIndex#+1) AND #lastIndex#
+    </select>
+    
+    <!-- 프로젝트 별  전체 API 목록 총건수. :페이징 처리 부분 -->
+    <select id="stm1200DAO.selectStm1200ProjectListCnt" parameterClass="stm1200VO"  resultClass="java.lang.Integer">
+	    /* stm1200DAO.selectStm1200ProjectListCnt 프로젝트 별  전체 API 목록 총건수를 조회한다.*/
+	    SELECT
+			COUNT(*)
+		FROM	(
+			<include refid="selectStm1200ProjectList"/>
+						) A
+    </select>
+	
+	
+	
+</sqlMap>

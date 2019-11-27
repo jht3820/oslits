@@ -30,7 +30,8 @@ function createStatusbar(fileVo, obj) {
     					.append("(" + fileSize+ ")"))
     			.append($('<div>',{class:"file_btn file_delete", "data-file-data" : fileVo.name+":"+fileVo.size,  click: delElementNoServerData, text:'삭제'}))
     	)
-    	.appendTo($('#dragandrophandler'))
+    	//.appendTo($('#dragandrophandler'))
+    	.appendTo(obj)
 
     this.setFileNameSize = function(name,size)
     {
@@ -77,6 +78,7 @@ function handleFileUpload(files,obj)
 		//}
    }
 }
+
 $(document).ready(function()
 {
 	var objTemp = obj;
@@ -84,37 +86,71 @@ $(document).ready(function()
 		var obj = $("#dragandrophandler");
 		
 	}
-	var dragging = 0;
-	obj.on('dragenter', function (e)  
-	{
-		dragging++;
-	    e.stopPropagation();
-	    e.preventDefault();
-	    $(this).css('border', '1px solid #4b73eb');
-	});
-	obj.on('dragover', function (e)   
-	{
-	     e.stopPropagation();
-	     e.preventDefault();
-	});
-	obj.on('dragleave ', function (e)   
-			{
-		dragging--;
-	    if (dragging === 0) {
-	        $(this).css('border', '1px solid #fff');
-	    }
-		
-			});
-	obj.on('drop', function (e) 
-	{
-		
-	     $(this).css('border', '1px dotted #4b73eb');
-	     e.preventDefault();
-	     var files = e.originalEvent.dataTransfer.files;
-	     //We need to send dropped files to Server
-	     handleFileUpload(files,obj);
-	});
+	fnDragAndDropEventSet(obj);
 });
+
+
+/**
+ * 파일첨부에 대한 Drag & Drop 이벤트를 세팅한다.
+ * req4105의 추가항목의 경우 {auth:"opt", obj:$(".opt_drop_file"), rtnFunc:function 명} 으로
+ * fnDragAndDropEventSet 에 전달
+ * @param objList 이벤트를 세팅할 object 목록
+ */
+function fnDragAndDropEventSet(objList){
+
+	// objList에 이벤트를 세팅한다.
+	$.each(objList, function(idx, map){
+
+		var dragAndDropObj = map;
+		
+		// objList의 map에 obj가 있을경우
+		if(!gfnIsNull(map.obj)){
+			// dragAndDropObj로 세팅
+			dragAndDropObj = map.obj;
+		}
+		
+		var dragging = 0;
+		$(dragAndDropObj).on('dragenter', function (e)  
+		{
+			dragging++;
+		    e.stopPropagation();
+		    e.preventDefault();
+		    $(this).css('border', '1px solid #4b73eb');
+		});
+		$(dragAndDropObj).on('dragover', function (e)   
+		{
+		     e.stopPropagation();
+		     e.preventDefault();
+		});
+		$(dragAndDropObj).on('dragleave ', function (e)   
+		{
+			dragging--;
+		    if (dragging === 0) {
+		    	$(this).css('border', '1px solid #fff');
+		    }
+		});
+		$(dragAndDropObj).on('drop', function (e) 
+		{
+			$(this).css('border', '1px dotted #4b73eb');
+		    e.preventDefault();
+		    var files = e.originalEvent.dataTransfer.files;
+
+		    // 권한이 없을경우 handleFileUpload 실행
+		    if(gfnIsNull(map.auth)){
+		    	// We need to send dropped files to Server
+		    	handleFileUpload(files,$(this));
+		    }
+		    // 지정한 권한이 있을경우 returnFunction 호출
+		    else if( !gfnIsNull(map.auth) && map.auth == "opt" ){
+		    	// atchFileId를 가져온다.
+		    	var atchFileId = $(this).attr("fileid");
+		    	// 전달받은 returnFunction 호출
+		    	var returnFunction = map.rtnFunc;
+		    	returnFunction(files, atchFileId);
+		    }
+		});
+	});
+}
 
 /* Drag&Drop으로 첨부한 파일 목록 초기화*/
 function dndCancel(YN){
@@ -233,7 +269,6 @@ function fnFileUploadAppendData(paramName){
 		});
 	}
 }
-
 
 
 
