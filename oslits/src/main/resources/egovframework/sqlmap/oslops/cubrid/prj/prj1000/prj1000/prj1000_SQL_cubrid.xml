@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="prj1000DAO">
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+
+	<select id="prj1000DAO.selectPrj1000View" parameterClass="java.util.Map" resultClass="egovMap">
+			/* prj1000DAO.selectPrj1000View - 프로젝트 생성관리 목록 조회 */
+			SELECT X.*, CONNECT_BY_ISLEAF AS LEAF
+			FROM
+			(
+				SELECT 
+					Z.*
+					, SF_ADM4100_COM_CD_INFO(#licGrpId#, 'PRJ00013', Z.PRJ_TYPE, '1') AS PRJ_TYPE_NM
+					, ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'PRJ00001' AND SUB_CD = Z.PRJ_TASK_TYPE_CD ) AS PRJ_TASK_TYPE_NM
+				FROM
+				(
+					SELECT 
+				            A.PRJ_ID
+				        ,	A.PRJ_GRP_ID
+				        ,	A.LIC_GRP_ID
+				        ,	A.PRJ_NM
+				        ,	TO_CHAR(TO_DATE(A.START_DT,'YYYYMMDD'),'YYYY-MM-DD') 	AS START_DT 
+				        ,	TO_CHAR(TO_DATE(A.END_DT,'YYYYMMDD'),'YYYY-MM-DD') 	AS END_DT   
+				        ,	A.ORD
+				        ,	A.PRJ_DESC
+				        ,	A.USE_CD
+				        ,	A.PRJ_TYPE
+				        ,	A.PRJ_ACRM
+				        ,	A.PRJ_GRP_CD
+				        ,	A.PRJ_TASK_TYPE_CD
+				        ,	B.USR_ID
+				        ,	A.REG_DTM
+				        ,	A.REG_USR_ID
+				        ,	A.REG_USR_IP
+				        ,	A.MODIFY_DTM
+				        ,	A.MODIFY_USR_ID
+				        ,	A.MODIFY_USR_IP
+				    FROM 	PRJ1000 A 
+				    		LEFT JOIN
+						    (            
+						    	 SELECT		Z.PRJ_ID
+			                         	,	Z.USR_ID
+			                     FROM	ADM1300 Z 
+			                     		JOIN ADM1100 X 
+			                     		ON ( Z.PRJ_ID = X.PRJ_ID AND Z.AUTH_GRP_ID = X.AUTH_GRP_ID)
+			                     WHERE	1=1
+			                     AND		Z.USR_ID = #usrId#
+			                     GROUP BY Z.PRJ_ID, Z.USR_ID
+						   ) B 
+						   ON(A.PRJ_ID = B.PRJ_ID)
+				    WHERE 1=1
+				    AND A.LIC_GRP_ID = #licGrpId#
+				    AND (A.PRJ_GRP_ID IS NULL OR B.USR_ID IS NOT NULL)
+				    <isNotEqual property="viewType" compareValue="all">
+				    	AND A.USE_CD = '01'
+				    </isNotEqual>
+				) Z
+			) X
+			WHERE 1=1
+			 <isNotEmpty property="selectSearch">
+				<isEqual property="selectSearch" compareValue="useCd">
+					AND 	USE_CD = #search_useCd#
+				</isEqual>
+				<isEqual property="selectSearch" compareValue="prjNm">
+					AND 	PRJ_NM LIKE '%'||#txtSearch#||'%'
+				</isEqual>
+				<isEqual property="selectSearch" compareValue="prjId">
+					AND 	PRJ_ID LIKE '%'||#txtSearch#||'%'
+				</isEqual>
+			</isNotEmpty>
+			<isNotEmpty property="prjGrpCd">
+				AND PRJ_GRP_CD = #prjGrpCd#
+			</isNotEmpty>
+			CONNECT BY PRIOR X.PRJ_ID = X.PRJ_GRP_ID
+			START WITH X.PRJ_GRP_ID IS NULL
+			ORDER SIBLINGS BY X.ORD, X.PRJ_NM
+	</select>
+	
+	<!-- 프로젝트 단건 조회 -->
+	<select id="prj1000DAO.selectPrj1000Info" parameterClass="java.util.Map" resultClass="egovMap">
+			/* prj1000DAO.selectPrj1000Info - 프로젝트 단건 조회 */
+            SELECT	PRJ_ID
+            	,	PRJ_GRP_ID
+            	,	SF_PRJ1000_GRP_NM(PRJ_GRP_ID) AS PRJ_GRP_NM
+				,	LIC_GRP_ID
+				,	PRJ_NM
+				,	TO_CHAR(TO_DATE(START_DT,'YYYYMMDD'),'YYYY-MM-DD') 	AS START_DT 
+				,	TO_CHAR(TO_DATE(END_DT,'YYYYMMDD'),'YYYY-MM-DD') 	AS END_DT   
+				,	ORD
+				,	PRJ_DESC
+				,	USE_CD
+				,	PRJ_TYPE
+				,	SF_ADM4100_COM_CD_INFO(#licGrpId#, 'PRJ00013', PRJ_TYPE, '1') AS PRJ_TYPE_NM
+				,	PRJ_ACRM
+				,	PRJ_GRP_CD
+				,	PRJ_TASK_TYPE_CD
+				, ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'PRJ00001' AND SUB_CD = PRJ_TASK_TYPE_CD ) AS PRJ_TASK_TYPE_NM
+				,	REG_DTM
+				,	REG_USR_ID
+				,	REG_USR_IP
+				,	MODIFY_DTM
+				,	MODIFY_USR_ID
+				,	MODIFY_USR_IP
+			FROM 	PRJ1000 A1
+			WHERE	A1.LIC_GRP_ID = #licGrpId#
+			AND		PRJ_ID = #selPrjId#
+			ORDER BY A1.ORD ASC
+	</select>
+	
+	<!-- 프로젝트 그룹 존재하는지 체크 -->
+	<select id="prj1000DAO.selectPrj1000PrjGrpExistCheck" parameterClass="java.util.Map" resultClass="egovMap">
+		/* prj1000DAO.selectPrj1000PrjGrpExistCheck - 프로젝트 그룹 존재하는지 체크 */
+			SELECT *
+			FROM PRJ1000 A
+			WHERE 1=1
+			AND A.LIC_GRP_ID = #licGrpId#
+			AND A.PRJ_GRP_CD = '01'
+	</select>
+	
+	<!-- 프로젝트 그룹 ID에 해당하는 프로젝트가 존재하는지 체크 -->
+	<select id="prj1000DAO.selectPrj1000PrjGrpIdExistCheck" parameterClass="java.util.Map" resultClass="egovMap">
+		/* prj1000DAO.selectPrj1000PrjGrpIdExistCheck - 프로젝트 그룹 존재하는지 체크 */
+			SELECT *
+			FROM PRJ1000 A
+			WHERE 1=1
+			AND A.LIC_GRP_ID = #licGrpId#
+			AND A.PRJ_GRP_ID = #prjGrpId#
+			AND A.PRJ_GRP_CD = '02'
+	</select>
+	
+	<!-- 2018-08-09 사용안함 -->
+	<select id="prj1000DAO.selectPrj1000AuthGrpAndMenuIdPrjListAjax" parameterClass="java.util.Map" resultClass="egovMap">
+		/* prj1000DAO.selectPrj1000AuthGrpAndMenuIdPrjListAjax - 옵션정보 페이지에 접속 권한이 있는 프로젝트 목록 가져오기 */
+			SELECT 
+						A.PRJ_ID
+			  		,	A.ORD 
+			  		,	A.PRJ_GRP_ID
+			  		,	A.LIC_GRP_ID
+				  	,	A.PRJ_NM
+				  	,	B.ACCESS_YN
+				  	,	B.SELECT_YN
+				  	,	B.REG_YN
+				  	,	B.MODIFY_YN
+				  	,	B.DEL_YN
+			FROM	PRJ1000 A
+					INNER JOIN
+					( 
+						SELECT		A.LIC_GRP_ID
+								,	A.PRJ_ID, A.ACCESS_YN
+								,	A.SELECT_YN
+								, 	A.REG_YN
+								, 	A.MODIFY_YN
+								, 	A.DEL_YN
+						FROM
+						(
+							SELECT *
+						    FROM ADM1200 Z
+						    WHERE 1=1
+						    AND	Z.LIC_GRP_ID 	= #licGrpId#
+						    AND Z.MENU_ID 		= #menuId#
+						) A 
+						LEFT JOIN ADM1300 B
+						ON ( A.PRJ_ID = B.PRJ_ID AND A.AUTH_GRP_ID = B.AUTH_GRP_ID )
+						WHERE 1=1
+						AND B.USR_ID = #usrId#
+						GROUP BY A.LIC_GRP_ID, A.PRJ_ID, A.ACCESS_YN ,A.SELECT_YN, A.REG_YN, A.MODIFY_YN, A.DEL_YN
+					) B
+					ON (A.LIC_GRP_ID = B.LIC_GRP_ID AND A.PRJ_ID = B.PRJ_ID )
+			WHERE 1=1 
+			AND A.USE_CD = '01'
+			AND ACCESS_YN = 'Y' 
+			AND A.PRJ_GRP_ID = #selPrjGrpId#
+			ORDER BY A.ORD
+	</select>
+	
+	<!-- 프로젝트 그룹 생성 -->
+	<insert id="prj1000DAO.insertPrj1000PrjGrpAjax" parameterClass="java.util.Map">
+		<selectKey resultClass="java.lang.String" keyProperty="newPrjGrpId">
+		<![CDATA[
+			SELECT	COALESCE( 
+							SUBSTR(NEW_PRJ_GRP_ID, 1, 11) || LPAD( (TO_NUMBER(SUBSTR(NEW_PRJ_GRP_ID, 12, 5)) + 1) , 5, '0')
+						,	'GRP' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDD') || '00001'
+            		) AS NEW_PRJ_GRP_ID 
+			FROM	(
+			            SELECT	MAX(PRJ_ID)  AS NEW_PRJ_GRP_ID
+			            FROM	PRJ1000 A
+			            WHERE	1=1
+			            AND		A.PRJ_ID LIKE 'GRP' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDD') || '%'
+			            AND		A.PRJ_GRP_CD = '01'
+					)
+		]]>
+		</selectKey>
+		/* prj1000DAO.insertPrj1000PrjGrpAjax - 프로젝트 그룹 생성 */
+		<![CDATA[
+			INSERT INTO PRJ1000
+			(
+                PRJ_ID			,	PRJ_GRP_ID	,	LIC_GRP_ID		,	PRJ_NM			,	START_DT		,	END_DT
+            ,	ORD				,	PRJ_DESC	,	USE_CD			,	PRJ_TYPE		,	PRJ_GRP_CD 		
+            ,	REG_DTM         ,	REG_USR_ID  	,	REG_USR_IP	,	MODIFY_DTM		,	MODIFY_USR_ID	,	MODIFY_USR_IP
+        )VALUES(
+                #newPrjGrpId#	,	NULL		,	#licGrpId#		,	#prjNm#    		,	DATE_FORMAT(#startDt#,'%Y%m%d')		,	DATE_FORMAT(#endDt#,'%Y%m%d')
+            ,	#ord#			,	#prjDesc#	,	#useCd#			,	#prjType# 		,	#prjGrpCd#				
+            ,	CURRENT_TIMESTAMP
+            ,	#regUsrId#		,	#regUsrIp#	,	CURRENT_TIMESTAMP			,	#regUsrId#		,	#regUsrIp#
+        )		
+		
+		]]>
+	</insert>
+	
+	<!-- 프로젝트를 수정한다. -->
+	<update id="prj1000DAO.updatePrj1000Ajax" parameterClass="java.util.Map">
+	<![CDATA[
+		/* prj1000DAO.updatePrj1000Ajax - 프로젝트 생성관리 수정(update) AJAX */
+		UPDATE	PRJ1000 A
+        SET		PRJ_NM			= #prjNm#
+        	,	START_DT		= DATE_FORMAT(#startDt#,'%Y%m%d')
+            ,	END_DT			= DATE_FORMAT(#endDt#,'%Y%m%d')
+            ,	ORD				= #ord#
+            ,	PRJ_DESC		= #prjDesc#
+            ,	USE_CD			= #useCd#
+            ,	PRJ_ACRM		= #prjAcrm#
+     ]]>
+     <isNotEmpty property="prjType">
+			,	PRJ_TYPE		= #prjType#
+     </isNotEmpty>
+     <![CDATA[
+     		, 	PRJ_GRP_CD	= #prjGrpCd#
+            ,	MODIFY_DTM		= CURRENT_TIMESTAMP
+            ,	MODIFY_USR_ID	= #modifyUsrId#
+            ,	MODIFY_USR_IP	= #modifyUsrIp#
+        WHERE	1=1
+        AND		A.LIC_GRP_ID 	= #licGrpId#
+        AND		A.PRJ_ID		= #prjId#
+	]]>
+	</update>
+	
+	<!-- 프로젝트 삭제 (권한그룹정보, 권한프로젝트별 사용자 정보, 메뉴별 접근권한 정보, 프로젝트 정보를 삭제)-->
+	<parameterMap id="deletePrj1001InfoParam" 	class="java.util.Map">
+		<parameter property="licGrpId"			javaType="java.lang.String"		jdbcType="VARCHAR"	mode="IN"/>
+		<parameter property="prjId"				javaType="java.lang.String"		jdbcType="VARCHAR"	mode="IN"/>
+		<parameter property="ERR_CODE"			javaType="java.lang.String"		jdbcType="VARCHAR"  mode="OUT"	nullValue=""/>
+		<parameter property="ERR_MSG"			javaType="java.lang.String"		jdbcType="VARCHAR"  mode="OUT"	nullValue=""/>
+	</parameterMap>
+	
+	<!-- 프로젝트를 삭제한다. -->
+	<select id="prj1000DAO.deletePrj1001Ajax" parameterClass="java.util.Map"  resultClass="egovMap">
+			/* prj1000DAO.deletePrj1001Ajax - 프로젝트를 삭제한다. */
+			SELECT SF_PRJ1000_PRJ_INFO_DELETE(#licGrpId#, #prjId#) 
+			FROM db_root
+	</select>
+	
+	<!-- 프로젝트 그룹 제거 -->
+	<delete id="prj1000DAO.deletePrj1000PrjGrpAjax" parameterClass="java.util.Map">
+	<![CDATA[
+		/* prj1000DAO.deletePrj1000PrjGrpAjax - 프로젝트 그룹 제거(delete)*/
+		DELETE	
+		FROM	PRJ1000 A
+        WHERE	1=1
+		AND		A.LIC_GRP_ID 	= #licGrpId#
+        AND		A.PRJ_ID		= #prjId#
+        AND		A.PRJ_GRP_CD	= '01'
+	]]>
+	</delete>
+	
+	<!-- 프로젝트 생성 (권한그룹정보, 권한프로젝트별 사용자 정보, 메뉴별 접근권한 정보, 프로젝트 정보를 생성)-->
+	<parameterMap id="insertPrj1001InfoParam" 	class="java.util.Map">
+		<parameter property="prjTaskTypeCd"			javaType="java.lang.String"		jdbcType="VARCHAR"	mode="IN" nullValue="02"/>
+	
+		<parameter property="prjGrpId"			javaType="java.lang.String"		jdbcType="VARCHAR"	mode="IN"/>
+		<parameter property="licGrpId"			javaType="java.lang.String"		jdbcType="VARCHAR"	mode="IN"/>
+		<parameter property="prjNm"				javaType="java.lang.String"		jdbcType="VARCHAR"	mode="IN"/>
+		<parameter property="startDt"			javaType="java.lang.String"		jdbcType="VARCHAR"	mode="IN"/>
+		<parameter property="endDt"				javaType="java.lang.String"		jdbcType="VARCHAR"	mode="IN"/>
+		
+		<parameter property="ord"				javaType="java.lang.String"		jdbcType="VARCHAR"	mode="IN" nullValue="0"/>
+		<parameter property="prjDesc"			javaType="java.lang.String"		jdbcType="VARCHAR"	mode="IN"/>
+		<parameter property="useCd"				javaType="java.lang.String"		jdbcType="VARCHAR"	mode="IN"/>
+		<parameter property="prjType"			javaType="java.lang.String"		jdbcType="VARCHAR"	mode="IN"/>
+		<parameter property="prjAcrm"			javaType="java.lang.String"		jdbcType="VARCHAR"	mode="IN"/>
+		<parameter property="regUsrId"			javaType="java.lang.String"		jdbcType="VARCHAR"	mode="IN"/>
+		<parameter property="regUsrIp"			javaType="java.lang.String"		jdbcType="VARCHAR"	mode="IN"/>
+
+		<parameter property="modifyUsrId"		javaType="java.lang.String"		jdbcType="VARCHAR"	mode="IN"/>
+		<parameter property="modifyUsrIp"		javaType="java.lang.String"		jdbcType="VARCHAR"	mode="IN"/>
+		<parameter property="NEW_PRJ_ID"		javaType="java.lang.String"		jdbcType="VARCHAR"  mode="OUT"	nullValue=""/>
+		<parameter property="ERR_CODE"			javaType="java.lang.String"		jdbcType="VARCHAR"  mode="OUT"	nullValue=""/>
+		<parameter property="ERR_MSG"			javaType="java.lang.String"		jdbcType="VARCHAR"  mode="OUT"	nullValue=""/>
+	</parameterMap>
+	
+	<!-- 프로젝트를 생성한다. -->
+	<select id="prj1000DAO.insertPrj1001InfoAjax" parameterClass="java.util.Map"  resultClass="egovMap">
+		/* prj1000DAO.insertPrj1001InfoAjax - 프로젝트를 생성한다. */
+		SELECT	SF_PRJ1000_PRJ_INFO_INSERT
+				(
+					COALESCE(#prjTaskTypeCd#,'01')
+					, #prjGrpId#
+					, #licGrpId#
+					, #prjNm#
+					, #startDt#
+					, #endDt#
+					, COALESCE(#ord#,'0')
+					, #prjDesc#
+					, #useCd#
+					, #prjType#
+					, #prjAcrm#
+					, #regUsrId#
+					, #regUsrIp#
+					, #modifyUsrId#
+					, #modifyUsrIp#
+				) AS NEW_PRJ_ID
+		FROM db_root
+	</select>
+	
+	
+	<!-- 라이선스 그룹에 속해있는 모든 프로젝트를 가져온다. -->
+	<select id="prj1000DAO.selectPrj1000ProjectGroupListAjax" parameterClass="java.util.Map" resultClass="egovMap">
+			/* prj1000DAO.selectPrj1000ProjectGroupListAjax - 라이선스 그룹에 속해있는 모든 프로젝트를 가져온다. */
+			SELECT 	Z.* 
+				,	CONNECT_BY_ISLEAF AS LEAF
+	     	FROM(
+		      		SELECT  
+		       				 	A.PRJ_ID
+					        ,	A.PRJ_GRP_ID
+					        ,	COALESCE(A.PRJ_GRP_ID, '000')  AS UPPER_ID
+					        ,	A.LIC_GRP_ID
+					        ,	A.PRJ_NM
+					        ,	TO_CHAR(TO_DATE(A.START_DT,'YYYYMMDD'),'YYYY-MM-DD') 	AS START_DT 
+					        ,	TO_CHAR(TO_DATE(A.END_DT,'YYYYMMDD'),'YYYY-MM-DD') 	AS END_DT   
+					        ,	A.ORD
+					        ,	A.PRJ_DESC
+					        ,	A.USE_CD
+					        ,	A.PRJ_TYPE
+					        ,	SF_ADM4100_COM_CD_INFO(#licGrpId#, 'PRJ00013', A.PRJ_TYPE, '1') AS PRJ_TYPE_NM
+					        ,	A.PRJ_ACRM
+					        ,	A.PRJ_GRP_CD
+					        ,	A.PRJ_TASK_TYPE_CD
+					        , ( SELECT SUB_CD_NM FROM ADM4100 WHERE LIC_GRP_ID = #licGrpId# AND MST_CD = 'PRJ00001' AND SUB_CD = A.PRJ_TASK_TYPE_CD ) AS PRJ_TASK_TYPE_NM
+					        ,	A.REG_DTM
+					        ,	A.REG_USR_ID
+					        ,	A.REG_USR_IP
+					        ,	A.MODIFY_DTM
+					        ,	A.MODIFY_USR_ID
+					        ,	A.MODIFY_USR_IP
+		       		FROM 
+		       				PRJ1000 A
+		       		WHERE 	1=1
+		    		AND 	A.LIC_GRP_ID =  #licGrpId#
+		    		AND 	A.USE_CD = '01'	/* 사용유무가 사용인 프로젝트만 조회 */
+		    		<!-- 전체프로젝트 생성관리에서 프로젝트 마법사 호출시 라이선스 그룹의 모든 프로젝트 그룹을 조회한다. -->
+		    		<isNotEmpty property="pageType">
+			    		<isEqual property="pageType" compareValue="systemAdmin">
+				    		AND A.PRJ_GRP_CD = '01' /* 프로젝트 그룹만 조회 */
+				   	 	</isEqual>
+					</isNotEmpty>	
+	     	) Z
+	      	START WITH Z.PRJ_GRP_ID IS NULL 
+	      	CONNECT BY PRIOR Z.PRJ_ID = Z.PRJ_GRP_ID 
+			ORDER SIBLINGS BY Z.ORD, Z.PRJ_NM
+	</select>
+	
+	<!-- 프로젝트 약어 중복체크 -->
+	<select id="prj1000DAO.selectPrj1000ProjectAcronymCount" parameterClass="java.util.Map" resultClass="java.lang.Integer">
+			/* prj1000DAO.selectPrj1000ProjectAcronymCount - 프로젝트 약어 중복체크(약어 등록되어있는지 확인) */
+      		SELECT  
+      				COUNT(1) AS CNT 
+       		FROM 
+       				PRJ1000 
+       		WHERE 	1=1
+    		AND 	LIC_GRP_ID 	=  #licGrpId#
+    		AND 	PRJ_ACRM 	= #prjAcrm#
+			
+	</select>
+	
+	<!-- 사용자의 메인 프로젝트를 변경한다. -->
+	<update id="prj1000DAO.updatePrj1000UserProjectId" parameterClass="java.util.Map" >
+			/* prj1000DAO.updatePrj1000UserProjectId - 사용자 정보 프로젝트 변경 */
+      		UPDATE	ADM2000 SET
+      				PRJ_ID = NULL
+       		WHERE 	1=1
+    		AND 	LIC_GRP_ID 	=  #licGrpId#
+    		AND 	PRJ_ID 		= #prjId#
+			
+	</update>
+	
+	<!-- 관리 권한 있는 프로젝트 목록 검색 -->
+	<select id="prj1000DAO.selectPrj1000AdminPrjList" parameterClass="java.util.Map" resultClass="egovMap">
+			/* prj1000DAO.selectPrj1000AdminPrjList - 관리 권한 있는 프로젝트 목록 검색 */
+			SELECT 		B.PRJ_ID
+					, 	B.PRJ_NM
+					, 	COALESCE(B.PRJ_DESC,' ') AS PRJ_DESC
+			FROM
+			(
+				SELECT 	DISTINCT Z.PRJ_ID
+				FROM 	ADM1100 Z 
+						INNER JOIN ADM1300 X
+						ON(Z.PRJ_ID = X.PRJ_ID AND Z.AUTH_GRP_ID = X.AUTH_GRP_ID)
+				WHERE 1=1
+				AND Z.USR_TYP 		= '02'
+				AND Z.LIC_GRP_ID 	= #licGrpId#
+				AND USR_ID 			= #usrId#
+			) A
+			INNER JOIN PRJ1000 B
+			ON (A.PRJ_ID = B.PRJ_ID)
+			WHERE 1=1
+			AND B.USE_CD = '01'
+			ORDER BY B.ORD
+	</select>
+	
+	<!-- 프로젝트 마법사 생성 -->
+	<insert id="prj1000DAO.insertPrj1000PrjWizardAjax" parameterClass="java.util.Map">
+		<selectKey resultClass="java.lang.String" keyProperty="newPrjId">
+		<![CDATA[
+			SELECT	COALESCE(
+                        SUBSTR(NEW_PRJ_ID, 1, 11) || LPAD( (TO_NUMBER(SUBSTR(NEW_PRJ_ID, 12, 5)) + 1) , 5, '0')
+                    ,	'PRJ' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDD') || '00001'
+                ) AS NEW_PRJ_ID
+        	FROM	(
+                    SELECT	MAX(PRJ_ID)  AS NEW_PRJ_ID
+                    FROM	PRJ1000 A
+                    WHERE	1=1
+                    AND		A.PRJ_ID LIKE 'PRJ' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDD') || '%'
+                )
+		]]>
+		</selectKey>
+		/* prj1000DAO.insertPrj1000PrjWizardAjax - 프로젝트 마법사 생성 */
+		<![CDATA[
+			INSERT INTO PRJ1000
+			(
+	                PRJ_ID				,	PRJ_GRP_ID		,	LIC_GRP_ID		
+	            ,	PRJ_NM				,	START_DT		,	END_DT			
+	            ,	ORD					,	PRJ_DESC		,	USE_CD			,	PRJ_TYPE		,	PRJ_ACRM	
+	            ,	PRJ_GRP_CD 			,	REG_DTM			,	REG_USR_ID  	,	REG_USR_IP		,	MODIFY_DTM		
+	            ,	MODIFY_USR_ID		,	MODIFY_USR_IP
+	        )VALUES(
+	                #newPrjId#			,	#wizrd_prjGrpId#	,	#licGrpId#		
+	           	,	#wizard_prjNm#  	,	DATE_FORMAT(#wizard_startDt#,'%Y%m%d')	,	DATE_FORMAT(#wizard_endDt#,'%Y%m%d')	
+	            ,	#wizard_ord#		,	#wizard_prjDesc#						,	'01'		,	#wizard_prjType# 		,	#wizard_prjAcrm#
+	            ,	'02'				,	CURRENT_TIMESTAMP						,	#regUsrId#	,	#regUsrIp#				,	CURRENT_TIMESTAMP
+	            ,	#regUsrId#			,	#regUsrIp#
+	        )		
+		]]>
+	</insert>
+</sqlMap>

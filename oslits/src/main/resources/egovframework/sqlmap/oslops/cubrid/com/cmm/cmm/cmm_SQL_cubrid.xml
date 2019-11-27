@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+
+<sqlMap namespace="File">
+
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	
+
+ 	<select id="commonDAO.selectServerTime" parameterClass="java.util.Map" resultClass="java.lang.String" >
+ 		<![CDATA[
+			SELECT 
+			        TO_CHAR(CURRENT_TIMESTAMP,#format#) as server_time
+			   FROM db_root
+			
+			]]>
+ 	</select>
+ 	
+ 	<select id="commonDAO.selectDynamicComboBoxAjax" parameterClass="java.util.Map" resultClass="egovMap" >
+ 		<![CDATA[
+			  SELECT 
+			          $idColumn$ as combo_id
+			        , $nameColumn$ as combo_name
+			   FROM $tableName$
+			   where 1 = 1
+		]]>
+		<isNotEmpty property="condtion">
+			$condtion$
+		</isNotEmpty>		
+			
+ 	</select>
+ 	
+	
+</sqlMap>

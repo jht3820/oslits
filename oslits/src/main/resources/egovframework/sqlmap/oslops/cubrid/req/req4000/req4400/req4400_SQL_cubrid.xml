@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="req4400DAO">
+
+	<typeAlias alias="egovMap"	 	type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias alias="req4400VO"	type="kr.opensoftlab.oslops.req.req4000.req4400.vo.Req4400VO"/>
+
+	<!-- 요구사항 별 작업흐름 목록 -->
+	<sql id="req4400DAO.selectReq4400List">
+       SELECT A.PRJ_ID				,A.REQ_ID					,A.PROCESS_ID			,A.FLOW_ID
+			,	A.FLOW_NM
+			,	A.WORK_ID			,A.WORK_STATUS_CD			,A.WORK_ADM_CONTENT		,A.WORK_CONTENT
+			,	SF_ADM4100_COM_CD_INFO(#licGrpId#,'REQ00010',A.WORK_STATUS_CD,'1') AS WORK_STATUS_NM 
+			,	A.WORK_CHARGER_ID
+			,	SF_ADM2000_USR_INFO(A.WORK_CHARGER_ID,'1') AS WORK_CHARGER_NM
+			,	IFNULL(TO_CHAR(A.WORK_ADM_ST_DTM, 'YYYY-MM-DD') , '') WORK_ADM_ST_DTM
+			,	IFNULL(TO_CHAR(A.WORK_ADM_ED_DTM, 'YYYY-MM-DD') , '') WORK_ADM_ED_DTM
+			,	IFNULL(TO_CHAR(A.WORK_ST_DTM, 'YYYY-MM-DD') , '') WORK_ST_DTM
+			,	IFNULL(TO_CHAR(A.WORK_ED_DTM, 'YYYY-MM-DD') , '') WORK_ED_DTM
+			,	TO_CHAR(A.REG_DTM, 'YYYY-MM-DD HH24:MI:SS') AS REG_DTM
+		    ,	A.REG_USR_ID
+		    ,	SF_ADM2000_USR_INFO(A.REG_USR_ID,'1') AS REG_USR_NM
+		    ,	A.REG_USR_IP
+		    ,	TO_CHAR(A.MODIFY_DTM, 'YYYY-MM-DD HH24:MI:SS') AS MODIFY_DTM
+		    ,	A.MODIFY_USR_ID
+		    ,	SF_ADM2000_USR_INFO(A.MODIFY_USR_ID,'1') AS MODIFY_USR_NM
+		    ,	A.MODIFY_USR_IP
+		FROM
+		( 
+			SELECT D.*,
+					B.FLOW_NM
+			FROM REQ4400 D
+			LEFT JOIN FLW1100 B 
+			ON ( D.PRJ_ID = B.PRJ_ID AND D.PROCESS_ID = B.PROCESS_ID AND  D.FLOW_ID = B.FLOW_ID ) 
+		) A
+	    WHERE 1=1
+       <isNotEmpty property="selPrjId">
+			AND		A.PRJ_ID = #selPrjId#
+		</isNotEmpty>
+		<isEmpty property="selPrjId">
+			AND		A.PRJ_ID = #prjId#
+		</isEmpty>
+	</sql>
+     
+    <!-- 요구사항 작업흐름별 작업 목록 조회 (Grid page) -->
+    <select id="req4400DAO.selectReq4400ReqWorkList" parameterClass="req4400VO"  resultClass="egovMap" >
+	    /* req4400DAO.selectReq4400ReqWorkListInfo 요구사항 작업흐름별 작업 목록 조회(Grid page) */
+	    SELECT *
+		FROM
+			(
+	    		SELECT ROWNUM RN,
+	    			     T.*
+	    		FROM
+	    		(
+					<include refid="req4400DAO.selectReq4400List"/>
+					<isNotEmpty property="reqId">
+						AND A.REQ_ID = #reqId#
+					</isNotEmpty>
+					<isNotEmpty property="processId">
+						AND A.PROCESS_ID = #processId#
+					</isNotEmpty>
+					<isNotEmpty property="flowId">
+						AND A.FLOW_ID = #flowId#
+					</isNotEmpty>
+					<isNotEmpty property="workChargerId">
+						AND A.WORK_CHARGER_ID = #workChargerId#
+					</isNotEmpty>
+					ORDER BY A.REG_DTM DESC
+	    		) T
+	    	)
+	    	 WHERE RN BETWEEN (#firstIndex#+1) AND #lastIndex#
+    </select>
+   
+     <!-- 요구사항 작업흐름별 작업 목록 총건수(Grid page) -->
+    <select id="req4400DAO.selectReq4400ReqWorkListCnt" parameterClass="req4400VO"  resultClass="java.lang.Integer">
+	    /* req4400DAO.selectReq4400ReqWorkListInfoCnt 요구사항 작업흐름별 작업 목록 총건수(Grid page)*/
+	    SELECT
+				COUNT(*)
+		FROM(
+				<include refid="req4400DAO.selectReq4400List"/>
+				<isNotEmpty property="reqId">
+					AND A.REQ_ID = #reqId#
+				</isNotEmpty>
+				<isNotEmpty property="processId">
+					AND A.PROCESS_ID = #processId#
+				</isNotEmpty>
+				<isNotEmpty property="flowId">
+					AND A.FLOW_ID = #flowId#
+				</isNotEmpty>
+				<isNotEmpty property="workChargerId">
+					AND A.WORK_CHARGER_ID = #workChargerId#
+				</isNotEmpty>
+				ORDER BY A.REG_DTM DESC
+		) T1
+    </select>
+    
+    
+    
+    <!-- 요구사항 작업흐름별 작업 단건 조회-->
+    <select id="req4400DAO.selectReq4400ReqWorkInfo" parameterClass="java.util.Map"  resultClass="egovMap" >
+	    /* req4400DAO.selectReq4400ReqWorkInfo 요구사항 작업흐름별 작업 단건 조회 */
+		<include refid="req4400DAO.selectReq4400List"/>
+		AND A.REQ_ID = #reqId#
+		AND A.PROCESS_ID = #processId#
+		AND A.FLOW_ID = #flowId#
+		AND A.WORK_ID = #workId#
+		ORDER BY A.REG_DTM DESC
+    </select>
+    
+    <!--담당 작업 단건 조회-->
+    <select id="req4400DAO.selectReq4400ReqChargerWorkList" parameterClass="java.util.Map"  resultClass="egovMap" >
+	    /* req4400DAO.selectReq4400ReqChargerWorkList 담당 작업 단건 조회 */
+		<include refid="req4400DAO.selectReq4400List"/>
+		AND A.WORK_CHARGER_ID = #usrId#
+		ORDER BY A.REG_DTM DESC
+    </select>
+    
+    <!-- 작업 정보 등록 -->
+	<insert id="req4400DAO.insertReq4400ReqWorkInfoAjax" parameterClass="java.util.Map">
+		<selectKey resultClass="java.lang.String" keyProperty="newWorkId">
+		<![CDATA[
+			/* req4400DAO.insertReq4400ReqWorkInfoAjax - 작업 정보 등록(새로운 WORK_ID 따기)*/ 
+			SELECT	COALESCE( 
+							SUBSTR(NEW_WORK_ID, 1, 11) || LPAD( (TO_NUMBER(SUBSTR(NEW_WORK_ID, 12, 5)) + 1) , 5, '0')
+						,	'WOK' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDD') || '00001'
+            		) AS NEW_WORK_ID 
+			FROM	(
+			            SELECT	MAX(WORK_ID)  AS NEW_WORK_ID
+			            FROM	REQ4400 A
+			            WHERE	1=1
+                        AND		A.PRJ_ID = #prjId#
+                        AND		A.REQ_ID = #reqId#
+                        AND		A.PROCESS_ID = #processId#
+                        AND		A.FLOW_ID = #flowId#
+			            AND		A.WORK_ID LIKE 'WOK' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDD') || '%'
+					)
+		]]>
+		</selectKey>
+		<![CDATA[ 
+			/* req4400DAO.insertReq4400ReqWorkInfoAjax - 작업 정보 등록 */ 
+			INSERT INTO REQ4400
+			(
+			        PRJ_ID,				REQ_ID,				PROCESS_ID
+			        ,FLOW_ID,			WORK_ID,			WORK_STATUS_CD
+			        ,WORK_ADM_CONTENT,	WORK_CHARGER_ID,	WORK_ADM_ST_DTM,		WORK_ADM_ED_DTM
+			        ,REG_DTM,			REG_USR_ID,			REG_USR_IP
+			        ,MODIFY_DTM,		MODIFY_USR_ID,		MODIFY_USR_IP
+			)                    
+			VALUES
+			(
+					#prjId#,			#reqId#,			#processId#
+					,#flowId#,			#newWorkId#,		#workStatusCd#
+					,#workAdmContent#,		#workChargerId#
+					,TO_DATE(REPLACE(#workAdmStDtm#, '-',CHR(10)), 'YYYYMMDD')
+					,TO_DATE(REPLACE(#workAdmEdDtm#, '-',CHR(10)), 'YYYYMMDD')
+					,CURRENT_TIMESTAMP,			#regUsrId#,			#regUsrIp#
+					,CURRENT_TIMESTAMP,			#modifyUsrId#,		#modifyUsrIp#
+			)
+		]]>
+	</insert>
+	
+	<!-- 작업 정보 수정 -->
+	<update id="req4400DAO.updateReq4400ReqWorkInfoAjax" parameterClass="java.util.Map">
+		/* req4400DAO.updateReq4400ReqWorkInfoAjax - 작업 정보 수정 */ 
+		UPDATE 	REQ4400 A
+		SET	
+				<isNotEmpty property="workStatusCd">
+					<isEqual property="workStatusCd" compareValue="01">
+						WORK_ADM_CONTENT = #workAdmContent#
+						,	WORK_CHARGER_ID = #workChargerId#
+					    ,  	WORK_ADM_ST_DTM	= TO_DATE(REPLACE(#workAdmStDtm#, '-',CHR(10)), 'YYYYMMDD')
+					    ,  	WORK_ADM_ED_DTM	= TO_DATE(REPLACE(#workAdmEdDtm#, '-',CHR(10)), 'YYYYMMDD')
+					</isEqual>
+					<isEqual property="workStatusCd" compareValue="02">
+						WORK_CONTENT = #workContent#
+					    ,  	WORK_ST_DTM	= TO_DATE(REPLACE(#workStDtm#, '-',CHR(10)), 'YYYYMMDD')
+					    ,  	WORK_ED_DTM	= TO_DATE(REPLACE(#workEdDtm#, '-',CHR(10)), 'YYYYMMDD')
+						,	WORK_STATUS_CD = #workStatusCd#
+					</isEqual>
+				</isNotEmpty>
+			    ,	MODIFY_DTM		= CURRENT_TIMESTAMP
+			    ,	MODIFY_USR_ID	= #modifyUsrId#
+			    ,	MODIFY_USR_IP	= #modifyUsrIp#
+		WHERE	1=1
+		AND		A.PRJ_ID = #prjId#
+		AND		A.REQ_ID = #reqId#
+		AND		A.PROCESS_ID = #processId#
+		AND		A.FLOW_ID = #flowId#
+		AND		A.WORK_ID = #workId#
+	</update>
+	
+	<!-- 작업 정보 삭제 -->
+	<delete id="req4400DAO.deleteReq4400ReqWorkInfoAjax" parameterClass="java.util.Map" >
+		/* req4400DAO.deleteReq4400ReqWorkInfoAjax - 작업 정보 삭제 */ 
+		DELETE FROM REQ4400 A
+		WHERE	1=1
+		AND		A.PRJ_ID = #prjId#
+		AND		A.REQ_ID = #reqId#
+		AND		A.PROCESS_ID = #processId#
+		AND		A.FLOW_ID = #flowId#
+		AND		A.WORK_ID = #workId#
+	</delete>
+</sqlMap>

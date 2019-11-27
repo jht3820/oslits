@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="cmm1700DAO">
+	<typeAlias alias="cmm1700DAO"	type="kr.opensoftlab.oslops.cmm.cmm1000.cmm1700.vo.Cmm1700VO"/>
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	
+    
+    <resultMap id="cmm1700ResultMap" class="cmm1700DAO">
+   		<result property="licGrpId"       column="LIC_GRP_ID" /> 	<!-- 라이선스그룹 ID --> 
+		<result property="prjId"          column="PRJ_ID" /> 		<!-- 프로젝트 ID --> 
+		<result property="authGrpId"      column="AUTH_GRP_ID" /> 	<!-- 권한 그룹 ID --> 
+		<result property="authGrpNm"      column="AUTH_GRP_NM" /> 	<!-- 권한명 --> 
+		<result property="authGrpDesc"    column="AUTH_GRP_DESC" /> <!-- 권한설명 --> 
+		<result property="createDt"       column="CREATE_DT" /> 	<!-- 생성일자 --> 
+		<result property="useCd"          column="USE_CD" /> 		<!-- 사용여부(코드 : CMM00001) --> 
+		<result property="ord"            column="ORD" /> 			<!-- 권한순서 --> 
+		<result property="usrTyp"         column="USR_TYP" /> 		<!-- 사용자 유형(코드 : ADM00004) --> 
+    </resultMap>
+    	
+    <!-- 역할그룹 목록 조회 -->
+	<sql id = "selectCmm1700CommonAuthList">
+		SELECT
+				LIC_GRP_ID		/* 라이선스그룹 ID */ 
+		 	,	PRJ_ID			/* 프로젝트 ID */ 
+			,	AUTH_GRP_ID		/* 권한 그룹 ID */ 
+			,	AUTH_GRP_NM		/* 권한명 */ 
+			,	AUTH_GRP_DESC	/* 권한설명 */ 
+			,	CREATE_DT		/* 생성일자 */ 
+			,	USE_CD			/* 사용여부(코드 : CMM00001) */ 
+			,	ORD             /* 권한순서 */ 
+			,	USR_TYP			/* 사용자 유형(코드 : ADM00004) */ 
+		FROM ADM1100
+		WHERE 1=1
+		AND LIC_GRP_ID = #licGrpId# 
+		AND PRJ_ID = #prjId#
+		AND USE_CD = '01'		/* 사용유무가 사용인 권한그룹만 조회 */
+		<isNotEmpty property="searchPopTxt"> 
+    		AND AUTH_GRP_NM like '%' || #searchPopTxt#  ||'%' 
+    	</isNotEmpty>	
+	</sql>
+	
+	<!-- 역할그룹 목록 총 건수를 조회한다 : 그리드 페이징 처리 -->
+	<select id="cmm1700DAO.selectCmm1700CommonAuthListCnt" parameterClass="cmm1700DAO"  resultClass="java.lang.Integer">
+		/* cmm1700DAO.selectCmm1700CommonAuthListCnt 역할 목록 총 건수를 조회한다. : 그리드 페이징 */
+	<![CDATA[
+	    SELECT	COUNT(*)
+		FROM
+		(
+	]]>
+			<include refid="selectCmm1700CommonAuthList" />
+	<![CDATA[
+		) A
+	]]>
+    </select>
+    
+    <!-- 역할그룹 목록을 조회한다. -->
+    <select id="cmm1700DAO.selectCmm1700CommonAuthList" parameterClass="cmm1700DAO"  resultMap="cmm1700ResultMap">
+    	/* cmm1700DAO.selectCmm1700CommonAuthList 공통팝업 : 역할그룹 목록을 조회한다. */
+    <![CDATA[
+		SELECT	*
+		FROM
+		(
+			SELECT	ROWNUM RN
+				,	A.*
+    		FROM 
+    		(
+    ]]>
+    			<include refid="selectCmm1700CommonAuthList" />
+    <![CDATA[
+    		) A
+		)
+		WHERE  RN BETWEEN (#firstIndex#+1) AND #lastIndex#
+		ORDER BY ORD
+	]]>
+    </select>
+	
+	
+	
+	
+</sqlMap>            

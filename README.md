@@ -1,3 +1,11 @@
+
+[![HitCount](http://hits.dwyl.io/jht3820/jht3820/oslits.svg)](http://hits.dwyl.io/jht3820/jht3820/oslits)
+[![GitHub issues](https://img.shields.io/github/issues/jht3820/oslits)](https://github.com/jht3820/oslits/issues)
+[![GitHub forks](https://img.shields.io/github/forks/jht3820/oslits)](https://github.com/jht3820/oslits/network)
+[![GitHub stars](https://img.shields.io/github/stars/jht3820/oslits)](https://github.com/jht3820/oslits/stargazers)
+[![GitHub license](https://img.shields.io/github/license/jht3820/oslits)](https://github.com/jht3820/oslits/blob/master/LICENSE)
+[![Build Status](https://travis-ci.org/jht3820/oslits.svg?branch=master)](https://travis-ci.org/jht3820/oslits)
+
 # 1. OSL ™ ITS Introduction
 
 - OSL ™ ITS is an open source based solution that can solve problems of existing inefficient business management (non-standard and budget duplication) and improve SW quality.
@@ -130,8 +138,13 @@ You can cancel the process but you cannot cancel the process if there is only on
 
 2. Check the processing status of the registered requirement.
 
+
 # 5. Contributing
-- Fork to modify or update the content, then modify and request with Pull Request!
+
+Join the project, ask questions about the project, discuss the  [Google Group](https://groups.google.com/forum/#!forum/opensoftlab-github-group)
+
+  -Go to the group site and log in with your Google account and apply for membership.
+  -After approval of membership, you can join the group.
 
 # 6. License Information
 

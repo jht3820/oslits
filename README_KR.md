@@ -1,3 +1,11 @@
+
+[![HitCount](http://hits.dwyl.io/jht3820/jht3820/oslits.svg)](http://hits.dwyl.io/jht3820/jht3820/oslits)
+[![GitHub issues](https://img.shields.io/github/issues/jht3820/oslits)](https://github.com/jht3820/oslits/issues)
+[![GitHub forks](https://img.shields.io/github/forks/jht3820/oslits)](https://github.com/jht3820/oslits/network)
+[![GitHub stars](https://img.shields.io/github/stars/jht3820/oslits)](https://github.com/jht3820/oslits/stargazers)
+[![GitHub license](https://img.shields.io/github/license/jht3820/oslits)](https://github.com/jht3820/oslits/blob/master/LICENSE)
+[![Build Status](https://travis-ci.org/jht3820/oslits.svg?branch=master)](https://travis-ci.org/jht3820/oslits)
+
 # 1. OSL™ ITS 소개
 
 - OSL™ ITS는 기존 비효율적 사업 관리의 문제점(비표준 및 예산중복)을 해결하고 SW 품질을 향상시킬 수 있는 오픈소스 기반의 
@@ -131,8 +139,15 @@ SW구축 · 운영 통합관리 솔루션입니다. SW 구축 · 운영 전 생�
 2. 등록한 요구사항의 처리 현황을 확인합니다.
 
 
+# 5. 사용자 그룹
 
-# 5. 라이센스 정보
+프로젝트 참여 및 프로젝트에 대한 질문, 토론 [구글 그룹](https://groups.google.com/forum/#!forum/opensoftlab-github-group) 참여
+
+ - 그룹 사이트로 이동하여 구글 계정으로 로그인 후 회원가입 신청을 합니다.
+ - 회원가입 승인 후 그룹에 참여 가능합니다.
+
+
+# 6. 라이센스 정보
 
 
 - OSL™ ITS는 GPL3.0 라이센스를 사용합니다. ([GPL3.0 라이센스 정보](https://www.olis.or.kr/license/Detailselect.do?lId=1072))

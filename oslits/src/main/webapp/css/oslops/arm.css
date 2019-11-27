@@ -1,0 +1,31 @@
+@charset "UTF-8";
+/* arm1000 */
+.armHeader {width:100%;height: 40px;background-color: #4b73eb;border-bottom: 1px solid #ccc;color:#fff;line-height:40px;padding-left: 30px;}
+.armBody {height: 600px;border-bottom: 1px solid #ccc;padding: 10px;}
+div#AXAlarmSearchTarget {border: 1px solid #ccc;border-bottom: none;font-size: 10pt;}
+.armFooter {height: 60px;padding: 10px;text-align: center;font-size: 0.8em;border-top: 1px solid #adabab;}
+#AXSearchTarget {height: 40px;}
+.arm_close_btn{width: 101px;height: 40px;line-height: 36px;text-align: center;font-weight: bold;display: inline-block;border-radius: 5px;box-shadow: 1px 1px 1px #ccd4eb;border: 1px solid #b8b8b8;cursor: pointer;background-color: #fff;color: #000;margin: 0 10px;}
+.armViewMain {position: absolute;top: 40px;left: 0;width: 100%;height: 660px;background-color: #fff;display:none;font-size: 0.8em;padding: 10px 10px 0 10px;}
+.armViewHeaderLeft {width: 580px;border-bottom: 2px solid #ccc;float: left;border-left: 1px solid #ccc;border-top: 1px solid #ccc;}
+.armViewHeaderRight {width: 400px;float: left;height: 129px;border-bottom: 2px solid #ccc;padding: 5px;overflow-y: scroll;border-top: 1px solid #ccc;border-right: 1px solid #ccc;}
+.armViewBody {float: left;height: 462px;width: 100%;border: 1px solid #adabab;border-bottom: none;padding: 5px;overflow-y: scroll;word-break: break-all;line-height: 20px;}
+.armViewFooter, .armWriteFooter {float: left;width:100%;height: 60px;padding: 10px;text-align: center;border-top: 1px solid #adabab;}
+.viewHeaderLeft {float: left;width: 100px;padding: 8px;border-bottom: 1px solid #ccc;border-right: 1px solid #ccc;font-weight: bold;background-color: #ecf0fb;height: 33px;}
+.viewHeaderRight {float: left;width: 477px;padding: 8px;border-bottom: 1px solid #ccc;border-right: 1px solid #ccc;height: 33px;word-break: break-all;overflow-y: auto;}
+.armWriteMain {position: absolute;top: 40px;left: 0;width: 100%;height: 660px;background-color: #fff;font-size: 0.8em;padding: 10px 10px 0 10px;}
+.writeHeaderLeft {float: left;width: 280px;padding: 8px;border-bottom: 1px solid #ccc;border-right: 1px solid #ccc;font-weight: bold;height: 40px;background-color: #ecf0fb;padding-left: 30px;line-height: 20px;}
+.writeHeaderRight {float: left;width: 698px;padding: 4px;border-bottom: 1px solid #ccc;border-right: 1px solid #ccc;height: 40px;}
+.writeHeaderRight>input {width: 100%;height: 100%;}
+.writeHeaderRight>.arm_input_text {width: 150px;height: 100%;float: left;margin-right: 5px;}
+.armWriteBody {width: 100%;height: 380px;border: 1px solid #ccc;}
+.armWriteHeader {width: 100%;height: 210px;border: 1px solid #ccc;border-bottom: none;}
+textarea.subContent {width: 100%;height: 379px;resize: none;padding: 5px;border: none;}
+select#sendUsrId{width:100px;}
+.writeHeaderCenter {width: 100%;height: 90px;display: inline-block;border-bottom: 1px solid #ccc;overflow-y: scroll;padding: 0 5px;}
+span#tagReqId {line-height: 35px;padding: 4px;border: 1px solid #ccc;border-radius: 5px;margin-right: 4px;}
+span#tagReqId:hover {background-color: #ccc;cursor:pointer;color: #fff;}
+span#tagReqId > .fa{margin-left:5px;}
+span#tagDplId {line-height: 35px;padding: 4px;border: 1px solid #ccc;border-radius: 5px;margin-right: 4px;}
+span#tagDplId:hover {background-color: #ccc;cursor:pointer;color: #fff;}
+span#tagDplId > .fa{margin-left:5px;}
