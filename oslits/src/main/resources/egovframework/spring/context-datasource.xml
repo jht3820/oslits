@@ -9,45 +9,18 @@
 	<context:property-placeholder location="classpath:/egovframework/egovProps/globals.properties" />
 	
 	<!-- DataSource -->
-	<alias name="dataSource-${Globals.DbType}" alias="oslits.dataSource"/>
+	<alias name="dataSource-${Globals.DbType}" alias="oslops.dataSource"/>
     <alias name="dataSource-${Globals.DbType}" alias="dataSource"/>
-	
-    <!-- oslits DB DataSource -->
-    <!-- property 암호화 적용 데이터소스 -->
-	<bean id="dataSource-oracle" class="kr.opensoftlab.sdf.commons.dbcp.BasicDataSourceEnDe" destroy-method="close">
-        <property name="driverClassName" 		value="${Globals.oslits.driver}"/>
-        <property name="url" 					value="${Globals.oslits.url}"/>
-        <property name="username" 				value="${Globals.oslits.username}"/>
-        <property name="password" 				value="${Globals.oslits.password}"/>
-      	<property name="maxActive" 				value="${Globals.oslits.maxActive}" />
-		<property name="maxIdle" 				value="${Globals.oslits.maxIdle}" />
-		<property name="maxWait" 				value="${Globals.oslits.maxWait}" />
-		<property name="validationQuery" 		value="${Globals.oslits.validationQuery}"/>
-		<property name="validationQueryTimeout" value="${Globals.oslits.validationQueryTimeout}"/>
-		<property name="connectionInitSqls">
-			<list>
-				<value>ALTER SESSION SET NLS_DATE_FORMAT='YYYY/MM/DD HH24:MI:SS'</value>
-			</list>
-		</property>
+    <bean id="dataSource-cubrid" class="kr.opensoftlab.sdf.commons.dbcp.BasicDataSourceEnDe" destroy-method="close">
+        <property name="driverClassName" 		value="${Globals.lunaops.cubrid.driver}"/>
+        <property name="url" 					value="${Globals.lunaops.cubrid.url}"/>
+        <property name="username" 				value="${Globals.lunaops.cubrid.username}"/>
+        <property name="password" 				value="${Globals.lunaops.cubrid.password}"/>
+      	<property name="maxActive" 				value="${Globals.lunaops.maxActive}" />
+		<property name="maxIdle" 				value="${Globals.lunaops.maxIdle}" />
+		<property name="maxWait" 				value="${Globals.lunaops.maxWait}" />
+		<property name="validationQuery" 		value="${Globals.lunaops.cubrid.validationQuery}"/>
+		<property name="validationQueryTimeout" value="${Globals.lunaops.validationQueryTimeout}"/>
     </bean>
-    
-    <!-- 
-    <bean id="dataSource-oracle" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <property name="driverClassName" 	value="${Globals.oslits.driver}"/>
-        <property name="url" 				value="${Globals.oslits.url}"/>
-        <property name="username" 			value="${Globals.oslits.username}"/>
-        <property name="password" 			value="${Globals.oslits.password}"/>
-      	<property name="maxActive" 			value="${Globals.oslits.maxActive}" />
-		<property name="maxIdle" 			value="${Globals.oslits.maxIdle}" />
-		<property name="maxWait" 			value="${Globals.oslits.maxWait}" />
-		<property name="validationQuery" 		value="${Globals.oslits.validationQuery}"/>
-		<property name="validationQueryTimeout" value="${Globals.oslits.validationQueryTimeout}"/>
-		<property name="connectionInitSqls">
-			<list>
-				<value>ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'</value>
-			</list>
-		</property>
-    </bean>
-    -->
      
 </beans>
