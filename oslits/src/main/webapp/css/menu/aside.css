@@ -6,7 +6,7 @@ label[for='m_project_select'],
 label[fot='prj_select_box']{ display: none; }
 .LNB_project_select { width: 100%; height: 28px; margin-top: 17px; background-color: #414352; color: #fff; }
 .fill{margin-left:0;}
-aside{ width:240px; vertical-align:top; transition:all .2s; float:left;background-color:#414352;clear:both;;}
+aside{ width:240px; vertical-align:top; transition:all .2s; float:left;background-color:#414352;clear:both;box-shadow: 0 1px 2px rgba(0,0,0,.12), 0 1px 1px rgba(0,0,0,.24);}
 aside.hide{ margin-left:-240px;     float: left;position:static;}
 aside .m_btn{ height:0; overflow:hidden; }
 aside .title_wrap{ width:100%; height:90px; display:table; background:#3c3e4b; color:white; }
@@ -38,11 +38,11 @@ aside dl dt.option{ height:33px; line-height:28px; background:#333540;  }
 aside dl dt.option span{ display:inline-block; width:50%; text-align:center; font-size:0.75em; vertical-align:inherit; cursor:pointer; }
 aside dl dt.option span:nth-child(1){ border-right:1px solid rgba(255,255,255,0.2); }
 aside dl dt.menu:hover{ background:#494b5c; cursor:pointer; }
-aside dl dt.menu span{ display:inline-block; vertical-align:middle; font-size:0.875em; }
+aside dl dt.menu span{ display:inline-block; vertical-align:middle; font-size:10pt; }
 aside dl dt.menu span:nth-child(1) img{ line-height:normal; margin-right:10px; width:16px; height:14px; }
 aside dl dt.menu span:nth-child(1) i{ line-height:normal; margin-right:10px; width:16px; height:14px; }
 aside dl dt.menu span:nth-child(2){ width:127px; margin-top: -4px; line-height:20px; }
-aside dl dt.menu span:nth-child(3){ width:30px; height:15px; line-height:12px; margin-left:10px; background:red; border-radius:10px; border:1px solid red; text-align:center; color:white; }
+aside dl dt.menu span:nth-child(3){ width:30px; height:25px; line-height:22px; margin-left:10px; background:red; border-radius:15px; border:1px solid red; text-align:center; color:white; }
 aside dl dt.menu > span > .logoutImg{width: 28px !important;height: 26px !important;margin-right: 0 !important;}
 aside dl dd{ line-height:normal; padding:20px 0 20px 40px; background:#313540; color:white; display:none; }
 aside dl dd > div{ margin-top:20px; }
@@ -128,7 +128,17 @@ aside dl dt.logintime{
 
 aside dl dt.usrInfo{
 	line-height: inherit;
-    height: 110px;
+    height: 130px;
+    padding: 6px 16px;
+    border-top: 1px solid #5b5d69;
+    background: #414352;
+    color: white;
+    border-bottom: 1px solid #2f3035; 
+}
+
+aside dl dt.ipInfo{
+	line-height: inherit;
+    height: 105px;
     padding: 6px 16px;
     border-top: 1px solid #5b5d69;
     background: #414352;
@@ -150,5 +160,20 @@ aside dl dt.usrInfo .usrInfo_txt{
 }
 
 aside dl dt.logintime .logintime_txt{
+	padding-top: 10px;
+}
+
+aside dl dt.ipInfo span {
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 0.875em;
+}
+
+aside dl dt.ipInfo .currentIp {
+    padding-top: 10px;
+}
+
+aside dl dt.ipInfo .ipInfo_txt{
+	width: 100%; 
 	padding-top: 10px;
 }
