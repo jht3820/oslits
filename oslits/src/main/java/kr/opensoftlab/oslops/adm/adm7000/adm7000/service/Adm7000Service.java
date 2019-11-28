@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.adm.adm7000.adm7000.service;
+package kr.opensoftlab.oslops.adm.adm7000.adm7000.service;
 
 import java.util.List;
 import java.util.Map;

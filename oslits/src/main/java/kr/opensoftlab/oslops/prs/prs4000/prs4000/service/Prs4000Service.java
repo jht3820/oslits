@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.prs.prs4000.prs4000.service;
+package kr.opensoftlab.oslops.prs.prs4000.prs4000.service;
 
 import java.util.List;
 import java.util.Map;

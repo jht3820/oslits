@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.req.req4500.req4500.web;
+package kr.opensoftlab.oslops.req.req4500.req4500.web;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -12,13 +12,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import kr.opensoftlab.oslits.com.fms.web.service.FileMngService;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.oslits.req.req1000.req1000.service.Req1000Service;
-import kr.opensoftlab.oslits.req.req4000.req4100.service.Req4100Service;
-import kr.opensoftlab.oslits.req.req4000.req4100.vo.Req4100VO;
-import kr.opensoftlab.oslits.req.req4000.req4800.service.Req4800Service;
-import kr.opensoftlab.oslits.req.req4500.req4500.service.Req4500Service;
+import kr.opensoftlab.oslops.com.fms.web.service.FileMngService;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.oslops.req.req1000.req1000.service.Req1000Service;
+import kr.opensoftlab.oslops.req.req4000.req4100.service.Req4100Service;
+import kr.opensoftlab.oslops.req.req4000.req4100.vo.Req4100VO;
+import kr.opensoftlab.oslops.req.req4000.req4800.service.Req4800Service;
+import kr.opensoftlab.oslops.req.req4500.req4500.service.Req4500Service;
 import kr.opensoftlab.sdf.util.ReqHistoryMngUtil;
 import kr.opensoftlab.sdf.util.RequestConvertor;
 
@@ -65,10 +65,6 @@ public class Req4500Controller {
 	/** Req4500Service DI */
     @Resource(name = "req4500Service")
     private Req4500Service req4500Service;
-
-    /** Req4500Service DI */
-    @Resource(name = "req4800Service")
-    private Req4800Service req4800Service;
 	
 	/** EgovMessageSource */
 	@Resource(name = "egovMessageSource")
@@ -81,23 +77,9 @@ public class Req4500Controller {
 	/** TRACE */
 	@Resource(name = "leaveaTrace")
 	LeaveaTrace leaveaTrace;
-	
-	/** FileMngService */
-   	@Resource(name="fileMngService")
-   	private FileMngService fileMngService;
 		
 	@Value("${Globals.fileStorePath}")
 	private String tempPath;
-
-	/** EgovFileMngUtil - 파일 업로드 Util */
-	@Resource(name="EgovFileMngUtil")
-	private EgovFileMngUtil fileUtil;
-	
-	@Resource(name = "egovFileIdGnrService")
-	private EgovIdGnrService idgenService;
-	
-	@Resource(name = "historyMng")
-	private ReqHistoryMngUtil historyMng;
 	
 	/**
 	 * Req4500 화면 이동
@@ -198,23 +180,46 @@ public class Req4500Controller {
 
 	}
 	
-	public void setServerPage(List selectList,int pageSize, int currentPage,ModelMap model ){
+	/**
+	 * Req4500 화면에 요구사항 이력을 구하여 해당 수만큼 이력을 보여준다. 
+	 * @param selectList 조회된 데이터 리스트
+	 * @param pageSize 페이지 사이즈
+	 * @param currentPage 현제 페이지
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void setServerPage(List selectList,int pageSize, int currentPage, ModelMap model ){
+		
+		// 조회된 데이터 사이즈를 가져온다.
 		int selectListSize = selectList.size();
+		
 		List list = new ArrayList();
-		int lastIndex= pageSize  * currentPage ;
-		int firstIndex= pageSize  * (currentPage -1);
-		boolean isNextView = false;
+		
+		// 첫번째 인덱스, 마지막 인덱스를 구한다.
+		int firstIndex = pageSize  * (currentPage -1);
+		int lastIndex = pageSize  * currentPage ;
+		
+		// 더보기 버튼 표시유무
+		boolean isNextView = true;
+		
+		// 다음 페이지 번호
 		int nextPage = currentPage + 1;
+		
+		// 마지막 인덱스가 조회된 데이터 수보다 작을 경우
+		// 마지막 인덱스 = 조회된 데이터 수, 더보기 버튼 표시하지 않음
 		if(lastIndex >= selectListSize){
 			lastIndex = selectListSize;
-			isNextView = true;
+			isNextView = false;
 		}
-		
+
+		// firstIndex, lastIndex 수만큼 데이터를 세팅
 		for (int i = firstIndex; i < lastIndex; i++) {
 			list.add(selectList.get(i));
 		}
 		
-		//데이터 전달
+		// 세팅된 데이터 전달
 		model.addAttribute("isNextView",isNextView);
 		model.addAttribute("nextPage",nextPage);
 		model.addAttribute("reqList",list);

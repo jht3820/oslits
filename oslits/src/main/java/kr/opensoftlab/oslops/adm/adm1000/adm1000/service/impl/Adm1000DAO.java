@@ -1,9 +1,9 @@
-package kr.opensoftlab.oslits.adm.adm1000.adm1000.service.impl;
+package kr.opensoftlab.oslops.adm.adm1000.adm1000.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.com.dao.ComOslitsAbstractDAO;
 
 import org.springframework.stereotype.Repository;
 
@@ -119,8 +119,8 @@ public class Adm1000DAO extends ComOslitsAbstractDAO {
 	 * @exception Exception
 	 */
 	@SuppressWarnings({ "rawtypes" })
-	public int saveAdm1000AuthGrpMenuAuthListAjax(Map paramMap) throws Exception{
-		return update("adm1000DAO.saveAdm1000AuthGrpMenuAuthListAjax", paramMap);
+	public void saveAdm1000AuthGrpMenuAuthListAjax(Map paramMap) throws Exception{
+		select ("adm1000DAO.saveAdm1000AuthGrpMenuAuthListAjax", paramMap);
 	}
 	
 	/**

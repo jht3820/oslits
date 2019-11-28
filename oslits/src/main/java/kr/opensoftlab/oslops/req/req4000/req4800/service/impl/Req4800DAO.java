@@ -1,9 +1,9 @@
-package kr.opensoftlab.oslits.req.req4000.req4800.service.impl;
+package kr.opensoftlab.oslops.req.req4000.req4800.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.com.dao.ComOslitsAbstractDAO;
 
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.prs.prs2000.prs2000.web;
+package kr.opensoftlab.oslops.prs.prs2000.prs2000.web;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,9 +10,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.oslits.prs.prs2000.prs2000.service.Prs2000Service;
-import kr.opensoftlab.oslits.prs.prs2000.prs2000.vo.Prs2000VO;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.oslops.prs.prs2000.prs2000.service.Prs2000Service;
+import kr.opensoftlab.oslops.prs.prs2000.prs2000.vo.Prs2000VO;
 import kr.opensoftlab.sdf.excel.BigDataSheetWriter;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 import kr.opensoftlab.sdf.excel.Metadata;

@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.stm.stm9000.stm9000.service.impl;
+package kr.opensoftlab.oslops.stm.stm9000.stm9000.service.impl;
 
 
 
@@ -7,10 +7,10 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.stm.stm1000.stm1000.service.Stm1000Service;
-import kr.opensoftlab.oslits.stm.stm1000.stm1000.vo.Stm1000VO;
-import kr.opensoftlab.oslits.stm.stm9000.stm9000.service.Stm9000Service;
-import kr.opensoftlab.oslits.stm.stm9000.stm9000.vo.Stm9000VO;
+import kr.opensoftlab.oslops.stm.stm1000.stm1000.service.Stm1000Service;
+import kr.opensoftlab.oslops.stm.stm1000.stm1000.vo.Stm1000VO;
+import kr.opensoftlab.oslops.stm.stm9000.stm9000.service.Stm9000Service;
+import kr.opensoftlab.oslops.stm.stm9000.stm9000.vo.Stm9000VO;
 
 import org.springframework.stereotype.Service;
 

@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.req.req4000.req4000.web;
+package kr.opensoftlab.oslops.req.req4000.req4000.web;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import kr.opensoftlab.oslits.req.req4000.req4000.service.Req4000Service;
+import kr.opensoftlab.oslops.req.req4000.req4000.service.Req4000Service;
 import kr.opensoftlab.sdf.excel.BigDataSheetWriter;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 import kr.opensoftlab.sdf.excel.Metadata;
@@ -159,6 +159,17 @@ public class Req4000Controller {
 			//리퀘스트에서 넘어온 파라미터를 맵으로 세팅
 			Map paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
 
+			String prjId = (String) paramMap.get("prjId");
+        	
+    		//prjId없는경우 세션에서 가져와서 넣기
+    		if(prjId != null && !"".equals(prjId)){
+    			//selPrjId제거
+    			paramMap.remove("selPrjId");
+    			
+    			//param prjId put
+    			paramMap.put("selPrjId", prjId);
+    		}
+    		
 			//요구사항 분류목록 가져오기
 			List<Map> reqClsList = (List) req4000Service.selectReq4000ReqClsList(paramMap);
 
@@ -192,6 +203,17 @@ public class Req4000Controller {
 			// request 파라미터를 map으로 변환
 			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
 
+			String prjId = (String) paramMap.get("prjId");
+        	
+    		//prjId없는경우 세션에서 가져와서 넣기
+    		if(prjId != null && !"".equals(prjId)){
+    			//selPrjId제거
+    			paramMap.remove("selPrjId");
+    			
+    			//param prjId put
+    			paramMap.put("selPrjId", prjId);
+    		}
+    		
 			//분류정보조회
 			Map<String, String> menuInfoMap = (Map) req4000Service.selectReq4000ReqClsInfo(paramMap);
 
@@ -244,33 +266,35 @@ public class Req4000Controller {
 	}
 
 	/**
-	 * Req4000 요구사항 분류정보 삭제(단건) AJAX
+	 * Req4000 요구사항 분류정보 삭제 AJAX
 	 * 분류정보 삭제 처리
 	 * @param 
 	 * @return 
 	 * @exception Exception
 	 */
-	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/req/req4000/req4000/deleteReq4000ReqClsInfoAjax.do")
 	public ModelAndView deleteAdm1000MenuInfoAjax(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
 
 		try{
-
 			//request 파라미터를 map으로 변환
-			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
+			Map<String, Object> paramMap = RequestConvertor.requestParamToMapAddSelInfoList(request, true,"reqClsId");
 
-			//분류 삭제
-			Map rsltMap = req4000Service.deleteReq4000ReqClsInfo(paramMap);
-			String delYn = (String) rsltMap.get("delYn");
+			// 분류 삭제여부 체크
+			List<String> notDelReqClsList = req4000Service.deleteReq4000ReqClsAssignChk(paramMap);
 
-			//삭제 가능 여부가 불가능이면 모델맵에 세팅
-			if("N".equals(delYn)){
-				model.addAttribute("saveYN", "N");
+			// 요구사항 배정된 분류 가 1건이라도 있을경우
+			if(notDelReqClsList.size() > 0){
+				model.addAttribute("errorYn", "Y");
+				model.addAttribute("notDelReqClsList", notDelReqClsList);
 				model.addAttribute("message", egovMessageSource.getMessage("req4000.reqClsDeleteReason.fail"));
 				return new ModelAndView("jsonView");
 			}
 
-			//등록 성공 메시지 세팅
+			// 요구사항 분류 삭제
+			req4000Service.deleteReq4000ReqClsInfo(paramMap);
+			
+			// 삭제성공여부 및 삭제성공 메시지 세팅
+			model.addAttribute("errorYn", "N");
 			model.addAttribute("message", egovMessageSource.getMessage("success.common.delete"));
 
 			return new ModelAndView("jsonView");
@@ -278,8 +302,8 @@ public class Req4000Controller {
 		catch(Exception ex){
 			Log.error("deleteAdm1000MenuInfoAjax()", ex);
 
-			//삭제실패 메시지 세팅 및 저장 성공여부 세팅
-			model.addAttribute("saveYN", "N");
+			// 삭제실패여부 및 삭제실패 메시지 세팅
+			model.addAttribute("errorYn", "Y");
 			model.addAttribute("message", egovMessageSource.getMessage("fail.common.delete"));
 			return new ModelAndView("jsonView");
 		}
@@ -333,12 +357,13 @@ public class Req4000Controller {
 
 		//엑셀 다운로드 양식의 헤더명 선언
 		String strPrjId = egovMessageSource.getMessage("excel.prjId");
+		String strPrjNm = egovMessageSource.getMessage("excel.prjNm");
 		String strReqClsId = egovMessageSource.getMessage("excel.reqClsId");
 		String strUpperReqClsId = egovMessageSource.getMessage("excel.upperReqClsId");
 		String strReqClsNm = egovMessageSource.getMessage("excel.reqClsNm");
 		String strLvl = egovMessageSource.getMessage("excel.lvl");
 		String strOrd = egovMessageSource.getMessage("excel.ord");
-		SheetHeader header = new SheetHeader(new String[]{strPrjId, strReqClsId, strUpperReqClsId, strReqClsNm, strLvl, strOrd});
+		SheetHeader header = new SheetHeader(new String[]{strPrjId, strPrjNm, strReqClsId, strUpperReqClsId, strReqClsNm, strLvl, strOrd});
 		
 		/* 조회되는 데이터와 포멧 지정 
 		 * ex 1. 수치형 new Metadata("property", XSSFCellStyle.ALIGN_RIGHT, "#,##0")
@@ -346,6 +371,7 @@ public class Req4000Controller {
 		 * */
 		List<Metadata> metadatas = new ArrayList<Metadata>(); 
 		metadatas.add(new Metadata("prjId"));
+		metadatas.add(new Metadata("prjNm"));
 		metadatas.add(new Metadata("reqClsId"));
 		metadatas.add(new Metadata("upperReqClsId"));
 		metadatas.add(new Metadata("reqClsNm"));

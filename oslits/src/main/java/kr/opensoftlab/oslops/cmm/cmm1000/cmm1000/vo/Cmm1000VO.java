@@ -1,6 +1,6 @@
-package kr.opensoftlab.oslits.cmm.cmm1000.cmm1000.vo;
+package kr.opensoftlab.oslops.cmm.cmm1000.cmm1000.vo;
 
-import kr.opensoftlab.oslits.com.vo.PageVO;
+import kr.opensoftlab.oslops.com.vo.PageVO;
 import kr.opensoftlab.sdf.excel.annotation.ExcelColumn;
 
 /**
@@ -35,6 +35,14 @@ public class Cmm1000VO extends PageVO {
 	/** 사용자 사용여부 */
 	@ExcelColumn(position=6)
 	private String useCd;
+
+	//직책
+	private String usrPositionCd;
+	private String usrPositionNm;
+	
+	//직급
+	private String usrDutyCd;
+	private String usrDutyNm;
 	
 	/** 조직명(쿼리로 생성) */
 	private String deptName;
@@ -47,6 +55,20 @@ public class Cmm1000VO extends PageVO {
 	private String authGrpNm;
 
 	private String authGrpIds;
+	
+	private String acceptUseCd;
+
+	// 큐브리드 java function에서 사용자 권한그룹 명을 조회하기 위해 사용하는 값
+	// (큐브리드에서 group_concat 사용불가로 별도로 권한그룹 명 조회 함수 생성하여 사용)
+	private String authGrpIdList;
+	
+	public String getAcceptUseCd() {
+		return acceptUseCd;
+	}
+
+	public void setAcceptUseCd(String acceptUseCd) {
+		this.acceptUseCd = acceptUseCd;
+	}
 
 	public String getAuthGrpIds() {
 		return authGrpIds;
@@ -163,4 +185,44 @@ public class Cmm1000VO extends PageVO {
 		this.searchPopTxt = searchPopTxt;
 	}
 
+	public String getAuthGrpIdList() {
+		return authGrpIdList;
+	}
+
+	public void setAuthGrpIdList(String authGrpIdList) {
+		this.authGrpIdList = authGrpIdList;
+	}
+	public String getUsrPositionCd() {
+		return usrPositionCd;
+	}
+
+	public void setUsrPositionCd(String usrPositionCd) {
+		this.usrPositionCd = usrPositionCd;
+	}
+
+	public String getUsrPositionNm() {
+		return usrPositionNm;
+	}
+
+	public void setUsrPositionNm(String usrPositionNm) {
+		this.usrPositionNm = usrPositionNm;
+	}
+
+	public String getUsrDutyCd() {
+		return usrDutyCd;
+	}
+
+	public void setUsrDutyCd(String usrDutyCd) {
+		this.usrDutyCd = usrDutyCd;
+	}
+
+	public String getUsrDutyNm() {
+		return usrDutyNm;
+	}
+
+	public void setUsrDutyNm(String usrDutyNm) {
+		this.usrDutyNm = usrDutyNm;
+	}
+
+	
 }

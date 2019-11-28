@@ -1,9 +1,9 @@
-package kr.opensoftlab.oslits.adm.adm5000.adm5000.service;
+package kr.opensoftlab.oslops.adm.adm5000.adm5000.service;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.adm.adm5000.adm5000.vo.Adm5000VO;
+import kr.opensoftlab.oslops.adm.adm5000.adm5000.vo.Adm5000VO;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 
 public interface Adm5000Service {

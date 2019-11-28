@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.adm.adm2000.adm2000.service.impl;
+package kr.opensoftlab.oslops.adm.adm2000.adm2000.service.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,10 +7,10 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.adm.adm2000.adm2000.service.Adm2000Service;
-import kr.opensoftlab.oslits.adm.adm2000.adm2000.vo.Adm2000VO;
-import kr.opensoftlab.oslits.adm.adm5000.adm5200.service.impl.Adm5200DAO;
-import kr.opensoftlab.oslits.arm.arm1000.arm1000.service.impl.Arm1000DAO;
+import kr.opensoftlab.oslops.adm.adm2000.adm2000.service.Adm2000Service;
+import kr.opensoftlab.oslops.adm.adm2000.adm2000.vo.Adm2000VO;
+import kr.opensoftlab.oslops.adm.adm5000.adm5200.service.impl.Adm5200DAO;
+import kr.opensoftlab.oslops.arm.arm1000.arm1000.service.impl.Arm1000DAO;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 
 import org.json.simple.JSONArray;
@@ -298,6 +298,11 @@ public class Adm2000ServiceImpl extends EgovAbstractServiceImpl implements Adm20
 		paramMap.put("enUsrPw", enUsrPw);
 		paramMap.put("iniYn", "Y");
 		adm2000DAO.updateAdm2000AccountInit(paramMap);
+		
+		// 비밀번호 초기화시 변경이력 등록
+		paramMap.put("logState", "U");
+		paramMap.put("pwChangeState", "Y");
+		adm5200DAO.insertAdm5200UserChangeLog(paramMap);
 	}
 	
 }

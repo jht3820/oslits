@@ -1,10 +1,10 @@
-package kr.opensoftlab.oslits.cmm.cmm4000.cmm4000.service;
+package kr.opensoftlab.oslops.cmm.cmm4000.cmm4000.service;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.com.vo.LicVO;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
+import kr.opensoftlab.oslops.com.vo.LicVO;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
 
 /**
  * @Class Name : Cmm4000Service.java
@@ -123,5 +123,31 @@ public interface Cmm4000Service {
 	 */
 	@SuppressWarnings("rawtypes")
 	public Map selectCmm4000LoginUsrInfo(LoginVO loginVO) throws Exception;
+
+	/**
+	 * 사용자의 이전, 현재 접속 IP 정보 조회
+	 * @param loginVO - loginVO
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public List selectCmm4000AccessIpInfo(LoginVO loginVO) throws Exception;
 	
+	/**
+	 * 현재 사용자의 비밀번호 체크 
+	 * - 비밀번호 만료된 사용자가 로그인 시 비밀번호 변경할 때 현재 비밀번호 체크
+	 * @param 
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	int selectCmm4000CurtPwChk(Map paramMap) throws Exception;
+	
+	/**
+	 * 비밀번호 만료된 사용자의 비밀번호 변경
+	 * @param
+	 * @return 
+	 * @exception Exception
+	 */
+	String updateCmm4000PasswordExprInit(Map<String, String> param) throws Exception;
 }

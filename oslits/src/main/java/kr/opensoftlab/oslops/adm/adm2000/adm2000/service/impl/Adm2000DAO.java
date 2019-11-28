@@ -1,10 +1,10 @@
-package kr.opensoftlab.oslits.adm.adm2000.adm2000.service.impl;
+package kr.opensoftlab.oslops.adm.adm2000.adm2000.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.adm.adm2000.adm2000.vo.Adm2000VO;
-import kr.opensoftlab.oslits.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.adm.adm2000.adm2000.vo.Adm2000VO;
+import kr.opensoftlab.oslops.com.dao.ComOslitsAbstractDAO;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 
 import org.springframework.stereotype.Repository;
@@ -160,6 +160,16 @@ public class Adm2000DAO extends ComOslitsAbstractDAO {
 	public void insertAdm2100BlockLog(Map paramMap) {
 		// TODO Auto-generated method stub
 		insert("adm2000DAO.insertAdm2100BlockLog", paramMap );
+	}
+	
+	/**
+	 * Adm2000 비밀번호 만료된 사용자 비밀번호 및 차단여부 초기화
+	 * @param  param - Map
+	 * @return
+	 * @throws Exception
+	 */
+	public int updateAdm2000PasswordExprInit(Map<String, String> paramMap) {
+		return update("adm2000DAO.updateAdm2000PasswordExprInit", paramMap );
 	}
 	
 }

@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.com.dao;
+package kr.opensoftlab.oslops.com.dao;
 
 import javax.annotation.Resource;
 
@@ -31,7 +31,7 @@ import egovframework.rte.psl.dataaccess.EgovAbstractDAO;
 @Repository("comEgmisAbstractDAO")
 public class ComOslitsAbstractDAO extends EgovAbstractDAO{
 
-	@Resource(name="oslits.sqlMapClient")
+	@Resource(name="oslops.sqlMapClient")
 	public void setSuperSqlMapClient(SqlMapClient sqlMapClient) {
         super.setSuperSqlMapClient(sqlMapClient);
     }

@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.chk.chk1000.chk1100.web;
+package kr.opensoftlab.oslops.chk.chk1000.chk1100.web;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,13 +10,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import kr.opensoftlab.oslits.chk.chk1000.chk1100.service.Chk1100Service;
-import kr.opensoftlab.oslits.chk.chk1000.chk1100.vo.Chk1100VO;
-import kr.opensoftlab.oslits.com.fms.web.service.FileMngService;
-import kr.opensoftlab.oslits.com.vo.LicVO;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.oslits.prj.prj1000.prj1100.service.Prj1100Service;
-import kr.opensoftlab.oslits.req.req4000.req4100.service.Req4100Service;
+import kr.opensoftlab.oslops.chk.chk1000.chk1100.service.Chk1100Service;
+import kr.opensoftlab.oslops.chk.chk1000.chk1100.vo.Chk1100VO;
+import kr.opensoftlab.oslops.com.fms.web.service.FileMngService;
+import kr.opensoftlab.oslops.com.vo.LicVO;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.oslops.prj.prj1000.prj1100.service.Prj1100Service;
+import kr.opensoftlab.oslops.req.req4000.req4100.service.Req4100Service;
 import kr.opensoftlab.sdf.excel.BigDataSheetWriter;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 import kr.opensoftlab.sdf.excel.Metadata;
@@ -107,12 +107,6 @@ public class Chk1100Controller {
 		// 세션에서 해당 사용자의 라이선스 그룹 아이디 가져오기
 		LicVO licVo = (LicVO)ss.getAttribute("licVO");
 		paramMap.put("licGrpId", licVo.getLicGrpId());
-		
-		//개발주기 목록 조회
-		List<Map> sprintList = null;
-		String selectsprintListJson = (new GsonBuilder().serializeNulls().create()).toJsonTree(sprintList).toString();
-		model.addAttribute("sprintList", selectsprintListJson);
-		
 		return "/chk/chk1000/chk1100/chk1100";
 	}
     /**
@@ -176,15 +170,16 @@ public class Chk1100Controller {
 			pageMap.put("pageSize", _pageSize);
 
 			model.addAttribute("page", pageMap);
-
+			//조회성공 메시지 세팅
+    		model.addAttribute("errorYn", "N");
 			model.addAttribute("list", chk1100List); 			/** 조회 목록 List 형태로 화면에 Return 한다. */
 			return new ModelAndView("jsonView");
         	
     	}catch(Exception ex){
     		Log.error("selectChk1100AjaxView()", ex);
 
-			//조회실패 메시지 세팅 및 저장 성공여부 세팅
-    		model.addAttribute("result", "fail");
+			//조회실패 메시지 세팅
+    		model.addAttribute("errorYn", "Y");
 			model.addAttribute("message", egovMessageSource.getMessage("fail.common.select"));
 			return new ModelAndView("jsonView");
     	}

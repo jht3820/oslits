@@ -1,7 +1,5 @@
-package kr.opensoftlab.oslits.stm.stm3000.stm3000.web;
+package kr.opensoftlab.oslops.stm.stm3000.stm3000.web;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,31 +9,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import kr.opensoftlab.oslits.com.fms.web.service.FileMngService;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.oslits.stm.stm3000.stm3000.service.Stm3000Service;
-import kr.opensoftlab.oslits.stm.stm3000.stm3000.vo.Stm3000VO;
+import kr.opensoftlab.oslops.com.exception.UserDefineException;
+import kr.opensoftlab.oslops.com.fms.web.service.FileMngService;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.oslops.dpl.dpl1000.dpl1000.service.Dpl1000Service;
+import kr.opensoftlab.oslops.stm.stm3000.stm3000.service.Stm3000Service;
+import kr.opensoftlab.oslops.stm.stm3000.stm3000.vo.Jen1000VO;
+import kr.opensoftlab.oslops.stm.stm3000.stm3000.vo.Jen1100VO;
 import kr.opensoftlab.sdf.jenkins.JenkinsClient;
 import kr.opensoftlab.sdf.util.CommonScrty;
 import kr.opensoftlab.sdf.util.OslAgileConstant;
@@ -45,19 +25,18 @@ import kr.opensoftlab.sdf.util.RequestConvertor;
 
 import org.apache.http.conn.HttpHostConnectException;
 import org.apache.log4j.Logger;
+import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
 import egovframework.com.cmm.EgovMessageSource;
 import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.EgovProperties;
-import egovframework.com.cmm.service.FileVO;
 import egovframework.rte.fdl.idgnr.EgovIdGnrService;
 import egovframework.rte.fdl.property.EgovPropertyService;
 import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
@@ -71,6 +50,15 @@ import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
  *  * @since 2018.07.23.
  * @version 1.0
  * @see
+ *  
+ *  --------------------------------------
+ *  수정일			수정자			수정내용
+ *  --------------------------------------
+ *  2019-03-07		진주영		 	기능 개선
+ *  
+ *  
+ *  --------------------------------------
+ *  
  *  
  *  Copyright (C)  All right reserved.
  */
@@ -118,7 +106,13 @@ public class Stm3000Controller {
 	@Resource(name = "stm3000Service")
 	private Stm3000Service stm3000Service;
 
+    /** Dpl1000Service DI */
+    @Resource(name = "dpl1000Service")
+    private Dpl1000Service dpl1000Service;
 
+	@Resource(name = "jenkinsClient")
+	private JenkinsClient jenkinsClient;
+	
 	/**
 	 * JENKINS 설정 화면으로 이동
 	 * @param 
@@ -131,16 +125,141 @@ public class Stm3000Controller {
 		return "/stm/stm3000/stm3000/stm3000";
 	}
 
-
-
+	/**
+	 *  JENKINS 설정 등록/수정 팝업 화면으로 이동
+	 *  
+	 * @param request
+	 * @param response
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value="/stm/stm3000/stm3000/selectStm3001JenkinsDetailView.do")
+	public String selectStm3001JenkinsDetailView( HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
+		return "/stm/stm3000/stm3000/stm3001";
+	}
+	
+	/**
+	 *  JOB 설정 등록/수정 팝업 화면으로 이동
+	 *  
+	 * @param request
+	 * @param response
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	@RequestMapping(value="/stm/stm3000/stm3000/selectStm3002JobDetailView.do")
+	public String selectStm3002JobDetailView( HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
+		try{
+			// request 파라미터를 map으로 변환
+			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
+			
+			//jenkins list
+			List<Map> jenkinsList = stm3000Service.selectStm3000JenkinsNormalList(paramMap);
+			model.addAttribute("jenkinsList",jenkinsList);
+		}catch(Exception e){
+			Log.error(e);
+		}
+		return "/stm/stm3000/stm3000/stm3002";
+	}
+	
+	
+	/**
+	 *  JENKINS 상세 정보 화면
+	 *  
+	 * @param request
+	 * @param response
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@RequestMapping(value="/stm/stm3000/stm3000/selectStm3003JenkinsDetailView.do")
+	public String selectStm3003JenkinsDetailView( HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
+		try{
+			// request 파라미터를 map으로 변환
+			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
+			
+			//jenkins 정보
+			String userId= paramMap.get("jenUsrId");
+			String tokenId= paramMap.get("jenUsrTok");
+			String jenUrl= paramMap.get("jenUrl");
+			
+			//globals.properties에서 salt값 가져오기
+			String salt = EgovProperties.getProperty("Globals.lunaops.salt");
+			
+			//빈값인경우
+			if(tokenId == null || "".equals(tokenId)){
+				//조회실패 메시지 세팅
+				model.addAttribute("errorYn", "Y");
+				model.addAttribute("message", "JENKINS 연결에 실패했습니다.");
+			}
+			
+			//값 복호화
+			String deTokenId = CommonScrty.decryptedAria(tokenId, salt);
+			
+			//JENKINS SETTING
+			jenkinsClient.setUser(userId);
+			jenkinsClient.setPassword(deTokenId);
+			
+			try{
+				//JENKINS 정보 불러오기
+				String buildUrl = jenUrl+"/api/json";
+				String buildContent = jenkinsClient.excuteHttpClientJenkins(buildUrl);
+				Map jenMap = jenkinsClient.getJenkinsParser(buildContent);
+				
+				model.addAttribute("jenMap",jenMap);
+				
+				//JOB 목록
+				List<JSONObject> jobs = (List)jenMap.get("jobs");
+				
+				model.addAttribute("jobs",jobs);
+				
+			}catch(Exception e){
+				System.out.println(e);
+				model.addAttribute("errorYn", "Y");
+				model.addAttribute("message", "JENKINS 연결에 실패했습니다.");
+			}
+		}catch(Exception e){
+			Log.error(e);
+		}
+		return "/stm/stm3000/stm3000/stm3003";
+	}
+	
+	/**
+	 *  JOB 상세 정보 화면
+	 *  
+	 * @param request
+	 * @param response
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	@RequestMapping(value="/stm/stm3000/stm3000/selectStm3004JobDetailView.do")
+	public String selectStm3004JenkinsDetailView( HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
+		try{
+			// request 파라미터를 map으로 변환
+			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
+			
+			//빌드 목록
+			List jobBldNumList = dpl1000Service.selectDpl1400DplBldNumList(paramMap);
+			model.addAttribute("jobBldNumList",jobBldNumList);
+		}catch(Exception e){
+			Log.error(e);
+		}
+		return "/stm/stm3000/stm3000/stm3004";
+	}
+	
 	/**
 	 * Jenkins 설정 목록 조회
 	 * @param 
 	 * @return 
 	 * @exception Exception
 	 */
-	@RequestMapping(value="/stm/stm3000/stm3000/selectStm3000JobListAjax.do")
-	public ModelAndView selectStm3000JobListAjax(@ModelAttribute("stm3000VO") Stm3000VO stm3000VO, HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
+	@RequestMapping(value="/stm/stm3000/stm3000/selectStm3000JenkinsListAjax.do")
+	public ModelAndView selectStm3000JenkinsListAjax(@ModelAttribute("stm3000VO") Jen1000VO jen1000VO, HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
 
 		try{
 			// request 파라미터를 map으로 변환
@@ -160,38 +279,112 @@ public class Stm3000Controller {
 			}
 
 			//페이지 사이즈
-			stm3000VO.setPageIndex(_pageNo);
-			stm3000VO.setPageSize(_pageSize);
-			stm3000VO.setPageUnit(_pageSize);
+			jen1000VO.setPageIndex(_pageNo);
+			jen1000VO.setPageSize(_pageSize);
+			jen1000VO.setPageUnit(_pageSize);
 
 
-			PaginationInfo paginationInfo = PagingUtil.getPaginationInfo(stm3000VO);  /** paging - 신규방식 */
+			PaginationInfo paginationInfo = PagingUtil.getPaginationInfo(jen1000VO);  /** paging - 신규방식 */
 
-			List<Stm3000VO> stm3000List = null;
+			List<Jen1000VO> stm3000List = null;
 
 			HttpSession ss = request.getSession();
 			LoginVO loginVO = (LoginVO) ss.getAttribute("loginVO");
 
-			stm3000VO.setLoginUsrId(loginVO.getUsrId());
-			stm3000VO.setLicGrpId(loginVO.getLicGrpId());
-			stm3000VO.setPrjId((String) ss.getAttribute("selPrjId"));
+			jen1000VO.setLoginUsrId(loginVO.getUsrId());
+			jen1000VO.setLicGrpId(loginVO.getLicGrpId());
 
 			/**
 			 * 목록 조회
 			 */
 			int totCnt = 0;
-			stm3000List =   stm3000Service.selectStm3000JobList(stm3000VO);
+			stm3000List =   stm3000Service.selectStm3000JenkinsList(jen1000VO);
 
 
 			/** 총 데이터의 건수 를 가져온다. */
-			totCnt =  stm3000Service.selectStm3000JobListCnt(stm3000VO);
+			totCnt =  stm3000Service.selectStm3000JenkinsListCnt(jen1000VO);
 			paginationInfo.setTotalRecordCount(totCnt);
 
 			model.addAttribute("list", stm3000List);
 
 			//페이지 정보 보내기
 			Map<String, Integer> pageMap = new HashMap<String, Integer>();
-			pageMap.put("pageNo",stm3000VO.getPageIndex());
+			pageMap.put("pageNo",jen1000VO.getPageIndex());
+			pageMap.put("listCount", stm3000List.size());
+			pageMap.put("totalPages", paginationInfo.getTotalPageCount());
+			pageMap.put("totalElements", totCnt);
+			pageMap.put("pageSize", _pageSize);
+
+			model.addAttribute("page", pageMap);
+
+			return new ModelAndView("jsonView");
+		}
+		catch(Exception ex){
+			Log.error("selectStm3000JenkinsListAjax()", ex);
+			throw new Exception(ex.getMessage());
+		}
+	}
+	
+	/**
+	 * Job 설정 목록 조회
+	 * @param 
+	 * @return 
+	 * @exception Exception
+	 */
+	@RequestMapping(value="/stm/stm3000/stm3000/selectStm3000JobListAjax.do")
+	public ModelAndView selectStm3000JobListAjax(@ModelAttribute("stm3000VO") Jen1100VO jen1100VO, HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
+
+		try{
+			// request 파라미터를 map으로 변환
+			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
+			
+			//현재 페이지 값, 보여지는 개체 수
+			String _pageNo_str = paramMap.get("pageNo");
+			String _pageSize_str = paramMap.get("pageSize");
+
+			int _pageNo = 1;
+			int _pageSize = OslAgileConstant.pageSize;
+
+			if(_pageNo_str != null && !"".equals(_pageNo_str)){
+				_pageNo = Integer.parseInt(_pageNo_str)+1;  
+			}
+			if(_pageSize_str != null && !"".equals(_pageSize_str)){
+				_pageSize = Integer.parseInt(_pageSize_str);  
+			}
+
+			//페이지 사이즈
+			jen1100VO.setPageIndex(_pageNo);
+			jen1100VO.setPageSize(_pageSize);
+			jen1100VO.setPageUnit(_pageSize);
+			jen1100VO.setPrjId((String)request.getSession().getAttribute("selPrjId"));
+
+
+			PaginationInfo paginationInfo = PagingUtil.getPaginationInfo(jen1100VO);  /** paging - 신규방식 */
+
+			List<Jen1100VO> stm3000List = null;
+
+			HttpSession ss = request.getSession();
+			LoginVO loginVO = (LoginVO) ss.getAttribute("loginVO");
+
+			jen1100VO.setLoginUsrId(loginVO.getUsrId());
+			jen1100VO.setLicGrpId(loginVO.getLicGrpId());
+
+			/**
+			 * 목록 조회
+			 */
+			int totCnt = 0;
+			stm3000List =   stm3000Service.selectStm3000JobList(jen1100VO);
+
+
+			/** 총 데이터의 건수 를 가져온다. */
+			totCnt =  stm3000Service.selectStm3000JobListCnt(jen1100VO);
+			paginationInfo.setTotalRecordCount(totCnt);
+
+			model.addAttribute("list", stm3000List);
+
+			//페이지 정보 보내기
+			Map<String, Integer> pageMap = new HashMap<String, Integer>();
+			pageMap.put("pageNo",jen1100VO.getPageIndex());
 			pageMap.put("listCount", stm3000List.size());
 			pageMap.put("totalPages", paginationInfo.getTotalPageCount());
 			pageMap.put("totalElements", totCnt);
@@ -208,44 +401,18 @@ public class Stm3000Controller {
 	}
 
 
-
-	/**
-	 *  JENKINS 설정 등록/수정 팝업 화면으로 이동
-	 *  
-	 * @param request
-	 * @param response
-	 * @param model
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value="/stm/stm3000/stm3000/selectStm3001JobDetailView.do")
-	public String selectStm3001JobDetailView( HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
-		return "/stm/stm3000/stm3000/stm3001";
-	}
-
-
-
-
 	/*
 	 *  Jenkins 설정 상세 조회
 	 */
-	@RequestMapping(value="/stm/stm3000/stm3000/selectStm3000JobDetailAjax.do")
-	public ModelAndView selectStm3000JobDetailAjax(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
-
+	@SuppressWarnings("rawtypes")
+	@RequestMapping(value="/stm/stm3000/stm3000/selectStm3000JenkinsDetailAjax.do")
+	public ModelAndView selectStm3000JenkinsDetailAjax(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
 		try{
-
-
 			// request 파라미터를 map으로 변환
 			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
-			HttpSession ss = request.getSession();
 
-			LoginVO loginVO = (LoginVO) ss.getAttribute("loginVO");
-
-			paramMap.put("licGrpId", loginVO.getLicGrpId());	
-
-
-			// 요구사항 일괄저장
-			Map jenMap = stm3000Service.selectStm3000JobInfo(paramMap);
+			//jenkins 정보 조회
+			Map jenMap = stm3000Service.selectStm3000JenkinsInfo(paramMap);
 
 			model.addAttribute("jenInfo", jenMap);
 
@@ -255,7 +422,7 @@ public class Stm3000Controller {
 			return new ModelAndView("jsonView");
 		}
 		catch(Exception ex){
-			Log.error("selectStm3000JobDetailAjax()", ex);
+			Log.error("selectStm3000JenkinsDetailAjax()", ex);
 
 
 			model.addAttribute("message", egovMessageSource.getMessage("fail.common.select"));
@@ -263,11 +430,41 @@ public class Stm3000Controller {
 		}
 	}
 
+	
+	/*
+	 *  Job 설정 상세 조회
+	 */
+	@SuppressWarnings("rawtypes")
+	@RequestMapping(value="/stm/stm3000/stm3000/selectStm3000JobDetailAjax.do")
+	public ModelAndView selectStm3000JobDetailAjax(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
+		try{
+			// request 파라미터를 map으로 변환
+			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
+			
+			//job 정보 조회
+			Map jobMap = stm3000Service.selectStm3000JobInfo(paramMap);
+			
+			model.addAttribute("jobInfo", jobMap);
+			
+			//등록 성공 메시지 세팅
+			model.addAttribute("message", egovMessageSource.getMessage("success.common.select"));
+			
+			return new ModelAndView("jsonView");
+		}
+		catch(Exception ex){
+			Log.error("selectStm3000JobDetailAjax()", ex);
+			
+			
+			model.addAttribute("message", egovMessageSource.getMessage("fail.common.select"));
+			return new ModelAndView("jsonView");
+		}
+	}
+	
 
 
 	/**
 	 *
-	 * Jenkins 상세정보 저장
+	 * Jenkins 저장
 	 *  
 	 * @param request
 	 * @param response
@@ -275,9 +472,8 @@ public class Stm3000Controller {
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings("rawtypes")
-	@RequestMapping(value="/stm/stm3000/stm3000/saveStm3000JobInfoAjax.do")
-	public ModelAndView saveStm3000JobInfoAjax(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
+	@RequestMapping(value="/stm/stm3000/stm3000/saveStm3001JenkinsInfoAjax.do")
+	public ModelAndView saveStm3001JenkinsInfoAjax(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
 
 		try{
 
@@ -294,19 +490,64 @@ public class Stm3000Controller {
 			String type = (String) paramMap.get("type");
 			
 			//globals.properties에서 salt값 가져오기
-			String salt = EgovProperties.getProperty("Globals.oslits.salt");
+			String salt = EgovProperties.getProperty("Globals.lunaops.salt");
 			
 			//기존 값
 			String nowJenUsrTok = (String)paramMap.get("nowJenUsrTok");
-			String nowJenTok = (String)paramMap.get("nowJenTok");
 			
 			//파라미터 값
 			String jenUsrTok = (String)paramMap.get("jenUsrTok");
-			String jenTok = (String)paramMap.get("jenTok");
 			
 			//암호화된 값
 			String newJenUsrTok = "";
-			String newJenTok = "";
+			try{
+				String userId=(String)paramMap.get("jenUsrId");
+				String tokenId=(String)paramMap.get("jenUsrTok");
+				
+				//Jenkins 수정인경우
+				if(type != null && "update".equals(type)){
+					//빈값인경우 오류
+					if(tokenId == null || "".equals(tokenId)){
+						model.addAttribute("MSG_CD", JENKINS_FAIL);
+						return new ModelAndView("jsonView");
+					}
+					
+					//기존 값과 동일한경우 복호화해서 사용
+					if(nowJenUsrTok.equals(jenUsrTok)){
+						//값 복호화
+						tokenId = CommonScrty.decryptedAria(tokenId, salt);
+					}else{
+						tokenId = jenUsrTok;
+					}
+				}
+				
+				//JENKINS SETTING
+				jenkinsClient.setUser(userId);
+				jenkinsClient.setPassword(tokenId);
+				
+				String url =   (String)paramMap.get("jenUrl")+"/api/json";
+				String content = "";
+	
+				content = jenkinsClient.excuteHttpClientJenkins(url);
+	
+				jenkinsClient.getJenkinsParser(content );
+			}
+			catch(Exception ex){
+				Log.error("selectStm3000URLConnect()", ex);
+				if( ex instanceof HttpHostConnectException){
+					model.addAttribute("MSG_CD", JENKINS_FAIL);
+				}else if( ex instanceof ParseException){
+					model.addAttribute("MSG_CD", JENKINS_FAIL);
+				}else if( ex instanceof IllegalArgumentException){
+					model.addAttribute("MSG_CD", JENKINS_WORNING_URL);
+				}else if( ex instanceof UserDefineException){
+					model.addAttribute("MSG_CD", ex.getMessage());
+				}else{
+					model.addAttribute("MSG_CD", JENKINS_FAIL);
+				}
+				//조회실패 메시지 세팅 및 저장 성공여부 세팅			
+				return new ModelAndView("jsonView");
+			}
 			
 			//수정인경우 값 변경되었는지 체크
 			if("update".equals(type)){
@@ -317,47 +558,190 @@ public class Stm3000Controller {
 				}else{
 					newJenUsrTok = jenUsrTok;
 				}
-				if(!nowJenTok.equals(jenTok)){
-					//값 암호화
-					newJenTok = CommonScrty.encryptedAria(jenTok, salt);
-				}else{
-					newJenTok = nowJenTok;
-				}
-				/*
-				String tmpnewJenUsrTok = CommonScrty.encryptedAria(jenUsrTok, salt);
-				String tmpnewJenTok = CommonScrty.encryptedAria(nowJenTok, salt);
-				System.out.println("############");
-				System.out.println(tmpnewJenUsrTok);
-				System.out.println(tmpnewJenTok);*/
 			}
 			//등록인경우 값 암호화
 			else{
 				newJenUsrTok = CommonScrty.encryptedAria(jenUsrTok, salt);
-				newJenTok = CommonScrty.encryptedAria(jenTok, salt);
 			}
 
-			//입력된 비밀번호 제거
+			//입력된 token제거
 			paramMap.remove("jenUsrTok");
-			paramMap.remove("jenTok");
 			
-			//암호화된 비밀번호 입력
+			//암호화된  token 입력
 			paramMap.put("jenUsrTok", newJenUsrTok);
-			paramMap.put("jenTok", newJenTok);
 			
-			// 요구사항 일괄저장
-			Object insertKey = stm3000Service.saveStm3000JobInfo(paramMap);
-
+			//jenkins 저장
+			stm3000Service.saveStm3000JenkinsInfo(paramMap);
 
 			//등록 성공 메시지 세팅
+			model.addAttribute("errorYn", "N");
 			model.addAttribute("message", egovMessageSource.getMessage("success.common.save"));
 
 			return new ModelAndView("jsonView");
 		}
 		catch(Exception ex){
-			Log.error("saveStm3000JobInfoAjax()", ex);
+			Log.error("saveStm3001JenkinsInfoAjax()", ex);
 
 			//조회실패 메시지 세팅 및 저장 성공여부 세팅
-			model.addAttribute("saveYN", "N");
+			model.addAttribute("errorYn", "Y");
+			model.addAttribute("message", egovMessageSource.getMessage("fail.common.save"));
+			return new ModelAndView("jsonView");
+		}
+	}
+	
+	/**
+	 *
+	 * Job 저장
+	 *  
+	 * @param request
+	 * @param response
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value="/stm/stm3000/stm3000/saveStm3002JobInfoAjax.do")
+	public ModelAndView saveStm3002JobInfoAjax(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
+		
+		try{
+			// request 파라미터를 map으로 변환
+			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
+			HttpSession ss = request.getSession();
+			
+			LoginVO loginVO = (LoginVO) ss.getAttribute("loginVO");
+			
+			paramMap.put("licGrpId", loginVO.getLicGrpId());	
+			
+			//save type
+			String type = (String) paramMap.get("type");
+			
+			//수정 아닌경우 체크
+			if(!"update".equals(type)){
+				//이미 등록된 JOB인지 체크하기
+				int jobCheck = stm3000Service.selectStm3000JobUseCountInfo(paramMap);
+				
+				if(jobCheck > 0){
+					//등록실패 메시지 세팅 및 저장 성공여부 세팅
+					model.addAttribute("errorYn", "Y");
+					model.addAttribute("message", "이미 추가된 JOB입니다.");
+					return new ModelAndView("jsonView");
+				}
+			}
+			
+			//globals.properties에서 salt값 가져오기
+			String salt = EgovProperties.getProperty("Globals.lunaops.salt");
+			
+			//기존 값
+			String nowJobTok = (String)paramMap.get("nowJobTok");
+			
+			//파라미터 값
+			String jobTok = (String)paramMap.get("jobTok");
+			
+			//암호화된 값
+			String newJobTok = "";
+			try{
+				String jenUrl=(String)paramMap.get("jenUrl");
+				String jobId=(String)paramMap.get("jobId");
+				String userId=(String)paramMap.get("jenUsrId");
+				String tokenId=(String)paramMap.get("jenUsrTok");
+				
+				//빈값인경우 오류
+				if(tokenId == null || "".equals(tokenId)){
+					model.addAttribute("MSG_CD", JENKINS_FAIL);
+					return new ModelAndView("jsonView");
+				}
+				
+				//값 복호화
+				tokenId = CommonScrty.decryptedAria(tokenId, salt);
+				
+				//JENKINS SETTING
+				jenkinsClient.setUser(userId);
+				jenkinsClient.setPassword(tokenId);
+				
+				String url = jenUrl+"/api/json";
+				String content = "";
+				
+				content = jenkinsClient.excuteHttpClientJenkins(url);
+				
+				jenkinsClient.getJenkinsParser(content );
+				
+				//JOB TOKEN KEY 확인
+				String deJobTok = jobTok;
+				
+				//기존 값과 파라미터값 비교
+				if(nowJobTok.equals(jobTok)){
+					//값 복호화
+					deJobTok = CommonScrty.decryptedAria(jobTok, salt);
+				}
+				
+				if(deJobTok == null || "".equals(deJobTok)){
+					model.addAttribute("MSG_CD", "JOB TOKEN 값이 없습니다.");
+					return new ModelAndView("jsonView");
+				}
+				
+				url = jenUrl+"/job/"+jobId+"/config.xml";
+				String settingJobTok = "";
+				
+				settingJobTok = jenkinsClient.excuteHttpClientJobToken(url,deJobTok);
+				
+				//복호화 token 값과 실제 token값 확인
+				if(!deJobTok.equals(settingJobTok)){
+					model.addAttribute("MSG_CD", "JOB TOKEN KEY값을 확인해주세요.");
+					return new ModelAndView("jsonView");
+				}
+				
+			}
+			catch(Exception ex){
+				Log.error("selectStm3000URLConnect()", ex);
+				if( ex instanceof HttpHostConnectException){
+					model.addAttribute("MSG_CD", JENKINS_FAIL);
+				}else if( ex instanceof ParseException){
+					model.addAttribute("MSG_CD", JENKINS_FAIL);
+				}else if( ex instanceof IllegalArgumentException){
+					model.addAttribute("MSG_CD", JENKINS_WORNING_URL);
+				}else if( ex instanceof UserDefineException){
+					model.addAttribute("MSG_CD", ex.getMessage());
+				}else{
+					model.addAttribute("MSG_CD", JENKINS_FAIL);
+				}
+				//조회실패 메시지 세팅 및 저장 성공여부 세팅			
+				return new ModelAndView("jsonView");
+			}
+			
+			//수정인경우 값 변경되었는지 체크
+			if("update".equals(type)){
+				//기존 값과 파라미터값 비교
+				if(!nowJobTok.equals(jobTok)){
+					//값 암호화
+					newJobTok = CommonScrty.encryptedAria(jobTok, salt);
+				}else{
+					newJobTok = jobTok;
+				}
+			}
+			//등록인경우 값 암호화
+			else{
+				newJobTok = CommonScrty.encryptedAria(jobTok, salt);
+			}
+			
+			//입력된 jobTok 제거
+			paramMap.remove("jobTok");
+			
+			//암호화된  jobTok 입력
+			paramMap.put("jobTok", newJobTok);
+			
+			//job 등록
+			stm3000Service.saveStm3000JobInfo(paramMap);
+			
+			//등록 성공 메시지 세팅
+			model.addAttribute("errorYn", "N");
+			model.addAttribute("message", egovMessageSource.getMessage("success.common.save"));
+			
+			return new ModelAndView("jsonView");
+		}
+		catch(Exception ex){
+			Log.error("saveStm3002JobInfoAjax()", ex);
+			
+			//조회실패 메시지 세팅 및 저장 성공여부 세팅
+			model.addAttribute("errorYn", "Y");
 			model.addAttribute("message", egovMessageSource.getMessage("fail.common.save"));
 			return new ModelAndView("jsonView");
 		}
@@ -372,31 +756,26 @@ public class Stm3000Controller {
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings("rawtypes")
-	@RequestMapping(value="/stm/stm3000/stm3000/deleteStm3000InfoAjax.do")
-	public ModelAndView deleteStm3000InfoAjax(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
+	@RequestMapping(value="/stm/stm3000/stm3000/deleteStm3000JenkinsInfoAjax.do")
+	public ModelAndView deleteStm3000JenkinsInfoAjax(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
 
 		try{
-
-
 			// request 파라미터를 map으로 변환
 			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
-			HttpSession ss = request.getSession();
+			
+			//삭제 유무 변경 '01'
+			paramMap.put("delCd", "01");
+			
+			stm3000Service.deleteStm3000JenkinsInfo(paramMap);
+			
+			//등록 성공 메시지 세팅
+			model.addAttribute("message", egovMessageSource.getMessage("success.common.delete"));
 
-			int useCount = stm3000Service.selectStm3000UseCountInfo(paramMap);
-			if(useCount==0){
-				stm3000Service.deleteStm3000Info(paramMap);
-				//등록 성공 메시지 세팅
-				model.addAttribute("message", egovMessageSource.getMessage("success.common.delete"));
-			}else{
-				model.addAttribute("saveYN", "N");
-				model.addAttribute("message", egovMessageSource.getMessage("fail.common.existInfo"));
-			}
 
 			return new ModelAndView("jsonView");
 		}
 		catch(Exception ex){
-			Log.error("deleteStm3000InfoAjax()", ex);
+			Log.error("deleteStm3000JenkinsInfoAjax()", ex);
 
 			//조회실패 메시지 세팅 및 저장 성공여부 세팅
 			model.addAttribute("saveYN", "N");
@@ -404,7 +783,54 @@ public class Stm3000Controller {
 			return new ModelAndView("jsonView");
 		}
 	}
-
+	
+	/**
+	 * Job 상세정보 삭제
+	 * 
+	 * @param request
+	 * @param response
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value="/stm/stm3000/stm3000/deleteStm3000JobInfoAjax.do")
+	public ModelAndView deleteStm3000JobInfoAjax(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
+		
+		try{
+			// request 파라미터를 map으로 변환
+			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
+			
+			// 프로젝트 ID 세팅
+			String prjId = paramMap.get("selPrjId");
+			paramMap.put("prjId", prjId);
+			
+			stm3000Service.deleteStm3000JobInfo(paramMap);
+			
+			//등록 성공 메시지 세팅
+			model.addAttribute("message", egovMessageSource.getMessage("success.common.delete"));
+			
+			
+			return new ModelAndView("jsonView");
+		}
+		catch(Exception ex){
+			Log.error("deleteStm3000JobInfoAjax()", ex);
+			
+			//조회실패 메시지 세팅 및 저장 성공여부 세팅
+			model.addAttribute("saveYN", "N");
+			model.addAttribute("message", egovMessageSource.getMessage("fail.common.save"));
+			return new ModelAndView("jsonView");
+		}
+	}
+	
+	/**
+	 * Jenkins 접속 확인
+	 * 
+	 * @param request
+	 * @param response
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
 	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/stm/stm3000/stm3000/selectStm3000ConfirmConnect.do")
 	public ModelAndView selectStm3000ConfirmConnect(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
@@ -413,14 +839,13 @@ public class Stm3000Controller {
 
 			// request 파라미터를 map으로 변환
 			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
-			HttpSession ss = request.getSession();
 
-			Map jenMap = stm3000Service.selectStm3000JobInfo(paramMap);
+			Map jenMap = stm3000Service.selectStm3000JenkinsInfo(paramMap);
 			String userId=(String)jenMap.get("jenUsrId");
 			String tokenId=(String)jenMap.get("jenUsrTok");
 			
 			//globals.properties에서 salt값 가져오기
-			String salt = EgovProperties.getProperty("Globals.oslits.salt");
+			String salt = EgovProperties.getProperty("Globals.lunaops.salt");
 			
 			//값 복호화
 			String newTokenId = CommonScrty.decryptedAria(tokenId, salt);
@@ -430,31 +855,20 @@ public class Stm3000Controller {
 				model.addAttribute("MSG_CD", JENKINS_SETTING_WORNING);
 				return new ModelAndView("jsonView");
 			}
-			
-			String jenJobNm=(String)jenMap.get("jenNm");
-			JenkinsClient client = new JenkinsClient(userId,newTokenId);
 
-			String url =   (String)jenMap.get("jenUrl")+"jenkins/api/json";
+			//JENKINS SETTING
+			jenkinsClient.setUser(userId);
+			jenkinsClient.setPassword(newTokenId);
+			
+			String url =   (String)jenMap.get("jenUrl")+"/api/json";
 			String content = "";
 
-			content = client.excuteHttpClientJenkins(url);
+			content = jenkinsClient.excuteHttpClientJenkins(url);
 
-			Map jenkinsMap= client.getJenkinsParser(content );
-			List jobList =  (List) jenkinsMap.get("jobs");
-			int jobListSize = jobList.size();
-			boolean isUseJob = false;
-			for (int i = 0; i < jobListSize; i++) {
-				Map jobMap = (Map) jobList.get(i);
-				String jobName = (String) jobMap.get("name");
-				if(jenJobNm.equals(jobName)){
-					isUseJob = true;
-				}
-			}
-			if(isUseJob){
-				model.addAttribute("MSG_CD", JENKINS_OK);
-			}else{
-				model.addAttribute("MSG_CD", JENKINS_SETTING_WORNING);
-			}
+			jenkinsClient.getJenkinsParser(content );
+
+			model.addAttribute("MSG_CD", JENKINS_OK);
+
 
 			return new ModelAndView("jsonView");
 		}
@@ -464,6 +878,90 @@ public class Stm3000Controller {
 				model.addAttribute("MSG_CD", JENKINS_FAIL);
 			}else if( ex instanceof ParseException){
 				model.addAttribute("MSG_CD", JENKINS_FAIL);
+			}else if( ex instanceof UserDefineException){
+					model.addAttribute("MSG_CD", ex.getMessage());
+			}else{
+				model.addAttribute("MSG_CD", JENKINS_FAIL);
+			}
+			//조회실패 메시지 세팅 및 저장 성공여부 세팅			
+			return new ModelAndView("jsonView");
+		}
+	}
+	
+	/**
+	 * job 접속 확인
+	 * 
+	 * @param request
+	 * @param response
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	@RequestMapping(value="/stm/stm3000/stm3000/selectStm3000JobConfirmConnect.do")
+	public ModelAndView selectStm3000JobConfirmConnect(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
+		
+		try{
+			
+			// request 파라미터를 map으로 변환
+			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
+			
+			//job 정보 조회
+			Map jobMap = stm3000Service.selectStm3000JobInfo(paramMap);
+			
+			//정보 불러오기
+			String jenUsrId=(String)jobMap.get("jenUsrId");
+			String jenUsrTok=(String)jobMap.get("jenUsrTok");
+			String jobTok=(String)jobMap.get("jobTok");
+			String jenUrl=(String)jobMap.get("jenUrl");
+			String jobId=(String)jobMap.get("jobId");
+			
+			//globals.properties에서 salt값 가져오기
+			String salt = EgovProperties.getProperty("Globals.lunaops.salt");
+			
+			//값 복호화
+			String deJenUsrTok = CommonScrty.decryptedAria(jenUsrTok, salt);
+			String deJobTok = CommonScrty.decryptedAria(jobTok, salt);
+			
+			//빈값인경우 오류
+			if(deJenUsrTok == null || "".equals(deJenUsrTok)){
+				model.addAttribute("MSG_CD", JENKINS_SETTING_WORNING);
+				return new ModelAndView("jsonView");
+			}
+			if(deJobTok == null || "".equals(deJobTok)){
+				model.addAttribute("MSG_CD", "JOB TOKEN 값이 없습니다.");
+				return new ModelAndView("jsonView");
+			}
+			
+			//JENKINS SETTING
+			jenkinsClient.setUser(jenUsrId);
+			jenkinsClient.setPassword(deJenUsrTok);
+			
+			String url = jenUrl+"/job/"+jobId+"/config.xml";
+			String settingJobTok = "";
+			
+			settingJobTok = jenkinsClient.excuteHttpClientJobToken(url,deJobTok);
+			
+			//복호화 token 값과 실제 token값 확인
+			if(!deJobTok.equals(settingJobTok)){
+				model.addAttribute("MSG_CD", "JOB TOKEN KEY값을 확인해주세요.");
+				
+				return new ModelAndView("jsonView");
+			}
+			
+			model.addAttribute("MSG_CD", JENKINS_OK);
+			
+			
+			return new ModelAndView("jsonView");
+		}
+		catch(Exception ex){
+			Log.error("selectStm3000JobConfirmConnect()", ex);
+			if( ex instanceof HttpHostConnectException){
+				model.addAttribute("MSG_CD", JENKINS_FAIL);
+			}else if( ex instanceof ParseException){
+				model.addAttribute("MSG_CD", JENKINS_FAIL);
+			}else if( ex instanceof UserDefineException){
+				model.addAttribute("MSG_CD", ex.getMessage());
 			}else{
 				model.addAttribute("MSG_CD", JENKINS_FAIL);
 			}
@@ -484,79 +982,10 @@ public class Stm3000Controller {
 	public String selectStm3002JobView( HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
 		return "/stm/stm3000/stm3000/stm3002";
 	}
-
-	/**
-	 * 
-	 * 사용가능한 job 목록 조회
-	 * 
-	 * @param request
-	 * @param response
-	 * @param model
-	 * @return
-	 * @throws Exception
-	 */
-	
-	@SuppressWarnings("rawtypes")
-	@RequestMapping(value="/stm/stm3000/stm3000/selectStm3000JobList.do")
-	public ModelAndView selectStm3000JobList(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
-		try{
-			// request 파라미터를 map으로 변환
-			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
-			HttpSession ss = request.getSession();
-			String userId=(String)paramMap.get("jenUsrId");
-			String tokenId=(String)paramMap.get("jenUsrTok");
-
-			//save type
-			String type = (String) paramMap.get("type");
-			
-			//Job 수정인경우 복호화해서 체크
-			if(type != null && "update".equals(type)){
-				//globals.properties에서 salt값 가져오기
-				String salt = EgovProperties.getProperty("Globals.oslits.salt");
-				
-				//값 복호화
-				tokenId = CommonScrty.decryptedAria(tokenId, salt);
-				
-				System.out.println("#############");
-				System.out.println(tokenId);
-				//빈값인경우 오류
-				if(tokenId == null || "".equals(tokenId)){
-					model.addAttribute("MSG_CD", JENKINS_FAIL);
-					return new ModelAndView("jsonView");
-				}
-			}
-			
-			JenkinsClient client = new JenkinsClient(userId,tokenId);
-
-			String url =   (String)paramMap.get("jenUrl")+"jenkins/api/json";
-			String content = "";
-
-			content = client.excuteHttpClientJenkins(url);
-
-			Map jenkinsMap= client.getJenkinsParser(content );
-			List jobList =  (List) jenkinsMap.get("jobs");
-
-			model.addAttribute("list", jobList);
-
-			model.addAttribute("message", egovMessageSource.getMessage("success.common.select"));
-
-			return new ModelAndView("jsonView");
-		}
-		catch(Exception ex){
-			Log.error("selectStm3000JobDetailAjax()", ex);
-
-
-			model.addAttribute("message", egovMessageSource.getMessage("fail.common.select"));
-
-			//조회실패 메시지 세팅 및 저장 성공여부 세팅			
-			return new ModelAndView("jsonView");
-		}
-	}
-	
 	
 	/**
 	 * 
-	 * Jenkins URL 검증
+	 * Jenkins URL 검증 + JOBList + 로컬 DB 원복 JOB List 가져오기
 	 * 
 	 * @param request
 	 * @param response
@@ -572,40 +1001,45 @@ public class Stm3000Controller {
 
 			// request 파라미터를 map으로 변환
 			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
-			HttpSession ss = request.getSession();
 
-			String userId=(String)paramMap.get("jenUsrId");
-			String tokenId=(String)paramMap.get("jenUsrTok");
-		
-			//save type
-			String type = (String) paramMap.get("type");
+			String userId= (String)paramMap.get("jenUsrId");
+			String tokenId= (String)paramMap.get("jenUsrTok");
 			
-			//Job 수정인경우 복호화해서 체크
-			if(type != null && "update".equals(type)){
-				//globals.properties에서 salt값 가져오기
-				String salt = EgovProperties.getProperty("Globals.oslits.salt");
-				
-				//값 복호화
-				tokenId = CommonScrty.decryptedAria(tokenId, salt);
-				
-				//빈값인경우 오류
-				if(tokenId == null || "".equals(tokenId)){
-					model.addAttribute("MSG_CD", JENKINS_FAIL);
-					return new ModelAndView("jsonView");
-				}
+			//globals.properties에서 salt값 가져오기
+			String salt = EgovProperties.getProperty("Globals.lunaops.salt");
+			
+			//값 복호화
+			tokenId = CommonScrty.decryptedAria(tokenId, salt);
+			
+			//빈값인경우 오류
+			if(tokenId == null || "".equals(tokenId)){
+				model.addAttribute("MSG_CD", JENKINS_FAIL);
+				return new ModelAndView("jsonView");
 			}
 			
-			JenkinsClient client = new JenkinsClient(userId,tokenId);
-
-			String url =   (String)paramMap.get("jenUrl")+"jenkins/api/json";
+			//JENKINS SETTING
+			jenkinsClient.setUser(userId);
+			jenkinsClient.setPassword(tokenId);
+			
+			String url =   (String)paramMap.get("jenUrl")+"/api/json";
 			String content = "";
 
-			content = client.excuteHttpClientJenkins(url);
+			content = jenkinsClient.excuteHttpClientJenkins(url);
 
-			Map jenkinsMap= client.getJenkinsParser(content );
-			
+			Map jenkinsMap= jenkinsClient.getJenkinsParser(content );
+			List jobList =  (List) jenkinsMap.get("jobs");
+
+			//job List
+			model.addAttribute("list", jobList);
 			model.addAttribute("MSG_CD", JENKINS_OK);
 			
+			//원복 목록 가져오기
+			paramMap.put("restoreSelJobType", "03");
+			
+			//job restore list
+			List<Map> jobRestoreList = stm3000Service.selectStm3000JobNormalList(paramMap);
+			
+			model.addAttribute("jobRestoreList", jobRestoreList);
 			return new ModelAndView("jsonView");
 		}
 		catch(Exception ex){
@@ -616,6 +1050,8 @@ public class Stm3000Controller {
 				model.addAttribute("MSG_CD", JENKINS_FAIL);
 			}else if( ex instanceof IllegalArgumentException){
 				model.addAttribute("MSG_CD", JENKINS_WORNING_URL);
+			}else if( ex instanceof UserDefineException){
+					model.addAttribute("MSG_CD", ex.getMessage());
 			}else{
 				model.addAttribute("MSG_CD", JENKINS_FAIL);
 			}
@@ -666,7 +1102,7 @@ public class Stm3000Controller {
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes" })
 	@RequestMapping(value="/stm/stm3000/stm3000/insertStm3000JenAuthGrpList.do")
 	public ModelAndView insertStm3000JenAuthGrpList(HttpServletRequest request, HttpServletResponse response, ModelMap model )	throws Exception {
 		try{
@@ -714,7 +1150,7 @@ public class Stm3000Controller {
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes"})
 	@RequestMapping(value="/stm/stm3000/stm3000/deleteStm3000JenAuthGrpList.do")
 	public ModelAndView deleteStm3000JenAuthGrpList(HttpServletRequest request, HttpServletResponse response, ModelMap model )	throws Exception {
 		try{

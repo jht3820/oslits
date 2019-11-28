@@ -1,9 +1,10 @@
-package kr.opensoftlab.oslits.prj.prj1000.prj1100.service.impl;
+package kr.opensoftlab.oslops.prj.prj1000.prj1100.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.prj.prj1000.prj1100.vo.Prj1100VO;
 
 import org.springframework.stereotype.Repository;
 
@@ -19,7 +20,16 @@ public class Prj1100DAO  extends ComOslitsAbstractDAO {
 	public List selectFlw1000ProcessList(Map paramMap) throws Exception {
 		return (List) list("prj1100DAO.selectFlw1000ProcessList", paramMap);
 	}
-	
+
+	/**
+	 * 프로세스 단건 조회 
+	 * @param paramMap
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public Map selectFlw1000ProcessInfo(Map paramMap) throws Exception {
+		return (Map) select("prj1100DAO.selectFlw1000ProcessInfo", paramMap);
+	}
 	/**
 	 * 프로세스 수정 (이름, json데이터)
 	 * @param paramMap
@@ -36,8 +46,8 @@ public class Prj1100DAO  extends ComOslitsAbstractDAO {
 	 * @throws Exception
 	 */
 	@SuppressWarnings("rawtypes")
-	public void insertFlw1000ProcessInfo(Map paramMap) throws Exception {
-		 insert("prj1100DAO.insertFlw1000ProcessInfo", paramMap);
+	public String insertFlw1000ProcessInfo(Map paramMap) throws Exception {
+		 return (String) insert("prj1100DAO.insertFlw1000ProcessInfo", paramMap);
 	}
 	
 	/**
@@ -121,6 +131,16 @@ public class Prj1100DAO  extends ComOslitsAbstractDAO {
 	}
 	
 	/**
+	 * 선택 요구사항 추가항목 업로드 목록
+	 * @param paramMap
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public List selectFlw1300OptFileList(Map paramMap) throws Exception {
+		return (List) list("prj1100DAO.selectFlw1300OptFileList", paramMap);
+	}
+	
+	/**
 	 * 해당 항목에 값이 이미 추가되어있는지 확인 
 	 * @param paramMap
 	 * @throws Exception
@@ -148,6 +168,17 @@ public class Prj1100DAO  extends ComOslitsAbstractDAO {
 	@SuppressWarnings("rawtypes")
 	public void insertFlw1200OtpInfo(Map paramMap) throws Exception {
 		 insert("prj1100DAO.insertFlw1200OtpInfo", paramMap);
+	}
+	
+
+	/**
+	 * 작업흐름 추가항목 복사
+	 * @param paramMap
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public void insertFlw1200OtpCopyInfo(Map paramMap) throws Exception {
+		insert("prj1100DAO.insertFlw1200OtpCopyInfo", paramMap);
 	}
 	
 	/**
@@ -201,13 +232,23 @@ public class Prj1100DAO  extends ComOslitsAbstractDAO {
 	}
 
 	/**
-	 * 요구사항별 리비전 목록 가져오기
-	 * @param paramMap
+	 * 요구사항별 리비전 목록 가져오기(Grid page)
+	 * @param Prj1100VO
 	 * @throws Exception
 	 */
 	@SuppressWarnings("rawtypes")
-	public List selectFlw1400ReqRevisionNumList(Map paramMap) throws Exception {
-		return (List) list("prj1100DAO.selectFlw1400ReqRevisionNumList", paramMap);
+	public List selectFlw1400ReqRevisionNumList(Prj1100VO prj1100VO) throws Exception {
+		return (List) list("prj1100DAO.selectFlw1400ReqRevisionNumList", prj1100VO);
+	}
+	
+	/**
+	 * 요구사항별 리비전 목록 총 건수(Grid page)
+	 * @param Prj1100VO
+	 * @return 
+	 * @exception Exception
+	 */
+	public int selectFlw1400ReqRevisionNumListCnt(Prj1100VO prj1100VO) throws Exception {
+		return (Integer) select("prj1100DAO.selectFlw1400ReqRevisionNumListCnt", prj1100VO);
 	}
 	
 	/**
@@ -257,5 +298,25 @@ public class Prj1100DAO  extends ComOslitsAbstractDAO {
 	@SuppressWarnings("rawtypes")
 	public int selectFlw1500FlowAuthGrpCnt(Map paramMap) throws Exception {
 		return (int) select("prj1100DAO.selectFlw1500FlowAuthGrpCnt", paramMap);
+	}
+	
+	/**
+	 * [프로세스 복사] 관리자 권한을 가지고있는 프로젝트의 프로세스 목록
+	 * @param paramMap
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public List selectFlw1000ProcessCopyList(Map paramMap) throws Exception {
+		return (List) list("prj1100DAO.selectFlw1000ProcessCopyList", paramMap);
+	}
+	
+	/**
+	 * 추가 항목에 존재하는 첨부파일 ID 목록 조회 
+	 * @param paramMap
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public List selectFlw1200FlwOptExistFileIdList(Map paramMap) throws Exception {
+		return (List) list("prj1100DAO.selectFlw1200FlwOptExistFileIdList", paramMap);
 	}
 }

@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.com.vo;
+package kr.opensoftlab.oslops.com.vo;
 
 /**
  * @Class Name : LoginVO.java
@@ -46,6 +46,8 @@ public class LoginVO extends DefaultVO{
     private String actLicEndDt;
     private String actPermitUsrCnt;
     private String isActLicYn;
+    private String dshDisplayCd;
+    private String dshDisplayNm;
     
     private String prjId;
     private String prjNm;
@@ -282,6 +284,35 @@ public class LoginVO extends DefaultVO{
 	public void setIsActLicYn(String isActLicYn) {
 		this.isActLicYn = isActLicYn;
 	}
+	
+	public String getDshDisplayCd() {
+		return dshDisplayCd;
+	}
+	public void setDshDisplayCd(String dshDisplayCd) {
+		this.dshDisplayCd = dshDisplayCd;
+	}
+	
+	public String getDshDisplayNm() {
+		return dshDisplayNm;
+	}
+	public void setDshDisplayNm(String dshDisplayNm) {
+		this.dshDisplayNm = dshDisplayNm;
+	}
+	@Override
+	public String toString() {
+		return "LoginVO [usrId=" + usrId + ", licGrpId=" + licGrpId + ", usrPw=" + usrPw + ", usrNm=" + usrNm
+				+ ", email=" + email + ", telno=" + telno + ", deptId=" + deptId + ", etc=" + etc + ", wkStTm=" + wkStTm
+				+ ", wkEdTm=" + wkEdTm + ", bkStTm=" + bkStTm + ", bkEdTm=" + bkEdTm + ", pwFailCnt=" + pwFailCnt
+				+ ", block=" + block + ", usrImgId=" + usrImgId + ", useCd=" + useCd + ", reqMainColor=" + reqMainColor
+				+ ", reqFontColor=" + reqFontColor + ", regDtm=" + regDtm + ", regUsrId=" + regUsrId + ", regUsrIp="
+				+ regUsrIp + ", modifyDtm=" + modifyDtm + ", modifyUsrId=" + modifyUsrId + ", modifyUsrIp="
+				+ modifyUsrIp + ", loginYn=" + loginYn + ", actLicNo=" + actLicNo + ", actLicNm=" + actLicNm
+				+ ", actLicStartDt=" + actLicStartDt + ", actLicEndDt=" + actLicEndDt + ", actPermitUsrCnt="
+				+ actPermitUsrCnt + ", isActLicYn=" + isActLicYn + ", dshDisplayCd=" + dshDisplayCd + ", dshDisplayNm="
+				+ dshDisplayNm + ", prjId=" + prjId + ", prjNm=" + prjNm + ", admYn=" + admYn + ", iniYn=" + iniYn
+				+ ", modMin=" + modMin + ", loginStatus=" + loginStatus + "]";
+	}
+
     
     
 }

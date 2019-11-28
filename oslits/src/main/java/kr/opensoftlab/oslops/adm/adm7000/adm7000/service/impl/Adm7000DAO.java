@@ -1,9 +1,9 @@
-package kr.opensoftlab.oslits.adm.adm7000.adm7000.service.impl;
+package kr.opensoftlab.oslops.adm.adm7000.adm7000.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.com.dao.ComOslitsAbstractDAO;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 
 import org.springframework.stereotype.Repository;

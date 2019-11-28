@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.req.req4000.req4100.vo;
+package kr.opensoftlab.oslops.req.req4000.req4100.vo;
 
 /**
  * @Class Name : Req1000Controller.java
@@ -13,7 +13,7 @@ package kr.opensoftlab.oslits.req.req4000.req4100.vo;
  *  Copyright (C) OpenSoftLab Corp All right reserved.
  */
 
-import kr.opensoftlab.oslits.com.vo.PageVO;
+import kr.opensoftlab.oslops.com.vo.PageVO;
 import kr.opensoftlab.sdf.excel.annotation.ExcelColumn;
 
 
@@ -64,6 +64,12 @@ public class Req4100VO extends PageVO {
 	/** 엑셀 컬럼 네번째 - 요구사항 설명 */
 	@ExcelColumn(position=3)
 	private String reqDesc;
+	/** 엑셀 컬럼 열두번째 - 요청자 직급 */
+	@ExcelColumn(position=11)
+	private String reqUsrPositionNm;
+	/** 엑셀 컬럼 열세번째 - 요청자 직책 */
+	@ExcelColumn(position=12)
+	private String reqUsrDutyNm;
 	private String reqChargerId;
 	private String reqCompleteRatio;
 	private String reqFp;
@@ -93,9 +99,24 @@ public class Req4100VO extends PageVO {
 	private String useCd;
 	private String loginUsrId;
 	private String regDtmDay;
+	private String reqKey;
 	
 	private String restApiReqUsrNm;
 	
+	//보고서 페이지에서 사용되는 변수
+	private String reportMode;
+	private String searchStDtm;
+	private String searchEdDtm;
+	
+	// 대시보드의 작업흐름의 담당/전체 요구사항 클릭시 사용변수
+	private String type;
+	
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
+	}
 	/** 엑셀업로드 시에만 사용하기 위한 요청자 정보 직접입력 여부값 */
 	/** 엑셀 컬럼 여섯번째 - 요청자 정보 직접입력 여부 */
 	@ExcelColumn(position=5)
@@ -221,6 +242,19 @@ public class Req4100VO extends PageVO {
 	}
 	public void setReqUsrDeptNm(String reqUsrDeptNm) {
 		this.reqUsrDeptNm = reqUsrDeptNm;
+	}
+	
+	public String getReqUsrPositionNm() {
+		return reqUsrPositionNm;
+	}
+	public void setReqUsrPositionNm(String reqUsrPositionNm) {
+		this.reqUsrPositionNm = reqUsrPositionNm;
+	}
+	public String getReqUsrDutyNm() {
+		return reqUsrDutyNm;
+	}
+	public void setReqUsrDutyNm(String reqUsrDutyNm) {
+		this.reqUsrDutyNm = reqUsrDutyNm;
 	}
 	public String getReqUsrEmail() {
 		return reqUsrEmail;
@@ -418,4 +452,29 @@ public class Req4100VO extends PageVO {
 	public void setReqInputType(String reqInputType) {
 		this.reqInputType = reqInputType;
 	}
+	public String getReqKey() {
+		return reqKey;
+	}
+	public void setReqKey(String reqKey) {
+		this.reqKey = reqKey;
+	}
+	public String getReportMode() {
+		return reportMode;
+	}
+	public void setReportMode(String reportMode) {
+		this.reportMode = reportMode;
+	}
+	public String getSearchStDtm() {
+		return searchStDtm;
+	}
+	public void setSearchStDtm(String searchStDtm) {
+		this.searchStDtm = searchStDtm;
+	}
+	public String getSearchEdDtm() {
+		return searchEdDtm;
+	}
+	public void setSearchEdDtm(String searchEdDtm) {
+		this.searchEdDtm = searchEdDtm;
+	}
+	
 }

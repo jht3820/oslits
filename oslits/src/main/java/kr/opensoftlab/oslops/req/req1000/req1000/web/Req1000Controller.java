@@ -1,6 +1,6 @@
-package kr.opensoftlab.oslits.req.req1000.req1000.web;
+package kr.opensoftlab.oslops.req.req1000.req1000.web;
 
-import java.text.SimpleDateFormat;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,22 +10,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import kr.opensoftlab.oslits.adm.adm6000.adm6000.service.Adm6000Service;
-import kr.opensoftlab.oslits.com.fms.web.service.FileMngService;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.oslits.prj.prj1000.prj1000.service.Prj1000Service;
-import kr.opensoftlab.oslits.req.req1000.req1000.service.Req1000Service;
-import kr.opensoftlab.oslits.req.req1000.req1000.vo.Req1000VO;
-import kr.opensoftlab.sdf.excel.BigDataSheetWriter;
-import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
-import kr.opensoftlab.sdf.excel.Metadata;
-import kr.opensoftlab.sdf.excel.SheetHeader;
-import kr.opensoftlab.sdf.util.OslAgileConstant;
-import kr.opensoftlab.sdf.util.PagingUtil;
-import kr.opensoftlab.sdf.util.ProjectOptionInfoUtil;
-import kr.opensoftlab.sdf.util.ReqHistoryMngUtil;
-import kr.opensoftlab.sdf.util.RequestConvertor;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,6 +30,20 @@ import egovframework.rte.fdl.cmmn.trace.LeaveaTrace;
 import egovframework.rte.fdl.idgnr.EgovIdGnrService;
 import egovframework.rte.fdl.property.EgovPropertyService;
 import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
+import kr.opensoftlab.oslops.adm.adm6000.adm6000.service.Adm6000Service;
+import kr.opensoftlab.oslops.com.fms.web.service.FileMngService;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.oslops.prj.prj1000.prj1000.service.Prj1000Service;
+import kr.opensoftlab.oslops.req.req1000.req1000.service.Req1000Service;
+import kr.opensoftlab.oslops.req.req1000.req1000.vo.Req1000VO;
+import kr.opensoftlab.sdf.excel.BigDataSheetWriter;
+import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
+import kr.opensoftlab.sdf.excel.Metadata;
+import kr.opensoftlab.sdf.excel.SheetHeader;
+import kr.opensoftlab.sdf.util.OslAgileConstant;
+import kr.opensoftlab.sdf.util.PagingUtil;
+import kr.opensoftlab.sdf.util.ReqHistoryMngUtil;
+import kr.opensoftlab.sdf.util.RequestConvertor;
 
 /**
  * @Class Name : Req1000Controller.java
@@ -194,6 +192,7 @@ public class Req1000Controller {
 			pageMap.put("totalElements", totCnt);
 			pageMap.put("pageSize", _pageSize);
 			
+			//조회성공메시지 세팅
 			model.addAttribute("errorYn", "N");
 			model.addAttribute("page", pageMap);
 			
@@ -201,6 +200,7 @@ public class Req1000Controller {
 		}
 		catch(Exception ex){
 			Log.error("selectReq1000ListView()", ex);
+			//조회 실패메시지 세팅
 			model.addAttribute("errorYn", "Y");
 			throw new Exception(ex.getMessage());
 		}
@@ -334,8 +334,8 @@ public class Req1000Controller {
     		
 
         	//파일 업로드 사이즈 구하기
-			String fileInfoMaxSize = EgovProperties.getProperty("Globals.oslits.fileInfoMaxSize");
-			String fileSumMaxSize = EgovProperties.getProperty("Globals.oslits.fileSumMaxSize");
+			String fileInfoMaxSize = EgovProperties.getProperty("Globals.lunaops.fileInfoMaxSize");
+			String fileSumMaxSize = EgovProperties.getProperty("Globals.lunaops.fileSumMaxSize");
 			model.addAttribute("fileInfoMaxSize",fileInfoMaxSize);
 			model.addAttribute("fileSumMaxSize",fileSumMaxSize);
 			
@@ -370,6 +370,10 @@ public class Req1000Controller {
 			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
 			HttpSession ss = request.getSession();
 
+			//LoginVO에서 로그인 사용자명 가져오기
+			LoginVO loginVO = (LoginVO) ss.getAttribute("loginVO");
+			paramMap.put("whkRegUsrNm", loginVO.getUsrNm());
+			
 			//추가된 파일 고유 ID
 			String _atchFileId = "NULL";
 			
@@ -402,7 +406,7 @@ public class Req1000Controller {
 				
 			// 요구사항 단건정보 조회
 	        Map reqInfoMap = (Map) req1000Service.selectReq1000ReqInfo(paramMap);
-				
+			
 			//그리드에 등록하기 위한 요구사항 정보
 			model.addAttribute("reqInfo",reqInfoMap);
 
@@ -439,6 +443,11 @@ public class Req1000Controller {
 			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
 			Map<String, Object> paramFiles = new HashMap<String, Object>();
 			HttpSession ss = request.getSession();
+			
+			//LoginVO에서 로그인 사용자명 가져오기
+			LoginVO loginVO = (LoginVO) ss.getAttribute("loginVO");
+			paramMap.put("whkRegUsrNm", loginVO.getUsrNm());
+			
 			List<FileVO> _result = new ArrayList<FileVO>();
 
 			//AtchFileId, FileSn 가져오기
@@ -583,35 +592,76 @@ public class Req1000Controller {
 	@RequestMapping(value="/req/req1000/req1000/selectReq1000ExcelList.do")
 	public ModelAndView selectReq1000ExcelList(@ModelAttribute("req1000VO") Req1000VO req1000VO,HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
 
-		//엑셀 다운로드 양식의 헤더명 선언
-		String strReqStatusNm = egovMessageSource.getMessage("excel.reqStatusNm");		
-		String strReqClsNm = egovMessageSource.getMessage("excel.reqClsNm");
-		String strReqNm = egovMessageSource.getMessage("excel.reqNm");
-		String strReqDesc = egovMessageSource.getMessage("excel.reqDesc");
-		String strReqDtm = egovMessageSource.getMessage("excel.reqDtm");
-		String strReqChargerNm = egovMessageSource.getMessage("excel.reqChargerNm");
-		String strReqDevWkTm = egovMessageSource.getMessage("excel.reqDevWkTm");
-		SheetHeader header = new SheetHeader(new String[]{strReqStatusNm, strReqClsNm, strReqNm, strReqDesc, strReqDtm, strReqChargerNm, strReqDevWkTm});
-		
+		// 엑셀 다운로드 양식의 헤더명 선언
+		String strPrjId 		= egovMessageSource.getMessage("excel.prjId");			// 프로젝트 ID
+		String strPrjNm 		= egovMessageSource.getMessage("excel.prjNm");			// 프로젝트 명
+		String strReqOrd 		= egovMessageSource.getMessage("excel.reqOrd");			// 요구사항 순번
+		String strReqId 		= egovMessageSource.getMessage("excel.reqId");			// 요구사항ID
+		String strReqProTypeNm 	= egovMessageSource.getMessage("excel.reqProTypeNm");	// 처리유형
+		String strReqNewTypeNm 	= egovMessageSource.getMessage("excel.reqNewTypeNm");	// 접수유형
+		String strReqNm 		= egovMessageSource.getMessage("excel.reqNm");			// 요구사항 명
+		String strReqDesc 		= egovMessageSource.getMessage("excel.reqDesc");		// 요구사항 설명
+		String strReqUsrNm 		= egovMessageSource.getMessage("excel.reqUsrNm");		// 요청자 명
+		String strReqDtm 		= egovMessageSource.getMessage("excel.reqDtm");			// 요청일
+		String strReUsrDeptNm 	= egovMessageSource.getMessage("excel.reqUsrDeptNm");	// 요청자 소속
+		String strReqUsrPositionNm 	= egovMessageSource.getMessage("excel.reqUsrPositionNm");	// 요청자 직급
+		String strReqUsrDutyNm 	= egovMessageSource.getMessage("excel.reqUsrDutyNm");	// 요청자 직책
+		String strReqUsrEmail 	= egovMessageSource.getMessage("excel.reqUsrEmail");	// 요청자 이메일
+		String strReqUsrNum 	= egovMessageSource.getMessage("excel.reqUsrNum");		// 요청자 연락처
+		String strReqStDtm 		= egovMessageSource.getMessage("excel.reqStDtm");		// 작업시작일자
+		String strReqEdDtm 		= egovMessageSource.getMessage("excel.reqEdDtm");		// 작업종료일자
+		String strReqStDuDtm	= egovMessageSource.getMessage("excel.reqStDuDtm");		// 작업시작 예정일자
+		String strReqEdDuDtm 	= egovMessageSource.getMessage("excel.reqEdDuDtm");		// 작업종료 예정일자
+		String strRegDtm 		= egovMessageSource.getMessage("excel.regDtm");			// 최초등록일시
+		String strRegUsrId 		= egovMessageSource.getMessage("excel.regUsrId");		// 최초등록자 ID
+		String strRegUsrIp		= egovMessageSource.getMessage("excel.regUsrIp");		// 최초등록자 IP
+		String strModifyDtm 	= egovMessageSource.getMessage("excel.modifyDtm");		// 최종수정일
+		String strModifyUsrId 	= egovMessageSource.getMessage("excel.modifyUsrId");	// 최종수정자 ID
+		String strModifyUsrIp 	= egovMessageSource.getMessage("excel.modifyUsrIp");	// 최종수정자 IP
+				
+		SheetHeader header = new SheetHeader(new String[]{strPrjId, strPrjNm, strReqOrd, strReqId, strReqProTypeNm, strReqNewTypeNm,
+														strReqNm, strReqDesc, strReqUsrNm, strReqDtm, strReUsrDeptNm, strReqUsrPositionNm, strReqUsrDutyNm,
+														strReqUsrEmail, strReqUsrNum, strReqStDuDtm, strReqEdDuDtm, strReqStDtm,
+														strReqEdDtm, strRegDtm, strRegUsrId, strRegUsrIp, strModifyDtm,
+														strModifyUsrId, strModifyUsrIp});
+				
 		/* 조회되는 데이터와 포멧 지정 
 		 * ex 1. 수치형 new Metadata("property", XSSFCellStyle.ALIGN_RIGHT, "#,##0")
 		 * ex 2. 사용자 지정 날짜 변환 new Metadata("property", ,"00-00-00") YYMMDD -> YY-MM-DD
-		 * */
-		List<Metadata> metadatas = new ArrayList<Metadata>(); 
-		metadatas.add(new Metadata("reqStatusNm"));
-		metadatas.add(new Metadata("reqClsNm"));
+		**/
+		List<Metadata> metadatas = new ArrayList<Metadata>();
+		metadatas.add(new Metadata("prjId"));
+		metadatas.add(new Metadata("prjNm"));
+		metadatas.add(new Metadata("reqOrd"));
+		metadatas.add(new Metadata("reqId"));
+		metadatas.add(new Metadata("reqProTypeNm"));
+		metadatas.add(new Metadata("reqNewTypeNm"));		        
 		metadatas.add(new Metadata("reqNm"));
 		metadatas.add(new Metadata("reqDesc"));
-		metadatas.add(new Metadata("reqDtm"));		        
-		metadatas.add(new Metadata("reqChargerNm"));
-		metadatas.add(new Metadata("reqDevWkTm"));
+		metadatas.add(new Metadata("reqUsrNm"));
+		metadatas.add(new Metadata("reqDtm"));
+		metadatas.add(new Metadata("reqUsrDeptNm"));
+		metadatas.add(new Metadata("reqUsrPositionNm"));
+		metadatas.add(new Metadata("reqUsrDutyNm"));
+		metadatas.add(new Metadata("reqUsrEmail"));
+		metadatas.add(new Metadata("reqUsrNum"));
+		metadatas.add(new Metadata("reqStDuDtm"));
+		metadatas.add(new Metadata("reqEdDuDtm"));
+		metadatas.add(new Metadata("reqStDtm"));
+		metadatas.add(new Metadata("reqEdDtm"));
+		metadatas.add(new Metadata("regDtm"));
+		metadatas.add(new Metadata("regUsrId"));
+		metadatas.add(new Metadata("regUsrIp"));
+		metadatas.add(new Metadata("modifyDtm"));
+		metadatas.add(new Metadata("modifyUsrId"));
+		metadatas.add(new Metadata("modifyUsrIp"));
 
-		BigDataSheetWriter writer = new BigDataSheetWriter(egovMessageSource.getMessage("excel.req1000.sheetNm"), tempPath, egovMessageSource.getMessage("excel.req1000.sheetNm"), metadatas);
+		
+		BigDataSheetWriter writer = new BigDataSheetWriter(URLEncoder.encode("사용자 요구사항 소요등록", "UTF-8"), tempPath, URLEncoder.encode("사용자 요구사항 소요등록", "UTF-8"), metadatas);
 
 		writer.beginSheet();
 
 		try{
-
 			HttpSession ss = request.getSession();
 
 			LoginVO loginVO = (LoginVO) ss.getAttribute("loginVO");
@@ -619,14 +669,14 @@ public class Req1000Controller {
 			req1000VO.setLoginUsrId(loginVO.getUsrId());
 			req1000VO.setLicGrpId(loginVO.getLicGrpId());
 			req1000VO.setPrjId((String) ss.getAttribute("selPrjId"));
+			req1000VO.setReqUsrId(loginVO.getUsrId());
 
 			ExcelDataListResultHandler  resultHandler = new ExcelDataListResultHandler(writer.getXMLSheetWriter(), writer.getStyleMap(), header, metadatas);
 
 			req1000Service.selectReq1000ExcelList(req1000VO,resultHandler);
-
 		}
 		catch(Exception ex){
-			Log.error("selectReq2000ExcelDownList()", ex);
+			Log.error("selectReq1000ExcelList()", ex);
 			throw new Exception(ex.getMessage());
 		}finally{
 			writer.endSheet();
@@ -706,7 +756,7 @@ public class Req1000Controller {
 			paramFiles.putAll(paramMap);
 			
 			model.addAttribute("reqList",reqList);
-			model.addAttribute("reqListJson",reqListJson);
+			model.addAttribute("reqListJson",reqListJson.replaceAll("<", "&lt"));
 
 			//등록 성공 메시지 세팅
 			model.addAttribute("saveYN", "Y");
@@ -739,7 +789,10 @@ public class Req1000Controller {
 			Map<String, Object> paramMap = RequestConvertor.requestParamToMapAddSelInfoList(request, true,"reqId");
 
 			HttpSession ss = request.getSession();
-
+			
+			//LoginVO에서 로그인 사용자명 가져오기
+			LoginVO loginVO = (LoginVO) ss.getAttribute("loginVO");
+			paramMap.put("whkRegUsrNm", loginVO.getUsrNm());
 			//삭제일경우
 			paramMap.put("prjId", (String)ss.getAttribute("selPrjId"));
 			

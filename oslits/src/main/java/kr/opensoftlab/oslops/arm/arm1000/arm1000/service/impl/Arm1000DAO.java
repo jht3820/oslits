@@ -1,10 +1,10 @@
-package kr.opensoftlab.oslits.arm.arm1000.arm1000.service.impl;
+package kr.opensoftlab.oslops.arm.arm1000.arm1000.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.arm.arm1000.arm1000.vo.Arm1000VO;
-import kr.opensoftlab.oslits.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.arm.arm1000.arm1000.vo.Arm1000VO;
+import kr.opensoftlab.oslops.com.dao.ComOslitsAbstractDAO;
 
 import org.springframework.stereotype.Repository;
 

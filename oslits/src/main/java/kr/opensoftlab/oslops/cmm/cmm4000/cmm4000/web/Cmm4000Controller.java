@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.cmm.cmm4000.cmm4000.web;
+package kr.opensoftlab.oslops.cmm.cmm4000.cmm4000.web;
 
 import java.util.HashMap;
 import java.util.List;
@@ -9,16 +9,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import kr.opensoftlab.oslits.adm.adm5000.adm5000.service.Adm5000Service;
-import kr.opensoftlab.oslits.adm.adm5000.adm5000.vo.Adm5000VO;
-import kr.opensoftlab.oslits.adm.adm5000.adm5200.service.Adm5200Service;
-import kr.opensoftlab.oslits.cmm.cmm4000.cmm4000.service.Cmm4000Service;
-import kr.opensoftlab.oslits.cmm.cmm4000.cmm4000.service.impl.Cmm4000ServiceImpl;
-import kr.opensoftlab.oslits.com.vo.LicVO;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.oslits.prj.prj1000.prj1000.service.Prj1000Service;
-import kr.opensoftlab.sdf.util.RequestConvertor;
 
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -37,6 +27,16 @@ import egovframework.com.cop.ems.service.SndngMailVO;
 import egovframework.com.utl.sim.service.EgovFileScrty;
 import egovframework.rte.fdl.cmmn.trace.LeaveaTrace;
 import egovframework.rte.fdl.property.EgovPropertyService;
+import kr.opensoftlab.oslops.adm.adm5000.adm5000.service.Adm5000Service;
+import kr.opensoftlab.oslops.adm.adm5000.adm5000.vo.Adm5000VO;
+import kr.opensoftlab.oslops.adm.adm5000.adm5200.service.Adm5200Service;
+import kr.opensoftlab.oslops.cmm.cmm4000.cmm4000.service.Cmm4000Service;
+import kr.opensoftlab.oslops.cmm.cmm4000.cmm4000.service.impl.Cmm4000ServiceImpl;
+import kr.opensoftlab.oslops.com.vo.LicVO;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.oslops.prj.prj1000.prj1000.service.Prj1000Service;
+import kr.opensoftlab.sdf.util.ModuleUseCheck;
+import kr.opensoftlab.sdf.util.RequestConvertor;
 
 /**
  * @Class Name : Cmm4000Controller.java
@@ -81,6 +81,10 @@ public class Cmm4000Controller {
 	@Resource(name = "propertiesService")
 	protected EgovPropertyService propertiesService;
 
+	/** ModuleUseCheck DI */
+	@Resource(name = "moduleUseCheck")
+	private ModuleUseCheck moduleUseCheck;
+	
 	/** TRACE */
 	@Resource(name = "leaveaTrace")
 	LeaveaTrace leaveaTrace;
@@ -107,11 +111,7 @@ public class Cmm4000Controller {
 	 */
     @RequestMapping(value="/cmm/cmm4000/cmm4000/selectCmm4000View.do")
     public String selectCmm4000View(Model model) throws Exception {
-    	
-    	
-    	
-    	
-		model.addAttribute("joinCheck", EgovProperties.getProperty("Globals.oslits.userJoin"));
+		model.addAttribute("joinCheck", EgovProperties.getProperty("Globals.lunaops.userJoin"));
     	return "/cmm/cmm4000/cmm4000/cmm4000";
     }
     
@@ -128,7 +128,7 @@ public class Cmm4000Controller {
      * @param response
      * @throws Exception
      */
-	@RequestMapping(value=" /cmm/cmm4000/cmm4000/selectCmm4000Logout.do")
+	@RequestMapping(value="/cmm/cmm4000/cmm4000/selectCmm4000Logout.do")
 	public String selectCmm4000Logout(HttpServletRequest request, HttpServletResponse response, ModelMap model)	throws Exception {
 		try{
 			// request 파라미터를 map으로 변환
@@ -151,7 +151,7 @@ public class Cmm4000Controller {
 			/* 로그아웃 여부 세팅 */
     		model.addAttribute("logoutYn", "Y");
 			model.addAttribute("message", egovMessageSource.getMessage("cmm4000.success.logout"));
-			model.addAttribute("joinCheck", EgovProperties.getProperty("Globals.oslits.userJoin"));
+			model.addAttribute("joinCheck", EgovProperties.getProperty("Globals.lunaops.userJoin"));
         	return "/cmm/cmm4000/cmm4000/cmm4000";
         	
     	}catch(Exception ex){
@@ -188,17 +188,17 @@ public class Cmm4000Controller {
     		loginVO.setModifyUsrIp(strUsrIp);
     		
     		
-    		
+    		// 비밀번호 초기화 시 새로 입력한 비밀번호 세팅
     		if(param.get("initPassYn") != null 
     				&& param.get("initPassYn").equals( "Y" )   ){
-    			String pass=cmm4000Service.updateCmm4000AccountInit(param);
+    			cmm4000Service.updateCmm4000AccountInit(param);
     			
     		}
     		
     		LoginVO rtnLoginVO = cmm4000Service.selectCmm4000LoginAction(loginVO);
     		
     		/* 중복로그인 확인후 로그인 진행  */
-    		String duplicationLoginOption = EgovProperties.getProperty("Globals.oslits.duplicationLoginOption");
+    		String duplicationLoginOption = EgovProperties.getProperty("Globals.lunaops.duplicationLoginOption");
     		
     		if("Y".equals(duplicationLoginOption)){
     			if(param.get("loginSessionYn") != null && "Y".equals(param.get("loginSessionYn"))){
@@ -239,7 +239,7 @@ public class Cmm4000Controller {
     				break;
     			case Cmm4000ServiceImpl.NO_SEARCH_ID :
     				model.addAttribute("loginYn", "N");
-            		model.addAttribute("message", egovMessageSource.getMessage("fail.common.idsearch"));
+    				model.addAttribute("message", egovMessageSource.getMessage("fail.common.login"));
     				returnPage ="/cmm/cmm4000/cmm4000/cmm4000";
     				break;
     			case Cmm4000ServiceImpl.ACCOUNT_LOCK :
@@ -254,7 +254,7 @@ public class Cmm4000Controller {
     				Object[] params = new Object[2];
     				params[0] = rtnLoginVO.getPwFailCnt();
     				params[1] = Cmm4000ServiceImpl.MAX_WRONG_PASSWORD_LIMIT_COUNT;
-            		model.addAttribute("message", egovMessageSource.getMessage("fail.common.wrongPw",params ));
+    				model.addAttribute("message", egovMessageSource.getMessage("fail.common.login"));
             		insertAdm5000AuthLoginLog(rtnLoginVO, request, FAIL);
     				returnPage ="/cmm/cmm4000/cmm4000/cmm4000";
     				break;
@@ -275,6 +275,9 @@ public class Cmm4000Controller {
     			case Cmm4000ServiceImpl.PW_EXPORED :
     				
     				model.addAttribute("loginYn", "N");
+    				model.addAttribute("usrId", rtnLoginVO.getUsrId());
+    				model.addAttribute("licGrpId", rtnLoginVO.getLicGrpId());
+    				model.addAttribute("exprYn", "Y");
             		model.addAttribute("message", egovMessageSource.getMessage("fail.common.pwExpired"));
             		insertAdm5000AuthLoginLog(rtnLoginVO, request, FAIL);
     				returnPage ="/cmm/cmm4000/cmm4000/cmm4000";
@@ -288,7 +291,7 @@ public class Cmm4000Controller {
     			case Cmm4000ServiceImpl.INITIAL_ACCOUNT_WAIT_MINUTE_AFTER:
     				model.addAttribute("loginYn", "N");
     				Object[] initparams = new Object[1];
-    				initparams[0] = Cmm4000ServiceImpl.INITIAL_ACCOUNT_WAIT_MINUTE;
+    				initparams[0] = (Cmm4000ServiceImpl.INITIAL_ACCOUNT_WAIT_MINUTE/60);
             		model.addAttribute("message", egovMessageSource.getMessage("fail.common.initimeblock",initparams));
             		insertAdm5000AuthLoginLog(rtnLoginVO, request, FAIL);
             		returnPage ="/cmm/cmm4000/cmm4000/cmm4000";
@@ -418,6 +421,9 @@ public class Cmm4000Controller {
     		// 사용자의 가장 최근 로그인 이력을 조회
     		String recentLogin = cmm4000Service.selectCmm4000RecentLoginDate(loginVO);
     		
+    		// 사용자의 이전 접속IP 주소와 현재 접속IP주소 조회
+    		List<Map> userAccessIpInfoList = cmm4000Service.selectCmm4000AccessIpInfo(loginVO);
+    		
     		// 로그인 이력 조회 후 기존 로그인 이력 갱신
     		cmm4000Service.updateCmm4000RecentLoginDate(loginVO);
     		
@@ -460,6 +466,9 @@ public class Cmm4000Controller {
     		paramMap.put("adminYn", loginVO.getAdmYn());
     		
     		List<Map> menuList = (List) cmm4000Service.selectCmm4000MenuList(paramMap);
+
+        	//모듈 사용 체크
+    		menuList = moduleUseCheck.moduleUseMenuList(menuList, request);
     		
     		//세션에 정보 저장
     		ss.setAttribute("prjList", prjList);
@@ -477,12 +486,11 @@ public class Cmm4000Controller {
     		// 로그인한 사용자 정보 저장
     		ss.setAttribute("loginUsrInfo", loginUsrInfo);
     		
-    		// 만료일이 한달 이하일 경우 만료일 정보 저장
-    		if(limitDay <= 30){
-    			ss.setAttribute("limitDay", limitDay);
-    		}
+    		// 만료일이 만료일 정보 저장
+    		ss.setAttribute("limitDay", limitDay);
 
-    		//임시 모든 로그인 사용자 대시보드 - 운영으로
+    		// 사용자의 이전,현재 접속IP정보 저장
+    		ss.setAttribute("userAccessIpInfoList", userAccessIpInfoList);
     		
     		String strRsltUrl = getLoginAfterMainURL( paramMap ,  ss) ;
     		//strRsltUrl = "/dsh/dsh1000/dsh1000/selectDsh1000View.do";
@@ -507,6 +515,7 @@ public class Cmm4000Controller {
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("rawtypes")
 	public String getLoginAfterMainURL(Map paramMap , HttpSession ss) throws Exception{
 		List mainMenuList = cmm4000Service.selectCmm4000LoginMainMenuList(paramMap);
 		String strRsltUrl = "";
@@ -529,6 +538,8 @@ public class Cmm4000Controller {
 			ss.setAttribute("selBtnAuthDeleteYn", ((Map)mainMenuList.get(1)).get("delYn"));
 			ss.setAttribute("selBtnAuthExcelYn", ((Map)mainMenuList.get(1)).get("excelYn"));
 			ss.setAttribute("selBtnAuthPrintYn", ((Map)mainMenuList.get(1)).get("printYn"));
+
+			ss.setAttribute("selAcceptUseCd", ((Map)mainMenuList.get(1)).get("acceptUseCd"));
 		}else{
 			strRsltUrl=(String) ((Map)mainMenuList.get(0)).get("menuUrl");
 			strMenuId=(String) ((Map)mainMenuList.get(0)).get("menuId");
@@ -546,6 +557,7 @@ public class Cmm4000Controller {
 			ss.setAttribute("selBtnAuthDeleteYn", ((Map)mainMenuList.get(0)).get("delYn"));
 			ss.setAttribute("selBtnAuthExcelYn", ((Map)mainMenuList.get(0)).get("excelYn"));
 			ss.setAttribute("selBtnAuthPrintYn", ((Map)mainMenuList.get(0)).get("printYn"));
+			ss.setAttribute("selAcceptUseCd", ((Map)mainMenuList.get(0)).get("acceptUseCd"));
 		}
 		return strRsltUrl;
 	}
@@ -560,6 +572,7 @@ public class Cmm4000Controller {
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<Map> getAuthGroupList(LoginVO loginVO, List<Map> prjList , HttpSession ss) throws Exception{
 
 		//우선순위 가장 높은 프로젝트 정보 맵 가져오기
@@ -592,7 +605,8 @@ public class Cmm4000Controller {
 		//선택한 프로젝트 및 권한 id 저장
 		ss.setAttribute("selPrjId", fstPrjMap.get("prjId"));
 		ss.setAttribute("selPrjGrpId", fstPrjMap.get("prjGrpId"));
-		
+		ss.setAttribute("selPrjTaskTypeCd", fstPrjMap.get("prjTaskTypeCd"));
+		ss.setAttribute("selPrjTaskTypeNm", fstPrjMap.get("prjTaskTypeNm"));
 		return authList;
 		
 	}
@@ -613,7 +627,7 @@ public class Cmm4000Controller {
     		LicVO licVO = cmm4000Service.selectCmm4000LicInfo(loginVO);
     		
     		//활성화 라이선스가 존재하면
-    		if(licVO != null && !licVO.getIsActLicYn().equals("") && "Y".equals(licVO.getIsActLicYn())){
+    		if(licVO != null){
     			request.getSession().setAttribute("licVO", licVO);
     			return true;
     		}
@@ -730,7 +744,6 @@ public class Cmm4000Controller {
 			// 이름, 이메일 체크 완료
 			map.put("nmChk", "Y");
 			map.put("emailChk", "Y");
-
 
 			// 이메일 전송 문구
 			map.put("emailSend","");
@@ -1414,4 +1427,74 @@ public class Cmm4000Controller {
 		//return "forward:/cmm/cmm4001/cmm4001/selectCmm4001ChkAction.do";
 		return "/cmm/cmm4000/cmm4000/cmm4002";
 	}
+	
+	/**
+     * Cmm4000 1년이내 사용한 비밀번호 체크
+     * @param request
+     * @param response
+     * @throws Exception
+     */
+	@RequestMapping(value="/cmm/cmm4000/cmm4000/selectCmm4000BeforeUsedPwChkAjax.do")
+	public ModelAndView selectCmm4000BeforeUsedPwChkAjax(HttpServletRequest request, HttpServletResponse response, ModelMap model)	throws Exception {
+		try{
+			// request 파라미터를 map으로 변환
+        	Map<String, String> paramMap = RequestConvertor.requestParamToMap(request, true);	
+        	
+        	// 사용자 1년이내 사용한 비밀번호 체크 
+        	String isUsedPw = adm5200Service.selectAdm5200BeforeUsedPwCheck(paramMap);
+        	
+        	// 비밀번호 체크결과 세팅
+        	model.addAttribute("isUsedPw", isUsedPw);
+        	
+        	// 조회 메시지 세팅
+        	model.addAttribute("successYn", "Y");
+        	model.addAttribute("message", egovMessageSource.getMessage("success.common.select"));
+        	
+        	return new ModelAndView("jsonView");
+        	
+		}catch(Exception e){
+			Log.error("selectCmm4000BeforeUsedPwChkAjax()", e);
+			
+    		model.addAttribute("successYn", "N");
+    		model.addAttribute("message", egovMessageSource.getMessage("fail.common.select"));
+    		
+    		return new ModelAndView("jsonView");
+		}
+    }
+	
+	/**
+     * Cmm4000 비밀번호 만료된 사용자의 비밀번호 변경
+     * @param request
+     * @param response
+     * @throws Exception
+     */
+	@RequestMapping(value="/cmm/cmm4000/cmm4000/selectCmm4000ExprPwReset.do")
+	public ModelAndView selectCmm4000ExprPwReset(HttpServletRequest request, HttpServletResponse response, ModelMap model)	throws Exception {
+		try{
+			// request 파라미터를 map으로 변환
+			Map<String, String> param = RequestConvertor.requestParamToMap(request, true);
+			
+			String pwChkVal = "Y";
+			
+			// 사용자의 현재 비밀번호 체크
+			int chkVal = cmm4000Service.selectCmm4000CurtPwChk(param);
+
+			// 입력한 비밀번호가 없을 경우 => 비밀번호 잘못입력
+			if(chkVal < 1){
+				pwChkVal = "N";
+	    		model.addAttribute("pwChkVal", pwChkVal);
+	    		return new ModelAndView("jsonView", model);
+			}
+    			
+			// 현재 사용자 비밀번호를 정상적으로 입력했을 경우 비밀번호 수정
+    		cmm4000Service.updateCmm4000PasswordExprInit(param);
+    		
+    		model.addAttribute("pwChkVal", pwChkVal);
+			return new ModelAndView("jsonView", model);
+        	
+    	}catch(Exception ex){
+    		Log.error("selectCmm4000ExprPwReset()", ex);
+    		throw new Exception(ex.getMessage());
+    	}
+    }
 }

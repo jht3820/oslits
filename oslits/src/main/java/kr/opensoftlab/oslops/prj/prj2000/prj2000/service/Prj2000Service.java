@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.prj.prj2000.prj2000.service;
+package kr.opensoftlab.oslops.prj.prj2000.prj2000.service;
 
 import java.util.List;
 import java.util.Map;
@@ -125,7 +125,28 @@ public interface Prj2000Service {
 	@SuppressWarnings("rawtypes")
 	void savePrj2000PrjUsrAuthListAjax(Map paramMap) throws Exception;
 
+	@SuppressWarnings("rawtypes")
 	Map selectPrj2000AuthGrpInfoAjax(Map paramMap) throws Exception;
 
+	@SuppressWarnings("rawtypes")
 	int updatePrj2000AuthGrpInfoAjax(Map paramMap) throws Exception;
+
+	/**
+	 * Prj2000 [역할그룹 복사] 관리자 권한을 가지고있는 프로젝트의 역할그룹 목록
+	 * @param 
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	List selectPrj2000AuthGrpCopyList(Map paramMap) throws Exception;
+	
+	/**
+	 * Prj2000 역할그룹 추가 시 현재 프로젝트의 역할그룹 최고 순번+1 값을 을 가져온다.
+	 * 역할그룹 관리 - 역할그룹 등록 팝업에 사용
+	 * @param 
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	int selectPrj2000AuthGrpNextOrd(Map paramMap) throws Exception;
 }

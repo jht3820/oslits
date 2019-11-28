@@ -1,9 +1,9 @@
-package kr.opensoftlab.oslits.cmm.cmm1000.cmm1700.service.impl;
+package kr.opensoftlab.oslops.cmm.cmm1000.cmm1700.service.impl;
 
 import java.util.List;
 
-import kr.opensoftlab.oslits.cmm.cmm1000.cmm1700.vo.Cmm1700VO;
-import kr.opensoftlab.oslits.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.cmm.cmm1000.cmm1700.vo.Cmm1700VO;
+import kr.opensoftlab.oslops.com.dao.ComOslitsAbstractDAO;
 
 import org.springframework.stereotype.Repository;
 

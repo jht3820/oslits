@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.dsh.dsh4000.dsh4000.vo;
+package kr.opensoftlab.oslops.dsh.dsh4000.dsh4000.vo;
 
 /**
  * @Class Name : Stm3000VO.java
@@ -13,7 +13,7 @@ package kr.opensoftlab.oslits.dsh.dsh4000.dsh4000.vo;
  *  Copyright (C) OpenSoftLab Corp All right reserved.
  */
 
-import kr.opensoftlab.oslits.com.vo.PageVO;
+import kr.opensoftlab.oslops.com.vo.PageVO;
 
 public class Dsh4000VO extends PageVO {
 	

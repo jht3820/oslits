@@ -1,20 +1,16 @@
-package kr.opensoftlab.oslits.prj.prj2000.prj2000.web;
+package kr.opensoftlab.oslops.prj.prj2000.prj2000.web;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import kr.opensoftlab.oslits.adm.adm1000.adm1000.web.Adm1000Controller;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.oslits.prj.prj2000.prj2000.service.Prj2000Service;
-import kr.opensoftlab.sdf.util.RequestConvertor;
 
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -25,6 +21,11 @@ import org.springframework.web.servlet.ModelAndView;
 import egovframework.com.cmm.EgovMessageSource;
 import egovframework.rte.fdl.cmmn.trace.LeaveaTrace;
 import egovframework.rte.fdl.property.EgovPropertyService;
+import kr.opensoftlab.oslops.adm.adm1000.adm1000.web.Adm1000Controller;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.oslops.prj.prj2000.prj2000.service.Prj2000Service;
+import kr.opensoftlab.sdf.util.ModuleUseCheck;
+import kr.opensoftlab.sdf.util.RequestConvertor;
 
 /**
  * @Class Name : Prj2000Controller.java
@@ -57,6 +58,10 @@ public class Prj2000Controller {
 	@Resource(name = "propertiesService")
 	protected EgovPropertyService propertiesService;
 
+	/** ModuleUseCheck DI */
+	@Resource(name = "moduleUseCheck")
+	private ModuleUseCheck moduleUseCheck;
+	
 	/** TRACE */
 	@Resource(name = "leaveaTrace")
 	LeaveaTrace leaveaTrace;
@@ -67,33 +72,9 @@ public class Prj2000Controller {
 	 * @return 
 	 * @exception Exception
 	 */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
 	@RequestMapping(value="/prj/prj2000/prj2000/selectPrj2000View.do")
-    public String selectPrj2000View(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
-    	
-    	try{
-    		//로그인VO 가져오기
-    		HttpSession ss = request.getSession();
-    		LoginVO loginVO = (LoginVO) ss.getAttribute("loginVO");
-        	
-        	Map paramMap = new HashMap<String, String>();
-        	
-        	paramMap.put("prjId", ss.getAttribute("selPrjId"));
-        	paramMap.put("authGrpId", ss.getAttribute("selAuthGrpId"));
-        	paramMap.put("usrId", loginVO.getUsrId());
-        	paramMap.put("licGrpId", loginVO.getLicGrpId());
-        	
-        	//프로젝트에 생성되어 있는 권한그룹 목록 가져오기
-        	List<Map> prjAuthGrpList = (List) prj2000Service.selectPrj2000PrjAuthGrpList(paramMap);
-        	
-        	model.addAttribute("prjAuthGrpList", prjAuthGrpList);
-        	
+    public String selectPrj2000View(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {    	
         	return "/prj/prj2000/prj2000/prj2000";
-    	}
-    	catch(Exception ex){
-    		Log.error("selectPrj2000View()", ex);
-    		throw new Exception(ex.getMessage());
-    	}
     }
     
     
@@ -150,9 +131,12 @@ public class Prj2000Controller {
         	HttpSession ss = request.getSession();
        		LoginVO loginVO = (LoginVO) ss.getAttribute("loginVO");
        		paramMap.put("adminYn", loginVO.getAdmYn());
-       		paramMap.put("prjId", ss.getAttribute("selPrjId"));
+       		//paramMap.put("prjId", ss.getAttribute("selPrjId"));
         	//소분류 메뉴 정보 목록 조회
         	List<Map> authGrpSmallMenuList = (List) prj2000Service.selectPrj2000AuthGrpSmallMenuList(paramMap);
+
+        	//모듈 사용 체크
+        	authGrpSmallMenuList = moduleUseCheck.moduleUseMenuList(authGrpSmallMenuList, request);
         	
         	model.addAttribute("authGrpSmallMenuList", authGrpSmallMenuList);
         	
@@ -180,12 +164,29 @@ public class Prj2000Controller {
 	@RequestMapping(value="/prj/prj2000/prj2000/selectPrj2001View.do")
     public String selectPrj2001View(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
     	
-    	try{
-        	
+		try{
+    		// request 파라미터를 map으로 변환
+        	Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
+    		
+        	// 팝업 구분이 수정이 아닐경우
+        	if(!"update".equals(paramMap.get("gb"))) {
+    			// 세션에서 loginVO값을 가져온다.
+            	HttpSession ss = request.getSession();
+           		LoginVO loginVO = (LoginVO) ss.getAttribute("loginVO");
+           		// 라이선스 그룹 Id Map에 세팅
+               	paramMap.put("licGrpId", loginVO.getLicGrpId());
+               	// 프로젝트 ID 세팅
+               	paramMap.put("prjId", paramMap.get("selPrjId"));
+               	
+        		// 새로 추가할 역할그룹의 순번값을 가져온다. (현재 프로젝트에 등록된 역할그룹 순번의 최고값 +1)
+               	int authGrpNextOrd = prj2000Service.selectPrj2000AuthGrpNextOrd(paramMap);
+               	model.addAttribute("authGrpNextOrd", authGrpNextOrd);
+    		}
+           	
         	return "/prj/prj2000/prj2000/prj2001";
     	}
     	catch(Exception ex){
-    		Log.error("selectPrj2000View()", ex);
+    		Log.error("selectPrj2001View()", ex);
     		throw new Exception(ex.getMessage());
     	}
     }
@@ -286,11 +287,10 @@ public class Prj2000Controller {
         	String authGrpId = request.getParameter("menuAuthGrpId");
         	String mainMenuId = request.getParameter("mainMenuId");
                 	
-        	String tempMenuId = "";
         	String strStatusMenuId = "";
     		String strStatus = "";
-    		
-        	Map chkMap = new HashMap();
+        	
+        	Map<String, Map> menuIdMap = new HashMap<String, Map>();
         	
         	while(enu.hasMoreElements()){
         		String strKeys = (String) enu.nextElement();
@@ -306,6 +306,26 @@ public class Prj2000Controller {
         		if("status".equals(strKeys.substring(0,6))){
         			strStatusMenuId = strKeys.substring(6,18);
         			strStatus = request.getParameter(strKeys);
+        			
+        			//menuId 존재하지 않는 경우
+        			if(!menuIdMap.containsKey(strStatusMenuId)) {
+        				//menuId 정보 생성
+        				Map<String, String> menuDataMap = new HashMap<String, String>();
+        				
+        				//기본정보 생성된 맵에 붙이기
+        				RequestConvertor.mapAddCommonInfo(request, menuDataMap);
+        				
+        				//정보 추가 (2depth Map)
+        				menuIdMap.put(strStatusMenuId, menuDataMap);
+        				
+        				//menuId, mainMenuId, authGrpId put
+        				menuIdMap.get(strStatusMenuId).put("authGrpId", authGrpId);
+        				menuIdMap.get(strStatusMenuId).put("mainMenuId", mainMenuId);
+        				menuIdMap.get(strStatusMenuId).put("menuId", strStatusMenuId);
+        			}
+        			
+        			//status
+        			menuIdMap.get(strStatusMenuId).put("status", strStatus);
         		}
         		
         		//hidden으로 담아온 체크박스 체크여부 값을 key value로 세팅해 list에 담는다.
@@ -313,6 +333,27 @@ public class Prj2000Controller {
         			menuId = strKeys.substring(6,18);
         			colNm = strKeys.substring(18);
         			
+        			//menuId 존재하지 않는 경우
+        			if(!menuIdMap.containsKey(menuId)) {
+        				//menuId 정보 생성
+        				Map<String, String> menuDataMap = new HashMap<String, String>();
+        				
+        				//기본정보 생성된 맵에 붙이기
+        				RequestConvertor.mapAddCommonInfo(request, menuDataMap);
+        				
+        				//정보 추가 (2depth Map)
+        				menuIdMap.put(menuId, menuDataMap);
+        				
+        				//menuId, mainMenuId, authGrpId put
+        				menuIdMap.get(menuId).put("authGrpId", authGrpId);
+        				menuIdMap.get(menuId).put("mainMenuId", mainMenuId);
+        				menuIdMap.get(menuId).put("menuId", menuId);
+        			}
+        			
+        			//수정된 값 put
+        			menuIdMap.get(menuId).put(colNm, request.getParameter("hidden" + menuId + colNm));
+        			
+        			/*
         			//이전 저장된 menuId와 지금 꺼낸 메뉴 ID가 같으면 한맵에 컬럼 정보로 담는다.
         			if(tempMenuId.equals(menuId)){
         				chkMap.put(colNm, request.getParameter("hidden" + menuId + colNm));
@@ -341,7 +382,14 @@ public class Prj2000Controller {
         				chkMap.put(colNm, request.getParameter("hidden" + menuId + colNm));
         			}
         			tempMenuId = menuId;
+        			*/
         		}
+        	}
+        	
+        	//Map to List
+        	for(Entry<String, Map> mapInfo : menuIdMap.entrySet()) {
+        		Map newMap = mapInfo.getValue();
+        		list.add(newMap);
         	}
 
         	//메뉴권한정보 저장 처리
@@ -515,6 +563,7 @@ public class Prj2000Controller {
      * @return
      * @throws Exception
      */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @RequestMapping(value="/prj/prj2000/prj2000/updatePrj2000AuthGrpInfoAjax.do")
     public ModelAndView updatePrj2000AuthGrpInfoAjax(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
     	
@@ -550,5 +599,100 @@ public class Prj2000Controller {
     		model.addAttribute("message", egovMessageSource.getMessage("fail.common.update"));
     		return new ModelAndView("jsonView");
     	}
-    }	
+    }
+    
+    /**
+     * 
+     * 프로젝트 역할 그룹 조회
+     * 
+     * @param request
+     * @param response
+     * @param model
+     * @return
+     * @throws Exception
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	@RequestMapping(value="/prj/prj2000/prj2000/selectPrj2000PrjAuthGrpList.do")
+    public ModelAndView selectPrj2000PrjAuthGrpList(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
+    	
+    	try{
+        	
+    		//로그인VO 가져오기
+    		HttpSession ss = request.getSession();
+    		LoginVO loginVO = (LoginVO) ss.getAttribute("loginVO");
+        	
+        	Map paramMap = new HashMap<String, String>();
+        	
+        	paramMap.put("prjId", ss.getAttribute("selPrjId"));
+        	paramMap.put("authGrpId", ss.getAttribute("selAuthGrpId"));
+        	paramMap.put("usrId", loginVO.getUsrId());
+        	paramMap.put("licGrpId", loginVO.getLicGrpId());
+        	// 업무역할 관리(prj2000)에서는 프로젝트의 권한 조회 시 사용유무 관계없이 모든 권한 조회한다.
+        	paramMap.put("view", "prj2000");
+        	
+        	//프로젝트에 생성되어 있는 권한그룹 목록 가져오기
+        	List<Map> prjAuthGrpList = (List) prj2000Service.selectPrj2000PrjAuthGrpList(paramMap);
+        	
+        	model.addAttribute("prjAuthGrpList", prjAuthGrpList);
+        	
+        	//조회성공메시지 세팅
+        	model.addAttribute("message", egovMessageSource.getMessage("success.common.select"));
+        	
+        	return new ModelAndView("jsonView");
+    	}
+    	catch(Exception ex){
+    		Log.error("selectPrj2000PrjAuthGrpList()", ex);
+    		
+    		//조회실패 메시지 세팅
+    		model.addAttribute("message", egovMessageSource.getMessage("fail.common.select"));
+    		return new ModelAndView("jsonView");
+    	}
+    }
+    
+
+	/**
+	 * [역할그룹 복사] 관리자 권한을 가지고있는 프로젝트의 역할그룹 목록
+	 * @param 
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@RequestMapping(value="/prj/prj2000/prj2000/selectPrj2000AuthGrpCopyList.do")
+	public ModelAndView selectPrj2000AuthGrpCopyList(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
+		
+		try{
+			// request 파라미터를 map으로 변환
+			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
+			
+			//프로젝트 ID 가져오기
+			HttpSession ss = request.getSession();
+			LoginVO loginVO = (LoginVO) ss.getAttribute("loginVO");
+    		paramMap.put("usrId", loginVO.getUsrId());
+
+			List<Map> authGrpCopyList = prj2000Service.selectPrj2000AuthGrpCopyList(paramMap);
+			model.addAttribute("authGrpCopyList", authGrpCopyList);
+			
+			paramMap.remove("prjId");
+			paramMap.put("prjId", "ROOTSYSTEM_PRJ");
+			
+			//ROOTSYSTEM_PRJ 역할그룹 목록 불러오기
+			List<Map> rootAuthGrpList = prj2000Service.selectPrj2000PrjAuthGrpList(paramMap);
+			model.addAttribute("rootAuthGrpList", rootAuthGrpList);
+			
+			//성공 메시지 세팅
+			model.addAttribute("errorYN", "N");
+			model.addAttribute("message", egovMessageSource.getMessage("success.common.select"));
+			
+			return new ModelAndView("jsonView");
+		}
+		catch(Exception ex){
+			Log.error("selectPrj2000AuthGrpCopyList()", ex);
+			
+			//조회실패 메시지 세팅 및 저장 성공여부 세팅
+			model.addAttribute("errorYN", "Y");
+			model.addAttribute("message", egovMessageSource.getMessage("fail.common.select"));
+			return new ModelAndView("jsonView");
+		}
+	}
+	
 }

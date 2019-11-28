@@ -1,8 +1,8 @@
-package kr.opensoftlab.oslits.prs.prs2000.prs2000.service;
+package kr.opensoftlab.oslops.prs.prs2000.prs2000.service;
 
 import java.util.List;
 
-import kr.opensoftlab.oslits.prs.prs2000.prs2000.vo.Prs2000VO;
+import kr.opensoftlab.oslops.prs.prs2000.prs2000.vo.Prs2000VO;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 
 

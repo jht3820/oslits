@@ -1,10 +1,10 @@
-package kr.opensoftlab.oslits.req.req4700.req4700.service.impl;
+package kr.opensoftlab.oslops.req.req4700.req4700.service.impl;
 
 import java.util.Map;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.req.req4700.req4700.service.Req4700Service;
+import kr.opensoftlab.oslops.req.req4700.req4700.service.Req4700Service;
 
 import org.springframework.stereotype.Service;
 

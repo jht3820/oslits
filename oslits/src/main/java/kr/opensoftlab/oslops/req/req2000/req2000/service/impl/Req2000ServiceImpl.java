@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.req.req2000.req2000.service.impl;
+package kr.opensoftlab.oslops.req.req2000.req2000.service.impl;
 
 /**
  * @Class Name : Req2000Service.java
@@ -18,7 +18,8 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.req.req2000.req2000.service.Req2000Service;
+import kr.opensoftlab.oslops.req.req2000.req2000.service.Req2000Service;
+import kr.opensoftlab.oslops.req.req4000.req4100.vo.Req4100VO;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 
 import org.springframework.stereotype.Service;
@@ -58,7 +59,7 @@ public class Req2000ServiceImpl extends EgovAbstractServiceImpl implements Req20
 			throw new Exception("요구사항 코멘트 등록 실패");
 		}
 	}
-	
+
 	/**
 	 * req2000 요구사항 목록 엑셀 다운로드
 	 * @param param - Map
@@ -70,5 +71,5 @@ public class Req2000ServiceImpl extends EgovAbstractServiceImpl implements Req20
 	public void selectReq2000ExcelList(Map paramMap, ExcelDataListResultHandler resultHandler) throws Exception {
 		req2000DAO.selectReq2000ExcelList(paramMap, resultHandler);
 	}
-	
+
 }

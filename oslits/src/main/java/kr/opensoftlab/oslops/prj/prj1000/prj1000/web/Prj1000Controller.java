@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.prj.prj1000.prj1000.web;
+package kr.opensoftlab.oslops.prj.prj1000.prj1000.web;
 
 import java.util.List;
 import java.util.Map;
@@ -8,10 +8,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import kr.opensoftlab.oslits.cmm.cmm4000.cmm4000.service.Cmm4000Service;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.oslits.prj.prj1000.prj1000.service.Prj1000Service;
-import kr.opensoftlab.oslits.prj.prj2000.prj2000.service.Prj2000Service;
+import kr.opensoftlab.oslops.cmm.cmm4000.cmm4000.service.Cmm4000Service;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.oslops.prj.prj1000.prj1000.service.Prj1000Service;
+import kr.opensoftlab.oslops.prj.prj2000.prj2000.service.Prj2000Service;
+import kr.opensoftlab.sdf.util.ModuleUseCheck;
 import kr.opensoftlab.sdf.util.RequestConvertor;
 
 import org.apache.log4j.Logger;
@@ -62,6 +63,10 @@ public class Prj1000Controller {
 	@Resource(name = "propertiesService")
 	protected EgovPropertyService propertiesService;
 
+	/** ModuleUseCheck DI */
+	@Resource(name = "moduleUseCheck")
+	private ModuleUseCheck moduleUseCheck;
+	
 	/** TRACE */
 	@Resource(name = "leaveaTrace")
 	LeaveaTrace leaveaTrace;
@@ -76,11 +81,48 @@ public class Prj1000Controller {
 	 */
 	@RequestMapping(value="/prj/prj1000/prj1000/selectPrj1000View.do")
     public String selectPrj1000View(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
-			
         	return "/prj/prj1000/prj1000/prj1000";
     }
     
-    
+	/**
+	 * Prj1004 프로젝트 생성 마법사 팝업
+	 * @param 
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@RequestMapping(value="/prj/prj1000/prj1000/selectPrj1004View.do")
+    public String selectPrj1004View(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
+		//리퀘스트에서 넘어온 파라미터를 맵으로 세팅
+		Map<String, String> paramMap = RequestConvertor.requestParamToMap(request, true);
+				
+		//로그인VO 가져오기
+		HttpSession ss = request.getSession();
+		LoginVO loginVO = (LoginVO) ss.getAttribute("loginVO");
+		paramMap.put("usrId", loginVO.getUsrId());
+		paramMap.put("prjGrpCd", "01");
+
+		// 전체프로젝트 생성관리인지 프로젝트 생성관리인지 구분하는 값
+		String pageType = paramMap.get("pageType");
+			
+		List<Map> prjList = null;
+		
+		// 전체 프로젝트 생성관리에서 프로젝트 생성 마법사 팝업 호출시
+		if(pageType != null && "systemAdmin".equals(pageType)){
+			// 라이선스 그룹의 모든 프로젝트 그룹을 불러온다
+			prjList = prj1000Service.selectPrj1000ProjectGroupListAjax(paramMap);
+		// 프로젝트 생성관리에서 프로젝트 마법사 팝업 호출시	
+		}else {
+			//프로젝트 목록 불러오기
+			prjList = (List)prj1000Service.selectPrj1000View(paramMap);
+		}
+				
+		if(prjList != null && prjList.size() > 0){
+			model.addAttribute("prjList",prjList);
+		}
+				
+        return "/prj/prj1000/prj1000/prj1004";
+    }
     
     /**
 	 * Prj1000 조회버튼 클릭시 프로젝트 생성관리 조회 AJAX
@@ -269,7 +311,7 @@ public class Prj1000Controller {
         	//생성 타입
         	String type = (String) paramMap.get("type");
         	
-        	int count = 0;
+        	int count = 0; 
         	
         	//그룹 생성인경우
         	if("group".equals(type)){
@@ -297,6 +339,11 @@ public class Prj1000Controller {
         	}
         	
         	if(count == 0){
+        		
+        		// 세션 재세팅을 위한 프로젝트 목록 불러올 때 프로젝트 그룹값 Map에서 제거한다.
+    			// 그렇지 않으면 단위 프로젝트만 조회되어 세션에 세팅된다.
+    			paramMap.remove("prjGrpCd");
+        		
 	        	//세션 재 세팅 - prjList
 	        	//프로젝트 목록 불러오기
 	    		List<Map> prjList = (List)prj1000Service.selectPrj1000View(paramMap);
@@ -313,7 +360,6 @@ public class Prj1000Controller {
         		model.addAttribute("errorYN", "Y");
         		model.addAttribute("duplicateYN", "Y");
         	}
-        	
         	
         	return new ModelAndView("jsonView", model);
     	}
@@ -364,6 +410,9 @@ public class Prj1000Controller {
 			String usrId = (String)loginVO.getUsrId();
 			paramMap.put("usrId", usrId);
 			
+			// 세션 재세팅을 위한 프로젝트 목록 불러올 때 프로젝트 그룹값 Map에서 제거한다.
+			// 그렇지 않으면 단위 프로젝트만 조회되어 세션에 세팅된다.
+			paramMap.remove("prjGrpCd");
 			//세션 재 세팅 - prjList
         	//프로젝트 목록 불러오기
     		List<Map> prjList = (List)prj1000Service.selectPrj1000View(paramMap);
@@ -453,6 +502,8 @@ public class Prj1000Controller {
         	}
         	
         	//세션 재 세팅 - prjList
+        	//전체 조회 위해서 prjGrpCd 제거
+        	paramMap.remove("prjGrpCd");
         	//프로젝트 목록 불러오기
     		List<Map> prjList = (List)prj1000Service.selectPrj1000View(paramMap);
     		
@@ -476,7 +527,7 @@ public class Prj1000Controller {
     }
 
 	
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@RequestMapping(value="/prj/prj1000/prj1000/selectPrj1000ProjectGroupListAjax.do")
     public ModelAndView selectPrj1000ProjectGroupListAjax(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
@@ -506,6 +557,96 @@ public class Prj1000Controller {
     		
     		model.addAttribute("errorYn", 'Y');
     		model.addAttribute("message", egovMessageSource.getMessage("fail.common.select"));
+    		return new ModelAndView("jsonView");
+    	}
+    }
+	
+	/**
+	 * 관리 권한 있는 프로젝트 목록 검색
+	 * @param 
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings({"rawtypes", "unchecked" })
+	@RequestMapping(value="/prj/prj1000/prj1000/selectPrj1000AdminPrjList.do")
+    public ModelAndView selectPrj1000AdminPrjList(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
+    	try{
+    		// request 파라미터를 map으로 변환
+        	Map<String, String> paramMap = RequestConvertor.requestParamToMap(request, true);
+        	
+ 
+    		//로그인VO 가져오기
+    		HttpSession ss = request.getSession();
+    		LoginVO loginVO = (LoginVO) ss.getAttribute("loginVO");
+    		paramMap.put("usrId", loginVO.getUsrId());
+    		
+    		List<Map> adminPrjList = prj1000Service.selectPrj1000AdminPrjList(paramMap);
+
+
+    		model.addAttribute("adminPrjList", adminPrjList);
+    		model.addAttribute("errorYn", 'N');
+        	model.addAttribute("message", egovMessageSource.getMessage("success.common.select"));
+        	
+        	return new ModelAndView("jsonView", model);
+    	}
+    	catch(Exception ex){
+    		Log.error("selectPrj1000ProjectGroupListAjax()", ex);
+    		
+    		model.addAttribute("errorYn", 'Y');
+    		model.addAttribute("message", egovMessageSource.getMessage("fail.common.select"));
+    		return new ModelAndView("jsonView");
+    	}
+    }
+	
+	/**
+	 * 프로젝트 생성 마법사 - 프로젝트 생성
+	 * @param 
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings({"rawtypes", "unchecked" })
+	@RequestMapping(value="/prj/prj1000/prj1000/insertPrj1000WizardPrjInfo.do")
+    public ModelAndView insertPrj1000WizardPrjInfo(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
+    	try{
+    		// request 파라미터를 map으로 변환
+        	Map<String, String> paramMap = RequestConvertor.requestParamToMap(request, true);
+        	
+ 
+    		//로그인VO 가져오기
+    		HttpSession ss = request.getSession();
+    		LoginVO loginVO = (LoginVO) ss.getAttribute("loginVO");
+    		paramMap.put("usrId", loginVO.getUsrId());
+
+    		//프로젝트 마법사 생성
+    		String newPrjId = (String) prj1000Service.insertPrj1000WizardProject(paramMap);
+    		
+    		paramMap.remove("selPrjId");
+    		paramMap.put("selPrjId",newPrjId);
+    		
+    		//프로젝트 단건 조회
+    		Map prjInfo = (Map) prj1000Service.selectPrj1000Info(paramMap);
+    		
+    		//세션 재 세팅 - prjList
+        	//프로젝트 목록 불러오기
+    		List<Map> prjList = (List)prj1000Service.selectPrj1000View(paramMap);
+    		
+    		//프로젝트 목록 세션 제거
+    		ss.removeAttribute("prjList");
+    		
+    		//세션 재 등록
+    		ss.setAttribute("prjList", prjList);
+    		
+    		model.addAttribute("prjInfo", prjInfo);
+    		model.addAttribute("errorYn", 'N');
+        	model.addAttribute("message", egovMessageSource.getMessage("success.common.insert"));
+        	
+        	return new ModelAndView("jsonView", model);
+    	}
+    	catch(Exception ex){
+    		Log.error("insertPrj1000WizardPrjInfo()", ex);
+    		
+    		model.addAttribute("errorYn", 'Y');
+    		model.addAttribute("message", egovMessageSource.getMessage("fail.common.insert"));
     		return new ModelAndView("jsonView");
     	}
     }

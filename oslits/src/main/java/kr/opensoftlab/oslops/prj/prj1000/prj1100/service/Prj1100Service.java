@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.prj.prj1000.prj1100.service;
+package kr.opensoftlab.oslops.prj.prj1000.prj1100.service;
 
 /**
  * @Class Name : Prj1100Service.java
@@ -16,6 +16,8 @@ package kr.opensoftlab.oslits.prj.prj1000.prj1100.service;
 import java.util.List;
 import java.util.Map;
 
+import kr.opensoftlab.oslops.prj.prj1000.prj1100.vo.Prj1100VO;
+
 
 public interface Prj1100Service {
 	/**
@@ -25,6 +27,14 @@ public interface Prj1100Service {
 	 */
 	@SuppressWarnings("rawtypes")
 	List selectFlw1000ProcessList(Map paramMap) throws Exception;
+
+	/**
+	 * 프로세스 단건 조회 
+	 * @param paramMap
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	Map selectFlw1000ProcessInfo(Map paramMap) throws Exception;
 	
 	/**
 	 * 프로세스 수정 (이름, json데이터)
@@ -56,7 +66,7 @@ public interface Prj1100Service {
 	 * @throws Exception
 	 */
 	@SuppressWarnings("rawtypes")
-	void insertFlw1000ProcessInfo(Map paramMap) throws Exception;
+	String insertFlw1000ProcessInfo(Map paramMap) throws Exception;
 	
 	/**
 	 * 프로세스 제거
@@ -121,6 +131,15 @@ public interface Prj1100Service {
 	 */
 	@SuppressWarnings("rawtypes")
 	List selectFlw1200OptList(Map paramMap) throws Exception;
+	
+
+	/**
+	 * 선택 작업흐름에 해당하는 추가 항목 목록
+	 * @param paramMap
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	List selectFlw1300OptFileList(Map paramMap) throws Exception;
 	
 	/**
 	 * 해당 항목에 값이 이미 추가되어있는지 확인 
@@ -196,13 +215,21 @@ public interface Prj1100Service {
 	void deleteFlw1400RevisionNumInfo(Map paramMap) throws Exception;
 
 	/**
-	 * 요구사항별 리비전 목록 가져오기
-	 * @param paramMap
+	 * 요구사항별 리비전 목록 가져오기(Grid page)
+	 * @param Prj1100VO
 	 * @throws Exception
 	 */
 	@SuppressWarnings("rawtypes")
-	List selectFlw1400ReqRevisionNumList(Map paramMap) throws Exception;
-
+	List selectFlw1400ReqRevisionNumList(Prj1100VO prj1100VO) throws Exception;
+	
+	/**
+	 * 요구사항별 리비전 목록 총 건수(Grid page)
+	 * @param Prj1100VO
+	 * @return 
+	 * @exception Exception
+	 */
+	int selectFlw1400ReqRevisionNumListCnt(Prj1100VO prj1100VO) throws Exception;
+	
 	/**
 	 * 요구사항별 리비전 단건 갯수 가져오기
 	 * @param paramMap
@@ -257,4 +284,28 @@ public interface Prj1100Service {
 	 */
 	@SuppressWarnings("rawtypes")
 	int selectFlw1500FlowAuthGrpCnt(Map paramMap) throws Exception;
+
+	/**
+	 * [프로세스 복사] 관리자 권한을 가지고있는 프로젝트의 프로세스 목록
+	 * @param paramMap
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	List selectFlw1000ProcessCopyList(Map paramMap) throws Exception;
+	
+	/**
+	 * [프로세스 복사] prjId, processId로 프로세스 복사 
+	 * @param paramMap
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	void insertPrj1100ProcessCopyInfo(Map paramMap) throws Exception;
+
+	/**
+	 * 추가 항목에 존재하는 첨부파일 ID 목록 조회 
+	 * @param paramMap
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	List selectFlw1200FlwOptExistFileIdList(Map paramMap) throws Exception;
 }

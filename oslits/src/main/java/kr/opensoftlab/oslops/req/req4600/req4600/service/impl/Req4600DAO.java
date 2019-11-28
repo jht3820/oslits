@@ -1,10 +1,10 @@
-package kr.opensoftlab.oslits.req.req4600.req4600.service.impl;
+package kr.opensoftlab.oslops.req.req4600.req4600.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.com.dao.ComOslitsAbstractDAO;
-import kr.opensoftlab.oslits.req.req4600.req4600.vo.Req4600VO;
+import kr.opensoftlab.oslops.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.req.req4600.req4600.vo.Req4600VO;
 
 import org.springframework.stereotype.Repository;
 
@@ -120,9 +120,14 @@ public class Req4600DAO extends ComOslitsAbstractDAO {
 		return (List) list("req4600DAO.selectReq4600ReqWbsListAjax",paramMap);
 	}
 
-	public void updateReq4600ProgresInfo(Req4600VO req4600vo) {
-		// TODO Auto-generated method stub
-		System.out.println("Callll");
-		update("req4600DAO.updateReq4600ProgresInfo",req4600vo);
+	/**
+	 * Req4600 요구사항 WBS 진척률 수정
+	 * @param paramMap
+	 * @return
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public void updateReq4600ProgresInfo(Map paramMap) {
+		update("req4600DAO.updateReq4600ProgresInfo", paramMap);
 	}
 }

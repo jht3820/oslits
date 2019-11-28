@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.adm.adm5000.adm5000.service.impl;
+package kr.opensoftlab.oslops.adm.adm5000.adm5000.service.impl;
 
 
 
@@ -7,8 +7,8 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.adm.adm5000.adm5000.service.Adm5000Service;
-import kr.opensoftlab.oslits.adm.adm5000.adm5000.vo.Adm5000VO;
+import kr.opensoftlab.oslops.adm.adm5000.adm5000.service.Adm5000Service;
+import kr.opensoftlab.oslops.adm.adm5000.adm5000.vo.Adm5000VO;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 
 import org.springframework.stereotype.Service;

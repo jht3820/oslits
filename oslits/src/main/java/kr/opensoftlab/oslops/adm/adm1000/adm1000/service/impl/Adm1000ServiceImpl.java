@@ -1,12 +1,12 @@
-package kr.opensoftlab.oslits.adm.adm1000.adm1000.service.impl;
+package kr.opensoftlab.oslops.adm.adm1000.adm1000.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.adm.adm1000.adm1000.service.Adm1000Service;
-import kr.opensoftlab.oslits.com.exception.UserDefineException;
+import kr.opensoftlab.oslops.adm.adm1000.adm1000.service.Adm1000Service;
+import kr.opensoftlab.oslops.com.exception.UserDefineException;
 
 import org.springframework.stereotype.Service;
 

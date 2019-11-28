@@ -1,9 +1,9 @@
-package kr.opensoftlab.oslits.stm.stm1000.stm1000.service;
+package kr.opensoftlab.oslops.stm.stm1000.stm1000.service;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.stm.stm1000.stm1000.vo.Stm1000VO;
+import kr.opensoftlab.oslops.stm.stm1000.stm1000.vo.Stm1000VO;
 
 
 
@@ -22,26 +22,60 @@ import kr.opensoftlab.oslits.stm.stm1000.stm1000.vo.Stm1000VO;
 public interface Stm1000Service {
 	
 	/**
-	 * Cmm9000 왼쪽 메뉴 영역에 표시할 각종 정보 건수를 조회(알림, 담당요구사항, 전체요구사항, 개발주기별 요구사항)
-	 * @param param - LoginVO
-	 * @return Map
+	 * Stm1000 API 관리 목록을 조회한다.
+	 * @param stm1000vo
+	 * @return List - API 관리 목록
 	 * @exception Exception
-	 */
-	@SuppressWarnings("rawtypes")
+	 */	
 	List<Stm1000VO> selectStm1000List(Stm1000VO stm1000vo) throws Exception;
 
+	/**
+	 * Stm1000 페이징 처리를 위한 API 관리 목록 총 건수 조회한다.
+	 * @param stm1000vo
+	 * @return int API 목록 수
+	 * @exception Exception
+	 */	
 	int selectStm1000ListCnt(Stm1000VO stm1000vo) throws Exception;
 
+	/**
+	 * Stm1000 API를 등록/수정 한다.
+	 * @param paramMap - Map
+	 * @return
+	 * @exception Exception
+	 */
 	Object saveStm1000Info(Map<String, String> paramMap) throws Exception;
 
+	/**
+	 * Stm1000 API 정보를 단건 조회한다.
+	 * @param paramMap - Map
+	 * @return Map API 단건 정보
+	 * @exception Exception
+	 */	
+	@SuppressWarnings("rawtypes")
 	Map selectStm1000Info(Map<String, String> paramMap) throws Exception;
 
-	void deleteStm1000Info(Map<String, String> paramMap);
+	/**
+	 * Stm1000 API 정보를 삭제한다.
+	 * @param paramMap - Map
+	 * @return
+	 * @exception Exception
+	 */
+	void deleteStm1000Info(Map<String, String> paramMap) throws Exception;
 
-	int selectStm1000UseCountInfo(Map<String, String> paramMap);
+	/**
+	 * Stm1000 API 등록 상태를 확인한다.
+	 * @param paramMap - Map
+	 * @return
+	 * @exception Exception
+	 */
+	int selectStm1000UseCountInfo(Map<String, String> paramMap)throws Exception;
 
-	List<Map<String, String>> selectStm1000ApiUrlList(
-			Map<String, String> paramMap);
-
+	/**
+	 * Stm1000 API토큰 정보로  URL 목록을 조회한다.
+	 * @param paramMap - Map
+	 * @return List - URL 목록
+	 * @exception Exception
+	 */
+	List<Map<String, String>> selectStm1000ApiUrlList(Map<String, String> paramMap)throws Exception;
 
 }

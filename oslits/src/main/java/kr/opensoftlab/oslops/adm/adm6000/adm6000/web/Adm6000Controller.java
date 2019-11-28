@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.adm.adm6000.adm6000.web;
+package kr.opensoftlab.oslops.adm.adm6000.adm6000.web;
 
 import java.util.List;
 import java.util.Map;
@@ -8,8 +8,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.oslits.adm.adm6000.adm6000.service.Adm6000Service;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.oslops.adm.adm6000.adm6000.service.Adm6000Service;
 import kr.opensoftlab.sdf.util.RequestConvertor;
 
 import org.apache.log4j.Logger;

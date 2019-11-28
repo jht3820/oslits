@@ -1,8 +1,5 @@
-package kr.opensoftlab.oslits.req.req4600.req4600.web;
+package kr.opensoftlab.oslops.req.req4600.req4600.web;
 
- import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,28 +8,21 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import kr.opensoftlab.oslits.adm.adm6000.adm6000.service.Adm6000Service;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.oslits.prj.prj1000.prj1000.service.Prj1000Service;
-
-import kr.opensoftlab.oslits.req.req1000.req1000.vo.Req1000VO;
-import kr.opensoftlab.oslits.req.req4000.req4100.service.Req4100Service;
-import kr.opensoftlab.oslits.req.req4600.req4600.service.Req4600Service;
-import kr.opensoftlab.oslits.req.req4600.req4600.vo.Req4600VO;
-import kr.opensoftlab.sdf.util.RequestConvertor;
-
 import org.apache.log4j.Logger;
-import org.json.simple.JSONArray;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
 import egovframework.com.cmm.EgovMessageSource;
-import egovframework.com.cmm.service.FileVO;
 import egovframework.rte.fdl.cmmn.trace.LeaveaTrace;
 import egovframework.rte.fdl.property.EgovPropertyService;
+import kr.opensoftlab.oslops.adm.adm6000.adm6000.service.Adm6000Service;
+import kr.opensoftlab.oslops.prj.prj1000.prj1000.service.Prj1000Service;
+import kr.opensoftlab.oslops.req.req1000.req1000.vo.Req1000VO;
+import kr.opensoftlab.oslops.req.req4000.req4100.service.Req4100Service;
+import kr.opensoftlab.oslops.req.req4600.req4600.service.Req4600Service;
+import kr.opensoftlab.sdf.util.RequestConvertor;
 
 /**
  * @Class Name : Req4600Controller.java
@@ -109,73 +99,63 @@ public class Req4600Controller {
 	}
 	
 	/**
-	 * Req4600 화면 이동 (이동시 요구사항 목록 조회)
+	 * Req4600 Wbs 요구사항 목록 조회
 	 * @param 
 	 * @return 
 	 * @exception Exception
 	 */
-	@RequestMapping(value="/req/req4000/req4600/selectReq4600ListAjaxView.do")
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value="/req/req4000/req4600/selectReq4600WbsReqListAjax.do")
 	public ModelAndView selectReq4600ListAjaxView(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
 
 		try{
 			// request 파라미터를 map으로 변환
 			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
+			HttpSession ss = request.getSession();
+			
+			// 프로젝트 ID를 가져와 Map에 세팅
+			String prjId = (String) ss.getAttribute("selPrjId");
+			paramMap.put("prjId", prjId);
 			
 			List<Req1000VO> reqList = null;
-			List<Map> admList = null;
+			//List<Map> admList = null;
 			
 			//요구사항 목록 조회
 			reqList = req4600Service.selectReq4600ReqWbsListAjax(paramMap);
 					
 			model.addAttribute("list", reqList);
-		
+			// 조회 성공여부 및 조회성공 메시지 세팅
+			model.addAttribute("errorYn", "N");
+			model.addAttribute("message", egovMessageSource.getMessage("success.common.select"));
 			
 			return new ModelAndView("jsonView");
 		}
 		catch(Exception ex){
-			Log.error("selectReq4600ListView()", ex);
+			Log.error("selectReq4600ListAjaxView()", ex);
+			// 조회 실패여부 및 조회실패 메시지 세팅
+			model.addAttribute("errorYn", "Y");
 			model.addAttribute("message", egovMessageSource.getMessage("fail.common.select"));
 			throw new Exception(ex.getMessage());
 		}
 	}
 
-	@SuppressWarnings("rawtypes")
+	/**
+	 * Req4600 Wbs 요구사항 진척률 수정
+	 * @param 
+	 * @return 
+	 * @exception Exception
+	 */
 	@RequestMapping(value="/req/req4000/req4600/updateReq4600ProgresInfo.do")
 	public ModelAndView updateReq4600ProgresInfo(HttpServletRequest request, ModelMap model ) throws Exception {
 
-		Map<String, String> paramMap = RequestConvertor.requestParamToMap(request, true);
-    	
-    	HttpSession ss = request.getSession();
-		LoginVO loginVO = (LoginVO) ss.getAttribute("loginVO");
-		
-		String reqIds[] = request.getParameterValues("reqId");
-		String prjIds[] = request.getParameterValues("prjId");
-		String progresss[] = request.getParameterValues("progress");
-		Req4600VO req4600VO  = null;
-		List<Req4600VO> list = new ArrayList<Req4600VO>();
 		try{
-			
-			// 요구사항 단건정보 조회
-			if(reqIds!=null){
-				for (int i = 0; i < reqIds.length; i++) {
-					req4600VO = new Req4600VO();
-					
-					req4600VO.setReqId(reqIds[i]);
-					req4600VO.setPrjId(prjIds[i]);
-					req4600VO.setProgress(progresss[i]);
-					
-					req4600VO.setRegUsrId(paramMap.get("regUsrId"));
-					req4600VO.setRegUsrIp(paramMap.get("regUsrIp"));
-	        		
-					req4600VO.setLicGrpId(loginVO.getLicGrpId());
-					list.add(req4600VO);
-					
-				}			
+			Map<String, Object> paramMap = RequestConvertor.requestParamToMapAddSelInfoList(request, true,"reqId");
 
-				req4600Service.updateReq4600ProgresInfo(list);
-			}
-												
-			//등록 성공 메시지 세팅
+			// 요구사항 진척률 수정
+			req4600Service.updateReq4600ProgresInfo(paramMap);
+			
+			// 수정 성공여부 및 수정 성공메시지 세팅
+			model.addAttribute("errorYn", "N");
 			model.addAttribute("message", egovMessageSource.getMessage("success.common.update"));
 
 			return new ModelAndView("jsonView");
@@ -183,8 +163,8 @@ public class Req4600Controller {
 		catch(Exception ex){
 			Log.error("updateReq4600ProgresInfo()", ex);
 
-			//조회실패 메시지 세팅 및 저장 성공여부 세팅
-			model.addAttribute("saveYN", "N");
+			// 수정 실패여부 및 수정 실패 메시지 세팅
+			model.addAttribute("errorYn", "Y");
 			model.addAttribute("message", egovMessageSource.getMessage("fail.common.update"));
 			return new ModelAndView("jsonView");
 		}

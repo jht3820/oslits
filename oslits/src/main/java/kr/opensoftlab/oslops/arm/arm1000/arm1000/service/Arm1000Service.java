@@ -1,9 +1,9 @@
-package kr.opensoftlab.oslits.arm.arm1000.arm1000.service;
+package kr.opensoftlab.oslops.arm.arm1000.arm1000.service;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.arm.arm1000.arm1000.vo.Arm1000VO;
+import kr.opensoftlab.oslops.arm.arm1000.arm1000.vo.Arm1000VO;
 
 /**
  * @Class Name : Arm1000Service.java

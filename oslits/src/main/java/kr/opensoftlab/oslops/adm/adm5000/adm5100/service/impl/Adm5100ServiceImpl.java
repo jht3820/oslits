@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.adm.adm5000.adm5100.service.impl;
+package kr.opensoftlab.oslops.adm.adm5000.adm5100.service.impl;
 
 
 import java.sql.SQLException;
@@ -6,9 +6,9 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.adm.adm5000.adm5000.vo.Adm5000VO;
-import kr.opensoftlab.oslits.adm.adm5000.adm5100.service.Adm5100Service;
-import kr.opensoftlab.oslits.adm.adm5000.adm5100.vo.Adm5100VO;
+import kr.opensoftlab.oslops.adm.adm5000.adm5000.vo.Adm5000VO;
+import kr.opensoftlab.oslops.adm.adm5000.adm5100.service.Adm5100Service;
+import kr.opensoftlab.oslops.adm.adm5000.adm5100.vo.Adm5100VO;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 
 import org.springframework.stereotype.Service;

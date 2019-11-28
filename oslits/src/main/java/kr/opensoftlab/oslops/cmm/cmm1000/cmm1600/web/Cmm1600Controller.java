@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.cmm.cmm1000.cmm1600.web;
+package kr.opensoftlab.oslops.cmm.cmm1000.cmm1600.web;
 
 import java.util.HashMap;
 import java.util.List;
@@ -9,11 +9,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import kr.opensoftlab.oslits.cmm.cmm1000.cmm1000.service.Cmm1000Service;
-import kr.opensoftlab.oslits.cmm.cmm1000.cmm1000.vo.Cmm1000VO;
-import kr.opensoftlab.oslits.cmm.cmm1000.cmm1600.service.Cmm1600Service;
-import kr.opensoftlab.oslits.cmm.cmm1000.cmm1600.vo.Cmm1600VO;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
+import kr.opensoftlab.oslops.cmm.cmm1000.cmm1000.service.Cmm1000Service;
+import kr.opensoftlab.oslops.cmm.cmm1000.cmm1000.vo.Cmm1000VO;
+import kr.opensoftlab.oslops.cmm.cmm1000.cmm1600.service.Cmm1600Service;
+import kr.opensoftlab.oslops.cmm.cmm1000.cmm1600.vo.Cmm1600VO;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
 import kr.opensoftlab.sdf.util.OslAgileConstant;
 import kr.opensoftlab.sdf.util.PagingUtil;
 import kr.opensoftlab.sdf.util.RequestConvertor;
@@ -65,14 +65,9 @@ public class Cmm1600Controller {
 	
 	@Resource(name = "cmm1600Service")
 	Cmm1600Service cmm1600Service;
-	
-	
-	
-	
+
 	/**
-	 *
-	 * 배포 조회 공통 팝업 화면 이동
-	 * 
+	 * Cmm1600 배포 계획 목록 선택 팝업으로 이동한다.
 	 * @param request
 	 * @param response
 	 * @param model
@@ -84,13 +79,11 @@ public class Cmm1600Controller {
 			return "/cmm/cmm1000/cmm1600/cmm1600";
 	}	
 
-	
-	
-
 	/**
 	 * 
-	 * 배포 정보 조회 공통 목록 조회
-	 * 
+	 * Cmm1600 (공통)배포 계획 목록을 조회한다.
+	 * 공통에서 배포목록 조회는 배포 상태가 대기인 상태, 결제여부가 승인인 건만 조회한다. 
+	 * (req4105.jsp에서 배포상태 코드(dplStsCd) 01로 전달)
 	 * @param cmm1600VO
 	 * @param request
 	 * @param response
@@ -105,6 +98,20 @@ public class Cmm1600Controller {
     		//리퀘스트에서 넘어온 파라미터를 맵으로 세팅
         	Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
         	
+        	// 로그인 VO를 가져온다.
+        	HttpSession ss = request.getSession();
+			LoginVO loginVO = (LoginVO) ss.getAttribute("loginVO");
+        	
+			// 라이선스 그룹 ID와 프로젝트 ID를 가져온다.
+			String licGrpId = loginVO.getLicGrpId();
+			String prjId = (String)ss.getAttribute("selPrjId");
+			
+			// 라이선스 그룹 ID와 프로젝트 ID 세팅
+			cmm1600VO.setLicGrpId(licGrpId);
+			cmm1600VO.setPrjId(prjId);
+			
+//			cmm1600VO.setPrjId((String) request.getSession().getAttribute("selPrjId"));
+			
        		//현재 페이지 값, 보여지는 개체 수
 			String _pageNo_str = paramMap.get("pageNo");
 			String _pageSize_str = paramMap.get("pageSize");
@@ -112,6 +119,7 @@ public class Cmm1600Controller {
 			int _pageNo = 1;
 			int _pageSize = OslAgileConstant.pageSize;
 			
+			// 페이지 값과 보여주닌 개수(pageSize)가 있다면 세팅
 			if(_pageNo_str != null && !"".equals(_pageNo_str)){
 				_pageNo = Integer.parseInt(_pageNo_str)+1;  
 			}
@@ -119,46 +127,48 @@ public class Cmm1600Controller {
 				_pageSize = Integer.parseInt(_pageSize_str);  
 			}
 			
-			//페이지 사이즈
+			// 페이지 사이즈 세팅
 			cmm1600VO.setPageIndex(_pageNo);
 			cmm1600VO.setPageSize(_pageSize);
 			cmm1600VO.setPageUnit(_pageSize);
 			
-			cmm1600VO.setPrjId((String) request.getSession().getAttribute("selPrjId"));
-        	
     		PaginationInfo paginationInfo = PagingUtil.getPaginationInfo(cmm1600VO);  /** paging - 신규방식 */
-        	List<Cmm1600VO> cmm1600List = null;
+        	
+    		// 배포 계획 목록
+    		List<Cmm1600VO> cmm1600DplList = null;
 
-			HttpSession ss = request.getSession();
-			LoginVO loginVO = (LoginVO) ss.getAttribute("loginVO");
-			cmm1600VO.setLicGrpId(loginVO.getLicGrpId());
-    		// 목록 조회  authGrpIds
-			cmm1600List = cmm1600Service.selectCmm1600CommonDplList(cmm1600VO);
-		    
-    		// 총 건수
-		    int totCnt = cmm1600Service.selectCmm1600CommonDplListCnt(cmm1600VO);
+    		// 패고 계획 목록 총 건수를 조회한다.
+    		int totCnt = 0;
+		    totCnt = cmm1600Service.selectCmm1600CommonDplListCnt(cmm1600VO);
 		    paginationInfo.setTotalRecordCount(totCnt);
 		    
-		    model.addAttribute("list", cmm1600List);
+    		// 배포 계획 목록 조회
+		    cmm1600DplList = cmm1600Service.selectCmm1600CommonDplList(cmm1600VO);
+		    
+		    // 배포 계획 목록 세팅
+		    model.addAttribute("list", cmm1600DplList);
 		    
 		    //페이지 정보 보내기
 			Map<String, Integer> pageMap = new HashMap<String, Integer>();
 			pageMap.put("pageNo",cmm1600VO.getPageIndex());
-			pageMap.put("listCount", cmm1600List.size());
+			pageMap.put("listCount", cmm1600DplList.size());
 			pageMap.put("totalPages", paginationInfo.getTotalPageCount());
 			pageMap.put("totalElements", totCnt);
 			pageMap.put("pageSize", _pageSize);
 
+			// 페이지 정보 세팅
 			model.addAttribute("page", pageMap);
         	
-        	//조회성공메시지 세팅
+        	// 조회 성공여부 및 조회성공 메시지 세팅
+			model.addAttribute("errorYn", "N");
         	model.addAttribute("message", egovMessageSource.getMessage("success.common.select"));
         	
         	return new ModelAndView("jsonView", model);
     	}catch(Exception ex){
     		Log.error("selectCmm1600CommonDplListAjax()", ex);
     		
-    		//조회실패 메시지 세팅
+    		// 조회 실패여부 및 조회실패 메시지 세팅
+    		model.addAttribute("errorYn", "N");
     		model.addAttribute("message", egovMessageSource.getMessage("fail.common.select"));
     		return new ModelAndView("jsonView", model);
     	}

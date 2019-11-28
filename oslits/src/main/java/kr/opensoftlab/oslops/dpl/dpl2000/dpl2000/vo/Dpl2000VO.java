@@ -1,95 +1,50 @@
-package kr.opensoftlab.oslits.dpl.dpl2000.dpl2000.vo;
+package kr.opensoftlab.oslops.dpl.dpl2000.dpl2000.vo;
 
-/**
- * @Class Name : Dpl2000VO.java
- * @Description : Dpl2000VO Controller class
- * @Modification Information
- *
- * @author 강재민
- * @since 2016.01.30.
- * @version 1.0
- * @see
- *  
- *  Copyright (C) OpenSoftLab Corp All right reserved.
- */
+import kr.opensoftlab.oslops.com.vo.PageVO;
 
-import kr.opensoftlab.oslits.com.vo.PageVO;
-
-public class Dpl2000VO extends PageVO {
-	
-	/** 검색 조건 define */
-	private String srchEvent;  /** Event : onLoad, onSelect */
-	private String srchReqNm;
-	private String srchReqChargerNm;
-	
-	/** 상세 기본 Defind */
+public class Dpl2000VO extends PageVO{
 	private String rn;
 	private String licGrpId;
-	private String prjId;
-	private String selPrjId;
-	private String popupPrjId;
-	private String reqId;
-	private String reqClsId;
-	private String reqClsNm;
-	private String reqNo;
-	private String reqUsrId;
-	private String reqUsrNm;
-	private String reqDtm;
-	private String reqUsrDeptNm;
-	private String reqUsrEmail;
-	private String reqUsrNum;
-	private String reqNm;
-	private String reqDesc;
-	private String reqChargerId;
-	private String reqCompleteRatio;
-	private String reqFp;
-	private String reqExFp;
-	private String reqStDtm;
-	private String reqEdDtm;
-	private String reqStDuDtm;
-	private String reqEdDuDtm;
-	private String reqProType;
-	private String reqProTypeNm;
-	private String reqNewType;
-	private String reqNewTypeNm;
-	private String reqAcceptTxt;
-	private String sclCd;
-	private String reqTypeCd;
-	private String piaCd;
-	private String labInp;
-	private String atchFileId;
-	private String cbAtchFileId;
-	private String milestoneId;
-	private String processId;
-	private String processNm;
-	private String flowId;
-	private String flowNm;
-	private String useCd;
-	private String loginUsrId;
-	private String regDtmDay;
-	private String restApiReqUsrNm;
-	private String reqInputType;
-	private String dplId;
-	private String dplVer;
 	
-	public String getSrchEvent() {
-		return srchEvent;
-	}
-	public void setSrchEvent(String srchEvent) {
-		this.srchEvent = srchEvent;
-	}
-	public String getSrchReqNm() {
-		return srchReqNm;
-	}
-	public void setSrchReqNm(String srchReqNm) {
-		this.srchReqNm = srchReqNm;
-	}
-	public String getSrchReqChargerNm() {
-		return srchReqChargerNm;
-	}
-	public void setSrchReqChargerNm(String srchReqChargerNm) {
-		this.srchReqChargerNm = srchReqChargerNm;
-	}
+	/** 상세 기본 Defind */
+	private String prjId;  		
+	private String dplId;
+	
+	private String signId;
+	private String signUsrId;
+	private String signUsrNm;
+	private String signUsrImg;
+	private String signTxt;
+	private String signStsCd;
+	private String signStsNm;
+	private String signRejectTxt;
+	private String signDtm;
+	private String signRegUsrId;
+	private String signRegUsrNm;
+	private String signRegUsrImg;
+	
+	private String dplNm; 		
+	private String dplVer;  		
+	private String dplDt;		
+	private String dplUsrId;  		
+	private String dplUsrNm;  		
+	private String dplDesc;
+	private String dplStsCd;
+	private String dplStsNm;  		
+	private String dplTypeCd;
+	private String dplTypeNm;  	
+	private String dplAutoAfterCd; 
+	private String dplAutoAfterNm; 
+	private String dplAutoDtm;
+	private String dplRestoreCd;  	
+	private String dplRestoreNm;
+	
+	private String regUsrNm;
+	private String regUsrImg;
+	
+	//조회 조건
+	private String dpl2000LoginUsrIdChk;
+	
 	public String getRn() {
 		return rn;
 	}
@@ -108,269 +63,90 @@ public class Dpl2000VO extends PageVO {
 	public void setPrjId(String prjId) {
 		this.prjId = prjId;
 	}
-	public String getSelPrjId() {
-		return selPrjId;
-	}
-	public void setSelPrjId(String selPrjId) {
-		this.selPrjId = selPrjId;
-	}
-	public String getPopupPrjId() {
-		return popupPrjId;
-	}
-	public void setPopupPrjId(String popupPrjId) {
-		this.popupPrjId = popupPrjId;
-	}
-	public String getReqId() {
-		return reqId;
-	}
-	public void setReqId(String reqId) {
-		this.reqId = reqId;
-	}
-	public String getReqClsId() {
-		return reqClsId;
-	}
-	public void setReqClsId(String reqClsId) {
-		this.reqClsId = reqClsId;
-	}
-	public String getReqClsNm() {
-		return reqClsNm;
-	}
-	public void setReqClsNm(String reqClsNm) {
-		this.reqClsNm = reqClsNm;
-	}
-	public String getReqNo() {
-		return reqNo;
-	}
-	public void setReqNo(String reqNo) {
-		this.reqNo = reqNo;
-	}
-	public String getReqUsrId() {
-		return reqUsrId;
-	}
-	public void setReqUsrId(String reqUsrId) {
-		this.reqUsrId = reqUsrId;
-	}
-	public String getReqUsrNm() {
-		return reqUsrNm;
-	}
-	public void setReqUsrNm(String reqUsrNm) {
-		this.reqUsrNm = reqUsrNm;
-	}
-	public String getReqDtm() {
-		return reqDtm;
-	}
-	public void setReqDtm(String reqDtm) {
-		this.reqDtm = reqDtm;
-	}
-	public String getReqUsrDeptNm() {
-		return reqUsrDeptNm;
-	}
-	public void setReqUsrDeptNm(String reqUsrDeptNm) {
-		this.reqUsrDeptNm = reqUsrDeptNm;
-	}
-	public String getReqUsrEmail() {
-		return reqUsrEmail;
-	}
-	public void setReqUsrEmail(String reqUsrEmail) {
-		this.reqUsrEmail = reqUsrEmail;
-	}
-	public String getReqUsrNum() {
-		return reqUsrNum;
-	}
-	public void setReqUsrNum(String reqUsrNum) {
-		this.reqUsrNum = reqUsrNum;
-	}
-	public String getReqNm() {
-		return reqNm;
-	}
-	public void setReqNm(String reqNm) {
-		this.reqNm = reqNm;
-	}
-	public String getReqDesc() {
-		return reqDesc;
-	}
-	public void setReqDesc(String reqDesc) {
-		this.reqDesc = reqDesc;
-	}
-	public String getReqChargerId() {
-		return reqChargerId;
-	}
-	public void setReqChargerId(String reqChargerId) {
-		this.reqChargerId = reqChargerId;
-	}
-	public String getReqCompleteRatio() {
-		return reqCompleteRatio;
-	}
-	public void setReqCompleteRatio(String reqCompleteRatio) {
-		this.reqCompleteRatio = reqCompleteRatio;
-	}
-	public String getReqFp() {
-		return reqFp;
-	}
-	public void setReqFp(String reqFp) {
-		this.reqFp = reqFp;
-	}
-	public String getReqExFp() {
-		return reqExFp;
-	}
-	public void setReqExFp(String reqExFp) {
-		this.reqExFp = reqExFp;
-	}
-	public String getReqStDtm() {
-		return reqStDtm;
-	}
-	public void setReqStDtm(String reqStDtm) {
-		this.reqStDtm = reqStDtm;
-	}
-	public String getReqEdDtm() {
-		return reqEdDtm;
-	}
-	public void setReqEdDtm(String reqEdDtm) {
-		this.reqEdDtm = reqEdDtm;
-	}
-	public String getReqStDuDtm() {
-		return reqStDuDtm;
-	}
-	public void setReqStDuDtm(String reqStDuDtm) {
-		this.reqStDuDtm = reqStDuDtm;
-	}
-	public String getReqEdDuDtm() {
-		return reqEdDuDtm;
-	}
-	public void setReqEdDuDtm(String reqEdDuDtm) {
-		this.reqEdDuDtm = reqEdDuDtm;
-	}
-	public String getReqProType() {
-		return reqProType;
-	}
-	public void setReqProType(String reqProType) {
-		this.reqProType = reqProType;
-	}
-	public String getReqProTypeNm() {
-		return reqProTypeNm;
-	}
-	public void setReqProTypeNm(String reqProTypeNm) {
-		this.reqProTypeNm = reqProTypeNm;
-	}
-	public String getReqNewType() {
-		return reqNewType;
-	}
-	public void setReqNewType(String reqNewType) {
-		this.reqNewType = reqNewType;
-	}
-	public String getReqNewTypeNm() {
-		return reqNewTypeNm;
-	}
-	public void setReqNewTypeNm(String reqNewTypeNm) {
-		this.reqNewTypeNm = reqNewTypeNm;
-	}
-	public String getReqAcceptTxt() {
-		return reqAcceptTxt;
-	}
-	public void setReqAcceptTxt(String reqAcceptTxt) {
-		this.reqAcceptTxt = reqAcceptTxt;
-	}
-	public String getSclCd() {
-		return sclCd;
-	}
-	public void setSclCd(String sclCd) {
-		this.sclCd = sclCd;
-	}
-	public String getReqTypeCd() {
-		return reqTypeCd;
-	}
-	public void setReqTypeCd(String reqTypeCd) {
-		this.reqTypeCd = reqTypeCd;
-	}
-	public String getPiaCd() {
-		return piaCd;
-	}
-	public void setPiaCd(String piaCd) {
-		this.piaCd = piaCd;
-	}
-	public String getLabInp() {
-		return labInp;
-	}
-	public void setLabInp(String labInp) {
-		this.labInp = labInp;
-	}
-	public String getAtchFileId() {
-		return atchFileId;
-	}
-	public void setAtchFileId(String atchFileId) {
-		this.atchFileId = atchFileId;
-	}
-	public String getCbAtchFileId() {
-		return cbAtchFileId;
-	}
-	public void setCbAtchFileId(String cbAtchFileId) {
-		this.cbAtchFileId = cbAtchFileId;
-	}
-	public String getMilestoneId() {
-		return milestoneId;
-	}
-	public void setMilestoneId(String milestoneId) {
-		this.milestoneId = milestoneId;
-	}
-	public String getProcessId() {
-		return processId;
-	}
-	public void setProcessId(String processId) {
-		this.processId = processId;
-	}
-	public String getProcessNm() {
-		return processNm;
-	}
-	public void setProcessNm(String processNm) {
-		this.processNm = processNm;
-	}
-	public String getFlowId() {
-		return flowId;
-	}
-	public void setFlowId(String flowId) {
-		this.flowId = flowId;
-	}
-	public String getFlowNm() {
-		return flowNm;
-	}
-	public void setFlowNm(String flowNm) {
-		this.flowNm = flowNm;
-	}
-	public String getUseCd() {
-		return useCd;
-	}
-	public void setUseCd(String useCd) {
-		this.useCd = useCd;
-	}
-	public String getLoginUsrId() {
-		return loginUsrId;
-	}
-	public void setLoginUsrId(String loginUsrId) {
-		this.loginUsrId = loginUsrId;
-	}
-	public String getRegDtmDay() {
-		return regDtmDay;
-	}
-	public void setRegDtmDay(String regDtmDay) {
-		this.regDtmDay = regDtmDay;
-	}
-	public String getRestApiReqUsrNm() {
-		return restApiReqUsrNm;
-	}
-	public void setRestApiReqUsrNm(String restApiReqUsrNm) {
-		this.restApiReqUsrNm = restApiReqUsrNm;
-	}
-	public String getReqInputType() {
-		return reqInputType;
-	}
-	public void setReqInputType(String reqInputType) {
-		this.reqInputType = reqInputType;
-	}
 	public String getDplId() {
 		return dplId;
 	}
 	public void setDplId(String dplId) {
 		this.dplId = dplId;
+	}
+	public String getSignId() {
+		return signId;
+	}
+	public void setSignId(String signId) {
+		this.signId = signId;
+	}
+	public String getSignUsrId() {
+		return signUsrId;
+	}
+	public void setSignUsrId(String signUsrId) {
+		this.signUsrId = signUsrId;
+	}
+	public String getSignUsrNm() {
+		return signUsrNm;
+	}
+	public void setSignUsrNm(String signUsrNm) {
+		this.signUsrNm = signUsrNm;
+	}
+	public String getSignUsrImg() {
+		return signUsrImg;
+	}
+	public void setSignUsrImg(String signUsrImg) {
+		this.signUsrImg = signUsrImg;
+	}
+	public String getSignTxt() {
+		return signTxt;
+	}
+	public void setSignTxt(String signTxt) {
+		this.signTxt = signTxt;
+	}
+	public String getSignStsCd() {
+		return signStsCd;
+	}
+	public void setSignStsCd(String signStsCd) {
+		this.signStsCd = signStsCd;
+	}
+	public String getSignStsNm() {
+		return signStsNm;
+	}
+	public void setSignStsNm(String signStsNm) {
+		this.signStsNm = signStsNm;
+	}
+	public String getSignRejectTxt() {
+		return signRejectTxt;
+	}
+	public void setSignRejectTxt(String signRejectTxt) {
+		this.signRejectTxt = signRejectTxt;
+	}
+	public String getSignDtm() {
+		return signDtm;
+	}
+	public void setSignDtm(String signDtm) {
+		this.signDtm = signDtm;
+	}
+	
+	public String getSignRegUsrImg() {
+		return signRegUsrImg;
+	}
+	public void setSignRegUsrImg(String signRegUsrImg) {
+		this.signRegUsrImg = signRegUsrImg;
+	}
+	public String getSignRegUsrId() {
+		return signRegUsrId;
+	}
+	public void setSignRegUsrId(String signRegUsrId) {
+		this.signRegUsrId = signRegUsrId;
+	}
+	public String getSignRegUsrNm() {
+		return signRegUsrNm;
+	}
+	public void setSignRegUsrNm(String signRegUsrNm) {
+		this.signRegUsrNm = signRegUsrNm;
+	}
+	public String getDplNm() {
+		return dplNm;
+	}
+	public void setDplNm(String dplNm) {
+		this.dplNm = dplNm;
 	}
 	public String getDplVer() {
 		return dplVer;
@@ -378,5 +154,102 @@ public class Dpl2000VO extends PageVO {
 	public void setDplVer(String dplVer) {
 		this.dplVer = dplVer;
 	}
+	public String getDplDt() {
+		return dplDt;
+	}
+	public void setDplDt(String dplDt) {
+		this.dplDt = dplDt;
+	}
+	public String getDplUsrId() {
+		return dplUsrId;
+	}
+	public void setDplUsrId(String dplUsrId) {
+		this.dplUsrId = dplUsrId;
+	}
+	public String getDplUsrNm() {
+		return dplUsrNm;
+	}
+	public void setDplUsrNm(String dplUsrNm) {
+		this.dplUsrNm = dplUsrNm;
+	}
+	public String getDplDesc() {
+		return dplDesc;
+	}
+	public void setDplDesc(String dplDesc) {
+		this.dplDesc = dplDesc;
+	}
+	public String getDplStsCd() {
+		return dplStsCd;
+	}
+	public void setDplStsCd(String dplStsCd) {
+		this.dplStsCd = dplStsCd;
+	}
+	public String getDplStsNm() {
+		return dplStsNm;
+	}
+	public void setDplStsNm(String dplStsNm) {
+		this.dplStsNm = dplStsNm;
+	}
+	public String getDplTypeCd() {
+		return dplTypeCd;
+	}
+	public void setDplTypeCd(String dplTypeCd) {
+		this.dplTypeCd = dplTypeCd;
+	}
+	public String getDplTypeNm() {
+		return dplTypeNm;
+	}
+	public void setDplTypeNm(String dplTypeNm) {
+		this.dplTypeNm = dplTypeNm;
+	}
+	public String getDplAutoAfterCd() {
+		return dplAutoAfterCd;
+	}
+	public void setDplAutoAfterCd(String dplAutoAfterCd) {
+		this.dplAutoAfterCd = dplAutoAfterCd;
+	}
+	public String getDplAutoAfterNm() {
+		return dplAutoAfterNm;
+	}
+	public void setDplAutoAfterNm(String dplAutoAfterNm) {
+		this.dplAutoAfterNm = dplAutoAfterNm;
+	}
+	public String getDplAutoDtm() {
+		return dplAutoDtm;
+	}
+	public void setDplAutoDtm(String dplAutoDtm) {
+		this.dplAutoDtm = dplAutoDtm;
+	}
+	public String getDplRestoreCd() {
+		return dplRestoreCd;
+	}
+	public void setDplRestoreCd(String dplRestoreCd) {
+		this.dplRestoreCd = dplRestoreCd;
+	}
+	public String getDplRestoreNm() {
+		return dplRestoreNm;
+	}
+	public void setDplRestoreNm(String dplRestoreNm) {
+		this.dplRestoreNm = dplRestoreNm;
+	}
+	public String getRegUsrNm() {
+		return regUsrNm;
+	}
+	public void setRegUsrNm(String regUsrNm) {
+		this.regUsrNm = regUsrNm;
+	}
+	public String getRegUsrImg() {
+		return regUsrImg;
+	}
+	public void setRegUsrImg(String regUsrImg) {
+		this.regUsrImg = regUsrImg;
+	}
+	public String getDpl2000LoginUsrIdChk() {
+		return dpl2000LoginUsrIdChk;
+	}
+	public void setDpl2000LoginUsrIdChk(String dpl2000LoginUsrIdChk) {
+		this.dpl2000LoginUsrIdChk = dpl2000LoginUsrIdChk;
+	}
+	
 	
 }

@@ -1,11 +1,11 @@
-package kr.opensoftlab.oslits.stm.stm9000.stm9000.service.impl;
+package kr.opensoftlab.oslops.stm.stm9000.stm9000.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.com.dao.ComOslitsAbstractDAO;
 
-import kr.opensoftlab.oslits.stm.stm9000.stm9000.vo.Stm9000VO;
+import kr.opensoftlab.oslops.stm.stm9000.stm9000.vo.Stm9000VO;
 
 import org.springframework.stereotype.Repository;
 

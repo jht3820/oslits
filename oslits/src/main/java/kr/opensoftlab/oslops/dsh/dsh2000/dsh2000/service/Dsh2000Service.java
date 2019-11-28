@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.dsh.dsh2000.dsh2000.service;
+package kr.opensoftlab.oslops.dsh.dsh2000.dsh2000.service;
 
 /**
  * @Class Name : Dsh2000Service.java
@@ -15,6 +15,8 @@ package kr.opensoftlab.oslits.dsh.dsh2000.dsh2000.service;
 
 import java.util.List;
 import java.util.Map;
+
+import kr.opensoftlab.oslops.dsh.dsh2000.dsh2000.vo.Dsh2000VO;
 
 
 public interface Dsh2000Service {
@@ -71,4 +73,23 @@ public interface Dsh2000Service {
 	 */
 	@SuppressWarnings("rawtypes")
 	List selectDsh2000ReqDtmOverAlertList(Map paramMap) throws Exception;
+	
+	/**
+	 * 프로세스 별 계획대비 미처리 건수 요구사항 목록
+	 * 계획대비 미처리 건수 차트 클릭 시 나오는 팝업에 사용
+	 * @param Dsh1000VO
+	 * @return List
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	List selectDsh2000ProcessReqDtmOverList(Dsh2000VO dsh2000VO) throws Exception;
+
+	/**
+	 * 프로세스 별 계획대비 미처리 건수 요구사항 목록 총 건수
+	 * 계획대비 미처리 건수 차트 클릭 시 나오는 팝업에 사용
+	 * @param Dsh1000VO
+	 * @return List
+	 * @throws Exception
+	 */
+	int selectDsh2000ProcessReqDtmOverListCnt(Dsh2000VO dsh2000VO) throws Exception;
 }

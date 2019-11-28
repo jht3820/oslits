@@ -1,26 +1,9 @@
-package kr.opensoftlab.oslits.req.req4700.req4700.web;
+package kr.opensoftlab.oslops.req.req4700.req4700.web;
 
- import java.util.Calendar;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import kr.opensoftlab.oslits.adm.adm6000.adm6000.service.Adm6000Service;
-import kr.opensoftlab.oslits.prj.prj1000.prj1000.service.Prj1000Service;
-
-import kr.opensoftlab.oslits.req.req1000.req1000.vo.Req1000VO;
-import kr.opensoftlab.oslits.req.req4000.req4100.service.Req4100Service;
-import kr.opensoftlab.sdf.util.RequestConvertor;
+ import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
-import org.json.simple.JSONArray;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
 
 import egovframework.com.cmm.EgovMessageSource;
 import egovframework.rte.fdl.cmmn.trace.LeaveaTrace;
@@ -48,18 +31,6 @@ public class Req4700Controller {
 	 */
 	protected Logger Log = Logger.getLogger(this.getClass());
 	
-
-	/** Req1000Service DI */
-	@Resource(name = "adm6000Service")
-	private Adm6000Service adm6000Service;
-
-	/** Req1000Service DI */
-	@Resource(name = "req4100Service")
-	private Req4100Service req4100Service;
-	
-	/** Prj6000Service DI */
-    @Resource(name = "prj1000Service")
-    private Prj1000Service prj1000Service;
 
 	
 	/** EgovMessageSource */

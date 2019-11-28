@@ -1,27 +1,18 @@
-package kr.opensoftlab.oslits.prj.prj3000.prj3000.web;
+package kr.opensoftlab.oslops.prj.prj3000.prj3000.web;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import kr.opensoftlab.oslits.com.fms.web.service.FileMngService;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.oslits.prj.prj3000.prj3000.service.Prj3000Service;
-import kr.opensoftlab.sdf.util.RequestConvertor;
-
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -31,6 +22,10 @@ import egovframework.com.cmm.service.FileVO;
 import egovframework.rte.fdl.cmmn.trace.LeaveaTrace;
 import egovframework.rte.fdl.idgnr.EgovIdGnrService;
 import egovframework.rte.fdl.property.EgovPropertyService;
+import kr.opensoftlab.oslops.com.fms.web.service.FileMngService;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.oslops.prj.prj3000.prj3000.service.Prj3000Service;
+import kr.opensoftlab.sdf.util.RequestConvertor;
 
 /**
  * @Class Name : Prj3000Controller.java
@@ -134,15 +129,30 @@ public class Prj3000Controller {
     	try{
         	
     		//리퀘스트에서 넘어온 파라미터를 맵으로 세팅
-        	Map paramMap = RequestConvertor.requestParamToMap(request,true);
+    		Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
+        	
+    		String prjId = (String) paramMap.get("prjId");
         	
         	//로그인VO 가져오기
     		HttpSession ss = request.getSession();
-        	paramMap.put("prjId", ss.getAttribute("selPrjId"));
-        	paramMap.put("authGrpId", ss.getAttribute("selAuthGrpId"));
+    		
+    		//prjId없는경우 세션에서 가져와서 넣기
+    		if(prjId == null || "".equals(prjId)){
+    			paramMap.put("prjId", (String)ss.getAttribute("selPrjId"));
+    		}else{
+    			paramMap.put("prjId", prjId);
+    		}
         	
-        	//라이선스 그룹에 할당된 메뉴목록 가져오기
-        	List<Map> baseDocList = (List) prj3000Service.selectPrj3000BaseMenuList(paramMap);
+    		List<Map> baseDocList = null;
+    		
+    		//rootsystem 기본 산출물 메뉴 가져오는 경우
+    		if(prjId != null && "ROOTSYSTEM_PRJ".equals(prjId)){
+    			//라이선스 그룹에 할당된 메뉴목록 가져오기
+    			baseDocList = (List) prj3000Service.selectPrj3000RootMenuList(paramMap);
+    		}else{
+    			//라이선스 그룹에 할당된 메뉴목록 가져오기
+    			baseDocList = (List) prj3000Service.selectPrj3000BaseMenuList(paramMap);
+    		}
         	
         	model.addAttribute("baseDocList", baseDocList);
         	
@@ -173,13 +183,26 @@ public class Prj3000Controller {
         	
     		// request 파라미터를 map으로 변환
         	Map<String, String> paramMap = RequestConvertor.requestParamToMap(request, true);
+        	String prjId = (String) paramMap.get("prjId");
         	
-        	HttpSession ss = request.getSession();
-        	paramMap.put("prjId", (String)ss.getAttribute("selPrjId"));
-        	
-        	
+        	//로그인VO 가져오기
+    		HttpSession ss = request.getSession();
+    		
+    		//prjId없는경우 세션에서 가져와서 넣기
+    		if(prjId == null || "".equals(prjId)){
+    			paramMap.put("prjId", (String)ss.getAttribute("selPrjId"));
+    		}else{
+    			paramMap.put("prjId", prjId);
+    		}
         	//산출물 메뉴정보조회
-        	Map<String, String> docInfoMap = (Map) prj3000Service.selectPrj3000MenuInfo(paramMap);
+        	Map<String, String> docInfoMap = null;
+        	
+        	//rootsystem의 경우 기본 산출물 정보 조회
+        	if("ROOTSYSTEM_PRJ".equals(prjId)){
+        		docInfoMap = (Map) prj3000Service.selectPrj3000WizardMenuInfo(paramMap);
+        	}else{
+        		docInfoMap = (Map) prj3000Service.selectPrj3000MenuInfo(paramMap);
+        	}
         	
         	//파일 Sn 초기화
         	int _fileSn = 0;
@@ -339,8 +362,8 @@ public class Prj3000Controller {
            	}
        }
    	/**
-	 * Prj3000 권한정보 삭제(단건) AJAX
-	 * 메뉴정보 삭제 처리
+	 * Prj3000 개발문서 삭제 AJAX
+	 * 선택한 개발문서 및 하위 개발문서 삭제 처리
 	 * @param 
 	 * @return 
 	 * @exception Exception
@@ -351,16 +374,15 @@ public class Prj3000Controller {
     	try{
         	
     		// request 파라미터를 map으로 변환
-        	Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
-        	
+        	Map<String, Object> paramMap = RequestConvertor.requestParamToMapAddSelInfoList(request, true,"docId");
+    		
         	HttpSession ss = request.getSession();
            	paramMap.put("prjId", (String)ss.getAttribute("selPrjId"));
-        	
            	
-        	// 권한그룹 삭제
+        	// 개발문서 삭제
            	prj3000Service.deletePrj3000MenuInfo(paramMap);
         	
-        	//등록 성공 메시지 세팅
+        	//삭제 성공 메시지 세팅
         	model.addAttribute("message", egovMessageSource.getMessage("success.common.delete"));
         	
         	return new ModelAndView("jsonView");
@@ -505,4 +527,5 @@ public class Prj3000Controller {
 			return new ModelAndView("jsonView");
 		}
 	}
+	
 }

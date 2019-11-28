@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.cmm.cmm1000.cmm1000.service.impl;
+package kr.opensoftlab.oslops.cmm.cmm1000.cmm1000.service.impl;
 
 
 
@@ -7,9 +7,9 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.adm.adm2000.adm2000.vo.Adm2000VO;
-import kr.opensoftlab.oslits.cmm.cmm1000.cmm1000.service.Cmm1000Service;
-import kr.opensoftlab.oslits.cmm.cmm1000.cmm1000.vo.Cmm1000VO;
+import kr.opensoftlab.oslops.adm.adm2000.adm2000.vo.Adm2000VO;
+import kr.opensoftlab.oslops.cmm.cmm1000.cmm1000.service.Cmm1000Service;
+import kr.opensoftlab.oslops.cmm.cmm1000.cmm1000.vo.Cmm1000VO;
 
 import org.springframework.stereotype.Service;
 

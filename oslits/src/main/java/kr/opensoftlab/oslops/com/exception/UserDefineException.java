@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.com.exception;
+package kr.opensoftlab.oslops.com.exception;
 
 /**
  * UserDefineException.java 클래스

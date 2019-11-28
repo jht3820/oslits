@@ -1,5 +1,6 @@
-package kr.opensoftlab.oslits.cmm.cmm1000.cmm1400.web;
+package kr.opensoftlab.oslops.cmm.cmm1000.cmm1400.web;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,22 +10,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import kr.opensoftlab.oslits.adm.adm7000.adm7000.service.Adm7000Service;
-import kr.opensoftlab.oslits.cmm.cmm1000.cmm1400.service.Cmm1400Service;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.oslits.stm.stm2000.stm2000.service.Stm2000Service;
-import kr.opensoftlab.oslits.stm.stm2000.stm2000.web.Stm2000Controller;
-import kr.opensoftlab.oslits.stm.stm3000.stm3000.web.Stm3000Controller;
-import kr.opensoftlab.sdf.svn.SVNConnector;
-import kr.opensoftlab.sdf.svn.vo.SVNFileVO;
-import kr.opensoftlab.sdf.svn.vo.SVNLogVO;
-import kr.opensoftlab.sdf.util.CommonScrty;
-import kr.opensoftlab.sdf.util.RequestConvertor;
-
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.tmatesoft.svn.core.SVNAuthenticationException;
@@ -34,6 +22,17 @@ import org.tmatesoft.svn.core.io.SVNRepository;
 import egovframework.com.cmm.EgovMessageSource;
 import egovframework.com.cmm.service.EgovProperties;
 import egovframework.rte.fdl.property.EgovPropertyService;
+import kr.opensoftlab.oslops.cmm.cmm1000.cmm1400.service.Cmm1400Service;
+import kr.opensoftlab.oslops.cmm.cmm4000.cmm4000.service.Cmm4000Service;
+import kr.opensoftlab.oslops.com.exception.UserDefineException;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.oslops.stm.stm2000.stm2000.service.Stm2000Service;
+import kr.opensoftlab.oslops.stm.stm2000.stm2000.web.Stm2000Controller;
+import kr.opensoftlab.sdf.svn.SVNConnector;
+import kr.opensoftlab.sdf.svn.vo.SVNFileVO;
+import kr.opensoftlab.sdf.svn.vo.SVNLogVO;
+import kr.opensoftlab.sdf.util.CommonScrty;
+import kr.opensoftlab.sdf.util.RequestConvertor;
 
 
 /**
@@ -75,6 +74,9 @@ public class Cmm1400Controller {
 	@Resource(name = "stm2000Service")
 	private Stm2000Service stm2000Service;
 	
+	@Resource(name = "cmm4000Service")
+	private Cmm4000Service cmm4000Service;
+	
 	/**
 	 * Svn 리비전 선택 공통 팝업
 	 * @param 
@@ -87,7 +89,12 @@ public class Cmm1400Controller {
 	}
 	
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	/**
+	 * 소스코드 확인 팝업창 호출
+	 * @param 
+	 * @return 
+	 * @exception Exception
+	 */
 	@RequestMapping(value="/cmm/cmm1000/cmm1400/selectCmm1401FileContentView.do")
 	public String selectCmm1401FileContentView(HttpServletRequest request, HttpServletResponse response, ModelMap model) throws Exception {
 		return "/cmm/cmm1000/cmm1400/cmm1401";
@@ -100,6 +107,7 @@ public class Cmm1400Controller {
 	 * @return 
 	 * @exception Exception
 	 */
+	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/cmm/cmm1000/cmm1400/selectCmm1400SVNRepositoryList.do")
 	public ModelAndView selectCmm1400SVNRepositoryList( HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
 		try{
@@ -160,7 +168,7 @@ public class Cmm1400Controller {
 			}
 			
 			//globals.properties에서 salt값 가져오기
-			String salt = EgovProperties.getProperty("Globals.oslits.salt");
+			String salt = EgovProperties.getProperty("Globals.lunaops.salt");
 			
 			//암호 복호화
 			String userPw = CommonScrty.decryptedAria(svnUsrPw, salt);
@@ -184,6 +192,11 @@ public class Cmm1400Controller {
 			model.addAttribute("message", egovMessageSource.getMessage("success.common.select"));
 			model.addAttribute("MSG_CD", Stm2000Controller.SVN_OK);
 			return new ModelAndView("jsonView", paramMap);
+		}
+		catch(UserDefineException ude) {
+			// 접속실패여부 및 접속실패 메시지 세팅
+			model.addAttribute("MSG_CD", Stm2000Controller.SVN_MODULE_USE_EXCEPTION);
+			return new ModelAndView("jsonView");
 		}
 		catch(Exception ex){
 			Log.error("selectCmm1400LastRevisionAjax()", ex);
@@ -212,6 +225,7 @@ public class Cmm1400Controller {
 	 * @param response
 	 * @throws Exception
 	 */
+	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/cmm/cmm1000/cmm1400/selectCmm1400RevisionAjaxList.do")
 	public ModelAndView selectCmm1400RevisionAjaxList( HttpServletRequest request, HttpServletResponse response, ModelMap model )	throws Exception {
 
@@ -219,7 +233,7 @@ public class Cmm1400Controller {
 			// request 파라미터를 map으로 변환
 			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
 			//현재 페이지 값, 보여지는 개체 수
-
+			
 			HttpSession ss = request.getSession();
 			String prjId	= (String) ss.getAttribute("selPrjId");
 			String licGrpId = ((LoginVO) ss.getAttribute("loginVO")).getLicGrpId();
@@ -249,7 +263,7 @@ public class Cmm1400Controller {
 			}
 			
 			//globals.properties에서 salt값 가져오기
-			String salt = EgovProperties.getProperty("Globals.oslits.salt");
+			String salt = EgovProperties.getProperty("Globals.lunaops.salt");
 			
 			//암호 복호화
 			String userPw = CommonScrty.decryptedAria(svnUsrPw, salt);
@@ -280,6 +294,10 @@ public class Cmm1400Controller {
 			model.addAttribute("MSG_CD", Stm2000Controller.SVN_OK);
 			return new ModelAndView("jsonView", paramMap);
 
+		}catch(UserDefineException ude) {
+			// 접속실패여부 및 접속실패 메시지 세팅
+			model.addAttribute("message", ude.getMessage());
+			return new ModelAndView("jsonView");
 		}catch(Exception ex){
 			Log.error("selectCmm1400RevisionAjaxList()", ex);
 
@@ -313,57 +331,110 @@ public class Cmm1400Controller {
 
 			//로그인VO 가져오기
 			HttpSession ss = request.getSession();
-			paramMap.put("prjId", ss.getAttribute("selPrjId"));
-			paramMap.put("authGrpId", ss.getAttribute("selAuthGrpId"));
+			
+			// 사용자 ID
+			LoginVO loginVO = (LoginVO) ss.getAttribute("loginVO");
+			String usrId = loginVO.getUsrId();
+			
+			// 프로젝트 ID
+			String prjId = "";
+
+			// 프로젝트의 권한 목록
+			List<Map> prjUsrAuthList = new ArrayList<Map>();
+
+			// 팝업에서 넘어온 프로젝트 Id 있을경우 세팅
+			if(paramMap.get("prjId") != null){
+				prjId = (String)paramMap.get("prjId");
+				
+				// 넘어온 프로젝트 ID와 사용자 ID를 Map에 세팅한다.
+				Map<String,String> authParamMap = new HashMap<String,String>();
+				authParamMap.put("prjId", prjId);
+				authParamMap.put("usrId", usrId);
+				
+				// 프로젝트의 권한 목록을 조회한다.
+				List<Map> popupPrjAuthList = cmm4000Service.selectCmm4000UsrPrjAuthList(authParamMap);
+				
+				// ArrayList에 세팅
+				prjUsrAuthList.addAll(popupPrjAuthList);
+				
+			// 넘어온 프로젝트 Id 없을경우
+			}else{
+				// 세션의 선택된 프로젝트 Id를 가져온다.
+				prjId = (String) ss.getAttribute("selPrjId");
+				
+				// 세션에 있는 선택된 권한그룹 Id를 가져와 Map에 세팅한다.
+				Map<String,String> authMap = new HashMap<String,String>();
+				authMap.put("authGrpId", (String) ss.getAttribute("selAuthGrpId"));
+				prjUsrAuthList.add(authMap);
+			}
+			
+			// 프로젝트 Id를 paramMap에 담는다.
+			paramMap.put("prjId", prjId);
+			
 			Long revision =0l;
+			// 파라미터에 revision이 있을경우
 			if(paramMap.get("revision")!=null){
+				// revision을 가져온다.
 				revision = Long.parseLong((String) paramMap.get("revision"));	
 			}
 
 			//SVN Id로 Svn정보 불러오기
 			Map svnInfo = stm2000Service.selectStm2000Info(paramMap);
 			
+			// SVN 정보에서 SVN url, SVN 사용자 Id, SVN 사용자 pw를 가져온다.
 			String svnUrl=(String)svnInfo.get("svnRepUrl");
 			String userId= (String)svnInfo.get("svnUsrId");
 			String svnUsrPw = (String)svnInfo.get("svnUsrPw");	//암호화된 암호
 			
-			//값이 null
+			// SVN 사용자 pw 값이 null일 경우
 			if(svnUsrPw == null || "".equals(svnUsrPw)){
 				model.addAttribute("MSG_CD", Stm2000Controller.SVN_AUTHENTICATION_EXCEPTION);
 				return new ModelAndView("jsonView");
 			}
 			
-
-			//역할 체크
-			//현재 세션 역할
-			String selAuthGrpId = (String) ss.getAttribute("selAuthGrpId");
 			//해당 svnRepId의 허용 역할 목록
 			List<Map> svnAuthGrpList = stm2000Service.selectStm2000SvnAuthGrpList(paramMap);
 
-			//허용 역할이 있는경우에만 체크
+			// SVN 허용 역할이 있는경우에만 체크
 			if(svnAuthGrpList != null && svnAuthGrpList.size() > 0){
 				//역할 있는지 체크
 				boolean authChk = false;
-				
-				for(Map svnAuthGrpInfo : svnAuthGrpList){
-					if(selAuthGrpId.equals(svnAuthGrpInfo.get("authGrpId"))){
-						authChk = true;
-						break;
+				// 프로젝트의 허용역할 목록이 있는경우
+				if(prjUsrAuthList != null && prjUsrAuthList.size() > 0) {
+					// SVN 하용 역할과 프로젝트의 허용역할 목록을 비교하여 권한체크				
+					for(Map svnAuthGrpInfo : svnAuthGrpList){
+						// SVN 허용역할
+						String svnAuthGrp = (String)svnAuthGrpInfo.get("authGrpId");
+
+						boolean prjauthChk = false;
+						// 프로젝트의 허용역할 loop
+						for(Map prjUsrAuthInfo : prjUsrAuthList) {
+
+							// SVN 허용역할과 프로젝트의 허용역할 비교
+							if(svnAuthGrp.equals(prjUsrAuthInfo.get("authGrpId"))){
+								prjauthChk = true;
+								break;
+							}
+						}
+						// SVN 허용역할 목록에 프로젝트 허용역할이 있을 경우
+						if(prjauthChk) {
+							authChk = true;
+							break;
+						}
 					}
 				}
-				
+
 				//허용 역할이 없는경우 오류
 				if(!authChk){
 					model.addAttribute("MSG_CD", Stm2000Controller.SVN_AUTHENTICATION_EXCEPTION);
 					model.addAttribute("errorYn", "Y");
 					model.addAttribute("consoleText", "콘솔 로그 열람 권한이 없습니다.</br></br>관리자에게 문의해주시기 바랍니다.");
 					return new ModelAndView("jsonView");
-					
 				}
 			}
 			
 			//globals.properties에서 salt값 가져오기
-			String salt = EgovProperties.getProperty("Globals.oslits.salt");
+			String salt = EgovProperties.getProperty("Globals.lunaops.salt");
 			
 			//암호 복호화
 			String userPw = CommonScrty.decryptedAria(svnUsrPw, salt);
@@ -469,7 +540,7 @@ public class Cmm1400Controller {
 			}
 			
 			//globals.properties에서 salt값 가져오기
-			String salt = EgovProperties.getProperty("Globals.oslits.salt");
+			String salt = EgovProperties.getProperty("Globals.lunaops.salt");
 			
 			//암호 복호화
 			String userPw = CommonScrty.decryptedAria(svnUsrPw, salt);
@@ -491,7 +562,7 @@ public class Cmm1400Controller {
 
 			conn.close(repository);
 
-			model.addAttribute("content",  content);
+			model.addAttribute("content", content);
 
 			//조회성공메시지 세팅
 			model.addAttribute("message", egovMessageSource.getMessage("success.common.select"));

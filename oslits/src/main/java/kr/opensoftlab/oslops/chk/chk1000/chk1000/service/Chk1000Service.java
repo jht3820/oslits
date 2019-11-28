@@ -1,9 +1,9 @@
-package kr.opensoftlab.oslits.chk.chk1000.chk1000.service;
+package kr.opensoftlab.oslops.chk.chk1000.chk1000.service;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.chk.chk1000.chk1000.vo.Chk1000VO;
+import kr.opensoftlab.oslops.chk.chk1000.chk1000.vo.Chk1000VO;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 
 /**

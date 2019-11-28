@@ -1,9 +1,9 @@
-package kr.opensoftlab.oslits.req.req4000.req4000.service.impl;
+package kr.opensoftlab.oslops.req.req4000.req4000.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.com.dao.ComOslitsAbstractDAO;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 
 import org.springframework.stereotype.Repository;
@@ -98,5 +98,16 @@ public class Req4000DAO extends ComOslitsAbstractDAO {
 		// TODO Auto-generated method stub
 		listExcelDownSql("req4000DAO.selectReq4000ReqClsList", paramMap, resultHandler);
 		
+	}
+
+	/**
+	 * Req4000 [프로젝트 마법사] 요구사항 분류 정보 등록
+	 * @param param - Map
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public String insertReq4000WizardReqClsInfo(Map paramMap) throws Exception{
+		return (String) insert("req4000DAO.insertReq4000WizardReqClsInfo", paramMap);
 	}
 }

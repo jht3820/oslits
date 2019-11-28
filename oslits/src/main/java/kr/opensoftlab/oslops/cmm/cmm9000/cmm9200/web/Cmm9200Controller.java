@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.cmm.cmm9000.cmm9200.web;
+package kr.opensoftlab.oslops.cmm.cmm9000.cmm9200.web;
 
 import java.util.HashMap;
 import java.util.List;
@@ -8,7 +8,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import kr.opensoftlab.oslits.cmm.cmm9000.cmm9200.service.Cmm9200Service;
+import kr.opensoftlab.oslops.cmm.cmm9000.cmm9200.service.Cmm9200Service;
 import kr.opensoftlab.sdf.util.RequestConvertor;
 
 import org.springframework.stereotype.Controller;
