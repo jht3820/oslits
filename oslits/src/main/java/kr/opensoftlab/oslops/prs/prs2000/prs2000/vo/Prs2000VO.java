@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.prs.prs2000.prs2000.vo;
+package kr.opensoftlab.oslops.prs.prs2000.prs2000.vo;
 
 /**
  * @Class Name : Prs2000VO.java
@@ -13,7 +13,7 @@ package kr.opensoftlab.oslits.prs.prs2000.prs2000.vo;
  *  Copyright (C) OpenSoftLab Corp All right reserved.
  */
 
-import kr.opensoftlab.oslits.com.vo.PageVO;
+import kr.opensoftlab.oslops.com.vo.PageVO;
 
 public class Prs2000VO extends PageVO {
 	

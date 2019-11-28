@@ -1,9 +1,8 @@
-package kr.opensoftlab.oslits.stm.stm2000.stm2200.service;
+package kr.opensoftlab.oslops.stm.stm2000.stm2200.service;
 
 import java.util.List;
-import java.util.Map;
 
-import kr.opensoftlab.oslits.stm.stm2000.stm2200.vo.Stm2200VO;
+import kr.opensoftlab.oslops.stm.stm2000.stm2200.vo.Stm2200VO;
 
 
 /**
@@ -20,9 +19,20 @@ import kr.opensoftlab.oslits.stm.stm2000.stm2200.vo.Stm2200VO;
  */
 public interface Stm2200Service {
 
+	/**
+	 * Stm2200 프로젝트 별 배정된 SVN Repository 전체 목록을 조회한다.
+	 * @param stm2200vo
+	 * @return List - 프로젝트 별 배정된 SVN Repository 전체 목록
+	 * @exception Exception
+	 */
+	List<Stm2200VO> selectStm2200RepProjectList(Stm2200VO stm2200vo) throws Exception;
 
-	List<Stm2200VO> selectStm2200RepProjectList(Stm2200VO stm2200vo);
-
-	int selectStm2200RepProjectListCnt(Stm2200VO stm2200vo);
+	/**
+	 * Stm2200 프로젝트별 배정된 SVN Repository 전체 목록 총 건수를 조회한다.
+	 * @param stm2200vo
+	 * @return int - 프로젝트 별 배정된 SVN Repository 전체 목록 총 건수
+	 * @exception Exception
+	 */
+	int selectStm2200RepProjectListCnt(Stm2200VO stm2200vo) throws Exception;
 
 }

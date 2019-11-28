@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.adm.adm6000.adm6000.service.impl;
+package kr.opensoftlab.oslops.adm.adm6000.adm6000.service.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,7 +8,7 @@ import java.util.Iterator;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.adm.adm6000.adm6000.service.Adm6000Service;
+import kr.opensoftlab.oslops.adm.adm6000.adm6000.service.Adm6000Service;
 
 import org.springframework.stereotype.Service;
 

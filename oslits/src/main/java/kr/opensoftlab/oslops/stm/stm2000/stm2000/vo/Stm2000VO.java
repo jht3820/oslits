@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.stm.stm2000.stm2000.vo;
+package kr.opensoftlab.oslops.stm.stm2000.stm2000.vo;
 
 /**
  * @Class Name : Svn1000VO.java
@@ -13,7 +13,7 @@ package kr.opensoftlab.oslits.stm.stm2000.stm2000.vo;
  *  Copyright (C) OpenSoftLab Corp All right reserved.
  */
 
-import kr.opensoftlab.oslits.com.vo.PageVO;
+import kr.opensoftlab.oslops.com.vo.PageVO;
 
 public class Stm2000VO extends PageVO {
 

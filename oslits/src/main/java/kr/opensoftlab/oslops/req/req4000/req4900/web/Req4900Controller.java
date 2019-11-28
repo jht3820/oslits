@@ -1,5 +1,5 @@
 
-package kr.opensoftlab.oslits.req.req4000.req4900.web;
+package kr.opensoftlab.oslops.req.req4000.req4900.web;
 
 import java.util.Map;
 
@@ -7,11 +7,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import kr.opensoftlab.oslits.com.fms.web.service.FileMngService;
-import kr.opensoftlab.oslits.req.req4000.req4900.service.Req4900Service;
-import kr.opensoftlab.sdf.util.ReqHistoryMngUtil;
-import kr.opensoftlab.sdf.util.RequestConvertor;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,11 +16,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import egovframework.com.cmm.EgovMessageSource;
-import egovframework.com.cmm.service.EgovFileMngService;
-import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.rte.fdl.cmmn.trace.LeaveaTrace;
-import egovframework.rte.fdl.idgnr.EgovIdGnrService;
 import egovframework.rte.fdl.property.EgovPropertyService;
+import kr.opensoftlab.oslops.req.req4000.req4900.service.Req4900Service;
+import kr.opensoftlab.sdf.util.RequestConvertor;
 
 /**
  * @Class Name : Req4900Controller.java
@@ -59,17 +53,6 @@ public class Req4900Controller {
 	@Resource(name = "propertiesService")
 	protected EgovPropertyService propertiesService;
 
-	/** FileMngService */
-   	@Resource(name="fileMngService")
-   	private FileMngService fileMngService;
-   	
-	/** EgovFileMngUtil - 파일 업로드 Util */
-	@Resource(name="EgovFileMngUtil")
-	private EgovFileMngUtil fileUtil;
-	
-	/** 파일 제어 서비스 */
-	@Resource(name = "EgovFileMngService")
-	private EgovFileMngService fileService;
 	
 	/** TRACE */
 	@Resource(name = "leaveaTrace")
@@ -78,11 +61,6 @@ public class Req4900Controller {
 	@Value("${Globals.fileStorePath}")
 	private String tempPath;
 	
-	@Resource(name = "egovFileIdGnrService")
-	private EgovIdGnrService idgenService;
-	
-	@Resource(name = "historyMng")
-	private ReqHistoryMngUtil historyMng;
 	
 	/**
 	 * Req4900 결재 승인 & 반려

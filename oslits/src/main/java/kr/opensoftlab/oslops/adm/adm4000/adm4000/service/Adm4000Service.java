@@ -1,9 +1,9 @@
-package kr.opensoftlab.oslits.adm.adm4000.adm4000.service;
+package kr.opensoftlab.oslops.adm.adm4000.adm4000.service;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.com.vo.LoginVO;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 
 /**
@@ -109,7 +109,9 @@ public interface Adm4000Service {
 	 * @throws Exception
 	 */
 	void selectAdm4000DetailExcelList(Map paramMap,ExcelDataListResultHandler resultHandler) throws Exception;
+	
+	public int selectAdm4000CommonCodeCount(Map paramMap) throws Exception;
 
-	int selectAdm4000CommonCodeCount(Map paramMap) throws Exception;
+	int selectAdm4000CommonDetailCodeCount(Map paramMap) throws Exception;
 
 }

@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.adm.adm4000.adm4000.web;
+package kr.opensoftlab.oslops.adm.adm4000.adm4000.web;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,9 +10,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import kr.opensoftlab.oslits.adm.adm4000.adm4000.service.Adm4000Service;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.oslits.com.vo.PageVO;
+import kr.opensoftlab.oslops.adm.adm4000.adm4000.service.Adm4000Service;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.oslops.com.vo.PageVO;
 import kr.opensoftlab.sdf.excel.BigDataSheetWriter;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 import kr.opensoftlab.sdf.excel.Metadata;
@@ -162,7 +162,7 @@ public class Adm4000Controller {
         	
         	String infomap = (new GsonBuilder().serializeNulls().create()).toJson(paramMap).toString();
         	
-        	model.addAttribute("infoMap", infomap);
+        	model.addAttribute("infoMap", infomap.replaceAll("<", "&lt"));
         	
         	return "/adm/adm4000/adm4000/adm4001";
     	}
@@ -189,7 +189,7 @@ public class Adm4000Controller {
         	
         	String infomap = (new GsonBuilder().serializeNulls().create()).toJson(paramMap).toString();
         	
-        	model.addAttribute("infoMap", infomap);
+        	model.addAttribute("infoMap", infomap.replaceAll("<", "&lt"));
         	
         	return "/adm/adm4000/adm4000/adm4002";
     	}
@@ -273,7 +273,7 @@ public class Adm4000Controller {
     	try{
 
     		//리퀘스트에서 넘어온 파라미터를 맵으로 세팅
-        	Map paramMap = RequestConvertor.requestParamToMap(request, true);
+    		Map paramMap = RequestConvertor.requestParamToMap(request, true);
         	
         	int count=0;
         	if( "insert".equals(paramMap.get("mode") )){
@@ -362,18 +362,29 @@ public class Adm4000Controller {
         	if("insert".equals(pageType) && "Y".equals(stmUseYn)){
         		throw new Exception(egovMessageSource.getMessage("adm4000.systemUseCode.notInsertDetail"));
 			}
-        	
-        	adm4000Service.saveAdm4000CommonCodeDetail(paramMap);
-        	
-        	//조회성공메시지 세팅
-        	model.addAttribute("message", egovMessageSource.getMessage("success.common.save"));
-        	
+        	        	
+        	int count=0;
+        	if( "insert".equals( pageType )){
+        		count =  adm4000Service.selectAdm4000CommonDetailCodeCount(paramMap);
+        	}
+        	if(count == 0){
+        		adm4000Service.saveAdm4000CommonCodeDetail(paramMap);
+        		model.addAttribute("saveYN", "Y");
+            	
+            	//조회성공메시지 세팅
+            	model.addAttribute("message", egovMessageSource.getMessage("success.common.save"));
+        	}else{
+        		model.addAttribute("saveYN", "N");
+        		model.addAttribute("duplicateYN", "Y");
+        	}
+        	        	
         	return new ModelAndView("jsonView", model);
     	}
     	catch(Exception ex){
     		Log.error("saveAdm4000CommonCodeDetailInfoAjax()", ex);
     		
     		//조회실패 메시지 세팅
+    		model.addAttribute("saveYN", "N");
     		model.addAttribute("message", egovMessageSource.getMessage("fail.common.save"));
     		return new ModelAndView("jsonView", model);
     	}

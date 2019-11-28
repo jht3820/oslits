@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.adm.adm5000.adm5200.service;
+package kr.opensoftlab.oslops.adm.adm5000.adm5200.service;
 
 
 import java.util.Map;

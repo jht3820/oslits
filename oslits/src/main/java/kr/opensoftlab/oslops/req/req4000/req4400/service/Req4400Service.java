@@ -1,7 +1,9 @@
-package kr.opensoftlab.oslits.req.req4000.req4400.service;
+package kr.opensoftlab.oslops.req.req4000.req4400.service;
 
 import java.util.List;
 import java.util.Map;
+
+import kr.opensoftlab.oslops.req.req4000.req4400.vo.Req4400VO;
 
 
 /**
@@ -17,14 +19,22 @@ import java.util.Map;
  *  Copyright (C)  All right reserved.
  */
 public interface Req4400Service {
+
 	/**
-	 * Req4400 요구사항 작업흐름별 작업 목록 조회
-	 * @param param - Map
-	 * @return list - List
+	 * Req4400 요구사항 작업흐름별 작업 목록 조회(Grid page)
+	 * @param Req4400VO
 	 * @exception Exception
 	 */
 	@SuppressWarnings("rawtypes")
-	List selectReq4400ReqWorkList(Map paramMap) throws Exception;
+	List selectReq4400ReqWorkList(Req4400VO req4400VO) throws Exception;
+	
+	/**
+	 * Req4400 요구사항 작업흐름별 작업 목록 총 건수(Grid page)
+	 * @param Req4400VO
+	 * @return 
+	 * @exception Exception
+	 */
+	int selectReq4400ReqWorkListCnt(Req4400VO req4400VO) throws Exception;
 	
 	/**
 	 * Req4400 요구사항 작업흐름별 작업 단건 조회 

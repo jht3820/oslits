@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.com.util;
+package kr.opensoftlab.oslops.com.util;
 
 
 

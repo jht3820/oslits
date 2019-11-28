@@ -1,9 +1,9 @@
-package kr.opensoftlab.oslits.cmm.cmm1000.cmm1300.service;
+package kr.opensoftlab.oslops.cmm.cmm1000.cmm1300.service;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.com.vo.LoginVO;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 
 /**

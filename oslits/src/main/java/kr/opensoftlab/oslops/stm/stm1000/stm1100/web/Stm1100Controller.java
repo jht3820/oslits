@@ -1,8 +1,6 @@
-package kr.opensoftlab.oslits.stm.stm1000.stm1100.web;
+package kr.opensoftlab.oslops.stm.stm1000.stm1100.web;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,25 +9,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import kr.opensoftlab.oslits.com.fms.web.service.FileMngService;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.oslits.stm.stm1000.stm1100.service.Stm1100Service;
-import kr.opensoftlab.oslits.stm.stm1000.stm1100.vo.Stm1100VO;
+import kr.opensoftlab.oslops.com.fms.web.service.FileMngService;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.oslops.stm.stm1000.stm1100.service.Stm1100Service;
+import kr.opensoftlab.oslops.stm.stm1000.stm1100.vo.Stm1100VO;
 import kr.opensoftlab.sdf.util.ReqHistoryMngUtil;
 import kr.opensoftlab.sdf.util.RequestConvertor;
 
@@ -37,17 +20,13 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
 import egovframework.com.cmm.EgovMessageSource;
 import egovframework.com.cmm.service.EgovFileMngUtil;
-import egovframework.com.cmm.service.FileVO;
 import egovframework.rte.fdl.idgnr.EgovIdGnrService;
 import egovframework.rte.fdl.property.EgovPropertyService;
-import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 
 /**
  * @Class Name : Stm1100Controller.java
@@ -77,29 +56,16 @@ public class Stm1100Controller {
 	protected EgovPropertyService propertiesService;
 
 
-	/** FileMngService */
-	@Resource(name="fileMngService")
-	private FileMngService fileMngService;
-
 	@Value("${Globals.fileStorePath}")
 	private String tempPath;
 
-	/** EgovFileMngUtil - 파일 업로드 Util */
-	@Resource(name="EgovFileMngUtil")
-	private EgovFileMngUtil fileUtil;	
-
-	@Resource(name = "egovFileIdGnrService")
-	private EgovIdGnrService idgenService;
-
-	@Resource(name = "historyMng")
-	private ReqHistoryMngUtil historyMng;
-
+	/** Stm1100Service DI */
 	@Resource(name = "stm1100Service")
 	private Stm1100Service stm1100Service;
 	
 	
 	/**
-	 * API 토큰관리 화면으로 이동
+	 * Stm1100 API 토큰관리 화면으로 이동한다.
 	 * @param request
 	 * @param response
 	 * @param model
@@ -112,14 +78,14 @@ public class Stm1100Controller {
 	}
 	
 	/**
-	 * 프로젝트별 지정권한 API 정보 조회
-	 * 
+	 * Stm1100 프로젝트에 등록되어있는 API 목록을 조회한다.
 	 * @param request
 	 * @param response
 	 * @param model
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/stm/stm1000/stm1100/selectStm1100ProjectListAjax.do")
 	public ModelAndView selectStm1100ProjectListAjax( HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
 
@@ -140,16 +106,23 @@ public class Stm1100Controller {
 			
 			model.addAttribute("apiList", apiList);
 
+			// 조회성공 여부 및 조회 성공메시지 세팅
+			model.addAttribute("errorYn", "N");
+			model.addAttribute("message", egovMessageSource.getMessage("success.common.select"));
+			
 			return new ModelAndView("jsonView");
 		}
 		catch(Exception ex){
 			Log.error("selectStm1100ProjectListAjax()", ex);
-			throw new Exception(ex.getMessage());
+			// 조회 실패여부 및 실패메시지 세팅
+			model.addAttribute("errorYn", "Y");
+			model.addAttribute("message", egovMessageSource.getMessage("fail.common.select"));
+			return new ModelAndView("jsonView");
 		}
 	}
 	
 	/**
-	 * API 토큰관리  등록/수정 화면으로 이동
+	 * Stm1100 API 토큰관리  등록/수정 팝업으로 이동한다.
 	 * @param request
 	 * @param response
 	 * @param model
@@ -161,16 +134,15 @@ public class Stm1100Controller {
 		return "/stm/stm1000/stm1100/stm1101";
 	}
 
-
 	/**
-	 * 프로젝트별 API 토큰 권한 조회
-	 * 
+	 * Stm1100 프로젝트별 등록 가능한 API 목록을 조회한다.
 	 * @param request
 	 * @param response
 	 * @param model
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/stm/stm1000/stm1100/selectStm1100InfoAjax.do")
 	public ModelAndView selectStm1100InfoAjax( HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
 
@@ -192,18 +164,23 @@ public class Stm1100Controller {
 			
 			model.addAttribute("apiList", apiList);
 			
+			// 조회성공 여부 및 조회 성공메시지 세팅
+			model.addAttribute("errorYn", "N");
+			model.addAttribute("message", egovMessageSource.getMessage("success.common.select"));
 
 			return new ModelAndView("jsonView");
 		}
 		catch(Exception ex){
 			Log.error("selectStm1100InfoAjax()", ex);
-			throw new Exception(ex.getMessage());
+			// 조회 실패여부 및 실패메시지 세팅
+			model.addAttribute("errorYn", "Y");
+			model.addAttribute("message", egovMessageSource.getMessage("fail.common.select"));
+			return new ModelAndView("jsonView");
 		}
 	}
 	
 	/**
-	 * 프로젝트별 API 토큰 권한 지정/해제
-	 * 
+	 * Stm1100 프로젝트에 API를 등록/삭제한다.
 	 * @param request
 	 * @param response
 	 * @param model
@@ -249,12 +226,14 @@ public class Stm1100Controller {
         	
         	model.put("prjId", paramMap.get("prjId"));
       
+        	// 등록/삭제 메시지 세팅
         	model.addAttribute("message", egovMessageSource.getMessage("success.common.save"));
         	
         	return new ModelAndView("jsonView", model);
     	}
     	catch(Exception ex){
     		Log.error("saveStm1100Ajax()", ex);
+    		// 등록/삭제 실패메시지 세팅
     		model.addAttribute("message", egovMessageSource.getMessage("fail.common.save"));
     		return new ModelAndView("jsonView");
     	}

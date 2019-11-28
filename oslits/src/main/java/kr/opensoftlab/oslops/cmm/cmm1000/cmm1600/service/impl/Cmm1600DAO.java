@@ -1,9 +1,9 @@
-package kr.opensoftlab.oslits.cmm.cmm1000.cmm1600.service.impl;
+package kr.opensoftlab.oslops.cmm.cmm1000.cmm1600.service.impl;
 
 import java.util.List;
 
-import kr.opensoftlab.oslits.cmm.cmm1000.cmm1600.vo.Cmm1600VO;
-import kr.opensoftlab.oslits.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.cmm.cmm1000.cmm1600.vo.Cmm1600VO;
+import kr.opensoftlab.oslops.com.dao.ComOslitsAbstractDAO;
 
 import org.springframework.stereotype.Repository;
 
@@ -25,22 +25,19 @@ public class Cmm1600DAO extends ComOslitsAbstractDAO {
 	
 	
 	/**
-	 * 
-	 * 배포 조회 공통 목록 조회 
-	 *  
+	 * Cmm1600 배포 계획 목록을 조회 한다.(공통)
 	 * @param cmm1600VO
 	 * @return
 	 * @throws Exception
 	 */
-	public List selectCmm1600CommonDplList(Cmm1600VO cmm1600VO) throws Exception {
+	@SuppressWarnings({"rawtypes", "unchecked" })
+	public List<Cmm1600VO> selectCmm1600CommonDplList(Cmm1600VO cmm1600VO) throws Exception {
 		return (List) list("cmm1600DAO.selectCmm1600CommonDplList", cmm1600VO);
 	}
 	
 	/**
-	 * 
-	 * 	사용자 조회 공통 목록 전체 카운트 조회 
-	 * 
-	 * @param cmm1000VO
+	 * Cmm1600 배포 계획 목록의 총 건수를 조회한다. (그리드 페이징 처리)
+	 * @param Cmm1600VO
 	 * @return
 	 * @throws Exception
 	 */

@@ -1,20 +1,16 @@
-package kr.opensoftlab.oslits.chk.chk1000.chk1000.service.impl;
+package kr.opensoftlab.oslops.chk.chk1000.chk1000.service.impl;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.arm.arm1000.arm1000.service.impl.Arm1000DAO;
-import kr.opensoftlab.oslits.chk.chk1000.chk1000.service.Chk1000Service;
-import kr.opensoftlab.oslits.chk.chk1000.chk1000.vo.Chk1000VO;
-import kr.opensoftlab.oslits.req.req1000.req1000.service.impl.Req1000DAO;
-import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
-
 import org.springframework.stereotype.Service;
 
 import egovframework.rte.fdl.cmmn.EgovAbstractServiceImpl;
+import kr.opensoftlab.oslops.chk.chk1000.chk1000.service.Chk1000Service;
+import kr.opensoftlab.oslops.chk.chk1000.chk1000.vo.Chk1000VO;
+import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 
 /**
  * @Class Name : Chk1000ServiceImpl.java
@@ -30,14 +26,6 @@ import egovframework.rte.fdl.cmmn.EgovAbstractServiceImpl;
  */
 @Service("chk1000Service")
 public class Chk1000ServiceImpl extends EgovAbstractServiceImpl implements Chk1000Service{
-
-	/** DAO Bean Injection */
-    @Resource(name="arm1000DAO")
-    private Arm1000DAO arm1000DAO;
-    
-    /** DAO Bean Injection */
-    @Resource(name="req1000DAO")
-    private Req1000DAO req1000DAO;  
     
 	/** Chk1000DAO DI */
     @Resource(name="chk1000DAO")

@@ -1,11 +1,8 @@
-package kr.opensoftlab.oslits.cmm.cmm1000.cmm1600.service;
+package kr.opensoftlab.oslops.cmm.cmm1000.cmm1600.service;
 
 import java.util.List;
-import java.util.Map;
 
-import kr.opensoftlab.oslits.adm.adm2000.adm2000.vo.Adm2000VO;
-import kr.opensoftlab.oslits.cmm.cmm1000.cmm1000.vo.Cmm1000VO;
-import kr.opensoftlab.oslits.cmm.cmm1000.cmm1600.vo.Cmm1600VO;
+import kr.opensoftlab.oslops.cmm.cmm1000.cmm1600.vo.Cmm1600VO;
 
 /**
  * @Class Name : Cmm1600Service.java
@@ -22,25 +19,19 @@ import kr.opensoftlab.oslits.cmm.cmm1000.cmm1600.vo.Cmm1600VO;
 public interface Cmm1600Service {
 	
 	/**
-	 * 배포 조회 공통 목록 조회 
-	 * @param cmm1600vo
-	 * @return
+	 * Dpl1100 배포 계획에 배정된 요구사항 목록을 조회한다.
+	 * @param Dpl1100VO
+	 * @return list - 배포계획 배정된 요구사항 목록
 	 * @throws Exception
 	 */
-	List selectCmm1600CommonDplList(Cmm1600VO cmm1600vo) throws Exception;
+	List<Cmm1600VO> selectCmm1600CommonDplList(Cmm1600VO cmm1600VO) throws Exception;
 	
 	/**
-	 * 
-	 * 배포 조회 공통 목록 전체 카운트 조회
-	 * 
-	 * @param cmm1600vo
+	 * Cmm1600 배포 계획 목록의 총 건수를 조회한다. (그리드 페이징 처리)
+	 * @param Cmm1600VO
 	 * @return
 	 * @throws Exception
 	 */
-	int selectCmm1600CommonDplListCnt(Cmm1600VO cmm1600vo) throws Exception;
+	int selectCmm1600CommonDplListCnt(Cmm1600VO cmm1600VO) throws Exception;
 
-	
-	
-	
-	
 }

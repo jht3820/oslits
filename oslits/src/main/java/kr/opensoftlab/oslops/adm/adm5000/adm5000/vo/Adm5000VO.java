@@ -1,6 +1,6 @@
-package kr.opensoftlab.oslits.adm.adm5000.adm5000.vo;
+package kr.opensoftlab.oslops.adm.adm5000.adm5000.vo;
 
-import kr.opensoftlab.oslits.com.vo.PageVO;
+import kr.opensoftlab.oslops.com.vo.PageVO;
 
 public class Adm5000VO extends PageVO {
 	

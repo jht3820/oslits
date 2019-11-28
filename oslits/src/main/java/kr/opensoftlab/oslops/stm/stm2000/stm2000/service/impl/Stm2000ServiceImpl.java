@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.stm.stm2000.stm2000.service.impl;
+package kr.opensoftlab.oslops.stm.stm2000.stm2000.service.impl;
 
 import java.util.HashMap;
 import java.util.List;
@@ -6,36 +6,17 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import kr.opensoftlab.oslits.stm.stm2000.stm2000.service.Stm2000Service;
-import kr.opensoftlab.oslits.stm.stm2000.stm2000.vo.Stm2000VO;
+import kr.opensoftlab.oslops.stm.stm2000.stm2000.service.Stm2000Service;
+import kr.opensoftlab.oslops.stm.stm2000.stm2000.vo.Stm2000VO;
 
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.stereotype.Service;
 
-import egovframework.com.cmm.EgovMessageSource;
-import egovframework.com.utl.fcc.service.EgovStringUtil;
 import egovframework.rte.fdl.cmmn.EgovAbstractServiceImpl;
 
 /**
- * @Class Name : Svn1000ServiceImpl.java
- * @Description : Svn1000ServiceImpl Business Implement class
+ * @Class Name : Stm2000ServiceImpl.java
+ * @Description : Stm2000ServiceImpl Business Implement class
  * @Modification Information
  *
  * @author 공대영
@@ -47,35 +28,55 @@ import egovframework.rte.fdl.cmmn.EgovAbstractServiceImpl;
  */
 @Service("stm2000Service")
 public class Stm2000ServiceImpl extends EgovAbstractServiceImpl implements Stm2000Service{
-	/** Scpr5000DAO DI */
-
+	
+	/** Stm2000DAO DI */
 	@Resource(name="stm2000DAO")
     private Stm2000DAO stm2000DAO;
 	
 	
-	
+	/**
+	 * Stm2000 SVN Repository 목록을 조회한다.
+	 * @param Stm2000VO
+	 * @return List - SVN Repository 목록
+	 * @exception Exception
+	 */
 	@Override
-	public List<Stm2000VO> selectStm2000RepositoryList(Stm2000VO stm2000VO)
-			throws Exception {
+	public List<Stm2000VO> selectStm2000RepositoryList(Stm2000VO stm2000VO) throws Exception {
 		return stm2000DAO.selectStm2000RepositoryList(stm2000VO);
 	}
 
+	/**
+	 * Stm2000 SVN Repository 목록 총 수를 조회한다.
+	 * @param Stm2000VO
+	 * @return SVN Repository 목록 수
+	 * @exception Exception
+	 */
 	@Override
-	public int selectStm2000RepositoryListCnt(Stm2000VO stm2000VO)
-			throws Exception {
+	public int selectStm2000RepositoryListCnt(Stm2000VO stm2000VO) throws Exception {
 		return stm2000DAO.selectStm2000RepositoryListCnt(stm2000VO);
 	}
 
+	/**
+	 * Stm2000 SVN Repository 단건 조회한다.
+	 * @param paramMap
+	 * @return
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
 	@Override
-	public Map selectStm2000Info(Map<String, String> paramMap) {
-		// TODO Auto-generated method stub
+	public Map selectStm2000Info(Map<String, String> paramMap) throws Exception{
 		return stm2000DAO.selectStm2000Info(paramMap);
 	}
 	
-
+	/**
+	 * Stm2000 SVN Repository를 등록/수정한다.
+	 * @param paramMap
+	 * @return
+	 * @exception Exception
+	 */
 	@Override
-	public Object saveStm2000Info(Map<String, String> paramMap) {
-		// TODO Auto-generated method stub
+	public Object saveStm2000Info(Map<String, String> paramMap) throws Exception{
+
 		String insNewSvnRepId ="";
 		int result = 0;
 		String popupGb = (String)paramMap.get("popupGb");
@@ -91,21 +92,32 @@ public class Stm2000ServiceImpl extends EgovAbstractServiceImpl implements Stm20
 		return null;
 	}
 
+	/**
+	 * Stm2000 SVN Repository 상태를 확인한다.
+	 * @param paramMap
+	 * @return
+	 * @exception Exception
+	 */
 	@Override
-	public int selectStm2000UseCountInfo(Map<String, String> paramMap) {
-		// TODO Auto-generated method stub
+	public int selectStm2000UseCountInfo(Map<String, String> paramMap) throws Exception{
 		return stm2000DAO.selectStm2000UseCountInfo(paramMap);
 	}
 
+	/**
+	 * Stm2000 SVN Repository를 삭제한다.
+	 * @param paramMap
+	 * @return
+	 * @exception Exception
+	 */
 	@Override
-	public void deleteStm2000Info(Map<String, String> paramMap) {
-		// TODO Auto-generated method stub
+	public void deleteStm2000Info(Map<String, String> paramMap) throws Exception{
 		stm2000DAO.deleteStm2000Info(paramMap);
 	}
 
 	/**
-	 * SVN Repository 허용 역할 정보 목록 저장
+	 * Stm2000 SVN Repository 허용 역할 목록을 저장한다.
 	 * @param paramMap
+	 * @return
 	 * @throws Exception
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -167,8 +179,9 @@ public class Stm2000ServiceImpl extends EgovAbstractServiceImpl implements Stm20
 	}
 	
 	/**
-	 * SVN Repository 허용 역할정보 제거
+	 * Stm2000 SVN Repository 허용 역할 목록을 제거한다.
 	 * @param paramMap
+	 * @return
 	 * @throws Exception
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -209,17 +222,20 @@ public class Stm2000ServiceImpl extends EgovAbstractServiceImpl implements Stm20
 	}
 	
 	/**
-	 * SVN Repository 허용 역할 정보 저장
+	 * Stm2000 SVN Repository 허용 역할 정보를 저장한다. (단건)
 	 * @param paramMap
+	 * @return
 	 * @throws Exception
 	 */
 	@SuppressWarnings("rawtypes")
 	public void insertStm2000SvnAuthGrpInfo(Map paramMap) throws Exception {
 		stm2000DAO.insertStm2000SvnAuthGrpInfo(paramMap);
 	}
+	
 	/**
-	 * SVN Repository 허용 역할 정보 제거
+	 * Stm2000 SVN Repository 허용 역할 정보를 제거한다. (단건)
 	 * @param paramMap
+	 * @return
 	 * @throws Exception
 	 */
 	@SuppressWarnings("rawtypes")
@@ -228,8 +244,9 @@ public class Stm2000ServiceImpl extends EgovAbstractServiceImpl implements Stm20
 	}
 	
 	/**
-	 * SVN Repository 허용 역할 정보 목록 가져오기
+	 * Stm2000 SVN Repository 허용 역할 정보 목록을 조회한다.
 	 * @param paramMap
+	 * @return List SVN Repository 허용 역할 목록
 	 * @throws Exception
 	 */
 	@SuppressWarnings("rawtypes")
@@ -238,8 +255,9 @@ public class Stm2000ServiceImpl extends EgovAbstractServiceImpl implements Stm20
 	}
 	
 	/**
-	 * SVN Repository 허용 역할 정보 단건 갯수 가져오기
+	 * Stm2000 그리드 페이징 처리를 위한 SVN Repository 허용 역할 목록 총 수를 조회한다.
 	 * @param paramMap
+	 * @return SVN Repository 허용 역할 목록 총 수
 	 * @throws Exception
 	 */
 	@SuppressWarnings("rawtypes")

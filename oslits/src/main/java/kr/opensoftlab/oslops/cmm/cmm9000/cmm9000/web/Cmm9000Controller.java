@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.cmm.cmm9000.cmm9000.web;
+package kr.opensoftlab.oslops.cmm.cmm9000.cmm9000.web;
 
 import java.util.HashMap;
 import java.util.List;
@@ -9,12 +9,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import kr.opensoftlab.oslits.arm.arm1000.arm1000.service.Arm1000Service;
-import kr.opensoftlab.oslits.cmm.cmm4000.cmm4000.service.Cmm4000Service;
-import kr.opensoftlab.oslits.cmm.cmm9000.cmm9000.service.Cmm9000Service;
-import kr.opensoftlab.oslits.com.util.AuthMainPageConvertor;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.oslits.prj.prj1000.prj1000.service.Prj1000Service;
+import kr.opensoftlab.oslops.arm.arm1000.arm1000.service.Arm1000Service;
+import kr.opensoftlab.oslops.cmm.cmm4000.cmm4000.service.Cmm4000Service;
+import kr.opensoftlab.oslops.cmm.cmm9000.cmm9000.service.Cmm9000Service;
+import kr.opensoftlab.oslops.com.util.AuthMainPageConvertor;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.oslops.prj.prj1000.prj1000.service.Prj1000Service;
+import kr.opensoftlab.sdf.jenkins.JenkinsClient;
+import kr.opensoftlab.sdf.util.ModuleUseCheck;
 import kr.opensoftlab.sdf.util.RequestConvertor;
 
 import org.apache.log4j.Logger;
@@ -61,7 +63,11 @@ public class Cmm9000Controller {
     /** arm1000Service DI */
     @Resource(name = "arm1000Service")
     private Arm1000Service arm1000Service;
-    
+
+	/** ModuleUseCheck DI */
+	@Resource(name = "moduleUseCheck")
+	private ModuleUseCheck moduleUseCheck;
+	
     /** EgovMessageSource */
 	@Resource(name = "egovMessageSource")
 	EgovMessageSource egovMessageSource;
@@ -144,12 +150,28 @@ public class Cmm9000Controller {
     		paramMap.put("adminYn", loginVO.getAdmYn());
     		
     		List<Map> menuList = (List) cmm4000Service.selectCmm4000MenuList(paramMap);
+
+        	//모듈 사용 체크
+    		menuList = moduleUseCheck.moduleUseMenuList(menuList,request);
+
+    		//프로젝트 단건 조회
+    		paramMap.put("selPrjId", request.getParameter("prjId"));
+    		Map selPrjInfo = prj1000Service.selectPrj1000Info(paramMap);
+    		ss.setAttribute("selPrjGrpId", selPrjInfo.get("prjGrpId"));
+    		
     		//선택한 프로젝트의 권한롤 및 메뉴정보 세션 저장
     		ss.setAttribute("authList", authList);
     		ss.setAttribute("menuList", menuList);
     		
     		//선택한 프로젝트 및 권한 id 저장
     		ss.setAttribute("selPrjId", request.getParameter("prjId"));
+    		
+    		//프로젝트 정보 조회
+    		paramMap.put("selPrjId", prjId);
+    		Map prjInfo = prj1000Service.selectPrj1000Info(paramMap);
+    		ss.setAttribute("selPrjTaskTypeCd", prjInfo.get("prjTaskTypeCd"));
+    		ss.setAttribute("selPrjTaskTypeNm", prjInfo.get("prjTaskTypeNm"));
+    		
     		ss.setAttribute("selAuthGrpId", authList.get(0).get("authGrpId"));
     		ss.setAttribute("selMainAuthGrpId", authList.get(0).get("mainAuthGrpId"));
     		boolean isMain = false;
@@ -163,6 +185,8 @@ public class Cmm9000Controller {
     	    		// 프로젝트 변경 시 mainYn 값에 따른 메인화면 변경시
     	    		// 메인화면으로 img 클릭시  왼쪽 title에 사용하기 위해 세션에 저장
     	    		ss.setAttribute("firstMenuNm", menuMap.get("menuNm"));
+
+    	    		ss.setAttribute("selAcceptUseCd", menuMap.get("acceptUseCd"));
     	    		
     	    		isMain = true;
     			}
@@ -186,6 +210,8 @@ public class Cmm9000Controller {
     	    		ss.setAttribute("selMenuUrl", strMenuUrl);
     	    		ss.setAttribute("selMainUrl", strMenuUrl);
     	    		ss.setAttribute("firstMenuNm", strMenuNm);	
+    	    		
+    	    		ss.setAttribute("selAcceptUseCd", ((Map)mainMenuList.get(1)).get("acceptUseCd"));
     			}else{
     				strMenuNm=(String) ((Map)mainMenuList.get(0)).get("menuNm");
     				strMenuId=(String) ((Map)mainMenuList.get(0)).get("menuId");
@@ -198,6 +224,8 @@ public class Cmm9000Controller {
     	    		ss.setAttribute("selMainUrl", strMenuUrl);
     				// 권한별 최초 시작메뉴, 메인화면으로 img 클릭 왼쪽 title에 사용하기 위해 세션에 저장
     	    		ss.setAttribute("firstMenuNm", strMenuNm);
+    	    		
+    	    		ss.setAttribute("selAcceptUseCd", ((Map)mainMenuList.get(0)).get("acceptUseCd"));
     			}
     		}
     		
@@ -271,6 +299,8 @@ public class Cmm9000Controller {
     	    		// 메인화면으로 img 클릭시  왼쪽 title에 사용하기 위해 세션에 저장
     	    		ss.setAttribute("firstMenuNm", menuMap.get("menuNm"));
     	    		
+    	    		ss.setAttribute("selAcceptUseCd", menuMap.get("acceptUseCd"));
+    	    		
     	    		isMain = true;
     			}
 				
@@ -294,6 +324,8 @@ public class Cmm9000Controller {
     	    		ss.setAttribute("selMainUrl", strMenuUrl);
     				// 권한별 최초 시작메뉴, 메인화면으로 img 클릭 왼쪽 title에 사용하기 위해 세션에 저장
     	    		ss.setAttribute("firstMenuNm", strMenuNm);	
+    	    		
+    	    		ss.setAttribute("selAcceptUseCd", ((Map)mainMenuList.get(1)).get("acceptUseCd"));
     			}else{
     				strMenuNm=(String) ((Map)mainMenuList.get(0)).get("menuNm");
     				strMenuId=(String) ((Map)mainMenuList.get(0)).get("menuId");
@@ -306,6 +338,8 @@ public class Cmm9000Controller {
     	    		ss.setAttribute("selMainUrl", strMenuUrl);
     				// 권한별 최초 시작메뉴, 메인화면으로 img 클릭 왼쪽 title에 사용하기 위해 세션에 저장
     	    		ss.setAttribute("firstMenuNm", strMenuNm);
+    	    		
+    	    		ss.setAttribute("selAcceptUseCd", ((Map)mainMenuList.get(0)).get("acceptUseCd"));
     			}
     		}
     		/*

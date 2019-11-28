@@ -1,8 +1,8 @@
-package kr.opensoftlab.oslits.cmm.cmm3000.cmm3200.service.impl;
+package kr.opensoftlab.oslops.cmm.cmm3000.cmm3200.service.impl;
 
 import java.util.Map;
 
-import kr.opensoftlab.oslits.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.com.dao.ComOslitsAbstractDAO;
 
 import org.springframework.stereotype.Repository;
 

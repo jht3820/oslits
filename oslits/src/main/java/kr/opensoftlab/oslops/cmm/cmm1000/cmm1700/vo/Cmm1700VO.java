@@ -1,6 +1,6 @@
-package kr.opensoftlab.oslits.cmm.cmm1000.cmm1700.vo;
+package kr.opensoftlab.oslops.cmm.cmm1000.cmm1700.vo;
 
-import kr.opensoftlab.oslits.com.vo.PageVO;
+import kr.opensoftlab.oslops.com.vo.PageVO;
 import kr.opensoftlab.sdf.excel.annotation.ExcelColumn;
 
 /**

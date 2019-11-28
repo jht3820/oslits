@@ -1,9 +1,10 @@
-package kr.opensoftlab.oslits.req.req4000.req4200.service.impl;
+package kr.opensoftlab.oslops.req.req4000.req4200.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.req.req4000.req4200.vo.Req4200VO;
 
 import org.springframework.stereotype.Repository;
 
@@ -35,14 +36,24 @@ public class Req4200DAO extends ComOslitsAbstractDAO {
     }
 	
 	/**
-	 * Req4000 요구사항 분류 배정 목록 가져오기
+	 * Req4200 요구사항 분류 배정 목록 가져오기
 	 * @param param - Map
 	 * @return 
 	 * @exception Exception
 	 */
 	@SuppressWarnings("rawtypes")
-	public List selectReq4200ReqClsAddListAjax(Map paramMap) throws Exception{
-		return (List) list("req4200DAO.selectReq4200ReqClsAddListAjax", paramMap);
+	public List selectReq4200ReqClsAddListAjax(Req4200VO req4200VO) throws Exception{
+		return (List) list("req4200DAO.selectReq4200ReqClsAddListAjax", req4200VO);
+	}
+	
+	/**
+	 * Req4200 분류에 배정된 요구사항 총 건수 조회
+	 * @param param - Map
+	 * @return 
+	 * @exception Exception
+	 */
+	public int selectReq4200ReqClsAddListCnt(Req4200VO req4200VO) throws Exception {
+		return (Integer) select("req4200DAO.selectReq4100ReqClsAddListCnt", req4200VO);
 	}
 	
 	/**
@@ -52,8 +63,18 @@ public class Req4200DAO extends ComOslitsAbstractDAO {
 	 * @exception Exception
 	 */
 	@SuppressWarnings("rawtypes")
-	public List selectReq4200ReqClsDelListAjax(Map paramMap) throws Exception{
-		return (List) list("req4200DAO.selectReq4200ReqClsDelListAjax", paramMap);
+	public List selectReq4200ReqClsDelListAjax(Req4200VO req4200VO) throws Exception{
+		return (List) list("req4200DAO.selectReq4200ReqClsDelListAjax", req4200VO);
+	}
+	
+	/**
+	 * Req4200 분류에 미배정된 요구사항 총 건수 조회
+	 * @param param - Map
+	 * @return 
+	 * @exception Exception
+	 */
+	public int selectReq4200ReqClsDelListCnt(Req4200VO req4200VO) throws Exception {
+		return (Integer) select("req4200DAO.selectReq4100ReqClsDelListCnt", req4200VO);
 	}
 	
 	/**

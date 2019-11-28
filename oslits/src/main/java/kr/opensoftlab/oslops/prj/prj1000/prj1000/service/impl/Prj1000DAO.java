@@ -1,11 +1,11 @@
-package kr.opensoftlab.oslits.prj.prj1000.prj1000.service.impl;
+package kr.opensoftlab.oslops.prj.prj1000.prj1000.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 
-import kr.opensoftlab.oslits.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.com.dao.ComOslitsAbstractDAO;
 
 
 /**
@@ -95,8 +95,8 @@ public class Prj1000DAO extends ComOslitsAbstractDAO {
 	 * @exception Exception
 	 */
 	@SuppressWarnings("rawtypes")
-	public void insertPrj1001Ajax(Map paramMap) throws Exception{
-		insert("prj1000DAO.insertPrj1001InfoAjax", paramMap);
+	public Map insertPrj1001Ajax(Map paramMap) throws Exception{
+		return (Map) select("prj1000DAO.insertPrj1001InfoAjax", paramMap);
 	}
 	
 	
@@ -132,19 +132,63 @@ public class Prj1000DAO extends ComOslitsAbstractDAO {
 	 * @exception Exception
 	 */
 	@SuppressWarnings("rawtypes")
-	public void deletePrj1001Ajax(Map paramMap) throws Exception{
-		delete("prj1000DAO.deletePrj1001Ajax", paramMap);
+	public Map deletePrj1001Ajax(Map paramMap) throws Exception{
+		return (Map) select("prj1000DAO.deletePrj1001Ajax", paramMap);
 	}
 	
-	public List<Map> selectPrj1000ProjectGroupListAjax(
-			Map<String, String> paramMap) {
+	/**
+	 * Prj1000 프로젝트 그룹 목록을 조회한다.
+	 * @param Map
+	 * @return
+	 * @exception Exception
+	 */
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	public List<Map> selectPrj1000ProjectGroupListAjax(Map<String, String> paramMap) {
 		return (List) list("prj1000DAO.selectPrj1000ProjectGroupListAjax", paramMap);
 	}
+	
+	/**
+	 * Prj1000 프로젝트 약어가 이미 등록되어있는지 체크한다.
+	 * @param Map
+	 * @return
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
 	public int selectPrj1000ProjectAcronymCount(Map paramMap) throws Exception{
 		return (Integer)select("prj1000DAO.selectPrj1000ProjectAcronymCount",paramMap);
 	}
-
+	
+	/**
+	 * Prj1000 개인정보 수정 - 사용자의 메인 프로젝트를 변경한다.
+	 * @param Map
+	 * @return
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
 	public int updatePrj1000UserProjectId(Map paramMap) throws Exception{
 		return update("prj1000DAO.updatePrj1000UserProjectId",paramMap);
+	}
+	
+
+	/**
+	 * Prj1000 관리 권한 있는 프로젝트 목록 검색
+	 * @param param - Map
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public List selectPrj1000AdminPrjList(Map paramMap) throws Exception {
+		return (List) list("prj1000DAO.selectPrj1000AdminPrjList", paramMap);
+	}
+	
+
+	/**
+	 * Prj1000 프로젝트 마법사 생성
+	 * @param Map
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public String insertPrj1000PrjWizardAjax(Map paramMap) throws Exception{
+		return (String) insert("prj1000DAO.insertPrj1000PrjWizardAjax", paramMap);
 	}
 }

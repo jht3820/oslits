@@ -1,18 +1,21 @@
-package kr.opensoftlab.oslits.adm.adm1000.adm1000.web;
+package kr.opensoftlab.oslops.adm.adm1000.adm1000.web;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import kr.opensoftlab.oslits.adm.adm1000.adm1000.service.Adm1000Service;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
+import kr.opensoftlab.oslops.adm.adm1000.adm1000.service.Adm1000Service;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.sdf.jenkins.JenkinsClient;
+import kr.opensoftlab.sdf.util.ModuleUseCheck;
 import kr.opensoftlab.sdf.util.RequestConvertor;
 
 import org.apache.log4j.Logger;
@@ -56,6 +59,10 @@ public class Adm1000Controller {
 	@Resource(name = "propertiesService")
 	protected EgovPropertyService propertiesService;
 
+	/** ModuleUseCheck DI */
+	@Resource(name = "moduleUseCheck")
+	private ModuleUseCheck moduleUseCheck;
+	
 	/** TRACE */
 	@Resource(name = "leaveaTrace")
 	LeaveaTrace leaveaTrace;
@@ -87,12 +94,7 @@ public class Adm1000Controller {
         	//라이선스 그룹에 할당된 메뉴목록 가져오기
         	List<Map> baseMenuList = (List) adm1000Service.selectAdm1000BaseMenuList(paramMap);
         	
-        	//프로젝트에 생성되어 있는 권한그룹 목록 가져오기
-        	List<Map> prjAuthGrpList = (List) adm1000Service.selectAdm1000PrjAuthGrpList(paramMap);
-        	
         	model.addAttribute("baseMenuList", baseMenuList);
-        	model.addAttribute("prjAuthGrpList", prjAuthGrpList);
-        	
         	return "/adm/adm1000/adm1000/adm1000";
     	}
     	catch(Exception ex){
@@ -107,6 +109,7 @@ public class Adm1000Controller {
 	 * @return 
 	 * @exception Exception
 	 */
+	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/adm/adm1000/adm1000/selectAdm1001View.do")
     public String selectAdm1001View(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
     	
@@ -116,6 +119,7 @@ public class Adm1000Controller {
 		
     	try{
     		if( paramMap.get("gb").equals("update") ) {
+    			paramMap.put("prjId", paramMap.get("selPrjId"));
     			selInfo = adm1000Service.selectAdm1000AuthGrpInfoAjax(paramMap);
     		}
     		model.put("selInfo", selInfo);
@@ -180,6 +184,9 @@ public class Adm1000Controller {
         	
         	//라이선스 그룹에 할당된 메뉴목록 가져오기
         	List<Map> baseMenuList = (List) adm1000Service.selectAdm1000BaseMenuList(paramMap);
+
+        	//모듈 사용 체크
+        	baseMenuList = moduleUseCheck.moduleUseMenuList(baseMenuList, request);
         	
         	paramMap.put("baseMenuList", baseMenuList);
         	
@@ -215,11 +222,14 @@ public class Adm1000Controller {
     		LoginVO loginVO = (LoginVO) ss.getAttribute("loginVO");
     		
     		paramMap.put("adminYn", loginVO.getAdmYn());
-    		String prjId	= (String) ss.getAttribute("selPrjId");
+    		//String prjId	= (String) ss.getAttribute("selPrjId");
 			//paramMap.put("prjId", prjId);
     		paramMap.put("prjId", ROOTSYSTEM_PRJ);
         	//소분류 메뉴 정보 목록 조회
         	List<Map> authGrpSmallMenuList = (List) adm1000Service.selectAdm1000AuthGrpSmallMenuList(paramMap);
+
+        	//모듈 사용 체크
+        	authGrpSmallMenuList = moduleUseCheck.moduleUseMenuList(authGrpSmallMenuList, request);
         	
         	model.addAttribute("authGrpSmallMenuList", authGrpSmallMenuList);
         	
@@ -258,8 +268,8 @@ public class Adm1000Controller {
         	String strStatusMenuId = "";
     		String strStatus = "";
     		
-        	Map chkMap = new HashMap();
-        	
+    		Map<String, Map> menuIdMap = new HashMap<String, Map>();
+    		
         	while(enu.hasMoreElements()){
         		String strKeys = (String) enu.nextElement();
         		String menuId = "";
@@ -269,18 +279,64 @@ public class Adm1000Controller {
         		if(strKeys.length() < 18){
         			continue;
         		}
-        		
+
         		//상태구분값을 가져온다.
         		if("status".equals(strKeys.substring(0,6))){
         			strStatusMenuId = strKeys.substring(6,18);
         			strStatus = request.getParameter(strKeys);
+        			
+        			//menuId 존재하지 않는 경우
+        			if(!menuIdMap.containsKey(strStatusMenuId)) {
+        				//menuId 정보 생성
+        				Map<String, String> menuDataMap = new HashMap<String, String>();
+        				
+        				//기본정보 생성된 맵에 붙이기
+        				RequestConvertor.mapAddCommonInfo(request, menuDataMap);
+        				
+        				//관리자이기에 prjId 는 ROOTSYSTEM_PRJ로 세팅한다.
+        				menuDataMap.put("prjId", "ROOTSYSTEM_PRJ");
+        				
+        				//정보 추가 (2depth Map)
+        				menuIdMap.put(strStatusMenuId, menuDataMap);
+        				
+        				//menuId, mainMenuId, authGrpId put
+        				menuIdMap.get(strStatusMenuId).put("authGrpId", authGrpId);
+        				menuIdMap.get(strStatusMenuId).put("menuId", strStatusMenuId);
+        			}
+        			
+        			//status
+        			menuIdMap.get(strStatusMenuId).put("status", strStatus);
         		}
+        		
         		
         		//hidden으로 담아온 체크박스 체크여부 값을 key value로 세팅해 list에 담는다.
         		if( "hidden".equals(strKeys.substring(0,6)) ){
         			menuId = strKeys.substring(6,18);
         			colNm = strKeys.substring(18);
         			
+        			//menuId 존재하지 않는 경우
+        			if(!menuIdMap.containsKey(menuId)) {
+        				//menuId 정보 생성
+        				Map<String, String> menuDataMap = new HashMap<String, String>();
+        				
+        				//기본정보 생성된 맵에 붙이기
+        				RequestConvertor.mapAddCommonInfo(request, menuDataMap);
+        				
+        				//관리자이기에 prjId 는 ROOTSYSTEM_PRJ로 세팅한다.
+        				menuDataMap.put("prjId", "ROOTSYSTEM_PRJ");
+        				
+        				//정보 추가 (2depth Map)
+        				menuIdMap.put(menuId, menuDataMap);
+        				
+        				//menuId, mainMenuId, authGrpId put
+        				menuIdMap.get(menuId).put("authGrpId", authGrpId);
+        				menuIdMap.get(menuId).put("menuId", menuId);
+        			}
+        			
+        			//수정된 값 put
+        			menuIdMap.get(menuId).put(colNm, request.getParameter("hidden" + menuId + colNm));
+        			
+        			/*
         			//이전 저장된 menuId와 지금 꺼낸 메뉴 ID가 같으면 한맵에 컬럼 정보로 담는다.
         			if(tempMenuId.equals(menuId)){
         				chkMap.put(colNm, request.getParameter("hidden" + menuId + colNm));
@@ -311,9 +367,16 @@ public class Adm1000Controller {
         				chkMap.put(colNm, request.getParameter("hidden" + menuId + colNm));
         			}
         			tempMenuId = menuId;
+        			*/
         		}
         	}
 
+        	//Map to List
+        	for(Entry<String, Map> mapInfo : menuIdMap.entrySet()) {
+        		Map newMap = mapInfo.getValue();
+        		list.add(newMap);
+        	}
+        	
         	//메뉴권한정보 저장 처리
         	adm1000Service.saveAdm1000AuthGrpMenuAuthListAjax(list);
         	
@@ -413,7 +476,7 @@ public class Adm1000Controller {
     		// request 파라미터를 map으로 변환
         	Map<String, String> paramMap = RequestConvertor.requestParamToMap(request, true);
         	HttpSession ss = request.getSession();
-    		LoginVO loginVO = (LoginVO) ss.getAttribute("loginVO");
+    		//LoginVO loginVO = (LoginVO) ss.getAttribute("loginVO");
     		
     		String prjId	= (String) ss.getAttribute("selPrjId");
 			paramMap.put("prjId", prjId);
@@ -516,4 +579,45 @@ public class Adm1000Controller {
     		return new ModelAndView("jsonView");
     	}
     }
+	
+	 /**
+		 * 권한 그룹 목록 조회
+		 * @param 
+		 * @return 
+		 * @exception Exception
+		 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@RequestMapping(value="/adm/adm1000/adm1000/selectAdm1000PrjAuthGrpList.do")
+	public ModelAndView selectAdm1000PrjAuthGrpList(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
+	   	
+		try{
+	    	HttpSession ss = request.getSession();
+	    	LoginVO loginVO = (LoginVO) ss.getAttribute("loginVO");
+	        	
+	       	Map paramMap = new HashMap<String, String>();
+	        	
+	       	paramMap.put("prjId", ROOTSYSTEM_PRJ);
+	       	paramMap.put("authGrpId", ss.getAttribute("selAuthGrpId"));
+	       	paramMap.put("usrId", loginVO.getUsrId());
+	       	paramMap.put("licGrpId", loginVO.getLicGrpId());
+	        	
+	       	//프로젝트에 생성되어 있는 권한그룹 목록 가져오기
+	       	List<Map> prjAuthGrpList = (List) adm1000Service.selectAdm1000PrjAuthGrpList(paramMap);
+	        	
+	       	model.addAttribute("prjAuthGrpList", prjAuthGrpList);
+	        	
+	        	
+	       	//조회성공메시지 세팅
+	       	model.addAttribute("message", egovMessageSource.getMessage("success.common.select"));
+	        	
+	       	return new ModelAndView("jsonView", paramMap);
+	    }
+	    catch(Exception ex){
+	    	Log.error("selectAdm1000PrjAuthGrpList()", ex);
+	    		
+	    	//조회실패 메시지 세팅
+	    	model.addAttribute("message", egovMessageSource.getMessage("fail.common.select"));
+	    	return new ModelAndView("jsonView");
+	    }
+	}
 }

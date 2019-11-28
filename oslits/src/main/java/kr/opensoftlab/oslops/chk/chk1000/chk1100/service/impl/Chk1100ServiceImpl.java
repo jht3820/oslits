@@ -1,19 +1,16 @@
-package kr.opensoftlab.oslits.chk.chk1000.chk1100.service.impl;
+package kr.opensoftlab.oslops.chk.chk1000.chk1100.service.impl;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.arm.arm1000.arm1000.service.impl.Arm1000DAO;
-import kr.opensoftlab.oslits.chk.chk1000.chk1100.service.Chk1100Service;
-import kr.opensoftlab.oslits.chk.chk1000.chk1100.vo.Chk1100VO;
-import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
-
 import org.springframework.stereotype.Service;
 
 import egovframework.rte.fdl.cmmn.EgovAbstractServiceImpl;
+import kr.opensoftlab.oslops.chk.chk1000.chk1100.service.Chk1100Service;
+import kr.opensoftlab.oslops.chk.chk1000.chk1100.vo.Chk1100VO;
+import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 
 /**
  * @Class Name : Chk1100ServiceImpl.java
@@ -29,9 +26,6 @@ import egovframework.rte.fdl.cmmn.EgovAbstractServiceImpl;
  */
 @Service("chk1100Service")
 public class Chk1100ServiceImpl extends EgovAbstractServiceImpl implements Chk1100Service{
-	/** DAO Bean Injection */
-    @Resource(name="arm1000DAO")
-    private Arm1000DAO arm1000DAO;
 
 	/** Chk1100DAO DI */
     @Resource(name="chk1100DAO")
@@ -84,7 +78,6 @@ public class Chk1100ServiceImpl extends EgovAbstractServiceImpl implements Chk11
 	@Override
 	public void selectChk1100ExcelList(Chk1100VO chk1100vo,
 			ExcelDataListResultHandler resultHandler) throws Exception {
-		// TODO Auto-generated method stub
 		chk1100DAO.selectChk1100ExcelList(chk1100vo,	resultHandler);
 		
 	}

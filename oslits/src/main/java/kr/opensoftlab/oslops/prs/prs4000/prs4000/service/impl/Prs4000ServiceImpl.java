@@ -1,11 +1,11 @@
-package kr.opensoftlab.oslits.prs.prs4000.prs4000.service.impl;
+package kr.opensoftlab.oslops.prs.prs4000.prs4000.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.prs.prs4000.prs4000.service.Prs4000Service;
+import kr.opensoftlab.oslops.prs.prs4000.prs4000.service.Prs4000Service;
 
 import org.springframework.stereotype.Service;
 

@@ -1,8 +1,8 @@
-package kr.opensoftlab.oslits.chk.chk1000.chk1000.vo;
+package kr.opensoftlab.oslops.chk.chk1000.chk1000.vo;
 
 import java.util.Map;
 
-import kr.opensoftlab.oslits.com.vo.PageVO;
+import kr.opensoftlab.oslops.com.vo.PageVO;
 
 public class Chk1000VO extends PageVO{
 	

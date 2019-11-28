@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.req.req2000.req2000.service;
+package kr.opensoftlab.oslops.req.req2000.req2000.service;
 
 /**
  * @Class Name : Req2000Service.java
@@ -16,6 +16,7 @@ package kr.opensoftlab.oslits.req.req2000.req2000.service;
 import java.util.List;
 import java.util.Map;
 
+import kr.opensoftlab.oslops.req.req4000.req4100.vo.Req4100VO;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 
 public interface Req2000Service {
@@ -37,7 +38,7 @@ public interface Req2000Service {
 	 */
 	@SuppressWarnings("rawtypes")
 	void insertReq2000ReqCommentInfo(Map paramMap) throws Exception;
-
+	
 	/**
 	 * Req2000 요구사항 목록 엑셀 다운로드
 	 * @param param - Map

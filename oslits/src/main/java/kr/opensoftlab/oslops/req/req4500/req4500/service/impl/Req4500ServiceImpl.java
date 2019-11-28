@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.req.req4500.req4500.service.impl;
+package kr.opensoftlab.oslops.req.req4500.req4500.service.impl;
 
 import java.util.List;
 import java.util.Map;
@@ -9,7 +9,7 @@ import javax.annotation.Resource;
 
 
 
-import kr.opensoftlab.oslits.req.req4500.req4500.service.Req4500Service;
+import kr.opensoftlab.oslops.req.req4500.req4500.service.Req4500Service;
 
 import org.springframework.stereotype.Service;
 

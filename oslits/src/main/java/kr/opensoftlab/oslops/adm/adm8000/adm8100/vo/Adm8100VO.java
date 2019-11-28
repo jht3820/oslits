@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.adm.adm8000.adm8100.vo;
+package kr.opensoftlab.oslops.adm.adm8000.adm8100.vo;
 
 /**
  * @Class Name : Stm3000VO.java
@@ -13,7 +13,7 @@ package kr.opensoftlab.oslits.adm.adm8000.adm8100.vo;
  *  Copyright (C) OpenSoftLab Corp All right reserved.
  */
 
-import kr.opensoftlab.oslits.com.vo.PageVO;
+import kr.opensoftlab.oslops.com.vo.PageVO;
 
 public class Adm8100VO extends PageVO {
 	

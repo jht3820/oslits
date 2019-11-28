@@ -1,11 +1,11 @@
-package kr.opensoftlab.oslits.cmm.cmm1000.cmm1100.service.impl;
+package kr.opensoftlab.oslops.cmm.cmm1000.cmm1100.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.cmm.cmm1000.cmm1100.service.Cmm1100Service;
+import kr.opensoftlab.oslops.cmm.cmm1000.cmm1100.service.Cmm1100Service;
 
 import org.springframework.stereotype.Service;
 

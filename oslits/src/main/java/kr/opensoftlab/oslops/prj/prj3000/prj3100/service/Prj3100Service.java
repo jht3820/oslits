@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.prj.prj3000.prj3100.service;
+package kr.opensoftlab.oslops.prj.prj3000.prj3100.service;
 
 import java.util.List;
 import java.util.Map;

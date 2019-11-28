@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.cmm.cmm1000.cmm1300.web;
+package kr.opensoftlab.oslops.cmm.cmm1000.cmm1300.web;
 
 import java.util.List;
 import java.util.Map;
@@ -7,8 +7,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import kr.opensoftlab.oslits.adm.adm7000.adm7000.service.Adm7000Service;
-import kr.opensoftlab.oslits.cmm.cmm1000.cmm1300.service.Cmm1300Service;
+import kr.opensoftlab.oslops.adm.adm7000.adm7000.service.Adm7000Service;
+import kr.opensoftlab.oslops.cmm.cmm1000.cmm1300.service.Cmm1300Service;
 import kr.opensoftlab.sdf.util.RequestConvertor;
 
 import org.apache.log4j.Logger;

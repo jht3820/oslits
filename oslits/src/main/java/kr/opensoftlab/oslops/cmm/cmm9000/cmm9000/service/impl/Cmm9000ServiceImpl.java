@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.cmm.cmm9000.cmm9000.service.impl;
+package kr.opensoftlab.oslops.cmm.cmm9000.cmm9000.service.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,7 +7,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.cmm.cmm9000.cmm9000.service.Cmm9000Service;
+import kr.opensoftlab.oslops.cmm.cmm9000.cmm9000.service.Cmm9000Service;
 
 import org.springframework.stereotype.Service;
 

@@ -1,9 +1,9 @@
-package kr.opensoftlab.oslits.prj.prj3000.prj3100.service.impl;
+package kr.opensoftlab.oslops.prj.prj3000.prj3100.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.com.dao.ComOslitsAbstractDAO;
 
 import org.springframework.stereotype.Repository;
 

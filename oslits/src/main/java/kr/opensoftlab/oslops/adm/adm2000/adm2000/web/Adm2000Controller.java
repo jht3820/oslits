@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.adm.adm2000.adm2000.web;
+package kr.opensoftlab.oslops.adm.adm2000.adm2000.web;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,25 +6,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import kr.opensoftlab.oslits.adm.adm2000.adm2000.service.Adm2000Service;
-import kr.opensoftlab.oslits.adm.adm2000.adm2000.vo.Adm2000VO;
-import kr.opensoftlab.oslits.adm.adm5000.adm5200.service.Adm5200Service;
-import kr.opensoftlab.oslits.com.fms.web.service.FileMngService;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.sdf.excel.BigDataSheetWriter;
-import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
-import kr.opensoftlab.sdf.excel.Metadata;
-import kr.opensoftlab.sdf.excel.SheetHeader;
-import kr.opensoftlab.sdf.excel.SheetParser;
-import kr.opensoftlab.sdf.util.OslAgileConstant;
-import kr.opensoftlab.sdf.util.PagingUtil;
-import kr.opensoftlab.sdf.util.RequestConvertor;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,9 +26,21 @@ import org.springframework.web.servlet.ModelAndView;
 
 import egovframework.com.cmm.EgovMessageSource;
 import egovframework.com.utl.fcc.service.EgovStringUtil;
-import egovframework.com.utl.sim.service.EgovFileScrty;
 import egovframework.rte.fdl.idgnr.EgovIdGnrService;
 import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
+import kr.opensoftlab.oslops.adm.adm2000.adm2000.service.Adm2000Service;
+import kr.opensoftlab.oslops.adm.adm2000.adm2000.vo.Adm2000VO;
+import kr.opensoftlab.oslops.adm.adm5000.adm5200.service.Adm5200Service;
+import kr.opensoftlab.oslops.com.fms.web.service.FileMngService;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.sdf.excel.BigDataSheetWriter;
+import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
+import kr.opensoftlab.sdf.excel.Metadata;
+import kr.opensoftlab.sdf.excel.SheetHeader;
+import kr.opensoftlab.sdf.excel.SheetParser;
+import kr.opensoftlab.sdf.util.OslAgileConstant;
+import kr.opensoftlab.sdf.util.PagingUtil;
+import kr.opensoftlab.sdf.util.RequestConvertor;
 
 
 /**
@@ -240,6 +239,17 @@ public class Adm2000Controller {
         	paramMap.put("regUsrId", loginVO.getUsrId()); 		// 사용자 ID
         	paramMap.put("regUsrIp", request.getRemoteAddr()); // 사용자 IP
 
+        	// 사용자명
+    		String usrNm = (String)paramMap.get("usrNm");
+    		
+    		// 사용자명 정규식 체크
+    		if(!Pattern.matches("^[0-9a-zA-Zㄱ-ㅎㅏ-ㅣ가-힣_-]*$", usrNm)){
+    			// 정규식에 해당하지 않을 경우
+    			model.addAttribute("errorYn", "Y");
+    			model.addAttribute("message", "이름은 한글, 영문, 숫자, 특수문자( _ -) 만 입력가능합니다.");
+    			return new ModelAndView("jsonView", model);
+    	    }
+        	
         	adm2000Service.saveAdm2000UsrInfo(paramMap);
         	
         	//등록 성공 메시지 세팅
@@ -254,10 +264,10 @@ public class Adm2000Controller {
         	
         	
         	return new ModelAndView("jsonView");
-        	
+        
 		}catch(Exception e){
-			Log.error("insertAdm2000UsrInfo()", e);
-			
+			Log.error("saveAdm2000UsrInfo()", e);
+			// 저장 실패여부 및 저장실패 메시지 세팅
     		model.addAttribute("successYn", "N");
     		model.addAttribute("message", egovMessageSource.getMessage("fail.common.insert"));
     		
@@ -547,7 +557,6 @@ public class Adm2000Controller {
 	 * @return 
 	 * @exception Exception
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@RequestMapping(value="/adm/adm2000/adm2000/insertAdm2000AdmInfoListAjax.do")
 	public ModelAndView insertAdm2000AdmInfoListAjax(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
 

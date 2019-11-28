@@ -1,13 +1,15 @@
-package kr.opensoftlab.oslits.arm.arm1000.arm1000.service.impl;
+package kr.opensoftlab.oslops.arm.arm1000.arm1000.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.arm.arm1000.arm1000.service.Arm1000Service;
-import kr.opensoftlab.oslits.arm.arm1000.arm1000.vo.Arm1000VO;
+import kr.opensoftlab.oslops.arm.arm1000.arm1000.service.Arm1000Service;
+import kr.opensoftlab.oslops.arm.arm1000.arm1000.vo.Arm1000VO;
+import kr.opensoftlab.sdf.util.WebhookSend;
 
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import egovframework.com.cmm.EgovMessageSource;
@@ -29,6 +31,9 @@ import egovframework.rte.fdl.cmmn.EgovAbstractServiceImpl;
 @Service("arm1000Service")
 public class Arm1000ServiceImpl extends EgovAbstractServiceImpl implements Arm1000Service {
 
+	/** 로그4j 로거 로딩 */
+	private final Logger Log = Logger.getLogger(this.getClass());
+	
 	/** Arm1000DAO DI */
     @Resource(name="arm1000DAO")
     private Arm1000DAO arm1000DAO;
@@ -36,7 +41,10 @@ public class Arm1000ServiceImpl extends EgovAbstractServiceImpl implements Arm10
     /** EgovMessageSource */
    	@Resource(name = "egovMessageSource")
    	EgovMessageSource egovMessageSource;
-   	
+
+    /** Whk1000Service DI */
+    @Resource(name = "webhookSend")
+    private WebhookSend webhookSend;
    	/**
 	 * Arm1000 사용자 쪽지 목록 가져오기
 	 * @param param - Map
@@ -66,6 +74,44 @@ public class Arm1000ServiceImpl extends EgovAbstractServiceImpl implements Arm10
 	 */
 	@SuppressWarnings("rawtypes")
 	public String insertArm1000AlarmInfo(Map paramMap) throws Exception{
+		/*****************************
+		 * 웹훅 세팅 (사용가능한지 체크)
+		 * -사용자 웹훅 세팅(요청자)
+		*******************************/
+		//사용자 웹훅 세팅
+		boolean webHookUsrStatus = false;
+		String whkRegUsrNm = "";
+		
+		try{
+			whkRegUsrNm =  (String)paramMap.get("whkRegUsrNm");
+
+			//수신 대상
+			String usrId = (String) paramMap.get("usrId");
+			
+			//사용자 웹훅 정보 세팅
+			webHookUsrStatus = webhookSend.userWebhookSetting((String)paramMap.get("licGrpId"), usrId);
+			
+			/*****************************
+			 * 웹훅 메시지 내용 세팅
+			 * -쪽지 발송
+			*******************************/
+			if(webHookUsrStatus){
+				//쪽지 제목, 내용
+				String memoTitle = (String)paramMap.get("title");
+				String memoContent = (String)paramMap.get("content");
+				
+				//쪽지 내용 br치환
+				memoContent = memoContent.replaceAll("</br>", "\n");
+				//쪽지 메시지 세팅
+				String messasgeJson = webhookSend.messageJsonSetting(whkRegUsrNm+"님으로부터 쪽지가 도착했습니다.\n\n["+memoTitle+"]\n"+memoContent,"#4b73eb");
+				webhookSend.usrSend(messasgeJson, "whkSignRejectCd");
+			}
+			/*******************************/
+		}catch(Exception e){
+			//웹혹 오류시 skip
+			Log.debug(e.getMessage());
+		}
+		
 		return arm1000DAO.insertArm1000AlarmInfo(paramMap);
 	}
 	
@@ -88,7 +134,7 @@ public class Arm1000ServiceImpl extends EgovAbstractServiceImpl implements Arm10
 			for (int i = 0; i < listSize; i++) {
 				Map<String,String> reqMap = list.get(i);
 				reqMap.put("usrId", reqMap.get("regUsrId"));
-				if("Y".equals(paramMap.get("viewCheck"))){
+				if("01".equals(paramMap.get("viewCheck"))){
 					reqMap.put("viewCheck", (String)paramMap.get("viewCheck"));
 				}
 				else if("Y".equals(paramMap.get("delCheck"))){

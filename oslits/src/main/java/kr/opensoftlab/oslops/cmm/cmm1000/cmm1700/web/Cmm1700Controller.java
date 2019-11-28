@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.cmm.cmm1000.cmm1700.web;
+package kr.opensoftlab.oslops.cmm.cmm1000.cmm1700.web;
 
 import java.util.HashMap;
 import java.util.List;
@@ -8,17 +8,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import kr.opensoftlab.oslits.cmm.cmm1000.cmm1000.service.Cmm1000Service;
-import kr.opensoftlab.oslits.cmm.cmm1000.cmm1000.vo.Cmm1000VO;
-import kr.opensoftlab.oslits.cmm.cmm1000.cmm1600.service.Cmm1600Service;
-import kr.opensoftlab.oslits.cmm.cmm1000.cmm1600.vo.Cmm1600VO;
-import kr.opensoftlab.oslits.cmm.cmm1000.cmm1700.service.Cmm1700Service;
-import kr.opensoftlab.oslits.cmm.cmm1000.cmm1700.vo.Cmm1700VO;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.sdf.util.OslAgileConstant;
-import kr.opensoftlab.sdf.util.PagingUtil;
-import kr.opensoftlab.sdf.util.RequestConvertor;
 
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -30,6 +19,12 @@ import org.springframework.web.servlet.ModelAndView;
 import egovframework.com.cmm.EgovMessageSource;
 import egovframework.rte.fdl.property.EgovPropertyService;
 import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
+import kr.opensoftlab.oslops.cmm.cmm1000.cmm1700.service.Cmm1700Service;
+import kr.opensoftlab.oslops.cmm.cmm1000.cmm1700.vo.Cmm1700VO;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.sdf.util.OslAgileConstant;
+import kr.opensoftlab.sdf.util.PagingUtil;
+import kr.opensoftlab.sdf.util.RequestConvertor;
 
 
 /**
@@ -73,8 +68,7 @@ public class Cmm1700Controller {
 	
 	/**
 	 *
-	 * 배포 조회 공통 팝업 화면 이동
-	 * 
+	 * 역할그룹 목록 조회 공통 팝업 이동
 	 * @param request
 	 * @param response
 	 * @param model
@@ -86,20 +80,17 @@ public class Cmm1700Controller {
 			return "/cmm/cmm1000/cmm1700/cmm1700";
 	}	
 
-	
-	
-
 	/**
 	 * 
-	 * 배포 정보 조회 공통 목록 조회
-	 * 
-	 * @param cmm1600VO
+	 * 프로젝트의 역할그룹 목록을 조회한다.
+	 * @param cmm1700VO
 	 * @param request
 	 * @param response
 	 * @param model
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value="/cmm/cmm1000/cmm1700/selectCmm1700CommonAuthListAjax.do")
 	public ModelAndView selectCmm1700CommonAuthListAjax(@ModelAttribute("cmm1700VO") Cmm1700VO cmm1700VO, HttpServletRequest request, HttpServletResponse response, ModelMap model)	throws Exception {
 		
@@ -126,7 +117,15 @@ public class Cmm1700Controller {
 			cmm1700VO.setPageSize(_pageSize);
 			cmm1700VO.setPageUnit(_pageSize);
 			
-			cmm1700VO.setPrjId((String) request.getSession().getAttribute("selPrjId"));
+			// 프로젝트 ID를 가져온다.
+			String prjId = paramMap.get("prjId");
+			// 파라미터에 프로젝트 Id가 없을 경우
+			if(prjId == null || "".equals(prjId)){
+				// 현재 선택한 프로젝트 ID를 세팅한다.
+				prjId = (String) request.getSession().getAttribute("selPrjId");
+			}
+			
+			cmm1700VO.setPrjId(prjId);
         	
     		PaginationInfo paginationInfo = PagingUtil.getPaginationInfo(cmm1700VO);  /** paging - 신규방식 */
         	List<Cmm1700VO> cmm1700List = null;

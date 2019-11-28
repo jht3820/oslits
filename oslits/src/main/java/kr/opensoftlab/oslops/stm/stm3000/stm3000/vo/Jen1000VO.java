@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.stm.stm3000.stm3000.vo;
+package kr.opensoftlab.oslops.stm.stm3000.stm3000.vo;
 
 /**
  * @Class Name : Stm3000VO.java
@@ -13,9 +13,9 @@ package kr.opensoftlab.oslits.stm.stm3000.stm3000.vo;
  *  Copyright (C) OpenSoftLab Corp All right reserved.
  */
 
-import kr.opensoftlab.oslits.com.vo.PageVO;
+import kr.opensoftlab.oslops.com.vo.PageVO;
 
-public class Stm3000VO extends PageVO {
+public class Jen1000VO extends PageVO {
 	
 	/** 검색 조건 define */
 	private String srchEvent;  /** Event : onLoad, onSelect */
@@ -25,28 +25,20 @@ public class Stm3000VO extends PageVO {
 	/** 상세 기본 Defind */
 	private String rn;
 	private String licGrpId;
-	private String prjId;
 	private String loginUsrId;
 	
 
-	private String    jenId;              /* JENKINS JOB 코드 */ 
-    private String    jenNm;              /* JENKINS JOB 명 */ 
-    private String    jenTxt;              /* JENKINS JOB Comment */ 
-    private String    jenTok;              /* JENKINS JOB TOKEN KEY */ 
+	private String    jenId;              /* JENKINS 코드 */ 
+    private String    jenNm;              /* JENKINS 명 */
     private String    jenUsrId;              /* JENKINS 사용자 ID */ 
-    private String    jenUsrTok;              /* JENKINS 사용자 TOKEN KEY */ 
-    private String    useCd;              /* 사용여부(코드 : CMM00001) */ 
-    private String    jenUrl;
-    private String    useNm; 
+    private String    jenUsrTok;              /* JENKINS 사용자 TOKEN KEY */
+    private String    jenUrl; 				/* JENKINS Url */
+    private String    jenDesc;              /* JENKINS Comment */
     
-    private String    prjNm;
+    private String    useCd;              /* 사용여부(코드 : CMM00001) */ 
+    private String    useNm; 
+    private String    delCd; 
 	
-	public String getPrjNm() {
-		return prjNm;
-	}
-	public void setPrjNm(String prjNm) {
-		this.prjNm = prjNm;
-	}
 	public String getUseNm() {
 		return useNm;
 	}
@@ -78,17 +70,12 @@ public class Stm3000VO extends PageVO {
 	public void setJenNm(String jenNm) {
 		this.jenNm = jenNm;
 	}
-	public String getJenTxt() {
-		return jenTxt;
+
+	public String getJenDesc() {
+		return jenDesc;
 	}
-	public void setJenTxt(String jenTxt) {
-		this.jenTxt = jenTxt;
-	}
-	public String getJenTok() {
-		return jenTok;
-	}
-	public void setJenTok(String jenTok) {
-		this.jenTok = jenTok;
+	public void setJenDesc(String jenDesc) {
+		this.jenDesc = jenDesc;
 	}
 	public String getJenUsrId() {
 		return jenUsrId;
@@ -138,11 +125,11 @@ public class Stm3000VO extends PageVO {
 	public void setLicGrpId(String licGrpId) {
 		this.licGrpId = licGrpId;
 	}
-	public String getPrjId() {
-		return prjId;
+	public String getDelCd() {
+		return delCd;
 	}
-	public void setPrjId(String prjId) {
-		this.prjId = prjId;
+	public void setDelCd(String delCd) {
+		this.delCd = delCd;
 	}
 	
 }

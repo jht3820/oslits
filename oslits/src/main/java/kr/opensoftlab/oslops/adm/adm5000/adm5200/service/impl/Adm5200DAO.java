@@ -1,8 +1,8 @@
-package kr.opensoftlab.oslits.adm.adm5000.adm5200.service.impl;
+package kr.opensoftlab.oslops.adm.adm5000.adm5200.service.impl;
 
 import java.util.Map;
 
-import kr.opensoftlab.oslits.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.com.dao.ComOslitsAbstractDAO;
 
 import org.springframework.stereotype.Repository;
 
@@ -60,6 +60,16 @@ public class Adm5200DAO  extends ComOslitsAbstractDAO {
 	@SuppressWarnings("rawtypes")
 	public String selectAdm5200BeforeUsedPwCheck(Map paramMap) throws Exception{
 		return (String) select("adm5200DAO.selectAdm5200BeforeUsedPwCheck", paramMap);
+	}
+
+	/**
+	 * Adm5200 비밀번호 최근수정일시 조회
+	 * @param param - Map
+	 * @return 
+	 * @exception Exception
+	 */
+	public String selectPrs3000recentPassAjax(Map<String, String> paramMap) {
+		return (String) select("adm5200DAO.selectPrs3000recentPassAjax", paramMap);
 	}	
 }
 

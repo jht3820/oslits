@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.adm.adm3000.adm3100.web;
+package kr.opensoftlab.oslops.adm.adm3000.adm3100.web;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;

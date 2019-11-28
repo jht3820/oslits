@@ -1,11 +1,11 @@
-package kr.opensoftlab.oslits.cmm.cmm4000.cmm4000.service.impl;
+package kr.opensoftlab.oslops.cmm.cmm4000.cmm4000.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.com.dao.ComOslitsAbstractDAO;
-import kr.opensoftlab.oslits.com.vo.LicVO;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
+import kr.opensoftlab.oslops.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.com.vo.LicVO;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
 
 import org.springframework.stereotype.Repository;
 
@@ -199,4 +199,27 @@ public class Cmm4000DAO extends ComOslitsAbstractDAO {
 	public Map selectCmm4000LoginUsrInfo(LoginVO loginVO) throws Exception {
 		return (Map) select("cmm4000DAO.selectCmm4000LoginUsrInfo", loginVO);
 	}
+	
+	/**
+	 * 사용자의 이전, 현재 접속 IP 정보 조회
+	 * @param loginVO - loginVO
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public List selectCmm4000AccessIpInfo(LoginVO loginVO) throws Exception{
+		return (List) list("cmm4000DAO.selectCmm4000AccessIpInfo", loginVO);
+	}
+	
+	/**
+	 * 현재 사용자의 비밀번호 체크 
+	 * - 비밀번호 만료된 사용자가 로그인 시 비밀번호 변경할 때 현재 비밀번호 체크
+	 * @param 
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public int selectCmm4000CurtPwChk(Map paramMap) throws Exception{
+		return (int)select("cmm4000DAO.selectCmm4000CurtPwChk", paramMap);
+	}	
 }

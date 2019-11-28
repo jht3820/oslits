@@ -1,5 +1,5 @@
 
-package kr.opensoftlab.oslits.req.req4000.req4100.web;
+package kr.opensoftlab.oslops.req.req4000.req4100.web;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,32 +22,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import kr.opensoftlab.oslits.adm.adm6000.adm6000.service.Adm6000Service;
-import kr.opensoftlab.oslits.cmm.cmm4000.cmm4000.service.Cmm4000Service;
-import kr.opensoftlab.oslits.com.fms.web.service.FileMngService;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.oslits.dpl.dpl1000.dpl1100.service.Dpl1100Service;
-import kr.opensoftlab.oslits.dpl.dpl1000.dpl1100.vo.Dpl1100VO;
-import kr.opensoftlab.oslits.prj.prj1000.prj1000.service.Prj1000Service;
-import kr.opensoftlab.oslits.prj.prj1000.prj1100.service.Prj1100Service;
-import kr.opensoftlab.oslits.req.req1000.req1000.service.Req1000Service;
-import kr.opensoftlab.oslits.req.req2000.req2000.service.Req2000Service;
-import kr.opensoftlab.oslits.req.req4000.req4100.service.Req4100Service;
-import kr.opensoftlab.oslits.req.req4000.req4100.vo.Req4100VO;
-import kr.opensoftlab.oslits.req.req4000.req4400.service.Req4400Service;
-import kr.opensoftlab.oslits.req.req4000.req4800.service.Req4800Service;
-import kr.opensoftlab.oslits.req.req4600.req4600.service.Req4600Service;
-import kr.opensoftlab.sdf.excel.BigDataSheetWriter;
-import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
-import kr.opensoftlab.sdf.excel.Metadata;
-import kr.opensoftlab.sdf.excel.SheetHeader;
-import kr.opensoftlab.sdf.excel.SheetParser;
-import kr.opensoftlab.sdf.util.OslAgileConstant;
-import kr.opensoftlab.sdf.util.PagingUtil;
-import kr.opensoftlab.sdf.util.ProjectOptionInfoUtil;
-import kr.opensoftlab.sdf.util.ReqHistoryMngUtil;
-import kr.opensoftlab.sdf.util.RequestConvertor;
 
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
@@ -77,6 +51,32 @@ import egovframework.rte.fdl.cmmn.trace.LeaveaTrace;
 import egovframework.rte.fdl.idgnr.EgovIdGnrService;
 import egovframework.rte.fdl.property.EgovPropertyService;
 import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
+import kr.opensoftlab.oslops.adm.adm6000.adm6000.service.Adm6000Service;
+import kr.opensoftlab.oslops.cmm.cmm4000.cmm4000.service.Cmm4000Service;
+import kr.opensoftlab.oslops.com.exception.UserDefineException;
+import kr.opensoftlab.oslops.com.fms.web.service.FileMngService;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.oslops.dpl.dpl1000.dpl1100.service.Dpl1100Service;
+import kr.opensoftlab.oslops.dpl.dpl1000.dpl1100.vo.Dpl1100VO;
+import kr.opensoftlab.oslops.prj.prj1000.prj1000.service.Prj1000Service;
+import kr.opensoftlab.oslops.prj.prj1000.prj1100.service.Prj1100Service;
+import kr.opensoftlab.oslops.req.req1000.req1000.service.Req1000Service;
+import kr.opensoftlab.oslops.req.req2000.req2000.service.Req2000Service;
+import kr.opensoftlab.oslops.req.req4000.req4100.service.Req4100Service;
+import kr.opensoftlab.oslops.req.req4000.req4100.vo.Req4100VO;
+import kr.opensoftlab.oslops.req.req4000.req4400.service.Req4400Service;
+import kr.opensoftlab.oslops.req.req4000.req4800.service.Req4800Service;
+import kr.opensoftlab.oslops.req.req4600.req4600.service.Req4600Service;
+import kr.opensoftlab.sdf.excel.BigDataSheetWriter;
+import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
+import kr.opensoftlab.sdf.excel.Metadata;
+import kr.opensoftlab.sdf.excel.SheetHeader;
+import kr.opensoftlab.sdf.excel.SheetParser;
+import kr.opensoftlab.sdf.util.ModuleUseCheck;
+import kr.opensoftlab.sdf.util.OslAgileConstant;
+import kr.opensoftlab.sdf.util.PagingUtil;
+import kr.opensoftlab.sdf.util.ReqHistoryMngUtil;
+import kr.opensoftlab.sdf.util.RequestConvertor;
 
 /**
  * @Class Name : Req4100Controller.java
@@ -137,12 +137,10 @@ public class Req4100Controller {
 	/** Prj1000Service DI */
     @Resource(name = "prj1000Service")
     private Prj1000Service prj1000Service;
-    
+
     /** Prj1100Service DI */
     @Resource(name = "prj1100Service")
     private Prj1100Service prj1100Service;
-	
-
     
 	/** EgovMessageSource */
 	@Resource(name = "egovMessageSource")
@@ -177,13 +175,16 @@ public class Req4100Controller {
 	@Resource(name = "historyMng")
 	private ReqHistoryMngUtil historyMng;
 	
+	/** ModuleUseCheck DI */
+	@Resource(name = "moduleUseCheck")
+	private ModuleUseCheck moduleUseCheck;
 	/**
 	 * Req4100 화면 이동(이동시 요구사항 분류 정보 목록 조회)
 	 * @param 
 	 * @return 
 	 * @exception Exception
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "rawtypes" })
 	@RequestMapping(value="/req/req4000/req4100/selectReq4100View.do")
 	public String selectReq4100View(@ModelAttribute("req4100VO") Req4100VO req4100VO, HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
 
@@ -194,13 +195,6 @@ public class Req4100Controller {
 		//프로젝트 단건 조회
 		Map prjInfo = (Map)prj1000Service.selectPrj1000Info(paramMap);
 		model.addAttribute("currPrjInfo",prjInfo);
-		
-		//개발주기 목록 조회
-		List<Map> sprintList = null;
-		//개발주기 목록 조회
-		String selectsprintListJson = (new GsonBuilder().serializeNulls().create()).toJsonTree(sprintList).toString();
-		model.addAttribute("sprintList", selectsprintListJson);
-				
 		return "/req/req4000/req4100/req4100";
 	}
 	
@@ -268,13 +262,13 @@ public class Req4100Controller {
 			model.addAttribute("page", pageMap);
 			
 			//등록 성공 결과 값
-			model.addAttribute("result", "ok");
+			model.addAttribute("selectYN", "Y");
 			return new ModelAndView("jsonView");
 		}
 		catch(Exception ex){
 			Log.error("selectReq4100List()", ex);
 			//등록 실패 결과 값
-			model.addAttribute("result", "fail");
+			model.addAttribute("selectYN", "N");
 			return new ModelAndView("jsonView");
 		}
 	}
@@ -298,8 +292,8 @@ public class Req4100Controller {
 		
 
     	//파일 업로드 사이즈 구하기
-		String fileInfoMaxSize = EgovProperties.getProperty("Globals.oslits.fileInfoMaxSize");
-		String fileSumMaxSize = EgovProperties.getProperty("Globals.oslits.fileSumMaxSize");
+		String fileInfoMaxSize = EgovProperties.getProperty("Globals.lunaops.fileInfoMaxSize");
+		String fileSumMaxSize = EgovProperties.getProperty("Globals.lunaops.fileSumMaxSize");
 		model.addAttribute("fileInfoMaxSize",fileInfoMaxSize);
 		model.addAttribute("fileSumMaxSize",fileSumMaxSize);
 		
@@ -370,8 +364,6 @@ public class Req4100Controller {
 			
 			//등록 성공 메시지 세팅
 			model.addAttribute("message", egovMessageSource.getMessage("success.common.select"));
-
-
 			return new ModelAndView("jsonView");
 		}
 		catch(Exception ex){
@@ -454,7 +446,7 @@ public class Req4100Controller {
 			
 			// 요구사항 단건정보 조회
 			Map reqInfoMap = (Map) req4100Service.selectReq4102ReqInfoAjax(paramMap);
-
+			
 			model.addAttribute("reqInfoMap", reqInfoMap);
 			
 			//그리드에 등록하기 위한 요구사항 정보
@@ -578,6 +570,7 @@ public class Req4100Controller {
 	 * @return 
 	 * @exception Exception
 	 */
+	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/req/req4000/req4100/insertReq4100ReqInfoListAjax.do")
 	public ModelAndView insertReq4100ReqInfoListAjax(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
 
@@ -708,16 +701,21 @@ public class Req4100Controller {
 			//프로젝트명
 			String targetPrjNm = "";
 			
+			//프로젝트 타입
+			String targetPrjTaskTargetCd = "";
+			
 			for(Map prjInfo : prjList){
 				if(prjGrpId.equals(prjInfo.get("prjId"))){
 					targetprjGrpNm = (String)prjInfo.get("prjNm");
 				}
 				else if(prjId.equals(prjInfo.get("prjId"))){
 					targetPrjNm = (String)prjInfo.get("prjNm");
+					targetPrjTaskTargetCd = (String)prjInfo.get("prjTaskTypeCd");
 				}
 			}
 			model.addAttribute("targetprjGrpNm",targetprjGrpNm);
 			model.addAttribute("targetPrjNm",targetPrjNm);
+			model.addAttribute("targetPrjTaskTargetCd",targetPrjTaskTargetCd);
 			
 			// 요구사항 단건정보 조회
 			Map reqInfoMap = (Map) req4100Service.selectReq4102ReqInfoAjax(paramMap);
@@ -744,6 +742,9 @@ public class Req4100Controller {
 					reqInfoMap.put("atchFileId",atchFileIdString);
 				}
 				//요구사항 코멘트 목록 조회
+				if(paramMap.get("popupPrjId") == null) {
+					paramMap.put("popupPrjId",prjId);
+				}
 				reqCommentList = (List) req2000Service.selectReq2000ReqCommentListAjax(paramMap);
 				
 				paramMap.put("prjId",prjId);
@@ -799,10 +800,18 @@ public class Req4100Controller {
 			List<Map> reqChkList = req4100Service.selectReq4900ReqSignList(paramMap);
 			// 요구사항 수정이력 조회
 			List reqChgDetailList = req4800Service.selectReq4800ChgDetailList(paramMap);
-			//요구사항 작업 목록
-			List<Map> workList = req4400Service.selectReq4400ReqWorkList(paramMap);
-			//배포 계획 목록
-			List<Dpl1100VO> reqDplList = dpl1100Service.selectDpl1100ExistDplList(paramMap);
+			
+			// 배포계획 배정된 요구사항 조회를 위한 VO 세팅
+			Dpl1100VO dpl1100VO = new Dpl1100VO();
+			// 라이선스 그룹 ID 세팅
+			dpl1100VO.setLicGrpId(paramMap.get("licGrpId"));
+			// 프로젝트 ID 세팅
+			dpl1100VO.setPrjId(prjId);
+			// 요구사항 ID 세팅
+			dpl1100VO.setReqId(paramMap.get("reqId"));
+			
+			//배포 계획에 배정된 요구사항 조회
+			List<Map> reqDplList = dpl1100Service.selectDpl1100ExistDplList(dpl1100VO);
 			
 			//검수 정보 데이터를 변경 이력 데이터에 추가 (시간 비교해서 추가)
 			int chkIndex = 0;
@@ -843,6 +852,10 @@ public class Req4100Controller {
 			//요구사항 클립보드 데이터
 			List<Map> cbContentList = req4600Service.selectReq4600CBContentList(paramMap);
 			/*************************************/
+			//배포 모듈 체크
+			boolean jenkinsModuleUseChk = moduleUseCheck.isJenkinsModuleUseChk();
+			//svnkit 모듈 체크
+			boolean svnkitModuleUseChk = moduleUseCheck.isSvnKitModuleUseChk();
 			
 			//쪽지에서 오픈된 상세정보인지 확인(뷰용)
 			String viewer = (String)paramMap.get("viewer");
@@ -854,23 +867,27 @@ public class Req4100Controller {
         	String reqChgListJson	= (new GsonBuilder().serializeNulls().create()).toJsonTree(reqChgList).toString();
         	String cbContentListJson	= (new GsonBuilder().serializeNulls().create()).toJsonTree(cbContentList).toString();
         	String addOptListJson	= (new GsonBuilder().serializeNulls().create()).toJsonTree(addOptList).toString();
-        	String workListJson	= (new GsonBuilder().serializeNulls().create()).toJsonTree(workList).toString();
         	String reqDplListJson	= (new GsonBuilder().serializeNulls().create()).toJsonTree(reqDplList).toString();
         	
-        	model.addAttribute("reqChgDetailList", reqChgDetailListJson);
-			model.addAttribute("reqInfoMap", reqInfoMapJson);
-			model.addAttribute("reqCommentList", reqCommentListJson);
-			model.addAttribute("reqChgList", reqChgListJson);
-			model.addAttribute("cbContentList", cbContentListJson);
-			model.addAttribute("addOptList", addOptListJson);
-			model.addAttribute("workList", workListJson);
-			model.addAttribute("reqDplList", reqDplListJson);
+        	model.addAttribute("reqChgDetailList", reqChgDetailListJson.replaceAll("<", "&lt"));
+			model.addAttribute("reqInfoMap", reqInfoMapJson.replaceAll("<", "&lt"));
+			model.addAttribute("reqCommentList", reqCommentListJson.replaceAll("<", "&lt"));
+			model.addAttribute("reqChgList", reqChgListJson.replaceAll("<", "&lt"));
+			model.addAttribute("cbContentList", cbContentListJson.replaceAll("<", "&lt"));
+			model.addAttribute("addOptList", addOptListJson.replaceAll("<", "&lt"));
+			model.addAttribute("reqDplList", reqDplListJson.replaceAll("<", "&lt"));
 			//신규 요구사항인지 여부
 			model.addAttribute("newReqChk", paramMap.get("newReqChk"));
 			model.addAttribute("mode",paramMap.get("mode"));
+			model.addAttribute("jenkinsModuleUseChk",jenkinsModuleUseChk);
+			model.addAttribute("svnkitModuleUseChk",svnkitModuleUseChk);
 			
 			model.addAttribute("prjId", reqInfoMap.get("prjId"));
 			model.addAttribute("reqId", reqInfoMap.get("reqId"));
+			
+			// 어디서 요구사항 상세보기 팝업을 호출했는지 판단하기 위한 값
+			// 통합대시보드, 쪽지에서 다른 프로젝트에 있는 요구사항을 상세보기 했을 경우 해당 값을 넘겨준다.
+			model.addAttribute("callView", paramMap.get("callView"));
     		
         	return "/req/req4000/req4100/req4104";
     	}
@@ -964,6 +981,9 @@ public class Req4100Controller {
         	
         	//입력내용
         	String notepad_contents = (String)paramMap.get("notepad_contents");
+        	
+        	// 썸네일 보기 유무
+        	String cbThumViewCd = paramMap.get("cbThumViewCd");
         	
         	//파일 값 받음
         	Map<String, MultipartFile> files = mptRequest.getFileMap();
@@ -1076,14 +1096,16 @@ public class Req4100Controller {
         		int maxReqCbSeq = req4600Service.selectReq4600CBMaxSeq(paramMap);
         		req4600Service.insertReq4600CBPaste(paramMap);
         		model.addAttribute("reqCbSeq", maxReqCbSeq);
+        		model.addAttribute("writeUsrId", paramMap.get("regUsrId"));
         		
         	}else if("update".equals(type)){
         		updateChk = req4600Service.updateReq4600CBContentInfo(paramMap);
-        		
+        		model.addAttribute("writeUsrId", paramMap.get("modifyUsrId"));
         	}
         	
         	
         	model.addAttribute("updateChk", updateChk);
+        	model.addAttribute("cbThumViewCd", cbThumViewCd);
         	model.addAttribute("cbGbCd", cbGbCd);
         	model.addAttribute("notepad_contents", notepad_contents);
         	model.addAttribute("start_fileSn", start_fileSn);
@@ -1194,8 +1216,8 @@ public class Req4100Controller {
         	}
         	
         	//파일 업로드 사이즈 구하기
-			String fileInfoMaxSize = EgovProperties.getProperty("Globals.oslits.fileInfoMaxSize");
-			String fileSumMaxSize = EgovProperties.getProperty("Globals.oslits.fileSumMaxSize");
+        	String fileInfoMaxSize = EgovProperties.getProperty("Globals.lunaops.fileInfoMaxSize");
+			String fileSumMaxSize = EgovProperties.getProperty("Globals.lunaops.fileSumMaxSize");
 			model.addAttribute("fileInfoMaxSize",fileInfoMaxSize);
 			model.addAttribute("fileSumMaxSize",fileSumMaxSize);
 			
@@ -1536,12 +1558,11 @@ public class Req4100Controller {
 	 * @return 
 	 * @exception Exception
 	 */
-	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/req/req4000/req4100/selectReq4104ReqHisInfoList.do")
     public ModelAndView selectReq4104ReqHisInfoList(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
     	try{
     		// request 파라미터를 map으로 변환
-			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
+			//Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
 			return new ModelAndView("jsonView");
     	}
     	catch(Exception ex){
@@ -1643,19 +1664,11 @@ public class Req4100Controller {
 					}
 				}
 			}
-			
-			//요구사항 작업 목록
-			List<Map> workList = req4400Service.selectReq4400ReqWorkList(paramMap);
-			model.addAttribute("workList", workList);
-			
+
 			//결재 목록
 			List<Map> reqChkList = req4100Service.selectReq4900ReqSignList(paramMap);
 			model.addAttribute("reqChkList", reqChkList);
-			
-			//리비전 목록
-			List<Map> reqRevisionList = prj1100Service.selectFlw1400ReqRevisionNumList(paramMap);
-			model.addAttribute("reqRevisionList", reqRevisionList);
-			
+
 			//역할그룹 목록
 			List<Map> flowAuthGrpList = prj1100Service.selectFlw1500FlowAuthGrpList(paramMap);
 			model.addAttribute("flowAuthGrpList", flowAuthGrpList);
@@ -1664,8 +1677,13 @@ public class Req4100Controller {
 			List<Map> reqDplList = dpl1100Service.selectDpl1100ReqDplList(paramMap);
 			model.addAttribute("reqDplList", reqDplList);
 			
+			//현재 요구사항 프로세스 정보
+			Map processInfo = (Map)prj1100Service.selectFlw1000ProcessInfo(paramMap);
 			
+			
+			model.addAttribute("processTypeCd",processInfo.get("processTypeCd"));
 			model.addAttribute("fileList",fileList);
+			model.addAttribute("processInfo",processInfo);
 			model.addAttribute("reqInfoMap", reqInfoMap);
 			model.addAttribute("reqProType", reqProType);
 			model.addAttribute("errorYN", "N");
@@ -1781,24 +1799,25 @@ public class Req4100Controller {
 				//작업흐름 Id
 				String flowId = (String) flowInfo.get("flowId");
 				paramMap.put("flowId", flowId);
-				
-				//첨부파일 Cd 01인경우 atchfileId 생성하기
-				String flowFileCd = (String)flowInfo.get("flowFileCd");
-				
-				if("01".equals(flowFileCd)){
-					
-				}
-				
 			}
 			
 			//접수 처리
 			req4100Service.updateReq4106NewReqAccpetInfoAjax(paramMap);
+			
 			//등록성공값 세팅
 			model.addAttribute("errorYN", "N");
 			
 			//등록 성공 메시지 세팅
 			model.addAttribute("message", egovMessageSource.getMessage("success.request.accept"));
 			
+			return new ModelAndView("jsonView");
+		}
+		catch(UserDefineException ude) {
+			Log.error("insertReq4106NewReqAcceptInfoAjax()", ude);
+
+			//등록실패 메시지 세팅 및 저장 성공여부 세팅
+			model.addAttribute("errorYN", "Y");
+			model.addAttribute("message", ude.getMessage());
 			return new ModelAndView("jsonView");
 		}
 		catch(Exception ex){
@@ -2069,27 +2088,80 @@ public class Req4100Controller {
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/req/req4000/req4100/selectReq4100RevisionList.do")
-	public ModelAndView selectReq4100RevisionList(HttpServletRequest request, HttpServletResponse response, ModelMap model )	throws Exception {
-
+	public ModelAndView selectReq4100RevisionList(@ModelAttribute("req4100VO") Req4100VO req4100VO , HttpServletRequest request, HttpServletResponse response, ModelMap model )	throws Exception {
 
 		try{
 			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
 
 			HttpSession ss = request.getSession();
-			String prjId	= (String) ss.getAttribute("selPrjId");
 			String licGrpId = ((LoginVO) ss.getAttribute("loginVO")).getLicGrpId();
 
-			paramMap.put("prjId", prjId);
-			paramMap.put("licGrpId", licGrpId);
+			// 라이선스 그룹 ID 세팅
+			req4100VO.setLicGrpId(licGrpId);
+			
+			String  prjId = "";
+			// 넘어온 프로젝트 Id 있을경우 세팅
+			if(paramMap.get("popupPrjId") != null){
+				prjId = paramMap.get("popupPrjId");
+			}
+			else if(paramMap.get("prjId") != null){
+				prjId = paramMap.get("prjId");
+			}
+			// 넘어온 프로젝트 Id 없을경우
+			else{
+				// 세션의 선택된 프로젝트 아이디 가져오기
+				prjId = (String) ss.getAttribute("selPrjId");
+			}
+			
+			// 프로젝트 ID 세팅
+			req4100VO.setPrjId(prjId);
+	
+			//현재 페이지 값, 보여지는 개체 수
+			String _pageNo_str = paramMap.get("pageNo");
+			String _pageSize_str = paramMap.get("pageSize");
 
-			List<Map> list =null;			
-
-			list = req4100Service.selectReq4100RevisionList(paramMap);
-
-			//조회 성공 메시지 세팅
+			int _pageNo = 1;
+			int _pageSize = 15;//OslAgileConstant.pageSize;
+						
+			// 넘어온 페이지 정보가 있다면 해당 값으로 세팅
+			if(_pageNo_str != null && !"".equals(_pageNo_str)){
+				_pageNo = Integer.parseInt(_pageNo_str)+1;  
+			}
+			if(_pageSize_str != null && !"".equals(_pageSize_str)){
+				_pageSize = Integer.parseInt(_pageSize_str);  
+			}
+			
+			// 페이지 번호, 페이지 사이즈 세팅
+			req4100VO.setPageIndex(_pageNo);
+			req4100VO.setPageSize(_pageSize);
+			req4100VO.setPageUnit(_pageSize);
+			
+			PaginationInfo paginationInfo = PagingUtil.getPaginationInfo(req4100VO);  /** paging - 신규방식 */
+			
+			// 총 데이터 건수
+			int totCnt = req4100Service.selectReq4100RevisionListCnt(req4100VO);
+			
+			// 총 데이터 건수 세팅
+			paginationInfo.setTotalRecordCount(totCnt);
+			
+			// 요구사항에 포함된 리비전 목록 조회
+			List<Map> list = req4100Service.selectReq4100RevisionList(req4100VO);
 			model.addAttribute("list", list);
+			
+			//페이지 정보 보내기
+			Map<String, Integer> pageMap = new HashMap<String, Integer>();
+			pageMap.put("pageNo",req4100VO.getPageIndex());
+			pageMap.put("listCount", list.size());
+			pageMap.put("totalPages", paginationInfo.getTotalPageCount());
+			pageMap.put("totalElements", totCnt);
+			pageMap.put("pageSize", _pageSize);
+			
+			// 페이지 정보 세팅
+			model.addAttribute("page", pageMap);
+			
+			//조회 성공 메시지 세팅
 			model.addAttribute("errorYn", "N");
 			model.addAttribute("message", egovMessageSource.getMessage("success.common.select"));
 			
@@ -2155,8 +2227,11 @@ public class Req4100Controller {
 			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
 			HttpSession ss = request.getSession();
 			String prjId	= (String) ss.getAttribute("selPrjId");
-
+			String prjGrpId	= (String) ss.getAttribute("selPrjGrpId");
+			LoginVO loginVO = (LoginVO) ss.getAttribute("loginVO");
+			paramMap.put("usrId", loginVO.getUsrId());
 			paramMap.put("prjId", prjId);
+			paramMap.put("prjGrpId", prjGrpId);
 			
 			req4100Service.updateReq4100ReqChargerChgInfoAjax(paramMap);
 			
@@ -2210,8 +2285,9 @@ public class Req4100Controller {
 
 		// 엑셀 다운로드 양식의 헤더명 선언
 		// 추가할 것이 있을 경우 주석 해제하고 헤더에 추가하면 됨
-		String strReqOrd 		= egovMessageSource.getMessage("excel.reqOrd");			// 요구사항 순번
 		String strPrjId 		= egovMessageSource.getMessage("excel.prjId");			// 프로젝트 ID
+		String strPrjNm 		= egovMessageSource.getMessage("excel.prjNm");			// 프로젝트 명
+		String strReqOrd 		= egovMessageSource.getMessage("excel.reqOrd");			// 요구사항 순번
 		String strReqId 		= egovMessageSource.getMessage("excel.reqId");			// 요구사항ID
 		//String strReqClsId 		= egovMessageSource.getMessage("excel.reqClsId");	// 요구사항 분류 ID
 		String strReqProTypeNm 	= egovMessageSource.getMessage("excel.reqProTypeNm");	// 처리유형
@@ -2251,7 +2327,7 @@ public class Req4100Controller {
 		String strModifyUsrIp 	= egovMessageSource.getMessage("excel.modifyUsrIp");	// 최종수정자 IP
 		
 		
-		SheetHeader header = new SheetHeader(new String[]{strReqOrd, strPrjId, strReqId, strReqProTypeNm, strReqNewTypeNm
+		SheetHeader header = new SheetHeader(new String[]{strPrjId, strPrjNm, strReqOrd, strReqId, strReqProTypeNm, strReqNewTypeNm
 														,strReqNo ,strReqNm ,strReqDesc ,strReqDtm , strReqUsrNm, strReUsrDeptNm, strReqUsrEmail 
 														,strReqUsrNum ,strReqChargerNm  ,strProcessNm	,strFlowNm ,strReqCompleteRatio
 														,strReqFp ,strReqExFp ,strReqStDtm ,strReqEdDtm ,strReqStDuDtm
@@ -2264,8 +2340,9 @@ public class Req4100Controller {
 		 * ex 2. 사용자 지정 날짜 변환 new Metadata("property", ,"00-00-00") YYMMDD -> YY-MM-DD
 		 * */
 		List<Metadata> metadatas = new ArrayList<Metadata>(); 
-		metadatas.add(new Metadata("reqOrd"));
 		metadatas.add(new Metadata("prjId"));
+		metadatas.add(new Metadata("prjNm"));
+		metadatas.add(new Metadata("reqOrd"));
 		metadatas.add(new Metadata("reqId"));
 		metadatas.add(new Metadata("reqProTypeNm"));
 		metadatas.add(new Metadata("reqNewTypeNm"));
@@ -2324,5 +2401,120 @@ public class Req4100Controller {
 		}
 
 		return writer.getModelAndView();
-	}	
+	}
+	
+	/**
+	 * req4110 화면 호출
+	 * 외부에서 요구사항 상세보기 화면을 호출한다.
+	 * 요구사항 키 암호화시 / 가 포함되므로 RequestMapping URL을 data/req/{reqkey} 에서 /data/req/**로 변경
+	 * request.getRequestURL()을 이용하여 url을 가져와 요구사항 키값을 추출한다.
+	 * @param 
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings({"rawtypes" , "unchecked"})
+	@RequestMapping(value="/data/req/**")
+	public String selectReq4110View(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
+    	
+    	try{
+    		// 요구사항 키가 포함된 URL을 가져온다.
+    		String requestURL = request.getRequestURL().toString();
+    		// 요구사항 키를 추출한다.
+    		String[] reqKey = requestURL.split("/data/req/");
+    		
+    		Map<String,String> paramMap = new HashMap<String,String>();
+    		// 추출한 키를 map에 세팅
+    		paramMap.put("reqKey", reqKey[1]);
+		
+			// 요구사항 키를 이용하여 요구사항 단건정보 조회
+			Map reqInfoMap = (Map) req4100Service.selectReq4110ReqInfo(paramMap);
+
+			if(reqInfoMap != null){
+				// 라이선스 그룹 ID
+				String licGrpId = (String)reqInfoMap.get("licGrpId");
+				// 프로젝트 ID
+				String prjId = (String)reqInfoMap.get("prjId");
+				//요구사항 프로세스 Id
+				String processId = (String) reqInfoMap.get("processId");
+				// 요구사항 ID
+				String reqId = (String) reqInfoMap.get("reqId");
+				
+				paramMap.put("licGrpId",licGrpId);
+				paramMap.put("prjId",prjId);
+				paramMap.put("processId",processId);
+				paramMap.put("reqId",reqId);
+			}else{
+				//요구사항이 없는 경우 에러
+				model.addAttribute("reqChk","N");
+				model.addAttribute("reqInfoMap", "{}");
+				model.addAttribute("reqChgList", "[]");
+				model.addAttribute("exceptionMessage",egovMessageSource.getMessage("req4100.notFoundReq"));
+
+				return "/req/req4000/req4100/req4110";
+			}
+			/********************************
+			 * 요구사항 변경 이력 데이터 불러오기
+			 * - 요구사항 변경 이력 조회
+			 * - 요구사항 검수 승인&거부 이력 조회
+			 * - 조회된 리스트 데이터를 하나의 리스트로 병합
+			 * - toJson으로 전달
+			 ********************************/
+			
+			//변경이력 전체 가져오기(담당자 포함)
+			paramMap.put("chgAllView", "Y");
+			//변경이력
+			List<Map> reqChgList = req4100Service.selectReq4700ReqHistoryList(paramMap);
+			//결재 정보
+			List<Map> reqChkList = req4100Service.selectReq4900ReqSignList(paramMap);
+			
+			//검수 정보 데이터를 변경 이력 데이터에 추가 (시간 비교해서 추가)
+			int chkIndex = 0;
+			Date chgDtm;
+			Date regDtm;
+			Map reqChkInfo;
+
+			if(reqChkList != null && reqChkList.size() > 0){
+				//for(Map reqInfo : reqChgList){
+				for(int i=0;i<reqChgList.size();i++){
+					Map reqInfo = reqChgList.get(i);
+					//chkIndex값이 검수 데이터 수보다 큰 경우 루프 종료
+					if(chkIndex >= reqChkList.size()){
+						break;
+					}
+					
+					//변경 이력 일시
+					chgDtm = new Date(((Timestamp)reqInfo.get("chgDtm")).getTime());
+					//검수정보 Map 가져오기
+					reqChkInfo = reqChkList.get(chkIndex);
+					
+					//검수 데이터 등록 일시
+					regDtm = new Date(((Timestamp)reqChkInfo.get("signDtm")).getTime());
+					
+					//chgDtm이 regDtm보다 지난 날짜인 경우
+					if(chgDtm.compareTo(regDtm) >= 0){
+						reqChgList.add(i,reqChkInfo);
+						chkIndex++;
+					}
+				}
+				//추가되지 않은 검수 데이터 있는 경우 모두 추가
+				for(int i=chkIndex;i<reqChkList.size();i++){
+					Map reqInfo = reqChkList.get(i);
+					reqChgList.add(reqInfo);
+				}
+			}
+
+			String reqInfoMapJson 	= (new GsonBuilder().serializeNulls().create()).toJson(reqInfoMap).toString();
+        	String reqChgListJson	= (new GsonBuilder().serializeNulls().create()).toJsonTree(reqChgList).toString();
+        	
+        	model.addAttribute("reqInfoMap", reqInfoMapJson);
+			model.addAttribute("reqChgList", reqChgListJson);
+		
+        	return "/req/req4000/req4100/req4110";
+    	}
+    	catch(Exception ex){
+    		Log.error("selectReq4110View()", ex);
+    		throw new Exception(ex.getMessage());
+    	}
+	}
+		
 }

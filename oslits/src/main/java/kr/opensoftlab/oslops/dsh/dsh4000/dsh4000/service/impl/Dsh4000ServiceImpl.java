@@ -1,16 +1,16 @@
-package kr.opensoftlab.oslits.dsh.dsh4000.dsh4000.service.impl;
+package kr.opensoftlab.oslops.dsh.dsh4000.dsh4000.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.adm.adm7000.adm7000.service.Adm7000Service;
-import kr.opensoftlab.oslits.adm.adm8000.adm8000.service.Adm8000Service;
-import kr.opensoftlab.oslits.adm.adm8000.adm8100.service.Adm8100Service;
-import kr.opensoftlab.oslits.adm.adm8000.adm8100.vo.Adm8100VO;
-import kr.opensoftlab.oslits.dsh.dsh4000.dsh4000.service.Dsh4000Service;
-import kr.opensoftlab.oslits.dsh.dsh4000.dsh4000.vo.Dsh4000VO;
+import kr.opensoftlab.oslops.adm.adm7000.adm7000.service.Adm7000Service;
+import kr.opensoftlab.oslops.adm.adm8000.adm8000.service.Adm8000Service;
+import kr.opensoftlab.oslops.adm.adm8000.adm8100.service.Adm8100Service;
+import kr.opensoftlab.oslops.adm.adm8000.adm8100.vo.Adm8100VO;
+import kr.opensoftlab.oslops.dsh.dsh4000.dsh4000.service.Dsh4000Service;
+import kr.opensoftlab.oslops.dsh.dsh4000.dsh4000.vo.Dsh4000VO;
 
 import org.springframework.stereotype.Service;
 

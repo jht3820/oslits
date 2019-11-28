@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.req.req1000.req1000.vo;
+package kr.opensoftlab.oslops.req.req1000.req1000.vo;
 
 /**
  * @Class Name : Req1000Controller.java
@@ -13,7 +13,7 @@ package kr.opensoftlab.oslits.req.req1000.req1000.vo;
  *  Copyright (C) OpenSoftLab Corp All right reserved.
  */
 
-import kr.opensoftlab.oslits.com.vo.PageVO;
+import kr.opensoftlab.oslops.com.vo.PageVO;
 
 public class Req1000VO extends PageVO {
 	
@@ -23,6 +23,7 @@ public class Req1000VO extends PageVO {
 	private String srchReqChargerNm;
 	private String srchFromDt;
 	private String srchToDt;
+	private String mode;
 	
 	/** 상세 기본 Defind */
 	private String rn;
@@ -40,6 +41,8 @@ public class Req1000VO extends PageVO {
 	private String reqUsrNm;
 	private String reqDtm;
 	private String reqUsrDeptNm;
+	private String reqUsrPositionNm;
+	private String reqUsrDutyNm;
 	private String reqUsrEmail;
 	private String reqUsrNum;
 	private String reqNm;
@@ -71,7 +74,7 @@ public class Req1000VO extends PageVO {
 	private String useCd;
 	private String loginUsrId;
 	private String regDtmDay;
-
+	private String reqKey;
 
 	public String getSrchEvent() {
 		return srchEvent;
@@ -102,6 +105,13 @@ public class Req1000VO extends PageVO {
 	}
 	public void setSrchToDt(String srchToDt) {
 		this.srchToDt = srchToDt;
+	}
+	
+	public String getMode() {
+		return mode;
+	}
+	public void setMode(String mode) {
+		this.mode = mode;
 	}
 	public String getRn() {
 		return rn;
@@ -193,6 +203,19 @@ public class Req1000VO extends PageVO {
 	}
 	public void setReqUsrDeptNm(String reqUsrDeptNm) {
 		this.reqUsrDeptNm = reqUsrDeptNm;
+	}
+	
+	public String getReqUsrPositionNm() {
+		return reqUsrPositionNm;
+	}
+	public void setReqUsrPositionNm(String reqUsrPositionNm) {
+		this.reqUsrPositionNm = reqUsrPositionNm;
+	}
+	public String getReqUsrDutyNm() {
+		return reqUsrDutyNm;
+	}
+	public void setReqUsrDutyNm(String reqUsrDutyNm) {
+		this.reqUsrDutyNm = reqUsrDutyNm;
 	}
 	public String getReqUsrEmail() {
 		return reqUsrEmail;
@@ -384,4 +407,11 @@ public class Req1000VO extends PageVO {
 	public void setRegDtmDay(String regDtmDay) {
 		this.regDtmDay = regDtmDay;
 	}
+	public String getReqKey() {
+		return reqKey;
+	}
+	public void setReqKey(String reqKey) {
+		this.reqKey = reqKey;
+	}
+	
 }

@@ -1,8 +1,5 @@
-package kr.opensoftlab.oslits.adm.adm8000.adm8000.web;
+package kr.opensoftlab.oslops.adm.adm8000.adm8000.web;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,44 +8,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-import kr.opensoftlab.oslits.adm.adm8000.adm8000.service.Adm8000Service;
-import kr.opensoftlab.oslits.com.fms.web.service.FileMngService;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.sdf.util.OslAgileConstant;
-import kr.opensoftlab.sdf.util.PagingUtil;
-import kr.opensoftlab.sdf.util.ReqHistoryMngUtil;
-import kr.opensoftlab.sdf.util.RequestConvertor;
-
-import org.apache.http.conn.HttpHostConnectException;
 import org.apache.log4j.Logger;
-import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
 import egovframework.com.cmm.EgovMessageSource;
-import egovframework.com.cmm.service.EgovFileMngUtil;
-import egovframework.com.cmm.service.FileVO;
-import egovframework.rte.fdl.idgnr.EgovIdGnrService;
 import egovframework.rte.fdl.property.EgovPropertyService;
-import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
+import kr.opensoftlab.oslops.adm.adm8000.adm8000.service.Adm8000Service;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.sdf.util.ModuleUseCheck;
+import kr.opensoftlab.sdf.util.RequestConvertor;
 
 /**
  * @Class Name : Adm8000Controller.java
@@ -78,26 +50,15 @@ public class Adm8000Controller {
 	protected EgovPropertyService propertiesService;
 
 
-	/** FileMngService */
-	@Resource(name="fileMngService")
-	private FileMngService fileMngService;
-
 	@Value("${Globals.fileStorePath}")
 	private String tempPath;
 
-	/** EgovFileMngUtil - 파일 업로드 Util */
-	@Resource(name="EgovFileMngUtil")
-	private EgovFileMngUtil fileUtil;	
-
-	@Resource(name = "egovFileIdGnrService")
-	private EgovIdGnrService idgenService;
-
-	@Resource(name = "historyMng")
-	private ReqHistoryMngUtil historyMng;
-
 	@Resource(name = "adm8000Service")
 	private Adm8000Service adm8000Service;
-	
+
+	/** ModuleUseCheck DI */
+	@Resource(name = "moduleUseCheck")
+	private ModuleUseCheck moduleUseCheck;
 	
 	/**
 	 * 보고서 설정화면 이동	 
@@ -111,6 +72,15 @@ public class Adm8000Controller {
 	 */
 	@RequestMapping(value="/adm/adm8000/adm8000/selectAdm8000View.do")
 	public String selectAdm8000View( HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
+		boolean reportModuleUseChk = false;
+		
+		try {
+			//보고서 모듈 사용 가능한지 체크
+			reportModuleUseChk = moduleUseCheck.isReportModuleUseChk();
+		}catch(Exception e) {
+			Log.debug(e.getMessage());
+		}
+		model.addAttribute("reportModuleUseChk",reportModuleUseChk);
 		return "/adm/adm8000/adm8000/adm8000";
 	}
 	
@@ -125,6 +95,7 @@ public class Adm8000Controller {
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/adm/adm8000/adm8000/selectAdm8000MasterYearList.do")
 	public ModelAndView selectAdm8000MasterYearList(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
 

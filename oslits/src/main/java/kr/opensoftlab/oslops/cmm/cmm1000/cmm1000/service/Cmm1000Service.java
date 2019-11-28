@@ -1,10 +1,10 @@
-package kr.opensoftlab.oslits.cmm.cmm1000.cmm1000.service;
+package kr.opensoftlab.oslops.cmm.cmm1000.cmm1000.service;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.adm.adm2000.adm2000.vo.Adm2000VO;
-import kr.opensoftlab.oslits.cmm.cmm1000.cmm1000.vo.Cmm1000VO;
+import kr.opensoftlab.oslops.adm.adm2000.adm2000.vo.Adm2000VO;
+import kr.opensoftlab.oslops.cmm.cmm1000.cmm1000.vo.Cmm1000VO;
 
 /**
  * @Class Name : Cmm1000Service.java

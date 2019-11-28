@@ -1,6 +1,6 @@
-package kr.opensoftlab.oslits.chk.chk1000.chk1100.vo;
+package kr.opensoftlab.oslops.chk.chk1000.chk1100.vo;
 
-import kr.opensoftlab.oslits.com.vo.PageVO;
+import kr.opensoftlab.oslops.com.vo.PageVO;
 
 public class Chk1100VO extends PageVO{
 	
@@ -58,7 +58,7 @@ public class Chk1100VO extends PageVO{
 	private String signUsrNm;
 	
 	private String flowNextId;
-	
+	private String flowSignStopCd;
 
 	public String getFlowNextId() {
 		return flowNextId;
@@ -458,6 +458,12 @@ public class Chk1100VO extends PageVO{
 	}
 	public void setReqEdDtm(String reqEdDtm) {
 		this.reqEdDtm = reqEdDtm;
+	}
+	public String getFlowSignStopCd() {
+		return flowSignStopCd;
+	}
+	public void setFlowSignStopCd(String flowSignStopCd) {
+		this.flowSignStopCd = flowSignStopCd;
 	}
 	
 

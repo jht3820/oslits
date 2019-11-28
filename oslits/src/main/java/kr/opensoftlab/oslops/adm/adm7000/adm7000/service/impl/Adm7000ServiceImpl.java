@@ -1,11 +1,11 @@
-package kr.opensoftlab.oslits.adm.adm7000.adm7000.service.impl;
+package kr.opensoftlab.oslops.adm.adm7000.adm7000.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.adm.adm7000.adm7000.service.Adm7000Service;
+import kr.opensoftlab.oslops.adm.adm7000.adm7000.service.Adm7000Service;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 
 import org.springframework.stereotype.Service;

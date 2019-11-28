@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.arm.arm1000.arm1000.web;
+package kr.opensoftlab.oslops.arm.arm1000.arm1000.web;
 
 import java.util.HashMap;
 import java.util.List;
@@ -9,11 +9,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import kr.opensoftlab.oslits.arm.arm1000.arm1000.service.Arm1000Service;
-import kr.opensoftlab.oslits.arm.arm1000.arm1000.vo.Arm1000VO;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.oslits.req.req4000.req4100.service.Req4100Service;
-import kr.opensoftlab.oslits.req.req4000.req4100.vo.Req4100VO;
+import kr.opensoftlab.oslops.arm.arm1000.arm1000.service.Arm1000Service;
+import kr.opensoftlab.oslops.arm.arm1000.arm1000.vo.Arm1000VO;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.oslops.req.req4000.req4100.service.Req4100Service;
+import kr.opensoftlab.oslops.req.req4000.req4100.vo.Req4100VO;
 import kr.opensoftlab.sdf.util.OslAgileConstant;
 import kr.opensoftlab.sdf.util.PagingUtil;
 import kr.opensoftlab.sdf.util.RequestConvertor;
@@ -184,7 +184,7 @@ public class Arm1000Controller {
 	}
 	
 	/**
-	 * Arm1000 쪽지 수정 Ajax
+	 * Arm1000 쪽지 수정(읽음 또는 삭제) Ajax
 	 * @param 
 	 * @return 
 	 * @exception Exception
@@ -251,9 +251,9 @@ public class Arm1000Controller {
 			paramMap.put("usrId", usrId);
 			
 			//읽지 않음 상태인경우 읽음 처리
-			if("N".equals(viewCheck)){
+			if("02".equals(viewCheck)){
 				Map<String, Object> tempMap = new HashMap<String,Object>();
-				tempMap.put("viewCheck", "Y");
+				tempMap.put("viewCheck", "01");
 				tempMap.put("armId", paramMap.get("armId"));
 				tempMap.put("usrId", usrId);
 				arm1000Service.updateArm1000AlarmInfo(tempMap);
@@ -264,9 +264,9 @@ public class Arm1000Controller {
 				model.addAttribute("alarmCnt", alarmCnt);
 				
 				//읽음 처리 전송
-				model.addAttribute("viewAction", "Y");
+				model.addAttribute("viewAction", "01");
 			}else{
-				model.addAttribute("viewAction", "N");
+				model.addAttribute("viewAction", "02");
 			}
 			
 			//쪽지 내용 조회

@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.cmm.cmm1000.cmm1000.web;
+package kr.opensoftlab.oslops.cmm.cmm1000.cmm1000.web;
 
 import java.util.HashMap;
 import java.util.List;
@@ -9,9 +9,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import kr.opensoftlab.oslits.cmm.cmm1000.cmm1000.service.Cmm1000Service;
-import kr.opensoftlab.oslits.cmm.cmm1000.cmm1000.vo.Cmm1000VO;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
+import kr.opensoftlab.oslops.cmm.cmm1000.cmm1000.service.Cmm1000Service;
+import kr.opensoftlab.oslops.cmm.cmm1000.cmm1000.vo.Cmm1000VO;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
 import kr.opensoftlab.sdf.util.OslAgileConstant;
 import kr.opensoftlab.sdf.util.PagingUtil;
 import kr.opensoftlab.sdf.util.RequestConvertor;
@@ -96,6 +96,7 @@ public class Cmm1000Controller {
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value="/cmm/cmm1000/cmm1000/selectCmm1000CommonUserListAjax.do")
 	public ModelAndView selectCmm1000CommonUserListAjax(@ModelAttribute("cmm1000VO") Cmm1000VO cmm1000VO, HttpServletRequest request, HttpServletResponse response, ModelMap model)	throws Exception {
 		
@@ -133,16 +134,24 @@ public class Cmm1000Controller {
 			
 			
 			String[] authGrpIds =request.getParameterValues("authGrpId");
+			// 권한그룹 ID 문자열
 			String sAuthGrpIds ="";
+			// 권한그룹 명 조회 Function을 사용하기 위한 권한그룹 ID 문자열
+			String authGrpIdListStr = "";
 			if( authGrpIds != null){
 				for (int i = 0; i < authGrpIds.length; i++) {
 					if(i==0){
 						sAuthGrpIds += "  '"+authGrpIds[i]+"' ";
+						authGrpIdListStr = authGrpIds[i];
 					}else{
 						sAuthGrpIds += ", '"+authGrpIds[i]+"' ";
-					}									
+						authGrpIdListStr += ","+authGrpIds[i];
+					}
 				}
 				cmm1000VO.setAuthGrpIds(sAuthGrpIds);
+				// 권한그룹 명 조회 Java Stored Function을 사용하기 위한 권한그룹 ID 문자열을 VO에 담는다.
+				// 문자열은 AUT000001,AUT000002 등의 형식으로 만들어지며 큐브리드 Function에서 가공하여 사용한다.
+				cmm1000VO.setAuthGrpIdList(authGrpIdListStr);
 			}
 
     		// 목록 조회  authGrpIds

@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.arm.arm1000.arm1000.vo;
+package kr.opensoftlab.oslops.arm.arm1000.arm1000.vo;
 
 /**
  * @Class Name : Arm1000VO.java
@@ -13,7 +13,7 @@ package kr.opensoftlab.oslits.arm.arm1000.arm1000.vo;
  *  Copyright (C) OpenSoftLab Corp All right reserved.
  */
 
-import kr.opensoftlab.oslits.com.vo.PageVO;
+import kr.opensoftlab.oslops.com.vo.PageVO;
 
 
 public class Arm1000VO extends PageVO {

@@ -1,18 +1,17 @@
-package kr.opensoftlab.oslits.prj.prj2000.prj2000.service.impl;
+package kr.opensoftlab.oslops.prj.prj2000.prj2000.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.com.exception.UserDefineException;
-import kr.opensoftlab.oslits.prj.prj2000.prj2000.service.Prj2000Service;
-
 import org.springframework.stereotype.Service;
 
 import egovframework.com.cmm.EgovMessageSource;
-import egovframework.com.utl.fcc.service.EgovStringUtil;
 import egovframework.rte.fdl.cmmn.EgovAbstractServiceImpl;
+import kr.opensoftlab.oslops.com.exception.UserDefineException;
+import kr.opensoftlab.oslops.prj.prj2000.prj2000.service.Prj2000Service;
 
 /**
  * @Class Name : Prj2000ServiceImpl.java
@@ -177,10 +176,23 @@ public class Prj2000ServiceImpl extends EgovAbstractServiceImpl implements Prj20
 	 * @return 
 	 * @exception Exception
 	 */
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
 	public List selectPrj2000DelUsrInfoListAjax(Map paramMap) throws Exception {
-		return prj2000DAO.selectPrj2000DelUsrInfoListAjax(paramMap);
+
+		List usrList = new ArrayList<Map>();
+		
+		// 사용자 Id 문자열을  , 로 자른다. 
+		String usrIdStr = (String) paramMap.get("strUsrIdInSql");
+		String[] usrIdList = usrIdStr.split(",");
+		
+		// 배정 삭제된 사용자 목록 조회
+		for(String usrId : usrIdList) {
+			paramMap.put("usrId", usrId);
+			Map userMap = prj2000DAO.selectPrj2000DelUsrInfoListAjax(paramMap);
+			usrList.add(userMap);
+		}
+		return usrList;
 	}
 	
 	/**
@@ -190,33 +202,73 @@ public class Prj2000ServiceImpl extends EgovAbstractServiceImpl implements Prj20
 	 * @return 
 	 * @exception Exception
 	 */
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	public void savePrj2000PrjUsrAuthListAjax(Map paramMap) throws Exception{
 		
 		String status = (String) paramMap.get("status");
-		String temp = "";
+
+		// 사용자 Id 문자열을  , 로 자른다. 
+		String usrIdStr = (String) paramMap.get("strUsrIdInSql");
+		String[] usrIdList = usrIdStr.split(",");
 		
-		if("I".equals(status)){
-			temp = prj2000DAO.insertPrj2000PrjUsrAuthListAjax(paramMap);	//유저권한정보 등록
+		for(String usrId : usrIdList) {
 			
-			if( "".equals(EgovStringUtil.isNullToString(temp)) ){
-				throw new Exception(egovMessageSource.getMessage("prj2000.fail.prjUsr.insert"));
+			paramMap.put("usrId", usrId);
+			
+			if("I".equals(status)){
+				prj2000DAO.insertPrj2000PrjUsrAuthListAjax(paramMap);	//유저권한정보 등록
 			}
-		}
-		else if("D".equals(status)){
-			prj2000DAO.deletePrj2000PrjUsrAuthListAjax(paramMap);	//유저권한정보 삭제
+			else if("D".equals(status)){
+				prj2000DAO.deletePrj2000PrjUsrAuthListAjax(paramMap);	//유저권한정보 삭제
+			}
 		}
 	}
 	
+	/**
+	 * Prj2000 선택한 권한그룹을 조회한다.
+	 * @param 
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
 	@Override
 	public Map selectPrj2000AuthGrpInfoAjax(Map paramMap) throws Exception{
 		return prj2000DAO.selectPrj2000AuthGrpInfoAjax(paramMap);
 	}
 	
+	/**
+	 * Prj2000 권한그룹을 수정한다.
+	 * @param 
+	 * @return 
+	 * @exception Exception
+	 */
 	@Override
 	@SuppressWarnings({ "rawtypes" })
 	public int updatePrj2000AuthGrpInfoAjax(Map paramMap) throws Exception{
 		return prj2000DAO.updatePrj2000AuthGrpInfoAjax(paramMap);
 	}
 
+
+	/**
+	 * Prj2000 [역할그룹 복사] 관리자 권한을 가지고있는 프로젝트의 역할그룹 목록
+	 * @param 
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public List selectPrj2000AuthGrpCopyList(Map paramMap) throws Exception{
+		return prj2000DAO.selectPrj2000AuthGrpCopyList(paramMap);
+	}
+	
+	/**
+	 * Prj2000 역할그룹 추가 시 현재 프로젝트의 역할그룹 최고 순번+1 값을 을 가져온다.
+	 * 역할그룹 관리 - 역할그룹 등록 팝업에 사용
+	 * @param 
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public int selectPrj2000AuthGrpNextOrd(Map paramMap) throws Exception{
+		return prj2000DAO.selectPrj2000AuthGrpNextOrd(paramMap);
+	}
 }

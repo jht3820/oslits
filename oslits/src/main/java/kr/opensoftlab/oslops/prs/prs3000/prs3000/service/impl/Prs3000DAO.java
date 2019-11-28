@@ -1,10 +1,9 @@
-package kr.opensoftlab.oslits.prs.prs3000.prs3000.service.impl;
+package kr.opensoftlab.oslops.prs.prs3000.prs3000.service.impl;
 
-import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.com.dao.ComOslitsAbstractDAO;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
+import kr.opensoftlab.oslops.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
 
 import org.springframework.stereotype.Repository;
 
@@ -68,8 +67,65 @@ public class Prs3000DAO extends ComOslitsAbstractDAO {
 	 * @throws Exception
 	 */
 	@SuppressWarnings("rawtypes")
-	public String selectPrs3000PwCheck(Map paramMap) throws Exception {
-		return (String) select("prs3000DAO.selectPrs3000PwCheck", paramMap);
+	public String selectPrs3001PwCheck(Map paramMap) throws Exception {
+		return (String) select("prs3000DAO.selectPrs3001PwCheck", paramMap);
 	}
-	
+
+
+	/**
+	 * Prs3001 비밀번호 수정(UPDATE) AJAX
+	 * @param Map
+	 * @return int
+	 * @exception Exception
+	 */
+	public int updatePrs3001(Map<String, String> paramMap) throws Exception {
+		return (int) update("prs3000DAO.updatePrs3001", paramMap);
+	}
+
+
+	/**
+	 * Prs3001 대시보드 표시구분 , 메인 프로젝트 조회 (SELECT) AJAX
+	 * @param Map
+	 * @return Map
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public Map selectPrs3002(Map<String, String> paramMap) throws Exception {
+		return (Map) select("prs3000DAO.selectPrs3002", paramMap);
+	}
+
+
+	/**
+	 * Prs3001 대시보드 표시구분 수정 (UPDATE) AJAX
+	 * @param Map
+	 * @return int
+	 * @exception Exception
+	 */
+	public int updatePrs3002(Map<String, String> paramMap) throws Exception  {
+		return (int) update("prs3000DAO.updatePrs3002", paramMap);
+	}
+
+
+	/**
+   	 * Prs3000LoginVO 세션 갱신
+   	 * @param Map
+   	 * @return LoginVO
+   	 * @exception Exception
+   	 */
+	public LoginVO selectPrs3000LoginVO(Map<String, String> paramMap) throws Exception {
+		return (LoginVO) select("prs3000DAO.selectPrs3000LoginVO",paramMap);
+	}
+
+
+	/**
+   	 * Prs3001 새비밀번호와 1년안 비밀번호 일치 확인
+   	 * @param Map
+   	 * @return String
+   	 * @exception Exception
+   	 */
+	public String selectPrs3001BeforeUsedPwCheck(Map<String, String> paramMap) {
+		return (String) select("prs3000DAO.selectPrs3001BeforeUsedPwCheck", paramMap);
+	}
+
+
 }

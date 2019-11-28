@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.req.req4000.req4000.service;
+package kr.opensoftlab.oslops.req.req4000.req4000.service;
 
 import java.util.List;
 import java.util.Map;
@@ -48,15 +48,25 @@ public interface Req4000Service {
 	@SuppressWarnings("rawtypes")
 	Map insertReq4000ReqClsInfo(Map paramMap) throws Exception;
 	
+
 	/**
-	 * Req4000 요구사항 분류 정보 삭제(단건) AJAX
-	 * 메뉴정보 삭제
+	 * Req4000 분류에 요구사항이 배정되어있는지 체크한다.
+	 * @param 
+	 * @return List<String> 요구사항이 배정된 분류 명 목록
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	List<String> deleteReq4000ReqClsAssignChk(Map paramMap) throws Exception;
+	
+	
+	/**
+	 * Req4000 요구사항 분류 정보 삭제
 	 * @param 
 	 * @return 
 	 * @exception Exception
 	 */
 	@SuppressWarnings("rawtypes")
-	Map deleteReq4000ReqClsInfo(Map paramMap) throws Exception;
+	void deleteReq4000ReqClsInfo(Map paramMap) throws Exception;
 	
 	/**
 	 * Req4000 요구사항 분류 정보 수정(단건) AJAX

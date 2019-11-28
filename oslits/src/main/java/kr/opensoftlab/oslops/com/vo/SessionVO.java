@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.com.vo;
+package kr.opensoftlab.oslops.com.vo;
 
 /**
  * @Class Name : SessionVO.java

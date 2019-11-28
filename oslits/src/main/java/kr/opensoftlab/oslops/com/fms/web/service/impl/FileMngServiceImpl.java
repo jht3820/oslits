@@ -1,10 +1,10 @@
-package kr.opensoftlab.oslits.com.fms.web.service.impl;
+package kr.opensoftlab.oslops.com.fms.web.service.impl;
 
 import java.util.List;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.com.fms.web.service.FileMngService;
+import kr.opensoftlab.oslops.com.fms.web.service.FileMngService;
 
 import org.springframework.stereotype.Service;
 
