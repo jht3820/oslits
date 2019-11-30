@@ -27,7 +27,8 @@ var gb = '${param.gb}';
 var arrChkObj = {"authGrpNm":{"type":"length","msg":"권한 그룹 명은 50byte까지 입력이 가능합니다.",max:50}
 				,"authGrpOrd":{"type":"number"}
 				,"authGrpDesc":{"type":"length","msg":"권한 그룹 설명 길이 값은 500까지 입력이 가능합니다.",max:500}};
-
+				
+globals_guideChkFn = fnPrj2001GuideShowr;
 $(document).ready(function() {
 
 	// 유효성 체크
@@ -52,14 +53,23 @@ $(document).ready(function() {
 	var arrComboType = [""];
 	gfnGetMultiCommonCodeDataForm(mstCdStrArr, strUseYn, arrObj, arrComboType , false);
 	
-	
+	$('#acceptUseCd').val("02");
 
 	if(type == "admin"){
 		$(".ui-draggable").css("top", "26px");
 	}
+	// 팝업 구분이 수정일 경우
 	if(gb == "update"){
-	
 		fnSelectPrj2000AuthGrpInfoAjax();
+	// 팝업 구분이 등록일 경우
+	}else{
+		// 등록된 역할그룹 순번 중 최고값+1
+		var authGrpNextOrd = "${authGrpNextOrd}";
+		
+		// 조회된 다음 순번값을 순번에 세팅한다.
+		if(!gfnIsNull(authGrpNextOrd)){
+			$("#authGrpOrd").val(authGrpNextOrd);
+		}
 	}
 	
 	// 프로젝트 권한그룹추가 레이어 팝업 - 저장버튼 클릭 시 롤 저장 처리 
@@ -92,6 +102,19 @@ $(document).ready(function() {
 	$('#exitBtn').click(function() {
 		gfnLayerPopupClose();
 	});
+
+	$('#acceptUseCd').change(function() {
+		if($(this).val()=="01"){
+			var message = "";
+			
+			message += "접수권한을 활성화 시킬경우 업무 화면(대시보드>운영 대시 보드>대시보드(운영)<br/>";
+			message += "또는 대시보드>개발 대시 보드>대시보드(개발))을 접근 활성화 시켜<br/>";
+			message += "야합니다.";
+			
+			jAlert(message, "알림창");
+			
+		}
+	});
 });
 
 /**
@@ -118,12 +141,9 @@ function fnInsertAuthGrp(){
     		
     		//권한롤 선택 창에 새권한 추가
     		if(type=="admin"){
-    			$(".left_table tbody").append("<tr class='left_con' id='" + newAuthGrpId + "'><td class='left_con'>" + $("#authGrpNm").val() + "</td><td class='left_con'>" 
-    											+ $("#authGrpDesc").val()+"</td><td class='left_con'>"+usrType+"</td></tr>")
-
+    			fnSelectAdm1000PrjAuthGrpList();
     		}else{
-    			$(".left_table tbody").append("<tr class='left_con' id='" + newAuthGrpId + "'><td class='left_con right_line'>" + $("#authGrpNm").val() + "</td><td class='left_con right_line'>" 
-    											+ $("#authGrpDesc").val()+"</td><td class='left_con'>"+usrType+"</td></tr>");	
+    			fnSelectPrj2000PrjAuthGrpList();
     		}
     		    		
     		// 권한 목록 클릭시 소메뉴 권한 목록 조회
@@ -163,13 +183,13 @@ function fnUpdateAuthGrp(){
     		jAlert(data.message,"알림창");
     		return;
     	}else{
+    		if(type=="admin"){
+    			fnSelectAdm1000PrjAuthGrpList();
+    		}else{
+    			fnSelectPrj2000PrjAuthGrpList();
+    		}
     		
     		var tdList = $(".left_table tbody #" + $('#authGrpId').val()).children();
-    	
-    		$(tdList[0]).html($('#authGrpNm').val());
-    		$(tdList[1]).html($('#authGrpDesc').val());
-    		
-    		$(tdList[2]).html($('#usrTyp option:selected').text());
     		
     		//레이어 팝업창 닫기
     		gfnLayerPopupClose();
@@ -207,6 +227,19 @@ function fnSelectPrj2000AuthGrpInfoAjax(){
 	ajaxObj.send();
 } 
 
+function fnPrj2001GuideShowr(){
+	var mainObj = $(".popup");
+	
+	//mainObj가 없는경우 false return
+	if(mainObj.length == 0){
+		return false;
+	}
+	//guide box setting
+	var guideBoxInfo = globals_guideContents["prj2001"];
+	gfnGuideBoxDraw(true,mainObj,guideBoxInfo);
+}
+
+
 </script>
 
 <div class="popup">
@@ -215,6 +248,7 @@ function fnSelectPrj2000AuthGrpInfoAjax(){
 		<input type="hidden" id="newAuthGrpId" name="newAuthGrpId">
 		<input type="hidden" id="authGrpId" name="authGrpId" name="${param.authGrpId}">
 		<input type="hidden" id="type" name="type" value="${param.type}" >
+		<input type="hidden" id="acceptUseCd" name="acceptUseCd" value="01" >
 	
 		<div class="pop_title">역할 그룹 생성</div>
 		<div class="pop_sub">
@@ -229,16 +263,15 @@ function fnSelectPrj2000AuthGrpInfoAjax(){
 				<textarea class="input_note" title="역할그룹 설명" id="authGrpDesc" name="authGrpDesc" style="height:100%;"></textarea>
 			</div>
 			
-			<div class="pop_left">정렬순서<span class="required_info">&nbsp;*</span></div>
+			<div class="pop_left">우선순위<span class="required_info">&nbsp;*</span></div>
 			<div class="pop_right">
-				<input type="number" title="정렬순서" value="0"  id="authGrpOrd" name="authGrpOrd"/>
+				<input type="number" title="우선순위" value="0"  id="authGrpOrd" name="authGrpOrd"/>
 			</div>
 			
 			<div class="pop_left">사용자유형<span class="required_info">&nbsp;*</span></div> 
 			<div class="pop_right">
 				<select class="search_select" name="usrTyp" id="usrTyp" style="height: 100%;"></select>
 			</div>
-			
 			<div class="pop_left bottom_line">사용유무<span class="required_info">&nbsp;*</span></div> 
 			<div class="pop_right bottom_line">
 				<select class="search_select" name="authGrpUseCd" id="authGrpUseCd" style="height: 100%;"></select>
