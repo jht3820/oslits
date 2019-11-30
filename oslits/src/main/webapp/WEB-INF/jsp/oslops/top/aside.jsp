@@ -7,7 +7,7 @@
 <script src="<c:url value='/js/menu/aside.js'/>" ></script>
 
 <%-- 
-<jsp:include page="/WEB-INF/jsp/oslits/top/quickmenu.jsp" />		<!-- 퀵메뉴 -->
+<jsp:include page="/WEB-INF/jsp/oslops/top/quickmenu.jsp" />		<!-- 퀵메뉴 -->
  --%>
 <script>
 	//페이지 로딩시 좌측 메뉴의 알림, 검수목록, 담당요구사항, 개발주기에 속한 요구사항 등 정보를 조회해 세팅한다.
@@ -37,7 +37,7 @@
 		else if(intCnt == 3){
 			document.hidAsidePrjFrm.menuUrl.value = '/req/req4000/req4100/selectReq4100View.do';
 			document.hidAsidePrjFrm.menuId.value = '000300040001';
-			document.hidAsidePrjFrm.reqChargerNm.value = "${sessionScope.loginVO.usrNm}"; 
+			document.hidAsidePrjFrm.reqChargerNm.value =  "<c:out value='${sessionScope.loginUsrInfo.usrNm}'/>"; 
 			
 		}
 		else if(intCnt == 4){ //전체 쪽지 목록
@@ -162,6 +162,8 @@
 			if( result ){
 				// 로그인 시 생성한 비밀번호 만료 쿠키 삭제
 				deleteCookie("pwExpire");
+				// 로그인 시 생성한 접속IP체크 쿠키 삭제
+				deleteCookie("accessIp");
 				$(location).attr('href',"/cmm/cmm4000/cmm4000/selectCmm4000Logout.do");
 			}
 		});
@@ -202,7 +204,7 @@
 	<div class="m_btn">···</div>
 	-->
 	<div class="title_wrap">
-		<div class="title">${sessionScope.selMenuNm }</div><div class="aside_toggle_btn"><img src="/images/header/GNB/GNB-icon_left.png" alt=""></div>
+		<div class="title">${sessionScope.selMenuNm }</div><!-- <div class="aside_toggle_btn"><img src="/images/header/GNB/GNB-icon_left.png" alt=""></div> -->
 	</div>
 	<dl>
 		<dt class="prj_select_box">
@@ -227,11 +229,19 @@
 			<span class="usrInfo_txt">&nbsp;&nbsp;> 아이디 : <c:out value="${sessionScope.loginUsrInfo.usrId}"/></span>
 			<span class="usrInfo_txt">&nbsp;&nbsp;> 성&nbsp;&nbsp;&nbsp;명 : <c:out value="${sessionScope.loginUsrInfo.usrNm}"/></span>
 			<span class="usrInfo_txt">&nbsp;&nbsp;> 소&nbsp;&nbsp;&nbsp;속 : <c:out value="${sessionScope.loginUsrInfo.usrDeptNm}"/></span>
+			<span class="usrInfo_txt">&nbsp;&nbsp;> 사&nbsp;&nbsp;&nbsp;업 : <c:out value="${sessionScope.selPrjTaskTypeNm}"/></span>
 		</dt>
 		
 		<dt class="logintime">
 			<span>[최근 접속일시]</span>
 			<span class="logintime_txt">&nbsp;&nbsp;<c:out value="${sessionScope.recentLogin}"/></span>
+		</dt>
+		
+		<dt class="ipInfo">
+			<span>[이전 접속 IP]</span>
+			<span class="ipInfo_txt">&nbsp;&nbsp;> <c:out value="${sessionScope.userAccessIpInfoList[1].loginIp}"/></span>
+			<span class="currentIp">[현재 접속 IP]</span>
+			<span class="ipInfo_txt">&nbsp;&nbsp;> <c:out value="${sessionScope.userAccessIpInfoList[0].loginIp}"/></span>
 		</dt>
 		
 		<dt class="option">
@@ -243,12 +253,12 @@
 			<span>로그아웃</span>
 		</dt>
 		
-		<dt class="menu" id="dtAlarmMsg"><span><i class="fa fa-envelope-o"></i></span></span><span>쪽지</span><span id="spanAlarmMsg"></span></dt>
+		<dt class="menu" id="dtAlarmMsg"><span><i class="fa fa-envelope-o"></i></span><span>쪽지</span><span id="spanAlarmMsg"></span></dt>
 			<dd id="ddAlarmMsg"/>	
 		
 		<!-- 권한의 사용자 유형이 관리자일 경우만 알림, 담당 요구사항, 전체 요구사항을 보여줌 -->
 		<c:if test="${sessionScope.usrTyp eq '02'}" >	
-		<dt class="menu" id="dtAlarm"><span><img src="/images/header/LNB/LNB-icon_02.png" alt="알림"><span>알림</span><span id="spanAlarm"></span></dt>
+		<dt class="menu" id="dtAlarm"><span><img src="/images/header/LNB/LNB-icon_02.png" alt="알림"></span><span>알림</span><span id="spanAlarm"></span></dt>
 			<dd id="ddAlarm"/>
 
 		<dt class="menu" onclick="fnMovePage(3)" ><span><img src="/images/header/LNB/LNB-icon_05.png" alt="담당 요구사항"></span><span>담당 요구사항</span><span id="spanChargerReq"></span></dt>
