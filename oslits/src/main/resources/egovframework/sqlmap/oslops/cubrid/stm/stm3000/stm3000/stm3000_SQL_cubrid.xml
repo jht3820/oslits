@@ -1,0 +1,594 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="stm300DAO">
+	<typeAlias alias="egovMap" 		type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias alias="Jen1000VO"	type="kr.opensoftlab.oslops.stm.stm3000.stm3000.vo.Jen1000VO"/>
+	<typeAlias alias="Jen1100VO"	type="kr.opensoftlab.oslops.stm.stm3000.stm3000.vo.Jen1100VO"/>
+
+	<resultMap id="resultMapSelectJen1000" class="Jen1000VO">
+		<result property="rn"  			      column="RN"/>
+		<result property="jenId"              column="JEN_ID" /> <!-- JENKINS 코드 --> 
+		<result property="jenNm"              column="JEN_NM" /> <!-- JENKINS 명 --> 
+		<result property="jenUsrId"           column="JEN_USR_ID" /> <!-- JENKINS 사용자 ID --> 
+		<result property="jenUsrTok"          column="JEN_USR_TOK" /> <!-- JENKINS 사용자 TOKEN KEY -->
+		<result property="jenUrl"             column="JEN_URL" /> <!-- JENKINS URL --> 
+		<result property="jenDesc"             column="JEN_DESC" /> <!-- JENKINS Comment --> 
+		<result property="useCd"              column="USE_CD" /> <!-- 사용여부(코드 : CMM00001) --> 
+		<result property="delCd"              column="DEL_CD" /> <!-- 사용여부(코드 : CMM00001) --> 
+		<result property="useNm"              column="USE_NM" /> <!-- 사용여부(코드 : CMM00001) -->
+		<result property="regDtm"             column="REG_DTM" /> <!-- 최초등록 일시 --> 
+		<result property="regUsrId"           column="REG_USR_ID" /> <!-- 최초등록자 ID --> 
+		<result property="regUsrIp"           column="REG_USR_IP" /> <!-- 최초등록자 IP --> 
+		<result property="modifyDtm"          column="MODIFY_DTM" /> <!-- 최종수정일시 --> 
+		<result property="modifyUsrId"        column="MODIFY_USR_ID" /> <!-- 최종수정자 ID --> 
+		<result property="modifyUsrIp"        column="MODIFY_USR_IP" /> <!-- 최종수정자 IP --> 
+    </resultMap>
+    
+        
+	<resultMap id="resultMapSelectJen1100" class="Jen1100VO">
+		<result property="rn"  			      column="RN"/>
+		<result property="jenId"              column="JEN_ID" /> <!-- JENKINS 코드 --> 
+		<result property="jenNm"              column="JEN_NM" /> <!-- JENKINS 명 --> 
+		<result property="jenUsrId"           column="JEN_USR_ID" /> <!-- JENKINS 사용자 ID --> 
+		<result property="jenUsrTok"          column="JEN_USR_TOK" /> <!-- JENKINS 사용자 TOKEN KEY -->
+		<result property="jenUrl"             column="JEN_URL" /> <!-- JENKINS URL --> 
+		<result property="jobId"              column="JOB_ID" /> <!-- JOB ID(NAME) --> 
+		<result property="jobRestoreId"           column="JOB_RESTORE_ID" /> <!-- 원복 JOB ID(NAME)  --> 
+		<result property="jobTok"          column="JOB_TOK" /> <!-- JOB TOKEN KEY -->
+		<result property="jobDesc"             column="JOB_DESC" /> <!-- JOB Comment --> 
+		<result property="jobTypeCd"             column="JOB_TYPE_CD" /> <!-- JOB TYPE(코드 : DPL00002) -->
+		<result property="jobTypeNm"             column="JOB_TYPE_NM" /> <!-- JOB TYPE(코드 : DPL00002) -->
+		<result property="useCd"              column="USE_CD" /> <!-- 사용여부(코드 : CMM00001) --> 
+		<result property="useNm"              column="USE_NM" /> <!-- 사용여부(코드 : CMM00001) -->
+		<result property="regDtm"             column="REG_DTM" /> <!-- 최초등록 일시 --> 
+		<result property="regUsrId"           column="REG_USR_ID" /> <!-- 최초등록자 ID --> 
+		<result property="regUsrIp"           column="REG_USR_IP" /> <!-- 최초등록자 IP --> 
+		<result property="modifyDtm"          column="MODIFY_DTM" /> <!-- 최종수정일시 --> 
+		<result property="modifyUsrId"        column="MODIFY_USR_ID" /> <!-- 최종수정자 ID --> 
+		<result property="modifyUsrIp"        column="MODIFY_USR_IP" /> <!-- 최종수정자 IP --> 
+    </resultMap>
+    
+    
+	
+	<!-- sql Define  -->
+	<!-- Jenkins 목록 조회 -->
+	<sql id="selectStm3000JenkinsList">
+		<![CDATA[
+			SELECT
+		            JEN_ID ,                  /* JENKINS JOB 코드 */ 
+		            JEN_NM ,                  /* JENKINS JOB 명 */ 
+		            JEN_USR_ID ,              /* JENKINS 사용자 ID */ 
+		            JEN_USR_TOK ,             /* JENKINS 사용자 TOKEN KEY */ 
+		            JEN_URL ,
+		            SF_REPLACE_ALL(JEN_DESC ,'</br>|<br>|<br/>|</BR>|<BR>|<BR/>' , '&nbsp;&nbsp;&nbsp;&nbsp;' ) AS JEN_DESC ,                 /* JENKINS JOB Comment */
+		            USE_CD ,                  /* 사용여부(코드 : CMM00001) */
+		            SF_ADM4100_COM_CD_INFO(#licGrpId#, 'CMM00001', USE_CD, '1') as USE_NM ,
+		            DEL_CD , 
+		            REG_DTM ,                 /* 최초등록 일시 */ 
+		            REG_USR_ID ,              /* 최초등록자 ID */ 
+		            REG_USR_IP ,              /* 최초등록자 IP */ 
+		            MODIFY_DTM ,              /* 최종수정일시 */ 
+		            MODIFY_USR_ID ,           /* 최종수정자 ID */ 
+		            MODIFY_USR_IP             /* 최종수정자 IP */              
+				   
+			FROM
+		            JEN1000
+			WHERE   1=1
+			AND		LIC_GRP_ID = #licGrpId#
+			AND		DEL_CD ='02'
+		]]>
+		<isNotEmpty property="searchSelect">
+			<isNotEmpty property="searchTxt">
+			<isEqual property="searchSelect" compareValue="jenNm"> 
+				AND		UPPER( JEN_NM ) like '%'|| UPPER( #searchTxt#  )  ||'%'
+			</isEqual>
+			<isEqual property="searchSelect" compareValue="jenDesc"> 
+				AND		UPPER( JEN_DESC )  like '%'|| UPPER( #searchTxt#  )  ||'%'
+			</isEqual>
+			</isNotEmpty>
+		</isNotEmpty>
+		
+		<isNotEmpty property="searchSelect">
+			<isNotEmpty property="searchCd">
+			<isEqual property="searchSelect" compareValue="useCd">
+				AND		USE_CD = #searchCd#
+			</isEqual>
+			</isNotEmpty>
+		</isNotEmpty>
+    </sql>
+    
+    <!-- sql Define  -->
+	<!-- Job 목록 조회 -->
+	<sql id="selectStm3000JobList">
+		<![CDATA[
+		SELECT
+		 	T1.JEN_ID ,                  /* JENKINS JOB 코드 */
+            T1.JEN_NM ,                  /* JENKINS JOB 명 */ 
+            T1.JEN_USR_ID ,              /* JENKINS 사용자 ID */ 
+            T1.JEN_USR_TOK ,             /* JENKINS 사용자 TOKEN KEY */ 
+            T1.JEN_URL , 
+            T1.JOB_ID ,
+            T1.JOB_RESTORE_ID ,
+            T1.JOB_TOK ,
+            T1.JOB_TYPE_CD ,
+            SF_ADM4100_COM_CD_INFO(#licGrpId#, 'DPL00002', T1.JOB_TYPE_CD, '1') AS JOB_TYPE_NM ,
+            T1.JOB_DESC ,
+            T1.USE_CD ,                  /* 사용여부(코드 : CMM00001) */
+            SF_ADM4100_COM_CD_INFO(#licGrpId#, 'CMM00001', T1.USE_CD, '1') AS USE_NM , 
+            T1.REG_DTM ,                 /* 최초등록 일시 */ 
+            T1.REG_USR_ID ,              /* 최초등록자 ID */ 
+            T1.REG_USR_IP ,              /* 최초등록자 IP */ 
+            T1.MODIFY_DTM ,              /* 최종수정일시 */ 
+            T1.MODIFY_USR_ID ,           /* 최종수정자 ID */ 
+            T1.MODIFY_USR_IP             /* 최종수정자 IP */ 
+		FROM
+		(
+			SELECT
+	            A.JEN_ID ,                  /* JENKINS JOB 코드 */
+	            B.JEN_NM ,                  /* JENKINS JOB 명 */ 
+	            B.JEN_USR_ID ,              /* JENKINS 사용자 ID */ 
+	            B.JEN_USR_TOK ,             /* JENKINS 사용자 TOKEN KEY */ 
+	            B.JEN_URL , 
+	            A.JOB_ID ,
+	            COALESCE(A.JOB_RESTORE_ID,'-') AS JOB_RESTORE_ID ,
+	            A.JOB_TOK ,
+	            A.JOB_TYPE_CD ,
+	            SF_ADM4100_COM_CD_INFO(#licGrpId#, 'DPL00002', A.JOB_TYPE_CD, '1') AS JOB_TYPE_NM ,
+	            A.JOB_DESC ,
+	            A.USE_CD ,                  /* 사용여부(코드 : CMM00001) */
+	            SF_ADM4100_COM_CD_INFO(#licGrpId#, 'CMM00001', A.USE_CD, '1') AS USE_NM , 
+	            A.REG_DTM ,                 /* 최초등록 일시 */ 
+	            A.REG_USR_ID ,              /* 최초등록자 ID */ 
+	            A.REG_USR_IP ,              /* 최초등록자 IP */ 
+	            A.MODIFY_DTM ,              /* 최종수정일시 */ 
+	            A.MODIFY_USR_ID ,           /* 최종수정자 ID */ 
+	            A.MODIFY_USR_IP             /* 최종수정자 IP */              
+			FROM JEN1100 A
+		    LEFT JOIN JEN1000 B
+		    ON ( A.LIC_GRP_ID = B.LIC_GRP_ID AND A.JEN_ID = B.JEN_ID )
+			WHERE   1=1
+			AND		A.LIC_GRP_ID = #licGrpId#
+			AND		B.DEL_CD = '02'
+		]]>
+		<isNotEmpty property="projectJenkinsCheck">
+			<isEqual property="projectJenkinsCheck" compareValue="Y">
+				AND	EXISTS (
+	            	SELECT Z.*
+	                FROM JEN1200 Z
+	                WHERE 1=1
+	                AND Z.LIC_GRP_ID = A.LIC_GRP_ID
+	                AND Z.JEN_ID = A.JEN_ID
+	                AND Z.JOB_ID = A.JOB_ID
+	                AND Z.PRJ_ID = #prjId#
+	            )
+			</isEqual>
+		</isNotEmpty>
+		<isNotEmpty property="jenId">
+			AND		A.JEN_ID = #jenId#
+		</isNotEmpty>
+		<isNotEmpty property="useCd">
+			AND		A.USE_CD = #useCd#
+		</isNotEmpty>
+		<isNotEmpty property="searchSelect">
+			<isNotEmpty property="searchTxt">
+				<isEqual property="searchSelect" compareValue="jobNm"> 
+					AND		UPPER( B.JEN_NM ) like '%'|| UPPER( #searchTxt#  )  ||'%'
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="jobId"> 
+					AND		UPPER( A.JOB_ID ) like '%'|| UPPER( #searchTxt#  )  ||'%'
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="jobDesc"> 
+					AND		UPPER( A.JOB_DESC )  like '%'|| UPPER( #searchTxt#  )  ||'%'
+				</isEqual>
+			</isNotEmpty>
+		</isNotEmpty>
+		
+		<isNotEmpty property="searchSelect">
+			<isNotEmpty property="searchCd">
+			<isEqual property="searchSelect" compareValue="useCd">
+				AND		A.USE_CD = #searchCd#
+			</isEqual>
+			</isNotEmpty>
+		</isNotEmpty>
+		) T1
+    </sql>
+    
+    <!-- Jenkins 일반 목록 조회 -->
+    <select id="stm3000DAO.selectStm3000JenkinsNormalList" parameterClass="java.util.Map"  resultClass="egovMap">
+	    /* stm3000DAO.selectStm3000JenkinsNormalList Jenkins 일반 목록을 조회한다.*/
+		SELECT *
+		FROM
+			(
+    		SELECT ROWNUM RN,
+    			     A.*
+    		FROM
+    		(
+					<include refid="selectStm3000JenkinsList"/>
+	    			) A
+	    	)
+    </select>
+    
+    <!-- Job 일반 목록 조회 -->
+    <select id="stm3000DAO.selectStm3000JobNormalList" parameterClass="java.util.Map"  resultClass="egovMap">
+	    /* stm3000DAO.selectStm3000JobNormalList Job 일반 목록을 조회한다.*/
+		SELECT *
+		FROM
+			(
+    		SELECT ROWNUM RN,
+    			     A.*
+    		FROM
+    		(
+					<include refid="selectStm3000JobList"/>
+	    			) A
+	    	)
+    </select>
+    
+    <!-- Jenkins 목록 조회 -->
+    <select id="stm3000DAO.selectStm3000JenkinsList" parameterClass="Jen1000VO"  resultMap="resultMapSelectJen1000">
+	    /* stm3000DAO.selectStm3000JenkinsList Jenkins 목록을 조회한다.*/
+		SELECT *
+		FROM
+			(
+    		SELECT ROWNUM RN,
+    			     A.*
+    		FROM
+    		(
+					<include refid="selectStm3000JenkinsList"/>
+	    			) A
+	    	)
+	    	 WHERE RN BETWEEN (#firstIndex#+1) AND #lastIndex#
+    </select>
+    
+    <!-- Jenkins 목록 총건수. :페이징 처리 부분 -->
+    <select id="stm3000DAO.selectStm3000JenkinsListCnt" parameterClass="Jen1000VO"  resultClass="java.lang.Integer">
+	    /*stm3000DAO.selectStm3000JenkinsListCnt Jenkins 목록 총건수를 조회한다.*/
+	    	SELECT
+					COUNT(*)
+			FROM	(
+						<include refid="selectStm3000JenkinsList"/>
+					) A
+    </select>
+    
+    <!-- job 목록 조회 -->
+    <select id="stm3000DAO.selectStm3000JobList" parameterClass="Jen1100VO"  resultMap="resultMapSelectJen1100">
+	    /* stm3000DAO.selectStm3000JobList job 목록을 조회한다.*/
+		SELECT *
+		FROM
+			(
+    		SELECT ROWNUM RN,
+    			     A.*
+    		FROM
+    		(
+					<include refid="selectStm3000JobList"/>
+	    			) A
+	    	)
+	    	 WHERE RN BETWEEN (#firstIndex#+1) AND #lastIndex#
+    </select>
+    
+    <!-- job 목록 총건수. :페이징 처리 부분 -->
+    <select id="stm3000DAO.selectStm3000JobListCnt" parameterClass="Jen1100VO"  resultClass="java.lang.Integer">
+	    /*stm3000DAO.selectStm3000JobListCnt job 목록 총건수를 조회한다.*/
+	    	SELECT
+					COUNT(*)
+			FROM	(
+						<include refid="selectStm3000JobList"/>
+					) A
+    </select>
+    
+	 
+    <!--  Jenkins 정보 조회  --> 
+	<select id="stm3000DAO.selectStm3000JenkinsInfo" parameterClass="java.util.Map"  resultClass="egovMap">
+		/* stm3000DAO.selectStm3000JenkinsInfo - Jenkins 정보 조회 */
+		SELECT *
+		FROM (
+			<include refid="selectStm3000JenkinsList"/>
+		) T2
+		WHERE 1=1
+		AND T2.JEN_ID = #jenId#
+	</select>
+	 
+    <!--  Job 정보 조회(단건)  --> 
+	<select id="stm3000DAO.selectStm3000JobInfo" parameterClass="java.util.Map"  resultClass="egovMap">
+		/* stm3000DAO.selectStm3000JobInfo - Job 정보 조회(단건) */
+		SELECT *
+		FROM (
+			<include refid="selectStm3000JobList"/>
+		) T2
+		WHERE 1=1
+			AND T2.JOB_ID = #jobId#
+	</select>
+	
+	 <!--  Jenkins 등록  --> 
+	<insert id="stm3000DAO.insertStm3000JenkinsInfo" parameterClass="java.util.Map">
+		<selectKey resultClass="java.lang.String" keyProperty="newJenId">
+		<![CDATA[
+			/* stm3000DAO.insertStm3000JenkinsInfo - Jenkins 등록(새로운 JEN_ID 따기)*/ 
+			SELECT	COALESCE( 
+							SUBSTR(NEW_JEN_ID, 1, 11) || LPAD( (TO_NUMBER(SUBSTR(NEW_JEN_ID, 12, 5)) + 1) , 5, '0')
+						,	'JEN' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDD') || '00001'
+            		) AS NEW_JEN_ID 
+			FROM	(
+			            SELECT	MAX(JEN_ID)  AS NEW_JEN_ID
+			            FROM	JEN1000 A
+			            WHERE	1=1
+			            AND		JEN_ID LIKE 'JEN' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDD') || '%'
+					)
+		]]>
+		</selectKey>
+		<![CDATA[ 
+			/* stm3000DAO.insertStm3000JenkinsInfo  - Jenkins 등록 */ 
+				INSERT     INTO     JEN1000
+					(
+					            JEN_ID              , /* JENKINS JOB 코드 */ 
+					            JEN_NM              , /* JENKINS JOB 명 */ 
+					            JEN_USR_ID          , /* JENKINS 사용자 ID */ 
+					            JEN_USR_TOK         , /* JENKINS 사용자 TOKEN KEY */ 
+					            JEN_URL             , /* JENKINS JOB URL */ 
+					            JEN_DESC            , /* JENKINS JOB Comment */ 
+					            USE_CD              , /* 사용유무(코드 : CMM00001) */ 
+					            DEL_CD				, /* 삭제유무(코드 : CMM00001) */
+					            REG_DTM             , /* 최초등록 일시 */ 
+					            REG_USR_ID          , /* 최초등록자 ID */ 
+					            REG_USR_IP          , /* 최초등록자 IP */ 
+					            MODIFY_DTM          , /* 최종수정일시 */ 
+					            MODIFY_USR_ID       , /* 최종수정자 ID */ 
+					            MODIFY_USR_IP       , /* 최종수정자 IP */ 
+					            LIC_GRP_ID          
+					)
+				VALUES
+					(
+					             #newJenId#, 
+					             #jenNm#, 
+					             #jenUsrId#, 
+					             #jenUsrTok#, 
+					             #jenUrl#, 
+					             #jenDesc#, 
+					             #useCd#, 
+					             '02',
+					             CURRENT_TIMESTAMP , 
+					             #regUsrId#, 
+					             #regUsrIp#, 
+					             CURRENT_TIMESTAMP , 
+					             #modifyUsrId#, 
+					             #modifyUsrIp#,
+					             #licGrpId# 
+					)
+			
+		]]>
+	</insert>
+	
+	 <!--  Job 등록  --> 
+	<insert id="stm3000DAO.insertStm3000JobInfo" parameterClass="java.util.Map">
+		<![CDATA[ 
+			/* stm3000DAO.insertStm3000JobInfo  - Job 등록  */ 
+				INSERT     INTO     JEN1100
+					(
+					            JEN_ID              , /* JENKINS JOB 코드 */ 
+					            JOB_ID 				, /* JOB ID */
+					            JOB_RESTORE_ID 		, /* 원복 JOB ID */
+					            JOB_TOK 			, /* JOB TOKEN KEY */
+					            JOB_TYPE_CD			, /* JOB TYPE */
+					            JOB_DESC 			, /* JOB DESC */
+					            USE_CD              , /* 사용여부(코드 : CMM00001) */ 
+					            REG_DTM             , /* 최초등록 일시 */ 
+					            REG_USR_ID          , /* 최초등록자 ID */ 
+					            REG_USR_IP          , /* 최초등록자 IP */ 
+					            MODIFY_DTM          , /* 최종수정일시 */ 
+					            MODIFY_USR_ID       , /* 최종수정자 ID */ 
+					            MODIFY_USR_IP       , /* 최종수정자 IP */ 
+					            LIC_GRP_ID          
+					)
+				VALUES
+					(
+					             #jenId#, 
+					             #jobId#,
+					             #jobRestoreId#,
+					             #jobTok#,
+					             #jobTypeCd#,
+					             #jobDesc#, 
+					             #useCd#, 
+					             CURRENT_TIMESTAMP , 
+					             #regUsrId#, 
+					             #regUsrIp#, 
+					             CURRENT_TIMESTAMP , 
+					             #modifyUsrId#, 
+					             #modifyUsrIp#,
+					             #licGrpId# 
+					)
+			
+		]]>
+	</insert>
+    
+	<!-- Jenkins 정보 수정 -->
+	<update id="stm3000DAO.updateStm3000JenkinsInfo" parameterClass="java.util.Map">
+		/* stm3000DAO.updateStm3000JenkinsInfo - Jenkins 정보 수정 */ 
+			UPDATE     JEN1000     SET 
+
+			           JEN_ID = #jenId#              , /* JENKINS JOB 코드 */ 
+			           JEN_NM = #jenNm#              , /* JENKINS JOB 명 */ 
+			           JEN_USR_ID = #jenUsrId#       , /* JENKINS 사용자 ID */ 
+			           JEN_USR_TOK = #jenUsrTok#     , /* JENKINS 사용자 TOKEN KEY */ 
+			           JEN_URL = #jenUrl#            , /* JENKINS JOB URL */ 
+			           JEN_DESC = #jenDesc#            , /* JENKINS JOB Comment */ 
+			           USE_CD = #useCd#              , /* 사용여부(코드 : CMM00001) */ 
+			           MODIFY_DTM = CURRENT_TIMESTAMP          , /* 최종수정일시 */ 
+			           MODIFY_USR_ID = #modifyUsrId# , /* 최종수정자 ID */ 
+			           MODIFY_USR_IP = #modifyUsrIp#   /* 최종수정자 IP */ 
+			WHERE
+					   1=1
+			  AND	   LIC_GRP_ID	=  	#licGrpId# 
+			  AND	   JEN_ID 		= 	#jenId#                /* JENKINS JOB 코드 */ 
+	</update>
+    
+	<!-- Job 정보 수정 -->
+	<update id="stm3000DAO.updateStm3000JobInfo" parameterClass="java.util.Map">
+		/* stm3000DAO.updateStm3000JobInfo - Job 정보 수정 */ 
+			UPDATE     JEN1100     SET 
+			        JEN_ID = #jenId#            	  	, /* JENKINS JOB 코드 */ 
+			        JOB_ID = #jobId# 					, /* JOB ID */
+		            JOB_RESTORE_ID = #jobRestoreId# 	, /* 원복 JOB ID */
+		            JOB_TOK = #jobTok# 					, /* JOB TOKEN KEY */
+		            JOB_TYPE_CD = #jobTypeCd#				, /* JOB TYPE */
+		            JOB_DESC = #jobDesc# 				, /* JOB DESC */
+			        USE_CD = #useCd#             		, /* 사용여부(코드 : CMM00001) */ 
+			        MODIFY_DTM = CURRENT_TIMESTAMP         	 	, /* 최종수정일시 */ 
+			        MODIFY_USR_ID = #modifyUsrId# 		, /* 최종수정자 ID */ 
+			        MODIFY_USR_IP = #modifyUsrIp#   	/* 최종수정자 IP */ 
+			WHERE 1=1
+				AND	LIC_GRP_ID	=  	#licGrpId# 
+				AND	JEN_ID 		= 	#jenId#             /* JENKINS JOB 코드 */ 
+				AND	JOB_ID		=	#jobId#				/* JOB ID */
+	</update>
+	
+	<!-- Jenkins 관리 삭제 -->
+	<update id="stm3000DAO.deleteStm3000JenkinsInfo" parameterClass="java.util.Map">
+		/* stm3000DAO.deleteStm3000JenkinsInfo - Jenkins 관리 삭제 */
+		UPDATE     JEN1000     SET 
+		           DEL_CD = #delCd#              , /* 삭제유무(코드 : CMM00001) */ 
+		           MODIFY_DTM = CURRENT_TIMESTAMP          , /* 최종수정일시 */ 
+		           MODIFY_USR_ID = #modifyUsrId# , /* 최종수정자 ID */ 
+		           MODIFY_USR_IP = #modifyUsrIp#   /* 최종수정자 IP */ 
+		WHERE
+				   1=1
+		  AND	   LIC_GRP_ID	=  	#licGrpId# 
+		  AND	   JEN_ID 		= 	#jenId#                /* JENKINS JOB 코드 */ 
+	</update>
+	
+	<!-- Job 삭제 -->
+	<delete id="stm3000DAO.deleteStm3000JobInfo" parameterClass="java.util.Map">
+		/* stm3000DAO.deleteStm3000JobInfo - Job을 삭제한다. */
+		DELETE FROM	JEN1100 A
+		WHERE	1=1
+		AND	LIC_GRP_ID = #licGrpId#
+		AND	JEN_ID = #jenId#               /* JENKINS JOB 코드 */
+		AND	JOB_ID = #jobId# 
+	</delete>
+	
+	<!-- Jenkins 등록 상태 확인 -->
+	<select id="stm3000DAO.selectStm3000JenkinsUseCountInfo" parameterClass="java.util.Map"  resultClass="java.lang.Integer">
+		/* stm3000DAO.selectStm3000JenkinsUseCountInfo - Jenkins 등록 상태를 확인한다. */
+		SELECT	COUNT(1) AS CNT
+		FROM 	JEN1000 A
+		WHERE    1=1
+		AND	LIC_GRP_ID = #licGrpId#
+		AND	JEN_ID = #jenId#               /* JENKINS JOB 코드 */ 
+		LIMIT 1
+	</select>
+	
+	<!-- Job 등록 상태 확인 -->
+	<select id="stm3000DAO.selectStm3000JobUseCountInfo" parameterClass="java.util.Map"  resultClass="java.lang.Integer">
+		/* stm3000DAO.selectStm3000JobUseCountInfo - Job 등록 상태를 확인한다. */
+		SELECT	COUNT(1) AS CNT
+		FROM 	JEN1100 A
+		WHERE    1=1
+		AND	LIC_GRP_ID = #licGrpId#
+		AND	JEN_ID = #jenId#               /* JENKINS JOB 코드 */ 
+		AND JOB_ID = #jobId#
+		LIMIT 1
+	</select>
+    
+    <!-- Jenkins 유저 목록 조회  -->
+    <select id="stm3000DAO.selectStm3000JenkinsUserList" parameterClass="java.util.Map"  resultClass="egovMap">
+		/* stm3000DAO.selectStm3000JenkinsUserList - Jenkins 유저 목록 조회 */
+		
+		SELECT
+			B.JEN_USR_ID 
+	      	,B.JEN_USR_TOK
+	      	,B.JEN_NM
+	      	,B.JEN_URL
+	      	,B.JEN_ID
+	      	,(
+	      		SELECT COUNT(1)
+	      		FROM  JEN1300 C 
+	            WHERE 1=1
+	            AND		C.LIC_GRP_ID = A.LIC_GRP_ID
+	            AND     C.PRJ_ID = A.PRJ_ID
+				AND     C.JEN_ID = A.JEN_ID
+				AND		C.JOB_ID = A.JOB_ID
+				AND     C.AUTH_GRP_ID =  #authGrpId#
+			)    AS AUTH_CNT
+		FROM JEN1100 B
+		INNER JOIN
+		(   SELECT	LIC_GRP_ID ,
+   					PRJ_ID , 
+   		            JEN_ID ,
+   		            JOB_ID ,
+			FROM	JEN1200 
+			WHERE	PRJ_ID  = #prjId#
+		)  A
+		ON (A.LIC_GRP_ID = B.LIC_GRP_ID AND A.JEN_ID = B.JEN_ID AND A.JOB_ID = B.JOB_ID AND A.LIC_GRP_ID = #licGrpId# AND B.USE_CD ='01')
+		WHERE   1=1
+		<isNotEmpty property="jobname">
+		AND     B.JEN_NM = #jobname#
+		</isNotEmpty>
+	</select>
+    
+    <!-- jenkins 허용 역할 정보 저장 -->
+	<insert id="stm3000DAO.insertStm3000JenAuthGrpInfo" parameterClass="java.util.Map">
+		/* stm3000DAO.insertStm3000JenAuthGrpInfo - jenkins 허용 역할 정보 저장  */
+		<![CDATA[
+			INSERT INTO JEN1200
+			(
+				PRJ_ID,				JEN_ID,					AUTH_GRP_ID
+				,REG_DTM,				REG_USR_ID,				REG_USR_IP
+				,MODIFY_DTM,			MODIFY_USR_ID,			MODIFY_USR_IP
+			)
+			VALUES
+			(
+				#prjId#,				#jenId#,					#authGrpId#
+				,CURRENT_TIMESTAMP,				#regUsrId#,					#regUsrIp#
+				,CURRENT_TIMESTAMP,				#modifyUsrId#,				#modifyUsrIp#
+			)		
+		
+		]]>
+	</insert>
+	
+	<!-- jenkins 허용 역할 정보 제거 -->
+	<delete id="stm3000DAO.deleteStm3000JenAuthGrpInfo" parameterClass="java.util.Map">
+		/* stm3000DAO.deleteStm3000JenAuthGrpInfo - jenkins 허용 역할 정보 제거  */
+		<![CDATA[
+			DELETE FROM JEN1200 A
+			WHERE 1=1
+				AND		A.PRJ_ID = #prjId#
+				AND		A.JEN_ID = #jenId#
+				AND		A.AUTH_GRP_ID = #authGrpId#
+		]]>
+	</delete>
+	
+	<!-- jenkins 허용 역할 정보 목록 가져오기 -->
+	<select id="stm3000DAO.selectStm3000JenAuthGrpList"  parameterClass="java.util.Map" resultClass="egovMap">
+		/* stm3000DAO.selectStm3000JenAuthGrpList - jenkins 허용 역할 정보 목록 가져오기  */
+		<![CDATA[
+			SELECT 
+				A.PRJ_ID
+				,A.JEN_ID
+				,A.AUTH_GRP_ID
+			    ,B.AUTH_GRP_NM
+			    ,B.AUTH_GRP_DESC
+			    ,B.CREATE_DT
+			    ,B.USE_CD
+			    ,B.USR_TYP
+			    ,SF_ADM4100_COM_CD_INFO(#licGrpId#, 'ADM00004', B.USR_TYP, '1') AS USR_TYP_NM
+			FROM JEN1200 A
+			INNER JOIN ADM1100 B
+			ON ( A.PRJ_ID = #prjId# AND A.JEN_ID = #jenId# AND A.PRJ_ID = B.PRJ_ID AND A.AUTH_GRP_ID = B.AUTH_GRP_ID AND B.LIC_GRP_ID = #licGrpId#)
+			WHERE 1=1
+			AND B.USE_CD = '01'
+			ORDER BY B.ORD
+		]]>
+	</select>
+	
+	<!--jenkins 허용 역할 정보 단건 갯수 가져오기 -->
+	<select id="stm3000DAO.selectStm3000JenAuthGrpCnt"  parameterClass="java.util.Map" resultClass="java.lang.Integer">
+		/* stm3000DAO.selectStm3000JenAuthGrpCnt -  jenkins 허용 역할 정보 단건 갯수 가져오기 */
+		<![CDATA[
+			SELECT COUNT(*) AS AUTH_GRP_CNT
+			FROM JEN1200 A
+			WHERE 1=1
+			AND	A.PRJ_ID = #prjId#
+			AND A.JEN_ID = #jenId#
+			AND A.AUTH_GRP_ID = #authGrpId#
+		]]>
+	</select>
+</sqlMap>

@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="prs3000DAO">
+
+	<typeAlias alias="egovMap"	type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="loginVO" type="kr.opensoftlab.oslops.com.vo.LoginVO"/>
+	
+	<!-- 로그인 유저 정보 조회시 사용할 resuleMap 설정 -->
+	<resultMap id="rtnLoginVO" class="kr.opensoftlab.oslops.com.vo.LoginVO">
+		<result property="usrId" column="USR_ID"/>
+		<result property="licGrpId" column="LIC_GRP_ID"/>
+		<result property="usrPw" column="USR_PW"/>
+		<result property="usrNm" column="USR_NM"/>
+		<result property="email" column="EMAIL"/>
+		<result property="telno" column="TELNO"/>
+		<result property="etc" column="ETC"/>
+		<result property="wkStTm" column="WK_ST_TM"/>
+		<result property="wkEdTm" column="WK_ED_TM"/>
+		<result property="usrImgId" column="USR_IMG_ID"/>
+		<result property="useCd" column="USE_CD"/>
+		<result property="reqMainColor" column="REQ_MAIN_COLOR" />
+		<result property="reqFontColor" column="REQ_FONT_COLOR" />
+		<result property="regDtm" column="REG_DTM"/>
+		<result property="regUsrId" column="REG_USR_ID"/>
+		<result property="regUsrIp" column="REG_USR_IP"/>
+		<result property="modifyDtm" column="MODIFY_DTM"/>
+		<result property="modifyUsrId" column="MODIFY_USR_ID"/>
+		<result property="modifyUsrIp" column="MODIFY_USR_IP"/>
+		<result property="pwFailCnt" column="PW_FAIL_CNT"/>
+		<result property="block" column="BLOCK"/>
+		<result property="prjId" column="PRJ_ID"/>
+		<result property="admYn" column="ADM_YN"/>
+		<result property="iniYn" column="INI_YN"/>
+		<result property="modMin" column="MOD_MIN"/>
+		
+	</resultMap>
+	
+	<!-- 개인정보를 조회한다.(단건) -->
+	<select id="prs3000DAO.selectPrs3000" parameterClass="java.util.Map" resultClass="egovMap">
+		/* prs3000DAO.selectPrs3000 - 개인정보를 조회한다.(단건) */
+		SELECT	A.USR_ID
+			,	A.LIC_GRP_ID
+			,	A.USR_PW
+			,	A.USR_NM
+			,	A.EMAIL
+			,	A.TELNO
+			,	A.ETC
+			,	A.DEPT_ID
+			,	SF_ADM7000_DEPT_NM(#licGrpId#, A.DEPT_ID, '2') AS DEPT_NAME 
+			,	A.WK_ST_TM
+			,	A.WK_ED_TM
+			,	A.BK_ST_TM
+			,	A.BK_ED_TM
+			,	A.PW_FAIL_CNT
+			,	A.BLOCK
+			,	A.USR_IMG_ID
+			,	A.USE_CD
+			, 	A.USR_POSITION_CD
+			,	A.USR_DUTY_CD
+			,	COALESCE(A.REQ_MAIN_COLOR,'##FFFFFF') AS REQ_MAIN_COLOR
+			,	COALESCE(A.REQ_FONT_COLOR,'##000000') AS REQ_FONT_COLOR
+			,	A.DSH_DISPLAY_CD
+			,	SF_ADM4100_COM_CD_INFO(#licGrpId#, 'DSH00001', A.DSH_DISPLAY_CD, '1') AS DSH_DISPLAY_NM
+			,	A.REG_DTM
+			,	A.REG_USR_ID
+			,	A.REG_USR_IP
+			,	A.MODIFY_DTM
+			,	A.MODIFY_USR_ID
+			,	A.MODIFY_USR_IP
+			,   ( 
+				  SELECT  B.PRJ_NM
+	       		  FROM 	  PRJ1000 B
+	       		  WHERE   1=1
+	    		  AND     B.LIC_GRP_ID =  #licGrpId#
+	    		  AND     B.PRJ_ID	 = 	A.PRJ_ID 
+	    		) AS PRJ_NM
+	    	,   ( 
+	    		  SELECT  TO_CHAR(MAX(PW_MODIFY_DTM),'YYYY-MM-DD AM HH:MI') 
+		      	  FROM    ADM5200 A
+		          WHERE   A.USR_ID 	 = #regUsrId#
+				  AND     A.LIC_GRP_ID = #licGrpId#
+			    ) AS PW_MODIFY_DTM
+		
+		FROM	ADM2000 A
+		WHERE 	1=1
+		AND 	A.USR_ID 	 = #regUsrId#
+		AND 	A.LIC_GRP_ID = #licGrpId#
+	</select>
+	
+	<!-- 로그인할 사용자 정보 조회 -->
+	<select id="prs3000DAO.selectPrs3000LoginVO" parameterClass="java.util.Map" resultMap="rtnLoginVO">
+			/* prs3000DAO.selectPrs3000LoginVO - 로그인한 사용자 정보 조회 (단건)  */
+			SELECT	A.USR_ID
+				,	A.LIC_GRP_ID
+			    ,	A.USR_PW
+			    ,	A.USR_NM
+			    ,	A.EMAIL
+			    ,	A.TELNO
+			    ,	A.ETC
+			    ,	A.WK_ST_TM
+                ,	A.WK_ED_TM
+                ,	A.USR_IMG_ID
+			    ,	A.USE_CD
+			    ,	A.REQ_MAIN_COLOR
+			    ,	A.REQ_FONT_COLOR
+			    ,	A.REG_DTM
+			    ,	A.REG_USR_ID
+			    ,	A.REG_USR_IP
+			    ,	A.MODIFY_DTM
+			    ,	A.MODIFY_USR_ID
+			    ,	A.MODIFY_USR_IP
+			    ,   A.PW_FAIL_CNT
+			    ,   A.BLOCK
+			    ,   (SELECT PRJ_ID FROM ADM1300 B WHERE A.PRJ_ID = B.PRJ_ID AND A.USR_ID = B.USR_ID AND ROWNUM = 1) AS PRJ_ID
+			    ,   COALESCE(A.ADM_YN,'N') AS ADM_YN
+			    ,   COALESCE(A.INI_YN,'N') AS INI_YN
+			    ,   IFNULL( ROUND (  ( CURRENT_TIMESTAMP - A.INI_DTM ) * 1440 , 0 ) , 0 )  AS MOD_MIN
+			FROM ADM2000 A
+			WHERE 1=1
+			AND	USR_ID = #regUsrId#
+			AND LIC_GRP_ID = #licGrpId#
+	</select>
+	
+	<!-- 개인정보 수정 화면(이메일 체크) AJAX -->
+	<select id="prs3000DAO.selectPrs3000emailChRepAjax" parameterClass="java.util.Map" resultClass="java.lang.Integer">
+		/* prs3000DAO.selectPrs3000emailChRepAjax - 개인정보 수정 화면(이메일 체크) AJAX */
+		SELECT	COUNT(EMAIL) AS EMAIL_CNT
+		FROM	ADM2000 A
+		WHERE	1=1 
+		AND A.EMAIL = #email#
+	</select>
+	
+	
+	<!-- 개인정보 수정(UPDATE) AJAX -->
+	<update id="prs3000DAO.updatePrs3000" parameterClass="java.util.Map">
+		/* prs3000DAO.updatePrs3000 - 개인정보 수정(UPDATE) AJAX */
+		UPDATE		ADM2000 A
+		  	  SET		USR_NM				= #usrNm#
+					,	EMAIL				= #email#
+					,	TELNO				= #telno#
+					,	ETC					= #etc#
+					,	DEPT_ID				= #deptId#
+					,	USR_IMG_ID			= #usrImgId#	
+		<isEmpty property="usrPositionCd">  
+					, 	USR_POSITION_CD 	= NULL
+		</isEmpty>
+		<isNotEmpty property="usrPositionCd">
+					, 	USR_POSITION_CD 	= #usrPositionCd# 
+		</isNotEmpty>
+		<isEmpty property="usrDutyCd"> 
+					,	USR_DUTY_CD	 		= NULL	
+		</isEmpty>
+		<isNotEmpty property="usrDutyCd">
+					, 	USR_DUTY_CD 		= #usrDutyCd# 
+		</isNotEmpty>								  			  
+					,	REQ_MAIN_COLOR		= #reqMainColor#
+					,	REQ_FONT_COLOR		= #reqFontColor#
+					,	MODIFY_DTM			= CURRENT_TIMESTAMP
+					,	MODIFY_USR_ID		= #modifyUsrId#
+					,	MODIFY_USR_IP		= #modifyUsrIp#
+		WHERE 		1=1
+			AND		USR_ID 					= #usrId#
+			AND 	LIC_GRP_ID				= #licGrpId#
+	</update>
+	
+	<!-- 비밀번호 수정(UPDATE) AJAX -->
+	<update id="prs3000DAO.updatePrs3001" parameterClass="java.util.Map">
+		/* prs3000DAO.updatePrs3001 - 비밀번호 수정(UPDATE) AJAX */
+		UPDATE		ADM2000 A
+		  	  SET		USR_PW				= #newUsrPw#
+					,	MODIFY_DTM			= CURRENT_TIMESTAMP
+					,	MODIFY_USR_ID		= #modifyUsrId#
+					,	MODIFY_USR_IP		= #modifyUsrIp#
+		WHERE 		1=1
+			 AND	USR_ID 					= #usrId#
+		     AND 	LIC_GRP_ID				= #licGrpId#
+	</update>
+	
+	<!-- 이전 패스워드 조회 -->
+	<select id="prs3000DAO.selectPrs3001PwCheck" parameterClass="java.util.Map" resultClass="java.lang.String">
+		/* prs3000DAO.selectPrs3000PwCheck 이전 pw 조회 */
+		<![CDATA[ 
+			SELECT		A.USR_PW
+			FROM		ADM2000 A
+			WHERE		1=1
+				AND		LIC_GRP_ID 	= #licGrpId#
+				AND		USR_ID 		= #regUsrId#
+ 		]]> 
+	</select>
+	
+	<!-- 기타정보 조회 : 대시보드 표시구분, 메인 프로젝트 -->
+	<select id="prs3000DAO.selectPrs3002" parameterClass="java.util.Map" resultClass="egovMap">
+		/* prs3000DAO.selectPrs3002  사용자의 기타정보를  조회한다. (대시보드 표시구분, 메인 프로젝트) */
+		
+			SELECT	
+					A.DSH_DISPLAY_CD AS POPUP_DSH_DISPLAY_CD
+				,	A.PRJ_ID
+				,	( 
+						SELECT  B.PRJ_NM
+				      	FROM PRJ1000 B
+				       	WHERE 1=1
+				       	AND B.LIC_GRP_ID =  #licGrpId#
+				       	AND B.PRJ_ID =  A.PRJ_ID 
+				    ) AS POP_PRJ_NM
+			FROM ADM2000 A
+			WHERE 1=1
+			AND	LIC_GRP_ID 	= #licGrpId#
+			AND	USR_ID 		= #regUsrId#
+	</select>
+	
+	<!-- 기타정보  수정 : 대시보드 표시구분, 메인 프로젝트-->
+	<update id="prs3000DAO.updatePrs3002" parameterClass="java.util.Map">
+		/* prs3000DAO.updatePrs3002  사용자의 기타정보를 수정한다. (대시보드 표시구분, 메인 프로젝트) */
+		UPDATE	ADM2000 A 
+		SET	
+				A.DSH_DISPLAY_CD = #dshDisplayCd#
+			,	A.PRJ_ID		 = #prjId#
+		WHERE 1=1
+		AND	USR_ID 		= #regUsrId#
+		AND LIC_GRP_ID	= #licGrpId#
+	</update>
+	
+	<!-- 사용자가 1년이내 사용했던 비밀번호 체크  -->
+	<select id="prs3000DAO.selectPrs3001BeforeUsedPwCheck"  parameterClass="java.util.Map"  resultClass="String">
+    	/* prs3000DAO.selectPrs3001BeforeUsedPwCheck 사용자가 1년이내 사용했던 비밀번호 체크  */
+    	<![CDATA[	
+			SELECT	
+				CASE WHEN COUNT(*) > 0 THEN 'Y' ELSE 'N' END AS IS_PW_YN
+			FROM	
+				ADM5200 A
+	      	WHERE 1=1
+		      	AND ( A.LOG_STATE = 'I' OR A.LOG_STATE = 'U' )
+		      	AND A.LOG_TIME BETWEEN  ADD_MONTHS(CURRENT_TIMESTAMP, -12) AND CURRENT_TIMESTAMP
+		]]>
+		<isNotEmpty property="licGrpId"> 	
+		      	AND	A.LIC_GRP_ID 	= #licGrpId#
+		</isNotEmpty> 
+		<![CDATA[
+				AND	A.USR_ID 		= #usrId#
+			    AND A.USR_PW 		= #newUsrPw#
+		]]>
+    </select>
+    
+</sqlMap>

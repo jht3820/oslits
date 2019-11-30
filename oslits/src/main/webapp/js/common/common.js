@@ -14,7 +14,7 @@ $(function(){
 	/*$("head").append("<script src='/js/jquery/jquery.mCustomScrollbar.concat.min.js'></script>");*/
 	$("head").append("<script src='/js/jquery/jquery.scrolltable.js'></script>");
 	$("head").append("<script src='/js/common/layerPopup.js'></script>");	
-	$("head").append("<script src='/js/common/comOslits.js'></script>");		//OSL ITS 공통 스크립트 import
+	$("head").append("<script src='/js/common/comOslops.js'></script>");		//OSL ITS 공통 스크립트 import
 	$("head").append("<script src='/js/axisj/dist/AXJ.min.js'></script>"); 		//AXJ import
 	$("head").append("<script src='/js/axisj/lib/AXSearch.js'></script>");
 	/*$("head").append("<script src='/js/axisj/lib/AXGrid.js'></script>");*/
@@ -26,6 +26,11 @@ $(function(){
 	$("head").append("<script src='/js/jquery/jquery.base64.js'></script>");
 	$("head").append("<script src='/vendors/moment/min/moment.min.js'></script>");
 	$("head").append("<script src='/vendors/bootstrap-daterangepicker/daterangepicker.js'></script>");
+	$("head").append("<script src='/js/jquery/jquery.curvedarrow.js'></script>");
+	$("head").append("<script src='/js/common/oslGuideContents.js'></script>");
+	$("head").append("<script src='/js/common/printThis.js'></script>");
+	$("head").append("<script src='/vendors/select2/js/select2.full.min.js'></script>");
+	$("head").append("<script src='/vendors/select2/js/i18n/ko.js'></script>");
 	
 	// Restore the jquery ajax cache setting
 	jQuery.ajaxSettings.cache = jQueryAjaxSettingsCache;
@@ -42,6 +47,9 @@ $(function(){
          $(this).attr('src', '/images/contents/sample.png');
        });
     });
+   
+   //가이드 상자 호출
+	gfnGuideKeyAction();
 });
 
 //공통 마우스 단축키 등록 이벤트

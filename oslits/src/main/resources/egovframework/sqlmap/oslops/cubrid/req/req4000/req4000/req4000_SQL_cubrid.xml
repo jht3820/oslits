@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="req4000DAO">
+
+	<typeAlias alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+
+	<!-- 요구사항 분류 정보 목록 가져오기 -->
+	<select id="req4000DAO.selectReq4000ReqClsList" parameterClass="java.util.Map" resultClass="egovMap">
+		<![CDATA[ 
+			/* req4000DAO.selectReq4000ReqClsList - 요구사항 분류 정보 목록 가져오기 */
+			SELECT 	
+					ROWNUM RN
+				, 	T.*
+		    FROM
+		    (
+				SELECT	
+						LPAD('ㄴ', LVL*4, ' ') || REQ_CLS_NM AS REQ_CLS_LVL
+					,	PRJ_ID
+					,	SF_PRJ1000_GRP_NM(A.PRJ_ID) AS PRJ_NM
+					,	REQ_CLS_ID
+					,	UPPER_REQ_CLS_ID
+					,	REQ_CLS_NM
+					,	LVL
+					,	ORD
+					,	USE_CD
+					, 	TO_CHAR(REG_DTM, 'YYYY-MM-DD HH24:MI:SS') AS REG_DTM  
+					,	REG_USR_ID
+					,	REG_USR_IP
+					, 	TO_CHAR(MODIFY_DTM, 'YYYY-MM-DD HH24:MI:SS') AS MODIFY_DTM  
+					,	MODIFY_USR_ID
+					,	MODIFY_USR_IP
+				FROM REQ4000 A 
+				WHERE 1=1
+				AND A.PRJ_ID = COALESCE(#selPrjId#, #prjId#)
+			) T
+	        WHERE 1=1
+	        START WITH T.REQ_CLS_ID = (SELECT C.REQ_CLS_ID FROM REQ4000 C WHERE C.UPPER_REQ_CLS_ID IS NULL AND C.LVL = '0' AND C.PRJ_ID = COALESCE(#selPrjId#, #prjId#))
+			CONNECT BY PRIOR T.REQ_CLS_ID = T.UPPER_REQ_CLS_ID
+			ORDER SIBLINGS BY T.ORD ASC, T.REQ_CLS_NM ASC
+ 		]]> 
+	</select>
+	
+	<!-- 요구사항 분류정보 가져오기(단건)-->
+	<select id="req4000DAO.selectReq4000ReqClsInfo" parameterClass="java.util.Map" resultClass="egovMap">
+		<![CDATA[ 
+			/* req4000DAO.selectReq4000ReqClsInfo - 요구사항 분류 정보 가져오기(단건) */
+			SELECT	
+					PRJ_ID
+				,	REQ_CLS_ID
+			    ,	UPPER_REQ_CLS_ID
+			    ,	REQ_CLS_NM
+			    ,	LVL
+			    ,	ORD
+			    ,	USE_CD
+			    , 	TO_CHAR(REG_DTM, 'YYYY-MM-DD HH24:MI:SS') AS REG_DTM 
+			    ,	REG_USR_ID
+			    ,	REG_USR_IP
+			    , 	TO_CHAR(MODIFY_DTM, 'YYYY-MM-DD HH24:MI:SS') AS MODIFY_DTM  
+			    ,	MODIFY_USR_ID
+			    ,	MODIFY_USR_IP
+			FROM REQ4000 A
+			WHERE 1=1
+			AND	A.PRJ_ID = COALESCE(#selPrjId#, #prjId#)
+			AND	A.REQ_CLS_ID = #reqClsId#
+ 		]]> 
+	</select>
+	
+	<!-- 요구사항 분류 정보 등록 -->
+	<insert id="req4000DAO.insertReq4000ReqClsInfo" parameterClass="java.util.Map">
+		<selectKey resultClass="java.lang.String" keyProperty="newReqClsId">
+		<![CDATA[
+			/* req4000DAO.insertReq4000ReqClsInfo - 신규 요구사항 분류 ID 발급 */ 
+			SELECT	COALESCE( 
+							SUBSTR(NEW_REQ_CLS_ID, 1, 11) || LPAD( (TO_NUMBER(SUBSTR(NEW_REQ_CLS_ID, 12, 5)) + 1) , 5, '0')
+						,	'CLS' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDD') || '00001'
+            		) AS NEW_REQ_CLS_ID 
+			FROM	(
+			            SELECT	MAX(REQ_CLS_ID)  AS NEW_REQ_CLS_ID
+			            FROM	REQ4000 A
+			            WHERE	1=1
+                        AND		A.PRJ_ID = COALESCE(#selPrjId#, #prjId#)
+			            AND		A.REQ_CLS_ID LIKE 'CLS' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDD') || '%'
+					)
+		]]>
+		</selectKey>
+		<![CDATA[ 
+			/* req4000DAO.insertReq4000ReqClsInfo - 요구사항 분류 정보 등록  */
+			INSERT INTO REQ4000
+	        (
+	            PRJ_ID,			REQ_CLS_ID,			UPPER_REQ_CLS_ID,	REQ_CLS_NM,
+	            LVL,			ORD,				USE_CD,				REG_DTM,
+	            REG_USR_ID,		REG_USR_IP,			MODIFY_DTM,			MODIFY_USR_ID,
+	            MODIFY_USR_IP
+	        )
+	        VALUES
+	        (
+	        	#selPrjId#,		#newReqClsId#,		#reqClsId#,			COALESCE(#newReqClsNm#,'분류명'),
+	            #lvl# + 1,		(SELECT COALESCE(MAX(ORD), 0) + 1 FROM REQ4000 A WHERE 1=1 AND A.UPPER_REQ_CLS_ID = #reqClsId#),			
+	            '01',			CURRENT_TIMESTAMP,
+	            #regUsrId#,		#regUsrIp#,			CURRENT_TIMESTAMP,			#modifyUsrId#,
+	            #modifyUsrIp#
+	        )
+		]]>
+	</insert>
+	
+	<!-- 요구사항 분류 정보 삭제 가능여부 체크-->
+	<select id="req4000DAO.selectReq4000DelPosibleYn" parameterClass="java.util.Map" resultClass="egovMap">
+		<![CDATA[ 
+			/* req4000DAO.selectReq4000DelPosibleYn - 요구사항 분류 정보 삭제 가능여부 체크 */
+			SELECT	CASE WHEN COUNT(*) > 0 THEN 'N' ELSE 'Y' END AS DEL_YN
+	        FROM REQ4100 A
+	        WHERE 1=1
+	        AND	A.PRJ_ID = #prjId#
+	        AND	A.REQ_CLS_ID = #reqClsId#
+ 		]]> 
+	</select>
+	
+	<!-- 선택한 분류 정보 삭제 -->
+	<delete id="req4000DAO.deleteReq4000ReqClsInfo" parameterClass="java.util.Map">
+	<![CDATA[
+		/* req4000DAO.deleteReq4000ReqClsInfo - 선택한 분류 정보 삭제 */
+		DELETE	REQ4000 A
+        WHERE	1=1
+        AND		A.PRJ_ID = #prjId#
+        AND		A.REQ_CLS_ID = #reqClsId#
+	]]>
+	</delete>
+	
+	<!-- 선택한 분류 정보 수정 -->
+	<update id="req4000DAO.updateReq4000ReqClsInfo" parameterClass="java.util.Map">
+	<![CDATA[
+		/* req4000DAO.updateReq4000ReqClsInfo - 선택한 분류 정보 수정 */
+		UPDATE	REQ4000 A
+        SET		A.UPPER_REQ_CLS_ID	= #upperReqClsId#
+        	,	A.REQ_CLS_NM		= #reqClsNm#
+            ,	A.LVL				= #lvl#
+            ,	A.ORD				= #ord#
+            ,	A.USE_CD			= #useCd#
+            ,	A.MODIFY_DTM		= CURRENT_TIMESTAMP
+            ,	A.MODIFY_USR_ID		= #modifyUsrId#
+            ,	A.MODIFY_USR_IP		= #modifyUsrIp#
+        WHERE	1=1
+        AND		A.PRJ_ID = COALESCE(#selPrjId#, #prjId#)
+        AND		A.REQ_CLS_ID = #reqClsId#
+	]]>
+	</update>
+	
+	
+	<!-- [프로젝트 마법사] 요구사항 분류 정보 등록 -->
+	<insert id="req4000DAO.insertReq4000WizardReqClsInfo" parameterClass="java.util.Map">
+		<![CDATA[ 
+			/* req4000DAO.insertReq4000WizardReqClsInfo - [프로젝트 마법사] 요구사항 분류 정보 등록  */
+			INSERT INTO REQ4000
+	        (
+	            PRJ_ID,			REQ_CLS_ID,			UPPER_REQ_CLS_ID,	REQ_CLS_NM,
+	            LVL,			ORD,				USE_CD,				REG_DTM,
+	            REG_USR_ID,		REG_USR_IP,			MODIFY_DTM,			MODIFY_USR_ID,
+	            MODIFY_USR_IP
+	        )
+	        VALUES
+	        (
+	        	#prjId#,		#reqClsId#,			#upperReqClsId#,			#reqClsNm#,
+	            #lvl#,			#ord#,				#useCd#,			CURRENT_TIMESTAMP,
+	            #regUsrId#,		#regUsrIp#,			CURRENT_TIMESTAMP,			#modifyUsrId#,
+	            #modifyUsrIp#
+	        )
+		]]>
+	</insert>
+</sqlMap>

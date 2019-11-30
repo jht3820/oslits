@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="req2000DAO">
+	 <!--  in / out class define  -->
+	<typeAlias alias="egovMap"	 	type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+
+	<!-- 요구사항 코멘트 목록 조회 -->
+	<select id="req2000DAO.selectReq2000ReqCommentListAjax" parameterClass="java.util.Map"  resultClass="egovMap">
+		/* req2000DAO.selectReq2000ReqCommentListAjax - 요구사항 코멘트 목록 조회 */
+		SELECT
+			T1.PRJ_ID
+        	,	T1.REQ_ID
+            ,	T1.REQ_CMNT_SEQ
+            ,	T1.REQ_CMNT
+            ,	T1.CMNT_ALL_CNT
+            ,	T1.REG_DTM
+            ,	T1.REG_USR_ID
+            ,	SF_ADM2000_USR_INFO(T1.REG_USR_ID, 1) AS REG_USR_NM
+            ,	T1.REG_USR_IP
+            ,	T1.MODIFY_DTM
+            ,	T1.MODIFY_USR_ID
+            ,	T1.MODIFY_USR_IP
+		FROM
+		(
+			SELECT	A.PRJ_ID
+	        	,	A.REQ_ID
+	            ,	A.REQ_CMNT_SEQ
+	            ,	A.REQ_CMNT
+	            ,	COUNT(*) OVER() AS CMNT_ALL_CNT
+	            ,	TO_CHAR(A.REG_DTM, 'YYYY-MM-DD HH24:MI:SS') AS REG_DTM
+	            ,	A.REG_USR_ID
+	            ,	A.REG_USR_IP
+	            ,	TO_CHAR(A.MODIFY_DTM, 'YYYY-MM-DD HH24:MI:SS') AS MODIFY_DTM
+	            ,	A.MODIFY_USR_ID
+	            ,	A.MODIFY_USR_IP
+	        FROM	REQ4300 A
+	        WHERE	1=1
+	        <isNotEmpty property="popupPrjId">
+				AND		A.PRJ_ID = #popupPrjId#
+			</isNotEmpty>
+			<isEmpty property="popupPrjId">
+				AND		A.PRJ_ID = #selPrjId#
+			</isEmpty>
+	        AND		A.REQ_ID = #reqId#
+        ) T1
+        ORDER BY T1.REQ_CMNT_SEQ DESC
+	</select>
+	
+	<!-- 요구사항 코멘트 등록 -->
+	<insert id="req2000DAO.insertReq2000ReqCommentInfo" parameterClass="java.util.Map">
+		<selectKey resultClass="java.lang.String" keyProperty="newReqCmntSeq">
+		<![CDATA[
+			/* req2000DAO.insertReq2000ReqCommentInfo - 신규 요구사항 코멘트 등록(새로운 코멘트 순번 따기)*/ 
+			SELECT	COALESCE(MAX(REQ_CMNT_SEQ) + 1, 1) AS REQ_CMNT_SEQ
+	        FROM	REQ4300 A
+	        WHERE	1=1
+	        AND		A.PRJ_ID = #prjId#
+	        AND		A.REQ_ID = #reqId#
+		]]>
+		</selectKey>
+		
+		<![CDATA[ 
+			/* req2000DAO.insertReq2000ReqCommentInfo - 신규 요구사항 코멘트 등록 */ 
+			INSERT INTO REQ4300
+        (
+        	PRJ_ID,			REQ_ID,			REQ_CMNT_SEQ,		REQ_CMNT,
+            REG_DTM,		REG_USR_ID,		REG_USR_IP,			MODIFY_DTM,
+            MODIFY_USR_ID,	MODIFY_USR_IP	
+        )
+        VALUES
+        (
+        	#prjId#,				#reqId#,		#newReqCmntSeq#,	#reqCmnt#,
+            CURRENT_TIMESTAMP,		#regUsrId#,		#regUsrIp#,			CURRENT_TIMESTAMP,
+            #modifyUsrId#,			#modifyUsrIp#
+        )
+		]]>
+	</insert>
+</sqlMap>
