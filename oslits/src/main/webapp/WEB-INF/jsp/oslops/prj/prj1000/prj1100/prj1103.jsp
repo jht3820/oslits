@@ -10,7 +10,6 @@ var processId = "${processId}";
 var flowId = "${flowId}";
 var type = "${type}";
 
-//공통코드 목록
 $(document).ready(function() {
 	/* 	
 	*	공통코드 가져올때 한번 트랜잭션으로 여러 코드 가져와서 셀렉트박스에 세팅하는 함수(사용 권장)
@@ -316,7 +315,7 @@ function fnItemCodeChg(thisObj){
 		$("#itemLength").attr("disabled","disabled");
 		
 		//공통코드 값 열기
-		$("#itemCommonCode").removeAttr("disabled");	
+		$("#itemCommonCode").removeAttr("disabled");
 	}
 	//첨부파일
 	else if(thisObj.value == "03"){
@@ -326,9 +325,10 @@ function fnItemCodeChg(thisObj){
 		//첨부파일 항목 타입은 타입, 길이 선택 불가
 		$("#itemType").attr("disabled","disabled");
 		$("#itemLength").attr("disabled","disabled");
+		$("#itemCommonCode").attr("disabled","disabled");
 	}
 	//담당자, 분류
-	else if(thisObj.value == "04" || thisObj.value == "05"){
+	else if(thisObj.value == "04" || thisObj.value == "05" || thisObj.value == "06"){
 		//타입, 길이 선택 불가
 		$("#itemType").attr("disabled","disabled");
 		$("#itemLength").attr("disabled","disabled");
@@ -340,6 +340,15 @@ function fnItemCodeChg(thisObj){
 function fnItemTypeChg(thisObj){
 	//text, textarea아닌 경우 길이제한 disabled
 	if(thisObj.value != "01" && thisObj.value != "02"){
+		//체크박스인경우 필수 체크 disabled
+		if(thisObj.value == "03"){
+			//체크 풀기
+			$("#itemEssential")[0].checked = false;
+			$("#itemEssential").attr("disabled","disabled");
+		}else{
+			//disblaed 제거
+			$("#itemEssential").removeAttr("disabled");
+		}
 		$("#itemLength").attr("disabled","disabled");
 		$("#itemLength").val('');
 	}else{
@@ -442,7 +451,7 @@ function fnItemRowChg(thisObj){
 			</div>
 		</div>
 		<div class="flw_btn_box">
-			<div class="button_complete" id="btn_flowOpt_save"><i class="fa fa-times"></i>&nbsp;<span class="flowOpt_action_type">추가</span></div>
+			<div class="button_complete" id="btn_flowOpt_save"><i class="fa fa-save"></i>&nbsp;<span class="flowOpt_action_type">추가</span></div>
 			<div class="button_complete" id="btn_close_flowClose"><i class="fa fa-times"></i>&nbsp;닫기</div>
 		</div>
 	</div>
