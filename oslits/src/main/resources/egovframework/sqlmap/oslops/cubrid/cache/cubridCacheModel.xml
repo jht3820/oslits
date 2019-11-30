@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="commonCachemodel">
+	
+	
+	<!-- 1) cache 적용대상 egovframework\sqlmap\oslops\cmm\cmm9000\cmm9000\cmm9000DAO_SQL_Oracle.xml -->
+	<!-- 
+	<cacheModel id="cmm9000" type="LRU" readOnly="true" serialize="false">
+	  	<flushInterval minutes="180"/>
+	  	<property name="cache-size" value="100" /> 
+	  	 
+	  	<flushOnExecute statement="emp.insertEmp"/>
+	  	<flushOnExecute statement="emp.deleteEmp"/>
+	  	 
+	</cacheModel>
+	 -->
+	
+	<cacheModel id="cmm9000" type="MEMORY" readOnly="true" serialize="false">
+      <flushInterval hours="3" />
+      <!-- 
+      <flushOnExecute statement="insert" />
+       -->
+      <property name="reference-type" value="WEAK" />
+   </cacheModel>
+   
+   
+	
+</sqlMap>

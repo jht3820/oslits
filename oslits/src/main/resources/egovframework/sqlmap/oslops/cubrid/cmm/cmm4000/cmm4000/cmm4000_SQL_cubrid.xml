@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="cmm4000DAO">
+
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="loginVO" type="kr.opensoftlab.oslops.com.vo.LoginVO"/>
+	
+	<!-- 로그인 유저 정보 조회시 사용할 resuleMap 설정 -->
+	<resultMap id="rtnLoginVO" class="kr.opensoftlab.oslops.com.vo.LoginVO">
+		<result property="usrId" column="USR_ID"/>
+		<result property="licGrpId" column="LIC_GRP_ID"/>
+		<result property="usrPw" column="USR_PW"/>
+		<result property="usrNm" column="USR_NM"/>
+		<result property="email" column="EMAIL"/>
+		<result property="telno" column="TELNO"/>
+		<result property="etc" column="ETC"/>
+		<result property="wkStTm" column="WK_ST_TM"/>
+		<result property="wkEdTm" column="WK_ED_TM"/>
+		<result property="usrImgId" column="USR_IMG_ID"/>
+		<result property="useCd" column="USE_CD"/>
+		<result property="reqMainColor" column="REQ_MAIN_COLOR" />
+		<result property="reqFontColor" column="REQ_FONT_COLOR" />
+		<result property="regDtm" column="REG_DTM"/>
+		<result property="regUsrId" column="REG_USR_ID"/>
+		<result property="regUsrIp" column="REG_USR_IP"/>
+		<result property="modifyDtm" column="MODIFY_DTM"/>
+		<result property="modifyUsrId" column="MODIFY_USR_ID"/>
+		<result property="modifyUsrIp" column="MODIFY_USR_IP"/>
+		<result property="pwFailCnt" column="PW_FAIL_CNT"/>
+		<result property="block" column="BLOCK"/>
+		<result property="prjId" column="PRJ_ID"/>
+		<result property="admYn" column="ADM_YN"/>
+		<result property="iniYn" column="INI_YN"/>
+		<result property="modMin" column="MOD_MIN"/>
+		
+	</resultMap>
+	
+	<!-- 라이선스 정보 조회시 사용할 resuleMap 설정 -->
+	<resultMap id="rtnLicVO" class="kr.opensoftlab.oslops.com.vo.LicVO">
+		<result property="licGrpId" column="LIC_GRP_ID"/>
+		<result property="licNo" column="LIC_NO"/>
+		<result property="licNm" column="LIC_NM"/>
+		<result property="licStartDt" column="LIC_START_DT"/>
+		<result property="licEndDt" column="LIC_END_DT"/>
+		<result property="licGbCd" column="LIC_END_DT"/>
+		<result property="permitUsrCnt" column="PERMIT_USR_CNT"/>
+		<result property="regDtm" column="REG_DTM"/>
+		<result property="regUsrId" column="REG_USR_ID"/>
+		<result property="regUsrIp" column="REG_USR_IP"/>
+		<result property="modifyDtm" column="MODIFY_DTM"/>
+		<result property="modifyUsrId" column="MODIFY_USR_ID"/>
+		<result property="modifyUsrIp" column="MODIFY_USR_IP"/>
+	</resultMap>
+
+	<!-- 로그인할 사용자 정보 및 패스워드 체크. -->
+	<!-- 
+		초기화 시간 계산시 millisecond 값으로 나오는 결과값을 분으로 변경한다. 정수형으로 계산할 경우 소수점이 잘리므로
+		실수형으로 계산한 뒤 반올림한다. 그 후 소수점을 절삭하기 위해 CAST로 정수형으로 변환한다.
+	 -->
+	<select id="cmm4000DAO.selectCmm4000LoginAction" parameterClass="loginVO" resultMap="rtnLoginVO">
+		<![CDATA[ 
+			/* cmm4000DAO.selectCmm4000LoginAction - 로그인할 사용자 정보 및 패스워드 체크(단건)  */
+			SELECT	A.USR_ID
+				,	A.LIC_GRP_ID
+			    ,	A.USR_PW
+			    ,	A.USR_NM
+			    ,	A.EMAIL
+			    ,	A.TELNO
+			    ,	A.ETC
+			    ,	A.WK_ST_TM
+                ,	A.WK_ED_TM
+                ,	A.USR_IMG_ID
+			    ,	A.USE_CD
+			    ,	A.REQ_MAIN_COLOR
+			    ,	A.REQ_FONT_COLOR
+			    ,	A.REG_DTM
+			    ,	A.REG_USR_ID
+			    ,	A.REG_USR_IP
+			    ,	A.MODIFY_DTM
+			    ,	A.MODIFY_USR_ID
+			    ,	A.MODIFY_USR_IP
+			    ,   A.PW_FAIL_CNT
+			    ,   A.BLOCK
+			    ,   (SELECT MAX(PRJ_ID) FROM ADM1300 B WHERE A.PRJ_ID = B.PRJ_ID AND A.USR_ID = B.USR_ID) AS PRJ_ID
+			    ,   COALESCE(A.ADM_YN,'N') AS ADM_YN
+			    ,   COALESCE(A.INI_YN,'N') AS INI_YN
+			    ,	IFNULL( CAST ( ROUND ( (CURRENT_TIMESTAMP - A.INI_DTM) / (1000 * 60.0) , 0 ) AS INTEGER) , 0) AS MOD_MIN
+			FROM	ADM2000 A
+			WHERE	1=1
+			AND		USR_ID = #usrId#
+ 		]]> 
+		ORDER BY A.LIC_GRP_ID
+	</select>	
+	
+	<!-- 로그인할 사용자 정보 및 패스워드 체크. -->
+	<select id="cmm4000DAO.selectCmm4000SuperLoginAction" parameterClass="loginVO" resultMap="rtnLoginVO">
+		<![CDATA[ 
+			/* cmm4000DAO.selectCmm4000SuperLoginAction - 로그인할 사용자 정보 및 패스워드 체크(단건)  */
+			SELECT	A.USR_ID
+				,	A.LIC_GRP_ID
+			    ,	A.USR_PW
+			    ,	A.USR_NM
+			    ,	A.EMAIL
+			    ,	A.TELNO
+			    ,	A.ETC
+			    ,	A.WK_ST_TM
+                ,	A.WK_ED_TM
+                ,	A.USR_IMG_ID
+			    ,	A.USE_CD
+			    ,	A.REQ_MAIN_COLOR
+			    ,	A.REQ_FONT_COLOR
+			    ,	A.REG_DTM
+			    ,	A.REG_USR_ID
+			    ,	A.REG_USR_IP
+			    ,	A.MODIFY_DTM
+			    ,	A.MODIFY_USR_ID
+			    ,	A.MODIFY_USR_IP
+			FROM	ADM2000 A
+			WHERE	1=1
+			AND		USR_ID = #usrId#
+ 		]]> 
+		ORDER BY A.LIC_GRP_ID
+	</select>	
+	
+	<!-- 로그인한 사용자 라이선스 정보. -->
+	<select id="cmm4000DAO.selectCmm4000LicInfo" parameterClass="loginVO" resultMap="rtnLicVO">
+		<![CDATA[ 
+			/* cmm4000DAO.selectCmm4000LicInfo - 로그인한 사용자 라이선스 정보(단건)  */
+			 SELECT	LIC_GRP_ID
+            	,	LIC_NO
+                ,	LIC_NM
+                ,	LIC_START_DT
+                ,	LIC_END_DT
+                ,	LIC_GB_CD
+                ,	PERMIT_USR_CNT
+                ,	A.REG_DTM
+			    ,	A.REG_USR_ID
+			    ,	A.REG_USR_IP
+			    ,	A.MODIFY_DTM
+			    ,	A.MODIFY_USR_ID
+			    ,	A.MODIFY_USR_IP
+            FROM	ADM3000 A
+            WHERE	(LIC_GRP_ID, LIC_NO) = (
+            									SELECT 	A.LIC_GRP_ID
+                                                	, 	SF_ADM3000_LIC_INFO(A.LIC_GRP_ID, '1') 
+                                                FROM 	ADM2000 A 
+                                                WHERE 	A.USR_ID = #usrId#
+            								)
+ 		]]> 
+	</select>
+
+	<!-- 로그인한 사용자 프로젝트 존재 여부. -->
+	<select id="cmm4000DAO.selectCmm4000PrjChk" parameterClass="loginVO" resultClass="egovMap">
+		<![CDATA[ 
+			/* cmm4000DAO.selectCmm4000PrjChk - 로그인한 사용자 프로젝트 존재 여부 정보(단건)  */
+			SELECT	CASE WHEN COUNT(*) > 0 THEN 'Y' ELSE 'N' END AS IS_PRJ_YN
+            FROM	PRJ1000 A
+            WHERE	1=1
+            AND		A.LIC_GRP_ID = #licGrpId#
+            AND		A.PRJ_GRP_CD = '02'
+            AND		A.USE_CD = '01'
+ 		]]> 
+	</select>
+
+    <!-- 사용자 프로젝트 권한 리스트 -->
+    <select id="cmm4000DAO.selectCmm4000UsrPrjAuthList" parameterClass="java.util.Map" resultClass="egovMap">
+		<![CDATA[ 
+        	/* cmm4000DAO.selectCmm4000UsrPrjAuthList - 사용자 프로젝트의 권한 목록 */
+        	SELECT	A.PRJ_ID
+        		, 	A.AUTH_GRP_ID
+        		,	A.USR_ID
+        		,	B.AUTH_GRP_NM
+        		, 	B.AUTH_GRP_DESC
+        		, 	B.ORD
+        		,	B.CREATE_DT
+        		,	SUBSTR(A.AUTH_GRP_ID, 1, 2) AS MAIN_AUTH_GRP_ID
+        		,   B.USR_TYP
+            FROM	(SELECT * FROM ADM1300 Z WHERE Z.USR_ID = #usrId#) A
+            INNER JOIN (SELECT * FROM ADM1100 Z WHERE Z.PRJ_ID = #prjId#) B
+            ON ( A.PRJ_ID = B.PRJ_ID AND A.AUTH_GRP_ID = B.AUTH_GRP_ID)
+            WHERE	1=1
+            AND		B.USE_CD = '01'
+            ORDER BY B.ORD ASC		
+        ]]> 
+    </select>
+    
+    <!-- 권한있는 메뉴 정보 리스트 -->
+    <select id="cmm4000DAO.selectCmm4000MenuList" parameterClass="java.util.Map" resultClass="egovMap">
+		<![CDATA[ 
+        	/* cmm4000DAO.selectCmm4000MenuList - 권한있는 메뉴 정보 리스트 */
+        	SELECT LPAD('ㄴ', LVL*4, ' ') || B.MENU_NM AS MENU_LVL
+				,	B.MENU_NM
+			    ,	B.LIC_GRP_ID
+			    ,	A.AUTH_GRP_ID
+			    ,	B.MENU_ID
+			    ,	B.UPPER_MENU_ID
+			    ,	SF_ADM1000_MENU_NM(B.LIC_GRP_ID, B.MENU_ID, '2') AS UP_MENU_NM
+			    ,	(SELECT	UPPER_MENU_ID FROM ADM1000 Z WHERE Z.LIC_GRP_ID = B.LIC_GRP_ID AND Z.MENU_ID = B.UPPER_MENU_ID) AS TWO_UPPER_MENU_ID
+			    ,	SF_ADM1000_MENU_NM(B.LIC_GRP_ID, B.MENU_ID, '3') AS UPUP_MENU_NM
+			    ,	LVL
+			    ,	B.ORD
+			    ,	B.MENU_DESC
+			    ,	B.MENU_PATH
+			    ,	B.MENU_TYPE_CD
+			    ,	B.MENU_URL
+			    ,	B.MENU_IMG_URL
+			    ,	B.MODULE_TYPE
+			    ,	COALESCE(A.MAIN_YN,'N') as MAIN_YN
+			    ,	A.ACCESS_YN
+			    ,	A.SELECT_YN
+			    ,	A.REG_YN
+			    ,	A.MODIFY_YN
+			    ,	A.DEL_YN
+			    ,	A.EXCEL_YN
+			    ,	A.PRINT_YN
+			    ,	A.USE_CD
+			    , ( SELECT ACCEPT_USE_CD FROM ADM1100 
+		      						WHERE 1=1 
+		      						AND AUTH_GRP_ID = #authGrpId# 
+		      						AND LIC_GRP_ID = #licGrpId# 
+		      						AND PRJ_ID = #prjId#  ) AS ACCEPT_USE_CD
+			FROM
+			(
+				SELECT 	* 
+	            FROM 	ADM1200 
+	            WHERE 	1=1
+	            AND		LIC_GRP_ID = #licGrpId#
+	            AND 	PRJ_ID = #prjId#
+	            AND  	ACCESS_YN = 'Y' 
+	            AND 	AUTH_GRP_ID = #authGrpId#
+			) A
+			INNER JOIN
+			(
+				SELECT *
+				FROM ADM1000
+				WHERE LIC_GRP_ID = #licGrpId#
+				AND USE_CD = '01'
+				]]> 
+				<isEqual property="adminYn" compareValue="N">
+				<![CDATA[ 
+				 			AND MENU_ID < '000900000000'
+				]]> 				  			
+				</isEqual>
+					 
+				<![CDATA[ 
+			) B
+			ON (A.LIC_GRP_ID = B.LIC_GRP_ID AND A.MENU_ID = B.MENU_ID)
+			INNER JOIN
+			(
+			SELECT *
+			FROM ADM1300
+			WHERE USR_ID = #usrId#
+			) C
+			ON (A.PRJ_ID = C.PRJ_ID AND A.AUTH_GRP_ID = C.AUTH_GRP_ID)
+			START WITH B.MENU_ID = '000'
+			CONNECT BY PRIOR B.MENU_ID = B.UPPER_MENU_ID
+			ORDER SIBLINGS BY ORD
+        ]]> 
+    </select>    
+    	<!-- 이름과 이메일로 사용자 아이디 값 조회 -->
+	<select id="cmm4000DAO.selectCmm4000NameEmailChk" parameterClass="java.util.Map" resultClass="String">
+		<![CDATA[ 
+			/* cmm4000DAO.selectCmm4000NameEmailChk - 이름과 이메일 존재 여부 조회(아이디 값 리턴)  */
+			SELECT	A.USR_ID
+			FROM	ADM2000 A
+			WHERE	1=1
+			AND		USR_NM = #usrNm#
+			AND		EMAIL = #email#
+ 		]]> 
+	</select>
+	
+	<!-- 아이디와 이메일로 사용자 아이디 값 조회 -->
+	<select id="cmm4000DAO.selectCmm4000IdEmailChk" parameterClass="java.util.Map" resultClass="String">
+		<![CDATA[ 
+			/* cmm4000DAO.selectCmm4000NameEmailChk - 아이디와 이메일 존재 여부 조회 (사용자 사용 유무 값 리턴)  */
+			SELECT	A.USE_CD
+			FROM	ADM2000 A
+			WHERE	1=1
+			AND		USR_Id = #usrId#
+			AND		EMAIL = #email#
+ 		]]> 
+	</select>
+	
+	<update id="cmm4000DAO.updateCmm4000NewPw" parameterClass="java.util.Map">
+		<![CDATA[ 
+		 UPDATE ADM2000 
+		  SET
+		 		PW_FAIL_CNT=	#newPwIn#
+		 	,	MODIFY_DTM      	= CURRENT_TIMESTAMP
+            ,	MODIFY_USR_ID   	= #modifyUsrId#
+            ,	MODIFY_USR_IP   	= #modifyUsrIp#
+		  WHERE
+		  	USR_ID= #usrId#
+		  ]]>
+	</update>
+	
+	<!-- 사용자 비밀번호 실패 횟수 초기화 -->
+	<update id="cmm4000DAO.updateCmm4000LoginCnt" parameterClass="loginVO">
+		<![CDATA[ 
+		   UPDATE ADM2000 
+		  SET
+		 		PW_FAIL_CNT         = #pwFailCnt#
+		 	,	BLOCK               = #block#
+		 	,	MODIFY_DTM      	= CURRENT_TIMESTAMP
+            ,	MODIFY_USR_ID   	= #modifyUsrId#
+            ,	MODIFY_USR_IP   	= #modifyUsrIp#
+		  WHERE
+		  	USR_ID= #usrId#	
+		  ]]>
+	</update>
+	
+	<!-- 사용자 최근 로그인 일시 조회(최근 접속일시에 사용) -->
+	<select id="cmm4000DAO.selectCmm4000RecentLoginDate" parameterClass="loginVO" resultClass="String">
+		<![CDATA[ 
+			/* cmm4000DAO.selectCmm4000RecentLoginDate - 사용자 최근 로그인 일시 조회(최근 접속일시에 사용)  */
+			SELECT
+		  		IFNULL(TO_CHAR(A.REC_LOGIN_DTM , 'YYYY-MM-DD HH24:MI:SS') , ' ') AS REC_LOGIN_DTM 
+		 	FROM 
+		 		ADM2000 A
+		 	WHERE 1=1
+		 		AND A.LIC_GRP_ID 	= #licGrpId#
+		 		AND A.USR_ID		= #usrId#	 
+		  ]]>
+	</select>
+	
+	<!-- 사용자 로그인 일시 갱신 -->
+	<update id="cmm4000DAO.updateCmm4000RecentLoginDate" parameterClass="loginVO">
+		<![CDATA[ 
+			/* cmm4000DAO.updateCmm4000RecentLoginDate - 사용자 로그인 일시 갱신  */
+			  UPDATE ADM2000 
+			  SET
+	            	REC_LOGIN_DTM   	= CURRENT_TIMESTAMP
+			  WHERE
+			  	USR_ID= #usrId#	
+		  ]]>
+	</update>
+	
+	<!-- 로그인 하지 않은 기간이 3개월 이상인지 체크 -->
+	<select id="cmm4000DAO.selectCmm4000LastLoginChk" parameterClass="loginVO" resultClass="String">
+		<![CDATA[ 
+			/* cmm4000DAO.selectCmm4000LastLoginChk - 로그인 하지 않은 기간이 3개월 이상인지 체크  */
+			SELECT 
+             		CASE 
+			          	WHEN MONTHS_BETWEEN( CURRENT_TIMESTAMP, COALESCE(A.REC_LOGIN_DTM, CURRENT_TIMESTAMP) ) >= 3
+			      		THEN 'Y' 
+			          	ELSE 'N' 
+			        END	AS LOGIN_EXPR_YN
+			FROM ADM2000 A
+			WHERE 1=1
+					AND A.USR_ID 	= #usrId#
+ 		]]> 
+	</select>
+	
+	<select id="cmm4000DAO.selectCmm4000LoginMainMenuList" parameterClass="java.util.Map" resultClass="egovMap">
+		<![CDATA[ 
+			/* cmm4000DAO.selectCmm4000LoginMainMenuList - 로그인 후 메인 메뉴 조회 */
+			SELECT * 
+			FROM 
+			(
+	      		SELECT	  A.MENU_URL 
+	      				, A.MENU_NM
+	      				, A.MENU_ID  
+	      				, B.MAIN_YN 
+	      				, B.ACCESS_YN
+	      				, B.SELECT_YN
+	      				, B.REG_YN
+	      				, B.MODIFY_YN
+	      				, B.DEL_YN
+	      				, B.EXCEL_YN
+	      				, B.PRINT_YN
+	      				, ( SELECT ACCEPT_USE_CD FROM ADM1100 
+	      						WHERE 1=1 
+	      						AND AUTH_GRP_ID = #authGrpId# 
+	      						AND LIC_GRP_ID = #licGrpId# 
+	      						AND PRJ_ID = #prjId#  ) AS ACCEPT_USE_CD
+				FROM ADM1000 A
+				LEFT JOIN
+				(
+					SELECT  LIC_GRP_ID
+					 , MENU_ID
+					 , MAIN_YN
+					 , ACCESS_YN
+					 , SELECT_YN
+					 , REG_YN
+					 , MODIFY_YN
+					 , DEL_YN
+					 , EXCEL_YN
+					 , PRINT_YN
+	            	FROM ADM1200
+	            	WHERE 1=1
+	            	AND AUTH_GRP_ID = #authGrpId#
+	            	AND LIC_GRP_ID = #licGrpId#
+	            	AND PRJ_ID = #prjId# 
+	            	AND ACCESS_YN = 'Y'
+				) B
+				ON (A.LIC_GRP_ID = B.LIC_GRP_ID AND	A.MENU_ID = B.MENU_ID)
+				WHERE	1=1
+				AND	A.LIC_GRP_ID =  #licGrpId#
+				AND A.USE_CD = '01'
+				AND	A.LVL = 3
+				AND A.MENU_TYPE_CD= '02'
+				ORDER BY ORD ASC
+				LIMIT 1
+			) 
+      		UNION 
+          	SELECT A.MENU_URL
+				, A.MENU_NM
+				, A.MENU_ID 
+				, B.MAIN_YN
+				, B.ACCESS_YN
+	      		, B.SELECT_YN
+	      		, B.REG_YN
+	      		, B.MODIFY_YN
+	      		, B.DEL_YN
+	      		, B.EXCEL_YN
+	      		, B.PRINT_YN
+	      		, ( SELECT ACCEPT_USE_CD FROM ADM1100 
+						WHERE 1=1 
+    					AND AUTH_GRP_ID = #authGrpId# 
+    					AND LIC_GRP_ID = #licGrpId# 
+    					AND PRJ_ID = #prjId#  ) AS ACCEPT_USE_CD 
+			FROM ADM1000 A
+			LEFT JOIN
+			(
+				SELECT  LIC_GRP_ID
+						, MENU_ID
+						, MAIN_YN 
+	            	    , ACCESS_YN
+	            	    , SELECT_YN
+	            	    , REG_YN
+	            	    , MODIFY_YN
+	            	    , DEL_YN
+	            	    , EXCEL_YN
+	            	    , PRINT_YN
+            	    FROM ADM1200
+            	    WHERE 1=1
+            	    AND AUTH_GRP_ID = #authGrpId#
+            	    AND LIC_GRP_ID = #licGrpId#
+            	    AND PRJ_ID = #prjId# 
+            	    AND ACCESS_YN = 'Y'
+            ) B
+            ON( A.LIC_GRP_ID = B.LIC_GRP_ID AND A.MENU_ID = B.MENU_ID)
+            WHERE	1=1
+			AND	A.LIC_GRP_ID =  #licGrpId#
+            AND	A.USE_CD = '01'
+            AND	A.LVL = 3
+            AND    B.MAIN_YN = 'Y'
+            AND   A.MENU_TYPE_CD= '02'
+ 		]]> 
+	</select>
+	
+	
+	<!-- 로그인한 사용자 정보 조회 -->
+	<select id="cmm4000DAO.selectCmm4000LoginUsrInfo" parameterClass="loginVO" resultClass="egovMap">
+		<![CDATA[ 
+			/* cmm4000DAO.selectCmm4000LoginUsrInfo - 로그인한 사용자 정보 조회  */
+			SELECT 
+		  				A.USR_ID
+        			,	A.USR_NM
+        			,	SF_ADM7000_DEPT_NM(#licGrpId#, A.DEPT_ID, '1') AS USR_DEPT_NM  
+			FROM 
+					ADM2000 A
+			WHERE 1=1
+			AND A.LIC_GRP_ID 	= #licGrpId#
+			AND A.USR_ID 		= #usrId#
+		  ]]>
+	</select>
+	
+		<!-- 로그인한 사용자 IP정보 조회 -->
+	<select id="cmm4000DAO.selectCmm4000AccessIpInfo" parameterClass="loginVO" resultClass="egovMap">
+		<![CDATA[ 
+			/* cmm4000DAO.selectCmm4000AccessIpInfo - 로그인한 사용자 정보 조회  */
+			SELECT ROWNUM RN, A.*
+    		FROM
+    		(
+				SELECT T1.LOGIN_IP
+				FROM ADM5000 T1
+				INNER JOIN	ADM2000 T2
+				ON ( T1.LOGIN_USR_ID = T2.USR_ID AND 	T1.LIC_GRP_ID = T2.LIC_GRP_ID  )
+				WHERE 1=1
+				AND	T1.LIC_GRP_ID = #licGrpId#
+				AND	T1.LOGIN_USR_ID = #usrId#
+				ORDER BY  T1.LOGIN_TIME DESC
+	    	) A
+        	WHERE ROWNUM BETWEEN '1' AND '2'
+        	;
+		  ]]>
+	</select>
+
+	<!-- 현재 사용자의 비밀번호 체크 -->
+	<select id="cmm4000DAO.selectCmm4000CurtPwChk" parameterClass="java.util.Map" resultClass="int">
+		<![CDATA[ 
+			/* cmm4000DAO.selectCmm4000CurtPwChk - 현재 사용자의 비밀번호 체크  */
+			SELECT	COUNT(*) 
+			FROM	ADM2000 A
+			WHERE	1=1
+			AND	USR_ID 		= #usrId#
+      		AND USR_PW 		= #usrCurtPw#
+ 		]]> 
+	</select>	
+	
+</sqlMap>            

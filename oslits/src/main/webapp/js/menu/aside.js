@@ -56,7 +56,7 @@ $(function(){
 	});
 		
 	/* 모바일 aside 버튼 */
-	/* TODO aside.js 모바일 aside 버튼 제거
+	/* aside.js 모바일 aside 버튼 제거
 	$("aside .m_btn").click(function(){
 		// 펴질 때
 		$("body").css('overflow-y','hidden');

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="stm2100DAO">
+	<typeAlias alias="egovMap" 		type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias alias="stm2100VO"	type="kr.opensoftlab.oslops.stm.stm2000.stm2100.vo.Stm2100VO"/>
+	
+	
+	<!-- 프로젝트에 배정 가능한 SVN Repository 목록을 조회한다. -->
+	<select id="stm2100DAO.selectStm2100ProjectAuthList" parameterClass="java.util.Map"  resultClass="egovMap">
+		/* stm2100DAO.selectStm2100ProjectAuthList - 프로젝트에 배정 가능한 SVN Repository 목록을 조회한다. */
+		<![CDATA[
+			SELECT
+					T.LIC_GRP_ID
+				,	T.SVN_REP_ID             
+		        ,	T.SVN_REP_NM             
+		        ,	T.SVN_REP_URL               
+		        ,	COALESCE(T.SVN_TXT, SF_REPLACE_ALL(T.SVN_TXT ,'</br>|<br>|<br/>|</BR>|<BR>|<BR/>' , '' ), ' ')  AS SVN_TXT         
+		        ,	T.USE_CD                
+		        ,	SF_ADM4100_COM_CD_INFO(#licGrpId#, 'CMM00001', T.USE_CD, '1') AS USE_NM 
+		        ,	T.REG_DTM
+		        ,	T.REG_USR_ID         
+		        ,	T.REG_USR_IP            
+		        ,	T.MODIFY_DTM              
+		        ,	T.MODIFY_USR_ID         
+		        ,	T.MODIFY_USR_IP            
+		        ,	T.IS_CHECKED
+		        ,	T.ORG_CHECKED 
+			FROM
+			(
+				SELECT
+						A.LIC_GRP_ID
+			        ,   A.SVN_REP_ID               	/* SVN Repository 코드 */ 
+					,	A.SVN_REP_NM               	/* SVN Repository 명 */ 
+			        ,	A.SVN_REP_URL              	/* SVN Repository URL */ 
+			        ,	A.SVN_TXT                 	/* SVN RepositoryI Comment */ 
+			        ,	A.USE_CD                   	/* 사용여부(코드 : CMM00001) */
+					,	TO_CHAR(A.REG_DTM, 'YYYY-MM-DD HH24:MI:SS') AS REG_DTM      	/* 최초등록 일시 */ 
+			        ,	A.REG_USR_ID              	/* 최초등록자 ID */ 
+			        ,	A.REG_USR_IP             	/* 최초등록자 IP */ 
+			        ,	TO_CHAR(A.MODIFY_DTM , 'YYYY-MM-DD HH24:MI:SS') AS MODIFY_DTM	/* 최종수정일시 */ 
+			        ,	A.MODIFY_USR_ID          	/* 최종수정자 ID */ 
+			        ,	A.MODIFY_USR_IP             /* 최종수정자 IP */ 
+			        ,	COALESCE(B.IS_CHECKED,'N') AS IS_CHECKED
+			        ,	COALESCE(B.IS_CHECKED,'N') AS ORG_CHECKED
+				FROM SVN1000 A
+				LEFT JOIN
+	         	(
+	         		SELECT 	PRJ_ID 
+						,	SVN_REP_ID
+						,	LIC_GRP_ID
+						,	'Y' AS IS_CHECKED 
+	         		FROM SVN1100 
+	         		WHERE 1=1
+	         		AND PRJ_ID  = #prjId# 
+	         	)  B
+	         	ON ( A.SVN_REP_ID = B.SVN_REP_ID AND A.LIC_GRP_ID = B.LIC_GRP_ID)
+			) T
+			WHERE   1=1
+			AND		T.LIC_GRP_ID = #licGrpId#
+			AND 	T.USE_CD = '01'	/* 사용유무가 사용(01)인 SVN 저장소 조회*/
+		]]>
+		<isNotEmpty property="searchSelect">
+			<isNotEmpty property="searchTxt">
+				<isEqual property="searchSelect" compareValue="svnRepNm"> 
+					AND		UPPER( T.SVN_REP_NM ) like '%'|| UPPER( #searchTxt# ) ||'%'
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="svnTxt"> 
+					AND		UPPER( T.SVN_TXT ) like '%'|| UPPER( #searchTxt# ) ||'%'
+				</isEqual>
+			</isNotEmpty>
+		</isNotEmpty>
+	</select>
+
+	<!-- 프로젝트에  SVN Repository를 배정한다. -->
+    <insert id="stm2100DAO.insertStm2100" parameterClass="stm2100VO">
+    	/* stm2100DAO.insertStm2100 - 프로젝트에  SVN Repository를 배정한다. */
+		<![CDATA[ 
+			INSERT INTO SVN1100
+			(
+				PRJ_ID,			SVN_REP_ID,		REG_DTM,
+				REG_USR_ID,		REG_USR_IP,		LIC_GRP_ID
+			)
+			VALUES
+			(
+				#prjId#,		#svnRepId#, 	CURRENT_TIMESTAMP, 
+				#regUsrId#, 	#regUsrIp#,		#licGrpId# 
+			)
+		]]>
+	</insert>
+	
+	
+	<!-- 프로젝트에  SVN Repository를 배정 제외한다. -->
+	<delete id="stm2100DAO.deleteStm2100" parameterClass="stm2100VO">
+		/* stm2100DAO.deleteStm2100 - 프로젝트에  SVN Repository를 배정 제외한다. */
+		DELETE	
+		FROM	SVN1100 A
+		WHERE	1=1
+		AND		A.PRJ_ID = #prjId#
+		AND 	A.SVN_REP_ID = #svnRepId# 
+		AND		A.LIC_GRP_ID = #licGrpId#
+	</delete>
+
+	<!-- 프로젝트에 배정된 SVN Repository 목록을 조회한다. -->
+	<select id="stm2100DAO.selectStm2100ProjectListAjax" parameterClass="java.util.Map"  resultClass="egovMap">
+			/* stm2100DAO.selectStm2100ProjectListAjax - 프로젝트에 배정된 SVN Repository 목록을 조회한다. */
+		<![CDATA[
+			SELECT
+					T.LIC_GRP_ID
+				,	T.SVN_REP_ID             
+		        ,	T.SVN_REP_NM             
+		        ,	T.SVN_REP_URL               
+		        ,	COALESCE(T.SVN_TXT, SF_REPLACE_ALL(T.SVN_TXT ,'</br>|<br>|<br/>|</BR>|<BR>|<BR/>' , '' ), ' ')  AS SVN_TXT         
+		        ,	T.USE_CD                
+		        ,	SF_ADM4100_COM_CD_INFO(#licGrpId#, 'CMM00001', T.USE_CD, '1') AS USE_NM 
+		        ,	T.REG_DTM
+		        ,	T.REG_USR_ID         
+		        ,	T.REG_USR_IP            
+		        ,	T.MODIFY_DTM              
+		        ,	T.MODIFY_USR_ID         
+		        ,	T.MODIFY_USR_IP            
+			FROM 
+			(
+				SELECT
+							A.LIC_GRP_ID				/* 라이선스 그룹 ID */ 
+				        ,   A.SVN_REP_ID               	/* SVN Repository 코드 */ 
+						,	A.SVN_REP_NM               	/* SVN Repository 명 */ 
+				        ,	A.SVN_REP_URL              	/* SVN Repository URL */ 
+				        ,	A.SVN_TXT                 	/* SVN RepositoryI Comment */ 
+				        ,	A.USE_CD                   	/* 사용여부(코드 : CMM00001) */
+						,	TO_CHAR(A.REG_DTM, 'YYYY-MM-DD HH24:MI:SS') AS REG_DTM      	/* 최초등록 일시 */ 
+				        ,	A.REG_USR_ID              	/* 최초등록자 ID */ 
+				        ,	A.REG_USR_IP             	/* 최초등록자 IP */ 
+				        ,	TO_CHAR(A.MODIFY_DTM , 'YYYY-MM-DD HH24:MI:SS') AS MODIFY_DTM	/* 최종수정일시 */ 
+				        ,	A.MODIFY_USR_ID          	/* 최종수정자 ID */ 
+				        ,	A.MODIFY_USR_IP             /* 최종수정자 IP */ 
+				FROM SVN1000 A
+				INNER JOIN
+	         	(   
+	         		SELECT
+	         	 			PRJ_ID 
+	         			,	SVN_REP_ID 
+	         			,	LIC_GRP_ID 
+	                    ,	'Y' AS IS_CHECKED 
+	         		FROM   SVN1100 
+	         		WHERE  PRJ_ID  = #prjId#
+	         	)  B
+	         	ON ( A.LIC_GRP_ID = B.LIC_GRP_ID AND A.SVN_REP_ID = B.SVN_REP_ID)
+			) T
+			WHERE 1=1
+			AND	T.LIC_GRP_ID = #licGrpId#
+			AND T.USE_CD = '01'
+		]]>
+	</select>
+		
+</sqlMap>

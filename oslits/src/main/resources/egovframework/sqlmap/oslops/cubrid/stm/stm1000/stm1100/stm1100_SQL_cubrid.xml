@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="stm1100DAO">
+	 <!--  in / out class define  -->
+ 
+	<typeAlias alias="egovMap"	 	type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+    <typeAlias  alias="stm1100VO" type="kr.opensoftlab.oslops.stm.stm1000.stm1100.vo.Stm1100VO"/>
+    
+	
+	<!-- 프로젝트에 사용 가능한 API 목록을 조회한다. -->
+	<select id="stm1100DAO.selectStm1100ProjectAuthList" parameterClass="java.util.Map"  resultClass="egovMap">
+		/* stm1100DAO.selectStm1100ProjectAuthList - 프로젝트에 사용 가능한 API 목록을 조회한다. */
+			SELECT
+		            A.API_ID            /* API 서비스코드 */ 
+		        ,	A.API_NM            /* API 서비스명 */ 
+		        ,	A.API_URL           /* 서비스URL */ 
+		        ,	A.API_TXT           /* API Comment */ 
+		        ,	B.API_TOK           /* API 토큰 */ 
+		        ,	A.ATCH_FILE_ID      /* 첨부파일 ID */ 
+		        ,	A.USE_CD			/* 사용유무 */	
+		        ,	TO_CHAR(A.REG_DTM, 'YYYY-MM-DD') AS REG_DTM
+		        ,	COALESCE(B.IS_CHECKED,'N') AS IS_CHECKED
+		        ,	COALESCE(B.IS_CHECKED,'N') AS ORG_CHECKED
+			FROM API1000 A  
+            LEFT JOIN 
+         	(
+         		SELECT 
+         				PRJ_ID
+         			, 	API_ID
+         			,	LIC_GRP_ID
+         			,	API_TOK
+         			,	'Y' AS IS_CHECKED 
+         		FROM API1100 
+         		WHERE 1=1
+         		AND PRJ_ID = #prjId# 
+         	) B
+         	ON ( A.API_ID = B.API_ID AND A.LIC_GRP_ID = B.LIC_GRP_ID ) 
+			WHERE 1=1
+			AND A.LIC_GRP_ID = #licGrpId#
+			AND	A.USE_CD = '01'
+			<isNotEmpty property="searchSelect">
+				<isNotEmpty property="searchTxt">
+					<isEqual property="searchSelect" compareValue="apiNm"> 
+						AND	UPPER( A.API_NM ) like '%'|| UPPER( #searchTxt# ) ||'%'
+					</isEqual>
+					<isEqual property="searchSelect" compareValue="apiUrl"> 
+						AND	UPPER( A.API_URL ) like '%'|| UPPER( #searchTxt# ) ||'%'
+					</isEqual>
+				</isNotEmpty>
+			</isNotEmpty>
+	</select>
+	
+	<!-- 프로젝트에 API를 등록한다. -->
+    <insert id="stm1100DAO.insertStm1100" parameterClass="stm1100VO">
+    	/* stm1100DAO.insertStm1100 -  프로젝트에 API를 등록한다. */
+		<![CDATA[ 
+			INSERT INTO API1100
+			(
+				LIC_GRP_ID,		PRJ_ID, 		API_ID, 	API_TOK, 
+				REG_DTM, 		REG_USR_ID, 	REG_USR_IP	
+			)
+			VALUES
+			(
+				#licGrpId# ,		#prjId#, 		#apiId#,	
+				COALESCE(#apiTok#, (SELECT API_TOK FROM API1100 WHERE 1=1 AND LIC_GRP_ID = #licGrpId# AND PRJ_ID = #prjId# LIMIT 1)),
+				CURRENT_TIMESTAMP,  #regUsrId#,  	#regUsrIp#        
+			)
+		]]>
+	</insert>
+	
+	
+	<!-- 프로젝트에 등록된 API를 삭제한다. -->
+	<delete id="stm1100DAO.deleteStm1100" parameterClass="stm1100VO">
+		/* stm1100DAO.deleteStm1100 -  프로젝트에 등록된 API를 삭제한다. */
+		DELETE FROM	API1100 A
+		WHERE 1=1
+		AND	A.PRJ_ID = #prjId#
+		AND A.API_ID = #apiId# 
+		AND A.LIC_GRP_ID = #licGrpId#
+	</delete>
+	
+	<!-- 프로젝트에 등록되어있는 API 목록을 조회한다. -->
+	<select id="stm1100DAO.selectStm1100ProjectListAjax" parameterClass="java.util.Map"  resultClass="egovMap">
+		/* stm1100DAO.selectStm1100ProjectListAjax - 프로젝트에 등록되어있는 API 목록을 조회한다. */
+		SELECT
+				T.API_ID          
+			,	T.API_NM           
+			,	T.API_URL     
+			,	T.API_TXT            
+			,	T.API_TOK             
+			,	T.ATCH_FILE_ID    
+			,	T.USE_CD
+			,	SF_ADM4100_COM_CD_INFO(#licGrpId#, 'CMM00001', T.USE_CD, '1') AS USE_NM
+			,	T.REG_DTM
+			,	T.REG_USR_ID
+			,	T.REG_USR_IP
+			,	T.MODIFY_DTM
+			,	T.MODIFY_USR_ID
+			,	T.MODIFY_USR_IP
+		FROM
+		(	
+				SELECT
+			            A.API_ID            /* API 서비스코드 */ 
+			    	,	A.API_NM            /* API 서비스명 */ 
+			        ,	A.API_URL           /* 서비스URL */ 
+			        ,	A.API_TXT           /* API Comment */ 
+			        ,	B.API_TOK           /* API 토큰키 */  
+			        ,	A.ATCH_FILE_ID      /* 첨부파일 ID */ 
+			        ,	A.USE_CD			/* 사용유무 */
+			        ,	TO_CHAR(A.REG_DTM, 'YYYY-MM-DD') AS REG_DTM  /* 최초등록일시 */ 
+			        ,	A.REG_USR_ID        /* 최초등록자 ID */ 
+			        ,	A.REG_USR_IP		/* 최초등록자 IP */
+			        ,	TO_CHAR(A.MODIFY_DTM , 'YYYY-MM-DD HH24:MI:SS') AS MODIFY_DTM	/* 최종수정일시 */ 
+				    ,	A.MODIFY_USR_ID		/* 최종수정자 ID */ 
+				    ,	A.MODIFY_USR_IP		/* 최종수정자 IP */ 
+				FROM API1000 A 
+	            INNER JOIN
+	         	(  
+	         		SELECT 
+	         				Z.PRJ_ID 
+						,	Z.API_ID
+	         			,	Z.LIC_GRP_ID
+	         			,	Z.API_TOK
+	         		FROM API1100 Z
+	         		WHERE 1=1
+	         		AND	PRJ_ID = #prjId# 
+	         	) B
+	         	ON ( A.API_ID = B.API_ID AND A.LIC_GRP_ID = B.LIC_GRP_ID )
+				WHERE 1=1
+				AND A.USE_CD = '01'
+				AND A.LIC_GRP_ID = #licGrpId#
+		) T
+	</select>
+	
+</sqlMap>

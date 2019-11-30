@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="cmm3200DAO">
+
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+
+    <select id="cmm3200DAO.selectCmm3200idChk" parameterClass="java.util.Map" resultClass="int">
+    	/* cmm3200DAO.selectCmm3200idChk 아이디 중복 확인 - cmm3200_SQL_Oracle.xml */
+		<![CDATA[
+		SELECT	COUNT(A.USR_ID) uCnt
+		  FROM	ADM2000 A
+	    WHERE 1=1
+	    AND A.USR_ID = #usrId#
+        ]]> 
+    </select>
+    
+    <insert id="cmm3200DAO.insertAdm1000MenuBegin" parameterClass="java.util.Map" >
+    	/* 초기 메뉴정보 등록 - cmm3200_SQL_Oracle.xml */
+    	<![CDATA[ 
+		INSERT INTO ADM1000
+			(
+				LIC_GRP_ID,
+		       	MENU_ID,
+		       	UPPER_MENU_ID,
+		       	MENU_NM,
+		       	MENU_TYPE_CD,
+		       	MENU_DESC,
+		       	MENU_URL,
+		       	MENU_PATH,
+		       	MENU_IMG_URL,
+		       	LVL,
+		       	ORD,
+		       	USE_CD,
+		       	PRJ_TYPE,
+		       	REG_DTM,
+		       	REG_USR_ID,
+		       	REG_USR_IP,
+		       	MODIFY_DTM,
+		       	MODIFY_USR_ID,
+		       	MODIFY_USR_IP
+			)
+		SELECT 	#licGrpId#,   
+	       		MENU_ID,
+	       		UPPER_MENU_ID,
+	       		MENU_NM,
+	       		MENU_TYPE_CD,
+	       		MENU_DESC,
+	       		MENU_URL,
+	       		MENU_PATH,
+	       		MENU_IMG_URL,
+	       		LVL,
+	       		ORD,
+	       		USE_CD,
+	       		PRJ_TYPE,
+	       		REG_DTM,
+	       		REG_USR_ID,
+	       		REG_USR_IP,
+	       		MODIFY_DTM,
+	       		MODIFY_USR_ID,
+	       		MODIFY_USR_IP  
+		  FROM 	ADM1000 
+	   WHERE 	LIC_GRP_ID = 'ROOTSYSTEM_GRP'
+		]]> 
+		
+		<selectKey resultClass="java.lang.String" keyProperty="menuBegin">
+		<![CDATA[
+			SELECT	DISTINCT( LIC_GRP_ID ) LIC_GRP_ID
+			  FROM	ADM1000
+			 WHERE LIC_GRP_ID = #licGrpId#
+		]]>
+		</selectKey>
+		
+    </insert>
+    
+    <insert id="cmm3200DAO.insertAdm2000UserInfo" parameterClass="java.util.Map" >
+    	/* 사용자 정보 등록 - cmm3200_SQL_Oracle.xml */
+    	<![CDATA[ 
+		INSERT INTO ADM2000 
+		       ( 
+					USR_ID,
+					LIC_GRP_ID,
+					USR_PW,
+					USR_NM,
+					EMAIL,
+					ETC,
+					WK_ST_TM,
+					WK_ED_TM,
+					PW_FAIL_CNT,
+					BLOCK,
+					USE_CD,
+					ADM_YN,
+					REG_DTM,
+					REG_USR_ID,
+					REG_USR_IP,
+					MODIFY_DTM,
+					MODIFY_USR_ID,
+					MODIFY_USR_IP
+		       ) VALUES ( 
+					#usrId#,
+					#licGrpId#,
+					#enUsrPw#,
+					#usrNm#,
+					#usrEmail#,
+					'최초라이선스등록자',
+					'09',
+					'18',
+					'0',
+					'01',
+					'01',
+					'Y',
+					CURRENT_TIMESTAMP ,
+					#usrId#,
+					#usrIp#,
+					CURRENT_TIMESTAMP,
+					#usrId#,
+					#usrIp#
+		       )
+		]]>
+		
+		<selectKey resultClass="java.lang.String" keyProperty="userInfo">
+		<![CDATA[
+			SELECT DISTINCT( LIC_GRP_ID ) LIC_GRP_ID
+			FROM ADM2000
+			WHERE LIC_GRP_ID = #licGrpId#
+		]]>
+		</selectKey>
+    </insert>
+    
+    
+    <insert id="cmm3200DAO.insertAdm3100LicenceGroup" parameterClass="java.util.Map" >
+    	/* 라이선스 그룹 등록 - cmm3200_SQL_Oracle.xml */
+    	<![CDATA[ 
+		INSERT INTO ADM3100 
+		       ( 
+		           LIC_GRP_ID,
+		           REG_DTM,
+		           REG_USR_ID,
+		           REG_USR_IP,
+		           MODIFY_DTM,
+		           MODIFY_USR_ID,
+		           MODIFY_USR_IP 
+		       )
+		       VALUES
+		       ( 
+		           #licGrpId#, 
+		           CURRENT_TIMESTAMP, 
+		           'system', 
+		           #usrIp#, 
+		           CURRENT_TIMESTAMP, 
+		           'system', 
+		           #usrIp# 
+		       )
+		]]>
+		
+		<selectKey resultClass="java.lang.String" keyProperty="licenceGroup">
+		<![CDATA[
+			SELECT	DISTINCT( LIC_GRP_ID ) LIC_GRP_ID
+			FROM	ADM3100
+			WHERE LIC_GRP_ID = #licGrpId#
+		]]>
+		</selectKey>
+		
+    </insert>
+    
+    <insert id="cmm3200DAO.insertAdm3000LicenceInfo" parameterClass="java.util.Map" >
+    	/* 라이선스 정보 등록 - cmm3200_SQL_Oracle.xml */
+    	<![CDATA[
+		INSERT INTO ADM3000
+		SELECT #licGrpId#	AS LIC_GRP_ID,
+					(SELECT COUNT(*)+1 FROM ADM3000) AS LIC_NO,
+		       		SUB_CD_NM											AS LIC_NM,
+		       		TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDD') 			AS LIC_START_DT, 
+		       		TO_CHAR((CURRENT_TIMESTAMP+3650), 'YYYYMMDD') 	AS LIC_END_DT, 
+		       		SUB_CD 			AS LIC_GB_CD, 
+		       		SUB_CD_REF1 	AS PERMIT_USR_CNT, 
+		       		CURRENT_TIMESTAMP			AS REG_DTM, 
+		       		'SYSTEM' 	AS REG_USR_ID,
+		       		#usrIp#	AS REG_USR_IP, 
+		       		CURRENT_TIMESTAMP 	AS MODIFY_DTM,
+		       		'SYSTEM' 	AS MODIFY_USR_ID, 
+		       		#usrIp# 	AS MODIFY_USR_IP
+		FROM  ADM4100 
+		WHERE 	LIC_GRP_ID 	= 'ROOTSYSTEM_GRP' 
+		   AND 	MST_CD 		= 'ADM00002' 
+		   AND 	SUB_CD 		= '01'
+		]]>
+		<selectKey resultClass="java.lang.String" keyProperty="licenceInfo">
+		<![CDATA[
+			SELECT	DISTINCT( LIC_GRP_ID ) LIC_GRP_ID
+			  FROM	ADM3000
+			 WHERE LIC_GRP_ID = #licGrpId#
+		]]>
+		</selectKey>
+    </insert>
+    
+    
+    <insert id="cmm3200DAO.insertAdm4000CodeM" parameterClass="java.util.Map" >
+    	/* 공통코드 마스터 등록 - cmm3200_SQL_Oracle.xml */
+    	<![CDATA[
+		INSERT INTO ADM4000 
+			(
+				LIC_GRP_ID,
+				MST_CD,
+		       	UPPER_MST_CD,
+		       	MST_CD_NM,
+		       	MST_CD_ENG_NM,
+		       	MST_CD_DESC,
+		       	ABORT_DT,
+		       	LVL,
+		       	ORD,
+		       	USE_YN,
+		       	STM_USE_YN,
+		       	REG_DTM,
+		       	REG_USR_ID,
+		       	REG_USR_IP,
+		       	MODIFY_DTM,
+		       	MODIFY_USR_ID,
+		       	MODIFY_USR_IP
+			)   
+		SELECT 	#licGrpId#, 
+	       		MST_CD,
+	       		UPPER_MST_CD,
+	       		MST_CD_NM,
+	       		MST_CD_ENG_NM,
+	       		MST_CD_DESC,
+	       		ABORT_DT,
+	       		LVL,
+	       		ORD,
+	       		USE_YN,
+	       		STM_USE_YN,
+	       		CURRENT_TIMESTAMP,
+	       		'SYSTEM',
+	       		#usrIp#,
+	       		CURRENT_TIMESTAMP,
+	       		'SYSTEM',
+	       		#usrIp#
+		  FROM 	ADM4000 
+		 WHERE LIC_GRP_ID = 'ROOTSYSTEM_GRP'
+		]]>
+		
+		<selectKey resultClass="java.lang.String" keyProperty="codeM">
+		<![CDATA[
+			SELECT	DISTINCT( LIC_GRP_ID ) LIC_GRP_ID
+			  FROM	ADM4000
+			 WHERE LIC_GRP_ID = #licGrpId#
+		]]>
+		</selectKey>
+    </insert>
+    
+    <insert id="cmm3200DAO.insertAdm4100CodeD" parameterClass="java.util.Map" >
+    	/* 공통코드 디테일 등록 - cmm3200_SQL_Oracle.xml */
+    	<![CDATA[
+    	INSERT INTO ADM4100
+    		(
+				LIC_GRP_ID,
+				MST_CD,
+				SUB_CD,
+				SUB_CD_NM,
+				ORD,
+				USE_YN,
+				SUB_CD_REF1,
+				SUB_CD_REF2,
+				SUB_CD_REF3,
+				SUB_CD_REF4,
+				SUB_CD_REF5,
+				SUB_CD_DESC,
+				REG_DTM,
+				REG_USR_ID,
+				REG_USR_IP,
+				MODIFY_DTM,
+				MODIFY_USR_ID,
+				MODIFY_USR_IP
+			)
+		SELECT 	#licGrpId#,
+		       	MST_CD,
+		       	SUB_CD,
+		       	SUB_CD_NM,
+		       	ORD,
+	       		USE_YN,
+	       		SUB_CD_REF1,
+	       		SUB_CD_REF2,
+   				SUB_CD_REF3,
+	       		SUB_CD_REF4,
+	       		SUB_CD_REF5,
+	       		SUB_CD_DESC,
+	       		CURRENT_TIMESTAMP,
+	       		'SYSTEM',
+	       		#usrIp#,
+	       		CURRENT_TIMESTAMP,
+	       		'SYSTEM',
+	       		#usrIp#
+		  FROM 	ADM4100 
+	    WHERE LIC_GRP_ID = 'ROOTSYSTEM_GRP'
+		]]>
+		
+		<selectKey resultClass="java.lang.String" keyProperty="codeD">
+		<![CDATA[
+			SELECT	DISTINCT( LIC_GRP_ID ) LIC_GRP_ID
+			  FROM	ADM4100
+			 WHERE LIC_GRP_ID = #licGrpId#
+		]]>
+		</selectKey>
+		
+    </insert>
+    
+    <insert id="cmm3200DAO.insertAdm4100MenuAuthInfo" parameterClass="java.util.Map" >
+    	/* 메뉴별 접근권한 정보 생성 - cmm3200DAO.insertAdm4100MenuAuthInfo */
+    	<![CDATA[
+    	INSERT INTO ADM1200
+		(
+			LIC_GRP_ID,		PRJ_ID,			AUTH_GRP_ID,		MENU_ID,		ACCESS_YN,
+		    SELECT_YN,		REG_YN,			MODIFY_YN,			DEL_YN,			EXCEL_YN,
+		    PRINT_YN,		USE_CD,			REG_DTM,			REG_USR_ID,		REG_USR_IP,
+		    MODIFY_DTM,		MODIFY_USR_ID,	MODIFY_USR_IP
+		)
+		SELECT	
+			#licGrpId#,		A.PRJ_ID,		A.AUTH_GRP_ID,		A.MENU_ID,		A.ACCESS_YN,
+			A.SELECT_YN,	A.REG_YN,		A.MODIFY_YN,		A.DEL_YN,		A.EXCEL_YN,
+		    A.PRINT_YN,		A.USE_CD,		A.REG_DTM,			A.REG_USR_ID,	A.REG_USR_IP,
+		    A.MODIFY_DTM,	A.MODIFY_USR_ID,A.MODIFY_USR_IP	
+		FROM	ADM1200 A
+		WHERE	1=1
+		AND		A.LIC_GRP_ID = 'ROOTSYSTEM_GRP'
+		AND		A.PRJ_ID = 'ROOTSYSTEM_PRJ'
+		]]>
+		
+		<selectKey resultClass="java.lang.String" keyProperty="menuAuthInfo">
+		<![CDATA[
+			SELECT	DISTINCT( LIC_GRP_ID ) LIC_GRP_ID
+			  FROM	ADM1200
+			 WHERE LIC_GRP_ID = #licGrpId#
+		]]>
+		</selectKey>
+		
+    </insert>
+    
+    
+    <insert id="cmm3200DAO.insertAdm4100AuthGroupInfo" parameterClass="java.util.Map" >
+    	/* 권한그룹정보 생성 - cmm3200DAO.insertAdm4100AuthGroupInfo */
+    	<![CDATA[
+    	INSERT INTO ADM1100
+        (
+            LIC_GRP_ID,	PRJ_ID,			AUTH_GRP_ID,	AUTH_GRP_NM,	AUTH_GRP_DESC,		CREATE_DT,
+            USE_CD,		ORD,			REG_DTM,		REG_USR_ID,			REG_USR_IP,
+            USR_TYP,	ACCEPT_USE_CD,	MODIFY_DTM,		MODIFY_USR_ID,	MODIFY_USR_IP
+        )
+        SELECT	#licGrpId#
+        	,	B.PRJ_ID
+            ,	B.AUTH_GRP_ID
+            ,	B.AUTH_GRP_NM
+            ,	B.AUTH_GRP_DESC
+            ,	B.CREATE_DT
+            ,	B.USE_CD
+            ,	B.ORD
+            ,	CURRENT_TIMESTAMP
+	       	,	#usrId#
+	       	,	#usrIp#
+	       	,	USR_TYP
+	       	,	ACCEPT_USE_CD
+            ,	CURRENT_TIMESTAMP
+	       	,	#usrId#
+	       	,	#usrIp#
+        FROM	ADM1100 B
+        WHERE	1=1
+        AND  	B.LIC_GRP_ID = 'ROOTSYSTEM_GRP'
+        AND		B.PRJ_ID = 'ROOTSYSTEM_PRJ'
+		]]>
+		
+		<selectKey resultClass="java.lang.String" keyProperty="authGroupInfo">
+		<![CDATA[
+			SELECT	DISTINCT( LIC_GRP_ID ) LIC_GRP_ID
+			  FROM	ADM1100
+			 WHERE LIC_GRP_ID = #licGrpId#
+		]]>
+		</selectKey>
+		
+    </insert>
+    
+    
+    <insert id="cmm3200DAO.insertAdm4100RootDeptInfo" parameterClass="java.util.Map" >
+    	/* 조직 루트 디렉토리 정보 등록 - cmm3200DAO.insertAdm4100RootDeptInfo */
+    	<![CDATA[
+			INSERT INTO ADM7000
+			(
+					LIC_GRP_ID			,	DEPT_ID  			,	UPPER_DEPT_ID  		,	DEPT_NAME
+			  	,	DEPT_ADMIN_USR_ID	,	ORD					,	USE_CD		 		,	DEPT_ETC
+			  	,	LVL				  	,	REG_DTM	  			,	REG_USR_ID 			,	REG_USR_IP
+			  	,	MODIFY_DTM		  	,	MODIFY_USR_ID		,	MODIFY_USR_IP
+			)
+			VALUES
+			(
+					#licGrpId#			,	#deptId#		,	null		,	'최상위 조직'   
+			    ,	null				,	0					,	'01'				,	'최상위 조직'		
+			    ,	0	    			,	CURRENT_TIMESTAMP				,	'system'			,	#usrIp#
+			    ,	CURRENT_TIMESTAMP	    		,	'system'			,	#usrIp#
+			)
+		]]>
+		
+		<selectKey resultClass="java.lang.String" keyProperty="authGroupInfo">
+		<![CDATA[
+			SELECT	DEPT_ID
+			  FROM	ADM7000
+			 WHERE LIC_GRP_ID = #licGrpId#
+			   AND LVL = 0
+		]]>
+		</selectKey>
+		
+    </insert>
+    
+    
+</sqlMap>            

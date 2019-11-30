@@ -9,12 +9,12 @@ label[for='header_select']{ display:none; }
     color: #fff;
 }
 .hdsel {font-size: 0.75em;}
-.gnb{ /* background:white; */ }
+.gnb{ display:inline-block;float:left;}
 	/* .gnb_top : width:1903px 추가*/
 	/* .gnb .gnb_top{ position:relative; z-index:9003; background:white; box-shadow:0px 0px 5px 3px rgba(0,0,0,0.2); height:60px; width:1903px;} */
-	.gnb .gnb_top{ position:relative; z-index:9003; background:white; box-shadow:0px 0px 5px 3px rgba(0,0,0,0.2); height:60px; width:100%;  min-width: 1903px;}
+	.gnb .gnb_top{ position:relative; z-index:9003; background:white; box-shadow:0px 0px 5px 3px rgba(0,0,0,0.2); height:60px; width:100%;  min-width: 1903px;box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.24);}
 	/*#4b73eb */
- 		.logo_box { float:left; width:240px; height:100%; line-height:55px; background:#414352; text-align:center; font-size:16px;border-bottom: 1px solid #5b5d69; }
+ 		.logo_box { float:left; width:240px; height:100%; line-height:55px; background:#414352; text-align:center; font-size:16px;border-bottom: 1px solid #5b5d69; box-shadow: 1px 0px 3px rgba(0,0,0,.12), 0px 0px 1px rgba(0,0,0,.24);}
 			.logo{ vertical-align:middle; }
 		
 		.osl_btn{ float:left; width:60px; height:100%; line-height:60px; text-align:center; border-right:1px solid #ccc; }
@@ -36,7 +36,7 @@ label[for='header_select']{ display:none; }
 		.gnb .one_menu:hover{ border-bottom:3px solid #4b73eb; cursor:pointer; }
 		
 		/* 프로젝트 선택 */
-		.gnb_top .prj_select_box { border-left: 1px solid #ccc; max-width: 355px; float: right;padding: 0 10px;height: 100%;/* line-height: 60px; */border-right: 1px solid #ccc;}
+		.gnb_top .prj_select_box { border-left: 1px solid #ccc; max-width: 355px; float: right;padding: 0 10px;height: 100%;line-height: 60px;border-right: 1px solid #ccc;}
 		.gnb_top .prj_select_box .sod_select{ vertical-align:middle; margin-top:-3px; padding:7px; border:1px solid #ccc; height:25px; }
 		.gnb_top .prj_select_box .sod_select:after{ top:5px; }
 		
@@ -57,8 +57,9 @@ label[for='header_select']{ display:none; }
 		.gnb .more_box_wrap.show{ display:block; }
 			.gnb .more_box_wrap .triangle{ position:absolute; z-index:9002; top:-6px; right:16px; background:white; width:14px; height:14px; transform:rotate(45deg); box-shadow:0px 0px 3px 0px rgba(0,0,0,0.5); }
 			.gnb .more_box_wrap .rect{ position:absolute; z-index:9003; top:0; right:11px;  background:white; width:25px; height:15px;  }
-				.gnb .more_wrap{ float:left; width:190px; height:100%; border-right:1px solid #ddd; }
-					.gnb .more_one{ width:190px; height:37px; line-height:37px; text-align:center; border-bottom:1px solid #ddd; font-size:0.75em; }
+				/* 20190514 .gnb .more_wrap 및 .gnb .more_one의 width 값 190px → 208px 로 변경*/
+				.gnb .more_wrap{ float:left; width:208px; height:100%; border-right:1px solid #ddd; } /*  width:190px;*/
+					.gnb .more_one{ width:208px; height:37px; line-height:37px; text-align:center; border-bottom:1px solid #ddd; font-size:0.75em; } /*  width:190px;*/
 					.gnb .more_one img{ margin-top:-1px; width:15px; vertical-align:middle; margin-right:7px; }
 					.gnb .more_two_wrap{ padding:5px 0; height: auto; min-height: 500px;}
 						.gnb .more_wrap a > div:hover{ background:#449ff4; color:white; } /* 링크를 가진 메뉴에 hover 효과 */
@@ -98,6 +99,50 @@ header .m_gnb_box{ display:none; }
 .main_contents { width:calc( 100% - 240px ); padding:30px 15px 30px 45px; text-align:left;  vertical-align:top; transition:all .2s;float:left;}
 .main_contents.fill { width:100%; }
 
+/* select2 */
+.select2-container .select2-selection {
+    background-image: none;
+    border-radius: 2px;
+    transition: border 0.2s linear 0s;
+}
+.select2-container .select2-selection .select2-selection__rendered {
+    font-size: 14px;
+}
+.select2-container--default .select2-results > .select2-results__options{
+	max-height:400px;
+}
+.select2-dropdown {
+    border: 1px solid rgba(0, 0, 0, 0.07);
+    border-bottom-right-radius: 2px;
+    border-bottom-left-radius: 2px;
+    padding-top: 5px;
+    box-shadow: 0 4px 5px rgba(0, 0, 0, 0.15);
+    z-index: 9004;
+}
+.select2-search--dropdown {
+    padding-left: 8px;
+    padding-right: 8px;
+    padding-top: 4px;
+}
+.select2-search--dropdown input {
+    background: #fff !important;
+    vertical-align: baseline;
+    line-height: 28px;
+    border-radius: 2px;
+    border: none;
+    font-size: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.07) !important;
+}
+.select2-results {
+    /* margin: 3px 8px 10px 8px; */
+    font-size: 10pt;
+}
+.select2-container--default .select2-results__group{
+	font-weight: bold;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow b{
+	border-color: #333540 transparent transparent transparent;
+}
 /* TODO 반응형 속성 제거 */
 /*
 @media all and (max-width:1500px){

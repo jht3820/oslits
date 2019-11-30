@@ -15,6 +15,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<maven.test.skip>true</maven.test.skip>
+		<webapp.lib>${basedir}/src/main/webapp/WEB-INF/lib</webapp.lib>
 	</properties>
 	
 	
@@ -79,7 +80,7 @@
 		<!-- 전자정부프레임워크 저장소 -->
 		<repository>
 			<id>egovframe</id>
-			<url>http://www.egovframe.go.kr/maven/</url>
+			<url>http://maven.egovframe.kr:8080/maven/</url>
 			<releases>
 				<enabled>true</enabled>
 			</releases>
@@ -103,6 +104,15 @@
 	</repositories>
 
 	<dependencies>
+		<!-- for Libraries (lib/sdf.jar) -->
+		<dependency>
+			<groupId>kr.opensoftlab.sdf</groupId>
+			<artifactId>kr.opensoftlab.sdf</artifactId>
+			<version> 1.0</version>
+			<scope>system</scope>
+			<systemPath>${webapp.lib}/sdf.jar</systemPath>
+		</dependency>
+	
 		<!-- 표준프레임워크 lib start -->
 		<dependency>
 			<groupId>egovframework.rte</groupId>
@@ -340,7 +350,7 @@
 		<dependency>
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>
-			<version>1.3.1</version>
+			<version>1.3.3</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>commons-io</artifactId>
@@ -486,7 +496,7 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>2.7.0</version>
+			<version>2.9.10.1</version>
 		</dependency>
 		
 		<dependency>

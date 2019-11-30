@@ -19,7 +19,7 @@ input[type=text].input_txt { float: left; width: calc(100% - 180px); height: 28p
 	float:none;
 } 
 #dragandrophandler{
-	border:1px solid #fff;
+	/* border:1px solid #fff; */
 	margin-top:0px !important;
 	max-height:140px;
 	min-height:140px;

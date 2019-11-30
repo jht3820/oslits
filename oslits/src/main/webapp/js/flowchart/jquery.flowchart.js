@@ -478,6 +478,7 @@ $(function () {
              * flowContentColor			:	내용 글씨색
              * flowEssentialCd			:	필수 체크
              * flowSign					:	결재 체크
+             * flowSignStop
              * flowEnd					:	종료 체크
              * flowWork					:	작업 체크
              * flowRevision				:	리비전 체크
@@ -492,6 +493,7 @@ $(function () {
              * 2018-09-03	작업유무 추가				진주영
              * 2018-09-28	파일,리비전 유무 추가			진주영
              * 2018-10-17	배포계획 저장,허용역할 추가		진주영
+             * 2018-11-06	결재 반려시 종료 유무 추가		진주영
              */
             var flowTitleBgColor = operatorData.properties.flowTitleBgColor;
             var flowTitleColor = operatorData.properties.flowTitleColor;
@@ -499,6 +501,7 @@ $(function () {
             var flowContentColor = operatorData.properties.flowContentColor;
             var flowEssential = operatorData.properties.flowEssential;
             var flowSign = operatorData.properties.flowSign;
+            var flowSignStop = operatorData.properties.flowSignStop;
             var flowEnd = operatorData.properties.flowEnd;
             var flowWork = operatorData.properties.flowWork;
             var flowRevision = operatorData.properties.flowRevision;
@@ -526,6 +529,10 @@ $(function () {
             if(flowSign == "on"){
             	flowIcon += "<li class='fa fa-file-signature' title='결재'></li>";
             }
+            //결재 반려종료 유무
+			if(flowSignStop == "on"){
+				flowIcon += '<li class="far fa-stop-circle" title="결재 반려시 종료 유무"></li>';
+			}
             //종료
             if(flowEnd == "on"){
             	flowIcon += "<li class='fa fa-sign-out-alt' title='종료 분기'></li>";
@@ -543,9 +550,9 @@ $(function () {
 				flowIcon += '<li class="fa fa-puzzle-piece" title="배포계획 저장 유무"></li>';
 			}
 			//허용 역할
-			/*if(flowAuth == "on"){
+			if(flowAuth == "on"){
 				flowIcon += '<li class="fa fa-user-shield" title="허용 역할그룹 제한유무"></li>';
-			}*/
+			}
             //추가 항목
             if(!gfnIsNull(flowOptCnt) && flowOptCnt > 0){
             	flowIcon += "<li class='fa fa-list' title='추가 항목'>+"+flowOptCnt+"</li>";

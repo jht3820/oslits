@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="cmm1600DAO">
+
+	<typeAlias alias="cmm1600VO"	type="kr.opensoftlab.oslops.cmm.cmm1000.cmm1600.vo.Cmm1600VO"/>
+	<typeAlias  alias="egovMap" 	type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	
+    
+    <resultMap id="cmm1600ResultMap" class="cmm1600VO">
+		<result property="rn"  				column="RN"/>
+		<result property="prjId"  			column="PRJ_ID"/>				<!-- 프로젝트 ID -->
+		<result property="dplId"  			column="DPL_ID"/>				<!-- 배포 ID -->
+		<result property="dplNm"  			column="DPL_NM"/>				<!-- 배포 명 -->
+		<result property="dplVer"  			column="DPL_VER"/>				<!-- 배포 버전 -->
+		<result property="dplDt"  			column="DPL_DT"/>				<!-- 배포일 -->
+		<result property="dplUsrId"  		column="DPL_USR_ID"/>			<!-- 배포자 ID -->
+		<result property="dplUsrNm"  		column="DPL_USR_NM"/>			<!-- 배포자 명 -->
+		<result property="dplDesc" 			column="DPL_DESC"/>				<!-- 배포 설명 -->
+		<result property="dplStsCd"  		column="DPL_STS_CD"/>			<!-- 배포 진행상태 코드 (공통코드: DPL00001) -->
+		<result property="dplStsNm"  		column="DPL_STS_NM"/>			<!-- 배포 진행상태 명 -->
+		<result property="dplTypeCd"  		column="DPL_TYPE_CD"/>			<!-- 배포 방법 코드(공통코드: DPL00003) -->
+		<result property="dplTypeNm"  		column="DPL_TYPE_NM"/>			<!-- 배포 방법 명 -->
+		<result property="dplAutoAfterCd" 	column="DPL_AUTO_AFTER_CD"/>	<!-- 자동배포 후 처리 코드 (공통코드: DPL00004) -->
+		<result property="dplAutoAfterNm" 	column="DPL_AUTO_AFTER_NM"/>	<!-- 자동 배포후 처리 명 -->
+		<result property="dplAutoDtm" 		column="DPL_AUTO_DTM"/>			<!-- 자동배포일시 -->
+		<result property="dplRestoreCd"  	column="DPL_RESTORE_CD"/>		<!-- 원복 타입 코드 (공통코드: DPL00005) -->
+		<result property="dplRestoreNm"  	column="DPL_RESTORE_NM"/>		<!-- 원복 타입 명 -->
+		<result property="signStsCd"  		column="SIGN_STS_CD"/>			<!-- 결제 상태 코드 -->
+		<result property="signStsNm"  		column="SIGN_STS_NM"/>			<!-- 결제 상태 명 -->
+		<result property="signUsrId"        column="SIGN_USR_ID" /> 		<!-- 결제자 ID -->
+		<result property="signUsrNm"        column="SIGN_USR_NM" /> 		<!-- 결제자 명 -->
+		<result property="signUsrImg"		column="SIGN_USR_IMG" />		<!-- 결제자 이미지 -->
+		<result property="signDtm"			column="SIGN_DTM" />			<!-- 결제일시 -->
+		<result property="regDtm"           column="REG_DTM" /> 			<!-- 최초등록 일시 --> 
+		<result property="regUsrId"         column="REG_USR_ID" /> 			<!-- 최초등록자 ID --> 
+		<result property="regUsrIp"         column="REG_USR_IP" /> 			<!-- 최초등록자 IP --> 
+		<result property="modifyDtm"        column="MODIFY_DTM" /> 			<!-- 최종수정일시 --> 
+		<result property="modifyUsrId"      column="MODIFY_USR_ID" /> 		<!-- 최종수정자 ID --> 
+		<result property="modifyUsrIp"      column="MODIFY_USR_IP" /> 		<!-- 최종수정자 IP --> 
+		
+    </resultMap>
+
+	<!-- 배포 목록을 조회한다. (배포 상태 대기인 배포계획만 조회) -->
+	<sql id = "selectCmm1600CommonDplList">
+		<![CDATA[
+		SELECT SUBT1.*
+		FROM
+		(
+			SELECT T1.RN
+					, T1.PRJ_ID
+					, T1.DPL_ID
+					, T1.DPL_NM
+					, T1.DPL_VER
+					, T1.DPL_DT
+					, T1.DPL_USR_ID
+					, SF_ADM2000_USR_INFO(T1.DPL_USR_ID, 1) AS DPL_USR_NM
+					, SF_REPLACE_ALL(T1.DPL_DESC ,'</br>|<br>|<br/>|</BR>|<BR>|<BR/>' , CHR(10)) AS DPL_DESC
+					, T1.DPL_STS_CD
+					, SF_ADM4100_COM_CD_INFO(#licGrpId#, 'DPL00001', T1.DPL_STS_CD, '1') AS DPL_STS_NM
+					, T1.DPL_TYPE_CD
+					, SF_ADM4100_COM_CD_INFO(#licGrpId#, 'DPL00003', T1.DPL_TYPE_CD, '1') AS DPL_TYPE_NM
+					, T1.DPL_AUTO_AFTER_CD
+					, SF_ADM4100_COM_CD_INFO(#licGrpId#, 'DPL00004', T1.DPL_AUTO_AFTER_CD, '1') AS DPL_AUTO_AFTER_NM
+					, T1.DPL_AUTO_DTM
+					, T1.DPL_RESTORE_CD
+					, SF_ADM4100_COM_CD_INFO(#licGrpId#, 'DPL00005', T1.DPL_RESTORE_CD, '1') AS DPL_RESTORE_NM
+					, T1.SIGN_STS_CD
+	                , SF_ADM4100_COM_CD_INFO(#licGrpId#, 'REQ00004', T1.SIGN_STS_CD, '1') AS SIGN_STS_NM
+	                , T1.SIGN_USR_ID
+	                , SF_ADM2000_USR_INFO(T1.SIGN_USR_ID, 1) SIGN_USR_NM
+	                , SF_ADM2000_USR_INFO(T1.SIGN_USR_ID, 6) SIGN_USR_IMG
+	                , T1.SIGN_TXT
+	                , T1.SIGN_DTM
+	                , T1.SIGN_REG_USR_ID
+					, SF_ADM2000_USR_INFO(T1.SIGN_REG_USR_ID, 1) SIGN_REG_USR_NM
+	                , SF_ADM2000_USR_INFO(T1.SIGN_REG_USR_ID, 6) SIGN_REG_USR_IMG
+					, T1.REG_DTM                 /* 최초등록 일시 */ 
+		            , T1.REG_USR_ID              /* 최초등록자 ID */ 
+		            , T1.REG_USR_IP              /* 최초등록자 IP */ 
+		            , T1.MODIFY_DTM              /* 최종수정일시 */ 
+		            , T1.MODIFY_USR_ID           /* 최종수정자 ID */ 
+		            , T1.MODIFY_USR_IP           /* 최종수정자 IP */
+			FROM (
+				SELECT
+					ROWNUM RN
+					, A.PRJ_ID
+					, A.DPL_ID
+					, A.DPL_NM
+					, A.DPL_VER
+					, A.DPL_DT
+					, A.DPL_USR_ID
+					, A.DPL_DESC
+					, A.DPL_STS_CD
+					, A.DPL_TYPE_CD
+					, A.DPL_AUTO_AFTER_CD
+					, A.DPL_AUTO_DTM
+					, A.DPL_RESTORE_CD
+					, B.SIGN_STS_CD
+	                , B.SIGN_USR_ID
+	                , B.SIGN_TXT
+	                , B.SIGN_DTM
+	                , B.SIGN_REG_USR_ID
+					, A.REG_DTM                 /* 최초등록 일시 */ 
+		            , A.REG_USR_ID              /* 최초등록자 ID */ 
+		            , A.REG_USR_IP              /* 최초등록자 IP */ 
+		            , A.MODIFY_DTM              /* 최종수정일시 */ 
+		            , A.MODIFY_USR_ID           /* 최종수정자 ID */ 
+		            , A.MODIFY_USR_IP           /* 최종수정자 IP */   
+				FROM DPL1000 A
+				LEFT JOIN DPL1200 B
+				ON ( A.PRJ_ID = B.PRJ_ID AND A.DPL_ID = B.DPL_ID )
+				WHERE 1=1
+				AND	A.PRJ_ID = #prjId#
+				AND A.DPL_DEL_CD = '02'		/* 배포 계획 삭제여부가 아니오(02)인 건만 조회 */
+		]]>		
+			<isNotEmpty property="dplStsCd">
+	    		<isNotEqual property="dplStsCd" compareValue="A" >
+	    			AND DPL_STS_CD =   #dplStsCd# 
+	    		</isNotEqual>
+    		</isNotEmpty>
+    	<![CDATA[	
+		        AND B.SIGN_DTM = (
+	                			SELECT SIGN_DTM 
+								FROM DPL1200 Z 
+								WHERE 	1=1
+								AND 	Z.PRJ_ID 	= B.PRJ_ID
+								AND 	Z.DPL_ID 	= B.DPL_ID
+								ORDER BY SIGN_DTM DESC
+								LIMIT 1
+	        					)
+			) T1
+		]]>
+		
+		) SUBT1
+		WHERE  1=1
+		<isNotEmpty property="searchSelect">
+			<isNotEmpty property="searchTxt">
+				<isEqual property="searchSelect" compareValue="dplVer" prepend="AND">
+					UPPER(SUBT1.DPL_VER) LIKE '%'|| UPPER( #searchTxt# )||'%'
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="dplNm" prepend="AND">
+					UPPER(SUBT1.DPL_NM) LIKE '%'|| UPPER( #searchTxt# )||'%'
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="dplUsrNm" prepend="AND">
+					SUBT1.DPL_USR_NM LIKE '%'||#searchTxt#||'%'
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="dplDesc" prepend="AND">
+					SUBT1.DPL_DESC LIKE '%'||#searchTxt#||'%'
+				</isEqual>
+			</isNotEmpty>
+			<isNotEmpty property="searchCd">
+				<isEqual property="searchSelect" compareValue="dplTypeCd" prepend="AND">
+					SUBT1.DPL_TYPE_CD = #searchCd#
+				</isEqual>
+			</isNotEmpty>
+		</isNotEmpty>
+	</sql>						
+	
+	<!-- 배포 목록 총 건수를 조회한다. : 그리드 페이징 처리  -->
+	<select id="cmm1600DAO.selectCmm1600CommonDplListCnt" parameterClass="cmm1600VO"  resultClass="java.lang.Integer">
+		/* cmm1600DAO.selectCmm1600CommonDplListCnt 배포 목록 총 건수를 조회한다. (그리드 페이징 처리) */
+		<![CDATA[
+	    SELECT	COUNT(*)
+		  FROM	(
+		]]>
+		  			<include refid="selectCmm1600CommonDplList" />
+		<![CDATA[
+		  			) A
+		 ]]>
+    </select>
+    
+    <!--  배포 목록을 조회한다. -->
+    <select id="cmm1600DAO.selectCmm1600CommonDplList" parameterClass="cmm1600VO"  resultMap="cmm1600ResultMap">
+    	/* cmm1600DAO.selectCmm1600CommonDplList - 배포 목록을 조회한다. (배포 상태 대기, 결제 상태 승인인 배포계획만 조회) */
+		SELECT	*
+		FROM (
+				<include refid="selectCmm1600CommonDplList" />
+    	) T1
+		WHERE  RN BETWEEN (#firstIndex#+1) AND #lastIndex#
+		ORDER BY T1.DPL_NM ASC
+    </select>
+	
+	
+	
+	
+</sqlMap>            
