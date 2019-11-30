@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="req2100DAO">
+	 <!--  in / out class define  -->
+	<typeAlias alias="egovMap"	 	type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+
+	 
+	<!-- 프로세스 별 요구사항 완료 건수 조회 -->
+	<select id="req2100DAO.selectReq2100ProcessReqEndCntAjax" parameterClass="java.util.Map" resultClass="egovMap">
+		/* req2100DAO.selectReq2100ProcessReqEndCntAjax - 요구사항 통계 현황 : 프로세스 별 요구사항 완료 건수를 조회한다. */
+		SELECT 		
+				'PROCESS' AS TYPE
+			, 	Z.PROCESS_ID AS PROCESS_ID
+			,	Z.PROCESS_NM
+			, 	COALESCE(Y.REQ_CNT,0) AS REQ_CNT
+		FROM FLW1000 Z
+		LEFT JOIN
+		(
+		   	SELECT 
+		   			PRJ_ID
+		   		,	PROCESS_ID
+		   		, 	COUNT(*) AS REQ_CNT
+		    FROM REQ4100
+		    WHERE 1=1
+		    AND PROCESS_ID IS NOT NULL
+		    AND REQ_PRO_TYPE = '04'	/* 요구사항이 최종 완료인것 */
+		    AND PRJ_ID = #prjId#
+		    AND REQ_ED_DTM IS NOT NULL  /* 작업 종료일이 있는것 */
+		    AND TO_DATE(TO_CHAR(REQ_ED_DU_DTM,'YYYY-MM-DD'),'YYYY-MM-DD') >= TO_DATE(TO_CHAR(REQ_ED_DTM,'YYYY-MM-DD'),'YYYY-MM-DD') /* 작업종료 예정일자가 실제 작업 종료일자보다 큰것 */
+			/* 작업 종료 예정일자로 기간 조회 */
+			<isNotEmpty property="srchFromDt">
+				AND REQ_ED_DU_DTM 	&gt;= 	TO_DATE(#srchFromDt#, 'YYYY-MM-DD')
+			</isNotEmpty>
+			<isNotEmpty property="srchToDt">
+				AND REQ_ED_DU_DTM 	&lt;=   TO_DATE(#srchToDt#, 'YYYY-MM-DD')
+			</isNotEmpty>
+		    GROUP BY PRJ_ID, PROCESS_ID
+		) Y
+		ON (  Z.PRJ_ID = Y.PRJ_ID AND Z.PROCESS_ID = Y.PROCESS_ID )
+		WHERE 1=1
+		AND Z.PRJ_ID = #prjId#
+		AND Z.PROCESS_CONFIRM_CD = '02'   /* 프로세스가 확정인 것 */
+		AND Z.USE_CD = '01'	
+		UNION ALL
+		SELECT 
+				'ETC' AS TYPE
+			,	C.SUB_CD AS PROCESS_ID
+			,	C.SUB_CD_NM AS PROCESS_NM
+			,	COALESCE(C.REQ_CNT,0) AS REQ_CNT
+		FROM
+		(
+		   	SELECT * 
+		    FROM
+		    (
+		    	SELECT  
+		    			LIC_GRP_ID
+		    		,	MST_CD
+		    		,	SUB_CD
+		    		,	SUB_CD_NM
+		    		,	ORD
+		    		,	USE_YN
+		    		,	SUB_CD_REF1
+		    		,	SUB_CD_REF2
+		    		,	SUB_CD_REF3
+		    		,	SUB_CD_REF4
+		    		,	SUB_CD_REF5
+		    		,	SUB_CD_DESC
+		    	FROM ADM4100 
+		    	WHERE 1=1 
+		    	AND MST_CD = 'REQ00012'
+		    	AND SUB_CD_REF1 = 'ETC' 
+		    	AND LIC_GRP_ID = #licGrpId# 
+		    ) A
+		    LEFT JOIN
+		    (	
+		    	SELECT 
+		    			REQ_TYPE_CD
+		    		,	COUNT(*) AS REQ_CNT 
+	        	FROM REQ4100 
+	          	WHERE 1=1 
+	          	AND REQ_TYPE_CD IS NOT NULL 
+	          	AND PRJ_ID = #prjId#
+	          	AND REQ_PRO_TYPE = '04'		/* 요구사항이 최종 완료인것 */
+	          	AND REQ_ED_DTM IS NOT NULL 	/* 작업 종료일이 있는것 */
+	          	AND TO_DATE(TO_CHAR(REQ_ED_DU_DTM,'YYYY-MM-DD'),'YYYY-MM-DD') >= TO_DATE(TO_CHAR(REQ_ED_DTM,'YYYY-MM-DD'),'YYYY-MM-DD') /* 작업종료 예정일자가 실제 작업 종료일자보다 크고 */
+				/* 작업 종료 예정일자로 기간 조회 */
+				<isNotEmpty property="srchFromDt">
+					AND REQ_ED_DU_DTM 	&gt;= 	TO_DATE(#srchFromDt#, 'YYYY-MM-DD')
+				</isNotEmpty>
+				<isNotEmpty property="srchToDt">
+					AND REQ_ED_DU_DTM 	&lt;=   TO_DATE(#srchToDt#, 'YYYY-MM-DD')
+				</isNotEmpty>
+	          	GROUP BY REQ_TYPE_CD
+	        ) B
+	        ON (A.SUB_CD = B.REQ_TYPE_CD)
+		) C
+		ORDER BY TYPE DESC, PROCESS_ID
+	</select>
+	
+</sqlMap>

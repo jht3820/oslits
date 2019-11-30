@@ -1177,7 +1177,7 @@ function gfnCalRangeSet(fromId, toId, grpFromDt, grpEndDt,timeUseCd){
 		}
 	},function( selectedDate,picker ) {
 		$("#" + fromId).val(this.startDate.format(this.locale.format));
-    	$("#" + toId ).data('daterangepicker').setMinDate(new Date(selectedDate._d).format('yyyy-MM-dd'));
+    	$("#" + toId ).data('daterangepicker').setMinDate(new Date(selectedDate._d).format(subFormat));
     });
 	
 	$("#" + toId).daterangepicker({
@@ -1201,7 +1201,7 @@ function gfnCalRangeSet(fromId, toId, grpFromDt, grpEndDt,timeUseCd){
 		}
 	},function( selectedDate ) {
 		$("#" + toId).val(this.startDate.format(this.locale.format));
-    	$("#" + fromId ).data('daterangepicker').setMaxDate(new Date(selectedDate._d).format('yyyy-MM-dd'));
+    	$("#" + fromId ).data('daterangepicker').setMaxDate(new Date(selectedDate._d).format(subFormat));
     });
 	
 	//값이 있는경우 startDate 삽입

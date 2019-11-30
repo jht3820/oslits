@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="cmm9000DAO">
+	
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+
+	<!-- 알림 영역쪽 표시할 알림 건수 조회(신규요구사항 요청건수, 검수요청건수) -->
+	<!-- <select id="cmm9000DAO.selectCmm9000AlarmCntInfo" parameterClass="java.util.Map" resultClass="egovMap" cacheModel="commonCachemodel.cmm9000">-->
+	<select id="cmm9000DAO.selectCmm9000AlarmCntInfo" parameterClass="java.util.Map" resultClass="egovMap" >
+		<![CDATA[					
+			/* cmm9000DAO.selectCmm9000AlarmCntInfo - 알림 영역쪽 표시할 알림 건수 조회(신규요구사항 요청건수, 검수요청건수) */
+			SELECT	(	
+						SELECT	COUNT(*) AS REQ_CNT
+			          	FROM	REQ4100 A
+			          	WHERE	1=1
+			          	AND		A.PRJ_ID = #selPrjId#
+			          	AND		A.PROCESS_ID IS NULL /* 프로세스가 없는경우 요청 요구사항 */
+			          	AND		A.USE_CD = '01'  
+			          	AND		A.REQ_PRO_TYPE = '01' /* 접수유형이 접수 요청인 요구사항 */
+					) AS REQ_CNT	/* 신규요구사항 요청 건수 */
+			FROM	db_root
+		]]>
+	</select>
+	
+	<!-- 담당 요구사항 건수 조회 -->
+	<!-- <select id="cmm9000DAO.selectCmm9000ChargeReqCntList" parameterClass="java.util.Map" resultClass="egovMap" cacheModel="commonCachemodel.cmm9000">  -->
+	<select id="cmm9000DAO.selectCmm9000ChargeReqCntList" parameterClass="java.util.Map" resultClass="egovMap" >
+		<![CDATA[					
+			/* cmm9000DAO.selectCmm9000ChargeReqCntList - 담당 요구사항 수 조회(전체건수 포함) */
+			SELECT COUNT(*) AS CNT
+			FROM REQ4100 A
+			WHERE 1=1
+			AND A.PRJ_ID = #selPrjId#
+			AND A.REQ_CHARGER_ID = #regUsrId#
+		]]>
+	</select>	
+	
+	<!-- 전체 요구사항 건수 조회 -->
+	<!-- <select id="cmm9000DAO.selectCmm9000AllReqCntList" parameterClass="java.util.Map" resultClass="egovMap" cacheModel="commonCachemodel.cmm9000">-->
+	<select id="cmm9000DAO.selectCmm9000AllReqCntList" parameterClass="java.util.Map" resultClass="egovMap" >
+		<![CDATA[					
+			/* cmm9000DAO.selectCmm9000AllReqCntList - 전체 요구사항 건수 조회(전체건수 포함) */
+			SELECT COUNT(*) AS CNT
+			FROM REQ4100 A
+			WHERE 1=1
+			AND A.PRJ_ID = #selPrjId#
+		]]>
+	</select>
+	
+	<!-- 프로젝트 유형에 따라 좌측 알림 부분 구분을 위한 프로젝트 타입 조회 -->
+	<select id="cmm9000DAO.selectCmm9000ProjectType" parameterClass="java.util.Map" resultClass="String" >
+		<![CDATA[					
+			/* cmm9000DAO.selectCmm9000ProjectType - 좌측 알림 부분 구분을 위한 선택된 프로젝트 타입 조회  */
+			SELECT	A.PRJ_TYPE
+			FROM	PRJ1000 A
+			WHERE	1=1
+			AND A.PRJ_ID 		= #selPrjId#
+			AND A.LIC_GRP_ID 	= #licGrpId#
+		]]>
+	</select>
+	
+	
+</sqlMap>

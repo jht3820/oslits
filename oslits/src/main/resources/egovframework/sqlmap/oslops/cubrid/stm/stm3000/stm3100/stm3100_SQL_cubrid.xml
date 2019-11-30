@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="stm3100DAO">
+
+	<typeAlias alias="egovMap" 		type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+    <typeAlias alias="stm3100VO"	type="kr.opensoftlab.oslops.stm.stm3000.stm3100.vo.Stm3100VO"/>	
+	
+	<resultMap id="resultMapSelectStm3100VO" class="stm3100VO">
+		<result property="rn"  			    column="RN"/>
+		<result property="licGrpId"         column="LIC_GRP_ID" /> 		<!-- 라이선스 그룹 ID --> 
+		<result property="prjId"            column="PRJ_ID" />			<!-- 프로젝트 ID --> 
+		<result property="jenId"            column="JEN_ID" />  		<!-- JENKINS ID -->
+		<result property="jenNm"            column="JEN_NM" />			<!-- JENKINS 사며 -->
+		<result property="jenUrl"           column="JEN_URL" /> 		<!-- JENKINS URL --> 
+		<result property="jobId"            column="JOB_ID" /> 			<!-- JOB ID(NAME) --> 
+		<result property="jobRestoreId" 	column="JOB_RESTORE_ID" /> 	<!-- 원복 JOB ID(NAME)  --> 
+		<result property="jobTypeCd"        column="JOB_TYPE_CD" /> 	<!-- JOB TYPE(코드 : DPL00002) -->
+		<result property="jobTypeNm"        column="JOB_TYPE_NM" /> 	<!-- JOB TYPE 명 -->
+		<result property="jobDesc"        	column="JOB_DESC" /> 		<!-- JOB 설명 -->
+		<result property="regDtm"           column="REG_DTM" /> 		<!-- 최초등록 일시 --> 
+		<result property="regUsrId"         column="REG_USR_ID" /> 		<!-- 최초등록자 ID --> 
+		<result property="regUsrIp"         column="REG_USR_IP" /> 		<!-- 최초등록자 IP --> 
+		<result property="modifyDtm"        column="MODIFY_DTM" /> 		<!-- 최종수정일시 --> 
+		<result property="modifyUsrId"      column="MODIFY_USR_ID" /> 	<!-- 최종수정자 ID --> 
+		<result property="modifyUsrIp"      column="MODIFY_USR_IP" /> 	<!-- 최종수정자 IP --> 
+    </resultMap>
+	
+	
+	<!-- 프로젝트에 배정된 Jenkins Job 목록을 조회 -->
+	<sql id="selectStm3100JenkinsProjectList">
+		SELECT 
+			SUBT1.LIC_GRP_ID 		/* 라이선스그룹 ID	*/
+            ,	SUBT1.JEN_ID			/* JENKINS ID */
+            ,	SUBT1.JEN_NM			/* JENKINS 명 */
+            ,	SUBT1.JEN_URL			/* JENKINS URL */
+            ,	SUBT1.JOB_ID			/* JOB ID */
+            ,	SUBT1.JOB_TYPE_CD		/* JOB 타입 코드 */
+            ,	SF_ADM4100_COM_CD_INFO( #licGrpId#, 'DPL00002', SUBT1.JOB_TYPE_CD, '1') AS JOB_TYPE_NM /* JOB 타입 명 */
+            ,	SUBT1.JOB_RESTORE_ID	/* 원복 JOB ID */
+            ,	SUBT1.JOB_DESC			/* JOB 설명 	*/
+            , 	SUBT1.PRJ_ID 			/* 프로젝트 ID */
+            ,	SUBT1.REG_DTM			/* 최초등록일시 	*/
+		    ,	SUBT1.REG_USR_ID		/* 최초등록자 ID */
+		    ,	SUBT1.REG_USR_IP		/* 최초등록자 IP */
+		    ,	SUBT1.MODIFY_DTM		/* 최종수정일시 	*/
+		    ,	SUBT1.MODIFY_USR_ID		/* 최종수정자 ID */
+		    ,	SUBT1.MODIFY_USR_IP		/* 최종수정자 IP */
+		FROM
+		(
+			 SELECT
+				      	A.LIC_GRP_ID 		/* 라이선스그룹 ID	*/
+	                ,	A.JEN_ID			/* JENKINS ID */
+	                ,	C.JEN_NM			/* JENKINS 명 */
+	                ,	C.JEN_URL			/* JENKINS URL */
+	                ,	B.JOB_ID			/* JOB ID */
+	                ,	B.JOB_TYPE_CD		/* JOB 타입 코드 */
+	                ,	B.JOB_RESTORE_ID	/* 원복 JOB ID */
+	                ,	B.JOB_DESC			/* JOB 설명 	*/
+	                , 	A.PRJ_ID 			/* 프로젝트 ID */
+	                ,	A.REG_DTM			/* 최초등록일시 	*/
+				    ,	A.REG_USR_ID		/* 최초등록자 ID */
+				    ,	A.REG_USR_IP		/* 최초등록자 IP */
+				    ,	A.MODIFY_DTM		/* 최종수정일시 	*/
+				    ,	A.MODIFY_USR_ID		/* 최종수정자 ID */
+				    ,	A.MODIFY_USR_IP		/* 최종수정자 IP */
+			 FROM
+					JEN1200 A 
+	           		LEFT JOIN JEN1100 B
+	           		ON (A.LIC_GRP_ID = B.LIC_GRP_ID AND A.JEN_ID = B.JEN_ID AND A.JOB_ID = B.JOB_ID)
+	            	LEFT JOIN JEN1000 C
+	            	ON (B.LIC_GRP_ID = C.LIC_GRP_ID AND B.JEN_ID = C.JEN_ID)
+			 WHERE   1=1
+			 AND A.LIC_GRP_ID = #licGrpId#
+			 AND A.PRJ_ID = #prjId#
+			 <isNotEmpty property="searchSelect">
+				<isNotEmpty property="searchTxt">
+					<isEqual property="searchSelect" compareValue="jenNm"> 
+						AND		UPPER( C.JEN_NM ) like '%'|| UPPER( #searchTxt# )  ||'%'
+					</isEqual>
+					<isEqual property="searchSelect" compareValue="jobId"> 
+						AND		UPPER( B.JOB_ID ) like '%'|| UPPER( #searchTxt# )  ||'%'
+					</isEqual>
+					<isEqual property="searchSelect" compareValue="jobRestoreId"> 
+						AND		UPPER( B.JOB_RESTORE_ID ) like '%'|| UPPER( #searchTxt# )  ||'%'
+					</isEqual>
+				</isNotEmpty>
+			</isNotEmpty>
+			<isNotEmpty>
+				<isNotEmpty property="searchSelect">
+					<isNotEmpty property="searchCd">
+						<isEqual property="searchSelect" compareValue="jobTypeCd">
+							AND 	B.JOB_TYPE_CD LIKE '%'||#searchCd#||'%'
+						</isEqual>
+						<isEqual property="searchSelect" compareValue="useCd">
+							AND 	B.USE_CD LIKE '%'||#searchCd#||'%'
+						</isEqual>
+					</isNotEmpty>
+				</isNotEmpty>
+			</isNotEmpty>
+		) SUBT1
+		 ORDER BY SUBT1.JOB_ID
+	</sql>
+	
+	<!-- 프로젝트 권한 허용 Jenkins Job 목록을 조회한다. -->
+	<sql id="selectStm3100JenkinsProjectAuthList">
+		SELECT T.*
+			,	SF_ADM4100_COM_CD_INFO( #licGrpId#, 'DPL00002', T.JOB_TYPE_CD, '1') AS JOB_TYPE_NM /* JOB 타입 명 */
+		FROM(
+			SELECT
+			      	A.LIC_GRP_ID 		/* 라이선스그룹 ID	*/
+                ,	A.JEN_ID			/* JENKINS ID */
+                ,	B.JEN_NM			/* JENKINS 명 */
+                ,	B.JEN_URL			/* JENKINS URL */
+                ,	B.DEL_CD			/* JENKINS 삭제유무 */
+                ,	A.JOB_ID			/* JOB ID */
+                ,	A.JOB_TYPE_CD		/* JOB 타입 코드 */
+                ,	A.JOB_RESTORE_ID	/* 원복 JOB ID */
+                ,	A.JOB_DESC			/* JOB 설명 	*/
+                ,	A.USE_CD			/* JOB 사용유무 */
+                ,	A.REG_DTM			/* 최초등록일시 	*/
+			    ,	A.REG_USR_ID		/* 최초등록자 ID */
+			    ,	A.REG_USR_IP		/* 최초등록자 IP */
+			    ,	A.MODIFY_DTM		/* 최종수정일시 	*/
+			    ,	A.MODIFY_USR_ID		/* 최종수정자 ID */
+			    ,	A.MODIFY_USR_IP		/* 최종수정자 IP */
+			FROM JEN1100 A
+	        LEFT JOIN JEN1000 B
+	        ON (A.LIC_GRP_ID = B.LIC_GRP_ID AND A.JEN_ID = B.JEN_ID)
+		) T         
+		WHERE   1=1
+		AND T.LIC_GRP_ID = #licGrpId#
+		AND	T.DEL_CD = '02'			/* JENKINS 삭제유무가 아니오(02)인것만 */
+		AND T.JOB_TYPE_CD != '03'	/* JOB 타입이 원복(03)이 아닌것만 배정 */
+		AND	T.USE_CD = '01'			/* JOB 사용유무가 사용인것만 */
+		AND	NOT EXISTS (
+   			SELECT *FROM JEN1200 X
+          	WHERE 1=1
+			AND	T.JEN_ID = X.JEN_ID
+            AND	T.JOB_ID = X.JOB_ID
+          	AND X.LIC_GRP_ID = #licGrpId#
+          	AND X.PRJ_ID  = #prjId# 
+		)
+		<isNotEmpty property="searchSelect">
+			<isNotEmpty property="searchTxt">
+				<isEqual property="searchSelect" compareValue="jenNm"> 
+					AND		UPPER( T.JEN_NM ) like '%'|| UPPER( #searchTxt# )  ||'%'
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="jobId"> 
+					AND		UPPER( T.JOB_ID ) like '%'|| UPPER( #searchTxt# )  ||'%'
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="jobRestoreId"> 
+					AND		UPPER( T.JOB_RESTORE_ID ) like '%'|| UPPER( #searchTxt# )  ||'%'
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="jobDesc"> 
+					AND		UPPER( T.JOB_DESC )  like '%'|| UPPER( #searchTxt#  ) ||'%'
+				</isEqual>
+			</isNotEmpty>
+		</isNotEmpty>
+		<isNotEmpty property="searchSelect">
+			<isNotEmpty property="searchCd">
+			<isEqual property="searchSelect" compareValue="jobTypeCd">
+				AND T.JOB_TYPE_CD LIKE '%'||#searchCd#||'%'
+			</isEqual>
+			</isNotEmpty>
+		</isNotEmpty>
+		ORDER BY T.JOB_ID
+	</sql>
+	
+	
+	<!-- Jenkins 허용 역할 그룹  목록 가져오기 -->
+	<sql id="selectJen1300JenkinsJobAuthGrpList">
+		SELECT
+			SUBT1.LIC_GRP_ID	/* 라이선스 그룹 ID */
+			,	SUBT1.PRJ_ID		/* 프로젝트 ID*/
+			,	SUBT1.JEN_ID		/* JENKINS ID */
+			,	SUBT1.JOB_ID		/* JENKINS JOB ID */
+        	,	SUBT1.AUTH_GRP_ID	/* 역할그룹 ID */
+		    ,	SUBT1.AUTH_GRP_NM	/* 역할그룹 명 */
+		    ,	SUBT1.AUTH_GRP_DESC	/* 역할그룹 설명*/ 
+		    ,	SUBT1.CREATE_DT		/* 역할그룹 생성일자 */
+		    ,	SUBT1.USE_CD		/* 역할그룹 사용여부 */
+		    ,	SUBT1.USR_TYP		/* 사용자 유형 코드 */
+		    ,	SF_ADM4100_COM_CD_INFO( #licGrpId#, 'ADM00004', SUBT1.USR_TYP, '1') AS USR_TYP_NM	/* 사용자 유형 코드 명 */
+		FROM
+		(
+			SELECT 
+	  		  		A.LIC_GRP_ID	/* 라이선스 그룹 ID */
+				,	A.PRJ_ID		/* 프로젝트 ID*/
+				,	A.JEN_ID		/* JENKINS ID */
+				,	A.JOB_ID		/* JENKINS JOB ID */
+	        	,	A.AUTH_GRP_ID	/* 역할그룹 ID */
+			    ,	B.AUTH_GRP_NM	/* 역할그룹 명 */
+			    ,	B.AUTH_GRP_DESC	/* 역할그룹 설명*/ 
+			    ,	B.CREATE_DT		/* 역할그룹 생성일자 */
+			    ,	B.USE_CD		/* 역할그룹 사용여부 */
+			    ,	B.USR_TYP		/* 사용자 유형 코드 */
+			FROM	JEN1300 A
+	      			INNER JOIN ADM1100 B
+	      			ON (A.PRJ_ID = B.PRJ_ID AND A.AUTH_GRP_ID = B.AUTH_GRP_ID)
+			WHERE 1=1
+			AND B.LIC_GRP_ID 	= #licGrpId#
+			AND	A.PRJ_ID 		= #prjId#
+			AND A.JEN_ID 		= #jenId#
+	      	AND A.JOB_ID 		= #jobId#
+			AND B.USE_CD 		= '01'		/* 역할그룹 사용여부가 사용인 것만 */
+		) SUBT1
+	</sql>
+	
+	
+	<!-- 프로젝트에 배정된 Jenkins Job 목록을 조회한다. -->	
+	<select id="stm3100DAO.selectStm3100JenkinsProjectList" parameterClass="stm3100VO"  resultMap="resultMapSelectStm3100VO" >
+		/* stm3100DAO.selectStm3100JenkinsProjectList 프로젝트에 배정된 Jenkins Job 목록을 조회한다. */
+		 	SELECT *
+			FROM
+			(
+    			SELECT 	ROWNUM RN,
+    			     	T.*
+    			FROM
+    			(
+					<include refid="selectStm3100JenkinsProjectList"/>
+	    		 ) T
+	    	)
+	    	WHERE RN BETWEEN (#firstIndex#+1) AND #lastIndex#
+	</select>
+	
+	
+	<!-- 프로젝트에 배정된 Jenkins Job 목록 총 건수 :페이징 처리 부분 -->
+    <select id="stm3100DAO.selectStm3100JenkinsProjectListCnt" parameterClass="stm3100VO"  resultClass="java.lang.Integer">
+	    	/*	stm3100DAO.selectStm3100JenkinsProjectListCnt Jenkins 프로젝트에 배정된 Jenkins Job 목록 총 건수를 조회한다.*/
+	    	SELECT
+					COUNT(*)
+			FROM
+			(
+				<include refid="selectStm3100JenkinsProjectList"/>
+			) A
+    </select>
+	
+	
+	<!-- 프로젝트에 배정 설정 Jenkins Job 목록을 조회한다. -->
+	<select id="stm3100DAO.selectStm3100JenkinsProjectAuthList" parameterClass="stm3100VO"  resultClass="egovMap" >
+	<![CDATA[]]>
+		/* stm3100DAO.selectStm3100JenkinsProjectAuthList 프로젝트에 배정 설정 Jenkins Job 목록을 조회한다. */
+		SELECT *
+			FROM
+			(
+    			SELECT 	ROWNUM RN,
+    			     	T.*
+    			FROM
+    			(
+					<include refid="selectStm3100JenkinsProjectAuthList"/>
+	    		 ) T
+	    	)
+	    	WHERE RN BETWEEN (#firstIndex#+1) AND #lastIndex#
+	</select>
+	
+	
+	<!-- 프로젝트에 배정 설정 Jenkins Job 목록 총 건수 : 페이징 처리 부분 -->
+    <select id="stm3100DAO.selectStm3100JenkinsProjectAuthListCnt" parameterClass="stm3100VO"  resultClass="java.lang.Integer">
+	    	/*	stm3100DAO.selectStm3100JenkinsProjectAuthListCnt 프로젝트에 배정 설정 Jenkins Job 목록 총 건수를 조회한다.*/
+	    	SELECT
+					COUNT(*)
+			FROM
+			(
+				<include refid="selectStm3100JenkinsProjectAuthList"/>
+			) A
+    </select>
+	
+	
+	
+	<!-- 프로젝트에 Jenkins Job을 배정한다. -->	
+	<insert id="stm3100DAO.insertJen1200ProjectAddJob" parameterClass="java.util.Map">
+		/* stm3100DAO.insertJen1200ProjectAddJob 프로젝트에 Jenkins Job을 배정한다. */
+		<![CDATA[ 
+		INSERT INTO JEN1200
+			(
+					LIC_GRP_ID, 		PRJ_ID, 			JEN_ID, 			JOB_ID 		  	
+                ,	REG_DTM, 			REG_USR_ID, 		REG_USR_IP, 		MODIFY_DTM
+                ,	MODIFY_USR_ID,		MODIFY_USR_IP	
+			)
+			VALUES
+			(
+					#licGrpId#,			#prjId#,			#jenId#,			#jobId#
+				,	CURRENT_TIMESTAMP,			#regUsrId#,			#regUsrIp#,			CURRENT_TIMESTAMP
+				,	#regUsrId#,			#regUsrIp#			
+			)
+		]]>
+	</insert>
+	
+	
+	<!-- 프로젝트에 Jenkins Job을 배정 제외 한다.  -->
+	<delete id="stm3100DAO.deleteJen1200ProjectDelJob" parameterClass="java.util.Map">
+		/* stm3100DAO.deleteJen1200ProjectDelJob 프로젝트에 Jenkins Job을 배정 제외 한다. */
+		DELETE	
+		FROM	JEN1200 A
+		WHERE	1=1
+		AND		A.LIC_GRP_ID	= #licGrpId#
+		AND		A.PRJ_ID 		= #prjId#
+		AND 	A.JEN_ID 		= #jenId#
+		AND		A.JOB_ID 		= #jobId# 
+	</delete>
+	
+	<!-- Jenkins 허용 역할 그룹  일반 목록 가져오기 -->
+	<select id="stm3100DAO.selectJen1300JenkinsJobAuthGrpNormalList" parameterClass="java.util.Map" resultClass="egovMap">
+		/* stm3100DAO.selectJen1300JenkinsJobAuthGrpNormalList - Jenkins 허용 역할 그룹  일반 목록 가져오기   */
+   			SELECT 	ROWNUM RN,
+   			     	T.*
+   			FROM
+   			(
+				<include refid="selectJen1300JenkinsJobAuthGrpList"/>
+    		 ) T
+	</select>
+	
+	<!-- Jenkins 허용 역할 그룹  목록 가져오기 -->
+	<select id="stm3100DAO.selectJen1300JenkinsJobAuthGrpList" parameterClass="stm3100VO" resultClass="egovMap">
+		/* stm3100DAO.selectJen1300JenkinsJobAuthGrpList - Jenkins 허용 역할 그룹  목록 가져오기   */
+		SELECT *
+			FROM
+			(
+    			SELECT 	ROWNUM RN,
+    			     	T.*
+    			FROM
+    			(
+					<include refid="selectJen1300JenkinsJobAuthGrpList"/>
+	    		 ) T
+	    	)
+	    	WHERE RN BETWEEN (#firstIndex#+1) AND #lastIndex#
+	</select>
+	
+	
+	<!-- Jenkins 허용 역할 그룹  목록 총 건수 : 페이징 처리 부분 -->
+    <select id="stm3100DAO.selectJen1300JenkinsJobAuthGrpListCnt" parameterClass="stm3100VO"  resultClass="java.lang.Integer">
+	    	/*	stm3100DAO.selectJen1300JenkinsJobAuthGrpListCnt Jenkins 허용 역할 그룹  목록 총 건수를 조회한다.*/
+	    	SELECT
+					COUNT(*)
+			FROM
+			(
+				<include refid="selectJen1300JenkinsJobAuthGrpList"/>
+			) A
+    </select>
+	
+	
+	<!-- Jenkins Job에 허용 역할 그룹이 등록되어있는지 체크한다. -->
+	<select id="stm3100DAO.selectJen1300JenkinsJobAuthGrpCnt"  parameterClass="java.util.Map" resultClass="java.lang.Integer">
+		/* stm3100DAO.selectJen1300JenkinsJobAuthGrpCnt -  Jenkins Job에 허용 역할 그룹이 등록되어있는지 체크한다.  */
+		<![CDATA[
+			SELECT COUNT(*) AS AUTH_GRP_CNT
+			FROM JEN1300 A
+			WHERE 1=1
+			AND	A.PRJ_ID 		= #prjId#
+			AND A.JEN_ID 		= #jenId#
+			AND A.JOB_ID 		= #jobId#
+			AND A.AUTH_GRP_ID 	= #authGrpId#		
+		]]>
+	</select>
+	
+	
+	<!-- Jenkins Job 허용 역할 그룹 정보 저장 -->
+	<insert id="stm3100DAO.insertJen1300JenkinsJobAuthGrpInfo" parameterClass="java.util.Map">
+		/* stm3100DAO.insertJen1300JenkinsJobAuthGrpInfo - Jenkins Job 허용 역할 그룹 정보 저장  */
+		<![CDATA[
+			INSERT INTO JEN1300
+			(
+					LIC_GRP_ID,		PRJ_ID,				JEN_ID,			JOB_ID
+				,	AUTH_GRP_ID,	REG_DTM,			REG_USR_ID,		REG_USR_IP
+				,	MODIFY_DTM,		MODIFY_USR_ID,		MODIFY_USR_IP
+			)
+			VALUES
+			(
+					#licGrpId#,		#prjId#,		#jenId#,		#jobId#
+				,	#authGrpId#,	CURRENT_TIMESTAMP,		#regUsrId#,		#regUsrIp#
+				,	CURRENT_TIMESTAMP,		#regUsrId#,		#regUsrIp#
+			)		
+		
+		]]>
+	</insert>
+	
+	
+	<!-- Jenkins Job 허용 역할 그룹 정보 삭제 -->
+	<delete id="stm3100DAO.deleteJen1300JenkinsJobAuthGrpInfo" parameterClass="java.util.Map">
+		/* stm3100DAO.deleteJen1300JenkinsJobAuthGrpInfo - Jenkins Job 허용 역할 그룹 정보 삭제  */
+		<![CDATA[
+			DELETE FROM JEN1300 A
+			WHERE 1=1
+			AND	A.PRJ_ID 		= #prjId#
+			AND A.JEN_ID 		= #jenId#
+			AND A.JOB_ID 		= #jobId#
+		]]>	
+		<isNotEmpty property="authGrpId">
+			AND A.AUTH_GRP_ID 	= #authGrpId#
+		</isNotEmpty>
+		
+	</delete>
+
+	<!-- Jenkins JOB_RESTORE 삭제  -->
+	<update id="stm3100DAO.updateJen1100JenkinsJobRestoreInfo" parameterClass="java.util.Map">
+		/* stm3100DAO.updateJen1100JenkinsJobRestoreInfo - Jenkins JOB_RESTORE 삭제   */
+		<![CDATA[
+			UPDATE JEN1100 SET
+				JOB_RESTORE_ID = null
+			WHERE 1=1
+			AND	LIC_GRP_ID 		= #licGrpId#
+			AND JEN_ID 			= #jenId#
+			AND JOB_RESTORE_ID	= #jobId#
+		]]>	
+		
+	</update>
+</sqlMap>

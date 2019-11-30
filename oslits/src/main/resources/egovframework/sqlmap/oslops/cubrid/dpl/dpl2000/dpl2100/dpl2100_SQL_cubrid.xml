@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+
+<sqlMap namespace="dpl2100DAO">
+
+	<!--  in / out class define  -->
+	<typeAlias 	alias="dpl2100VO"	type="kr.opensoftlab.oslops.dpl.dpl2000.dpl2100.vo.Dpl2100VO"/>
+	
+	<!-- Map Define -->
+   	<resultMap id="resultMapSelectDpl2100" class="dpl2100VO">
+		<result property="rn"					column="RN" /> 
+		<result property="prjId"				column="PRJ_ID" /> 
+		<result property="dplId"				column="DPL_ID" /> 
+		<result property="signId"				column="SIGN_ID" /> 
+		<result property="signUsrId"            column="SIGN_USR_ID" /> 
+		<result property="signUsrNm"            column="SIGN_USR_NM" /> 
+		<result property="signUsrImg"			column="SIGN_USR_IMG" />
+		<result property="signTxt"				column="SIGN_TXT" /> 
+		<result property="signStsCd"			column="SIGN_STS_CD" /> 
+		<result property="signStsNm"			column="SIGN_STS_NM" /> 
+		<result property="signRejectTxt"		column="SIGN_REJECT_TXT" /> 
+		<result property="signDtm"				column="SIGN_DTM" />
+		<result property="signRegUsrId"         column="SIGN_REG_USR_ID" /> 
+		<result property="signRegUsrNm"         column="SIGN_REG_USR_NM" />
+		<result property="signRegUsrImg"       	column="SIGN_REG_USR_IMG" />
+		<result property="dplNm"  				column="DPL_NM"/>
+		<result property="dplVer"  				column="DPL_VER"/>
+		<result property="dplDt"  				column="DPL_DT"/>
+		<result property="dplUsrId"  			column="DPL_USR_ID"/>
+		<result property="dplUsrNm"  			column="DPL_USR_NM"/>
+		<result property="dplDesc" 				column="DPL_DESC"/>
+		<result property="dplStsCd"  			column="DPL_STS_CD"/>
+		<result property="dplStsNm"  			column="DPL_STS_NM"/>
+		<result property="dplTypeCd"  			column="DPL_TYPE_CD"/>
+		<result property="dplTypeNm"  			column="DPL_TYPE_NM"/>
+		<result property="dplAutoAfterCd" 		column="DPL_AUTO_AFTER_CD"/>
+		<result property="dplAutoAfterNm" 		column="DPL_AUTO_AFTER_NM"/>
+		<result property="dplAutoDtm" 			column="DPL_AUTO_DTM"/>
+		<result property="dplRestoreCd"  		column="DPL_RESTORE_CD"/>
+		<result property="dplRestoreNm"  		column="DPL_RESTORE_NM"/>
+		<result property="regDtm"              	column="REG_DTM" /> 
+		<result property="regUsrId"            	column="REG_USR_ID" />
+		<result property="regUsrNm"				column="REG_USR_NM" /> 
+		<result property="regUsrImg"			column="REG_USR_IMG" /> 
+		<result property="regUsrIp"            	column="REG_USR_IP" /> 
+		<result property="modifyDtm"        	column="MODIFY_DTM" /> <!-- 최종수정일시 --> 
+		<result property="modifyUsrId"      	column="MODIFY_USR_ID" /> <!-- 최종수정자 ID --> 
+		<result property="modifyUsrIp"      	column="MODIFY_USR_IP" /> <!-- 최종수정자 IP --> 
+    </resultMap>
+    
+    
+    <sql id="selectDpl2100SignList">
+    /* selectDpl2100List 배포계획 결재 요청 현황 */
+    <![CDATA[ 
+    	SELECT SUBT1.*
+    	FROM
+    	(
+		    SELECT	T1.PRJ_ID
+					, T1.DPL_ID
+					, T1.SIGN_ID
+					, T1.SIGN_USR_ID
+					, SF_ADM2000_USR_INFO(T1.SIGN_USR_ID, 1) SIGN_USR_NM
+	                , SF_ADM2000_USR_INFO(T1.SIGN_USR_ID, 6) SIGN_USR_IMG
+					, SF_REPLACE_ALL(T1.SIGN_TXT ,'</br>|<br>|<br/>|</BR>|<BR>|<BR/>' , CHR(10)) AS SIGN_TXT
+					, T1.SIGN_STS_CD
+					, SF_ADM4100_COM_CD_INFO(#licGrpId#, 'REQ00004', T1.SIGN_STS_CD, '1') AS SIGN_STS_NM
+					, SF_REPLACE_ALL(T1.SIGN_REJECT_TXT ,'</br>|<br>|<br/>|</BR>|<BR>|<BR/>' , CHR(10)) AS SIGN_REJECT_TXT
+					, T1.SIGN_DTM
+					, T1.SIGN_REG_USR_ID
+					, SF_ADM2000_USR_INFO(T1.SIGN_REG_USR_ID, 1) SIGN_REG_USR_NM
+	                , SF_ADM2000_USR_INFO(T1.SIGN_REG_USR_ID, 6) SIGN_REG_USR_IMG
+					, T1.DPL_NM
+					, T1.DPL_VER
+					, T1.DPL_DT
+					, T1.DPL_USR_ID
+					, SF_ADM2000_USR_INFO(T1.DPL_USR_ID, 1) DPL_USR_NM
+					, SF_REPLACE_ALL(T1.DPL_DESC ,'</br>|<br>|<br/>|</BR>|<BR>|<BR/>' , CHR(10)) AS DPL_DESC
+					, T1.DPL_STS_CD
+					, SF_ADM4100_COM_CD_INFO(#licGrpId#, 'DPL00001', T1.DPL_STS_CD, '1') AS DPL_STS_NM
+					, T1.DPL_TYPE_CD
+					, SF_ADM4100_COM_CD_INFO(#licGrpId#, 'DPL00003', T1.DPL_TYPE_CD, '1') AS DPL_TYPE_NM
+					, T1.DPL_AUTO_AFTER_CD
+					, SF_ADM4100_COM_CD_INFO(#licGrpId#, 'DPL00004', T1.DPL_AUTO_AFTER_CD, '1') AS DPL_AUTO_AFTER_NM
+					, T1.DPL_AUTO_DTM
+					, T1.DPL_RESTORE_CD
+					, SF_ADM4100_COM_CD_INFO(#licGrpId#, 'DPL00005', T1.DPL_RESTORE_CD, '1') AS DPL_RESTORE_NM
+					, T1.REG_DTM                 /* 최초등록 일시 */ 
+		            , T1.REG_USR_ID              /* 최초등록자 ID */ 
+		            , SF_ADM2000_USR_INFO(T1.REG_USR_ID, 1) REG_USR_NM
+	                , SF_ADM2000_USR_INFO(T1.REG_USR_ID, 6) REG_USR_IMG
+		            , T1.REG_USR_IP              /* 최초등록자 IP */ 
+		            , T1.MODIFY_DTM              /* 최종수정일시 */ 
+		            , T1.MODIFY_USR_ID           /* 최종수정자 ID */ 
+		            , T1.MODIFY_USR_IP             /* 최종수정자 IP */   	 
+			FROM
+	    	(
+				SELECT
+					A.PRJ_ID
+					, A.DPL_ID
+					, A.SIGN_ID
+					, A.SIGN_USR_ID
+					, A.SIGN_TXT
+					, A.SIGN_STS_CD
+					, A.SIGN_REJECT_TXT
+					, A.SIGN_DTM
+					, A.SIGN_REG_USR_ID
+					, B.DPL_NM
+					, B.DPL_VER
+					, B.DPL_DT
+					, B.DPL_USR_ID
+					, B.DPL_DESC
+					, B.DPL_STS_CD
+					, B.DPL_TYPE_CD
+					, B.DPL_AUTO_AFTER_CD
+					, B.DPL_AUTO_DTM
+					, B.DPL_RESTORE_CD
+					, A.REG_DTM                 /* 최초등록 일시 */ 
+		            , A.REG_USR_ID              /* 최초등록자 ID */ 
+		            , A.REG_USR_IP              /* 최초등록자 IP */ 
+		            , A.MODIFY_DTM              /* 최종수정일시 */ 
+		            , A.MODIFY_USR_ID           /* 최종수정자 ID */ 
+		            , A.MODIFY_USR_IP             /* 최종수정자 IP */   
+				FROM DPL1200 A
+				LEFT JOIN DPL1000 B
+				ON( A.PRJ_ID = B.PRJ_ID AND A.DPL_ID = B.DPL_ID )
+				WHERE 1=1
+				AND A.PRJ_ID = #prjId#
+				AND B.DPL_DEL_CD = '02' /* 배포 계획이 삭제여부가 아니오(02)인 것만 */
+				AND A.SIGN_STS_CD != '04' /* 결재 상태가 기안이 아닌 것만 */
+				AND A.SIGN_DTM = (
+	                			SELECT SIGN_DTM 
+								FROM DPL1200 Z 
+								WHERE 	1=1
+								AND Z.PRJ_ID = A.PRJ_ID
+								AND Z.DPL_ID = A.DPL_ID
+								ORDER BY SIGN_DTM DESC
+								LIMIT 1
+	        					) 
+				ORDER BY DECODE(A.SIGN_STS_CD,'01',1,'03',2,'02',3), A.SIGN_DTM DESC
+			) T1 
+		) SUBT1
+		WHERE 1 = 1
+	]]>
+		<isNotEmpty property="searchSelect">
+			<isNotEmpty property="searchTxt">
+			<isEqual property="searchSelect" compareValue="signUsrNm" prepend="AND">
+				SUBT1.SIGN_USR_NM LIKE '%' || #searchTxt# || '%'
+			</isEqual>
+			<isEqual property="searchSelect" compareValue="signTxt" prepend="AND">
+				SUBT1.SIGN_TXT LIKE '%' || #searchTxt# || '%'
+			</isEqual>
+			<isEqual property="searchSelect" compareValue="signRejectTxt" prepend="AND">
+				SUBT1.SIGN_REJECT_TXT LIKE '%' || #searchTxt# || '%'
+			</isEqual>
+			<isEqual property="searchSelect" compareValue="dplVer" prepend="AND">
+				SUBT1.DPL_VER LIKE '%'|| #searchTxt# ||'%'
+			</isEqual>
+			<isEqual property="searchSelect" compareValue="dplNm" prepend="AND">
+				SUBT1.DPL_NM LIKE '%'|| #searchTxt# ||'%'
+			</isEqual>
+			<isEqual property="searchSelect" compareValue="dplUsrNm" prepend="AND">
+				SUBT1.DPL_USR_NM LIKE '%'||#searchTxt#||'%'
+			</isEqual>
+			<isEqual property="searchSelect" compareValue="dplDesc" prepend="AND">
+				SUBT1.DPL_DESC LIKE '%'||#searchTxt#||'%'
+			</isEqual>
+
+			</isNotEmpty>
+		</isNotEmpty>
+		<isNotEmpty property="signUsrId" prepend="AND">
+			SUBT1.SIGN_USR_ID = #signUsrId#
+		</isNotEmpty>
+		<isNotEmpty property="searchSelect">
+			<isNotEmpty property="searchCd">
+				<isEqual property="searchSelect" compareValue="signStsCd" prepend="AND">
+					SUBT1.DPL_STS_CD = #searchCd#
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="dplStsCd" prepend="AND">
+					SUBT1.DPL_STS_CD = #searchCd#
+				</isEqual>
+				<isEqual property="searchSelect" compareValue="dplTypeCd" prepend="AND">
+					SUBT1.DPL_TYPE_CD = #searchCd#
+				</isEqual>
+			</isNotEmpty>
+		</isNotEmpty>	
+    </sql>	
+    
+    
+   	 <!-- 배포계획 결재 목록 가져오기 -->
+    <select id="dpl2100DAO.selectDpl2100SignList" parameterClass="dpl2100VO"  resultMap="resultMapSelectDpl2100">
+	    /* dpl2100DAO.selectDpl2100SignList 배포계획 결재 목록 가져오기 */
+		SELECT *
+		FROM
+			(
+    		SELECT ROWNUM RN,
+    			     A.*
+    		FROM
+    		(
+					<include refid="selectDpl2100SignList"/>
+	    			) A
+	    	)
+	    	WHERE RN BETWEEN (#firstIndex#+1) AND #lastIndex#
+    </select>
+    
+    
+    <!--  배포계획 결재 목록 총건수. :페이징 처리 부분 -->
+    <select id="dpl2100DAO.selectDpl2100SignListCnt" parameterClass="dpl2100VO"  resultClass="java.lang.Integer">
+	    /* dpl2100DAO.selectDpl2100SignListCnt  배포계획 결재 목록 총건수를 조회한다.*/
+	    SELECT
+			COUNT(*)
+		FROM	(
+			<include refid="selectDpl2100SignList"/>
+				) A
+    </select>
+    
+    <!-- 배포계획 결재 디테일 정보 -->
+    <select id="dpl2100DAO.selectDpl2100SignInfoAjax" parameterClass="java.util.Map" resultClass="egovMap">
+    	/* dpl2100DAO.selectDpl2100SignInfoAjax  배포계획 결재 디테일 정보 */
+    	SELECT 
+    		T1.PRJ_ID
+			, T1.DPL_ID
+			, T1.SIGN_ID
+			, T1.SIGN_USR_ID
+			, SF_ADM2000_USR_INFO(T1.SIGN_USR_ID, 1) SIGN_USR_NM
+            , SF_ADM2000_USR_INFO(T1.SIGN_USR_ID, 6) SIGN_USR_IMG
+			, T1.SIGN_TXT
+			, T1.SIGN_STS_CD
+			, SF_ADM4100_COM_CD_INFO(#licGrpId#, 'REQ00004', T1.SIGN_STS_CD, '1') AS SIGN_STS_NM
+			, T1.SIGN_REJECT_TXT
+			, T1.SIGN_DTM
+			, T1.SIGN_REG_USR_ID
+			, SF_ADM2000_USR_INFO(T1.SIGN_REG_USR_ID, 1) SIGN_REG_USR_NM
+            , SF_ADM2000_USR_INFO(T1.SIGN_REG_USR_ID, 6) SIGN_REG_USR_IMG
+			, T1.DPL_NM
+			, T1.DPL_VER
+			, T1.DPL_DT
+			, T1.DPL_USR_ID
+			, SF_ADM2000_USR_INFO(T1.DPL_USR_ID, 1) DPL_USR_NM
+			, T1.DPL_DESC
+			, T1.DPL_STS_CD
+			, SF_ADM4100_COM_CD_INFO(#licGrpId#, 'DPL00001', T1.DPL_STS_CD, '1') AS DPL_STS_NM
+			, T1.DPL_TYPE_CD
+			, SF_ADM4100_COM_CD_INFO(#licGrpId#, 'DPL00003', T1.DPL_TYPE_CD, '1') AS DPL_TYPE_NM
+			, T1.DPL_AUTO_AFTER_CD
+			, SF_ADM4100_COM_CD_INFO(#licGrpId#, 'DPL00004', T1.DPL_AUTO_AFTER_CD, '1') AS DPL_AUTO_AFTER_NM
+			, T1.DPL_AUTO_DTM
+			, T1.DPL_RESTORE_CD
+			, SF_ADM4100_COM_CD_INFO(#licGrpId#, 'DPL00005', T1.DPL_RESTORE_CD, '1') AS DPL_RESTORE_NM
+			, T1.REG_DTM                 /* 최초등록 일시 */ 
+            , T1.REG_USR_ID              /* 최초등록자 ID */ 
+            , SF_ADM2000_USR_INFO(T1.REG_USR_ID, 1) REG_USR_NM
+            , SF_ADM2000_USR_INFO(T1.REG_USR_ID, 6) REG_USR_IMG
+            , T1.REG_USR_IP              /* 최초등록자 IP */ 
+            , T1.MODIFY_DTM              /* 최종수정일시 */ 
+            , T1.MODIFY_USR_ID           /* 최종수정자 ID */ 
+            , T1.MODIFY_USR_IP             /* 최종수정자 IP */ 
+    	FROM
+    	(
+	    	SELECT
+				A.PRJ_ID
+				, A.DPL_ID
+				, A.SIGN_ID
+				, A.SIGN_USR_ID
+				, A.SIGN_TXT
+				, A.SIGN_STS_CD
+				, A.SIGN_REJECT_TXT
+				, A.SIGN_DTM
+				, A.SIGN_REG_USR_ID
+				, B.DPL_NM
+				, B.DPL_VER
+				, B.DPL_DT
+				, B.DPL_USR_ID
+				, B.DPL_DESC
+				, B.DPL_STS_CD
+				, B.DPL_TYPE_CD
+				, B.DPL_AUTO_AFTER_CD
+				, B.DPL_AUTO_DTM
+				, B.DPL_RESTORE_CD
+				, A.REG_DTM                 /* 최초등록 일시 */ 
+	            , A.REG_USR_ID              /* 최초등록자 ID */ 
+	            , A.REG_USR_IP              /* 최초등록자 IP */ 
+	            , A.MODIFY_DTM              /* 최종수정일시 */ 
+	            , A.MODIFY_USR_ID           /* 최종수정자 ID */ 
+	            , A.MODIFY_USR_IP             /* 최종수정자 IP */   
+			FROM DPL1200 A
+			LEFT JOIN DPL1000 B
+			ON( A.PRJ_ID = B.PRJ_ID AND A.DPL_ID = B.DPL_ID )
+			WHERE 1=1
+			AND A.PRJ_ID = #prjId#
+			AND	A.DPL_ID = #dplId#
+			AND	A.SIGN_ID = #signId#
+		) T1
+    </select>
+    
+    <!-- 배포계획 결재 등록-->
+	<insert id="dpl2100DAO.insertDpl2100DplSignInfo" parameterClass="java.util.Map">
+		<selectKey resultClass="java.lang.String" keyProperty="newSignId">
+		<![CDATA[
+			/* dpl2100DAO.insertDpl2100DplSignInfo - 배포 계획 결재 ID 발급 */ 
+			SELECT   COALESCE(
+                SUBSTR(NEW_SIGN_ID, 1, 11) || LPAD( (TO_NUMBER(SUBSTR(NEW_SIGN_ID, 12, 5)) + 1) , 5, '0')
+            ,   'SIG' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDD') || '00001'
+        	) AS NEW_DPL_ID
+				FROM   (
+	            SELECT	MAX(SIGN_ID)  AS NEW_SIGN_ID
+	            FROM	DPL1200 A
+	            WHERE   1=1
+	            AND     A.PRJ_ID = #prjId#
+	            AND		A.DPL_ID = #dplId#
+	            AND     A.SIGN_ID LIKE 'SIG' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDD') || '%'
+        	)
+		]]>
+		</selectKey>
+		<![CDATA[ 
+			/* dpl2100DAO.insertDpl2100DplSignInfo - 배포계획 결재 등록  */
+			INSERT INTO DPL1200
+			(
+				PRJ_ID					,DPL_ID					,SIGN_ID				,SIGN_USR_ID
+				,SIGN_TXT				,SIGN_STS_CD			,SIGN_REJECT_TXT		,SIGN_DTM
+				,SIGN_REG_USR_ID
+				,REG_DTM				,REG_USR_ID				,REG_USR_IP		
+					    
+			)
+			VALUES
+			(
+				#prjId#					,#dplId#				,#newSignId#			,#signUsrId#
+				,#signTxt#				,#signStsCd#			,#signRejectTxt#		,CURRENT_TIMESTAMP
+				,#signRegUsrId#
+				,CURRENT_TIMESTAMP				,#regUsrId#				,#regUsrIp#
+			)
+		]]>
+	</insert>
+</sqlMap>
