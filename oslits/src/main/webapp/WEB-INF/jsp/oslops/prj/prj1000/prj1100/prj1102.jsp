@@ -16,6 +16,7 @@ var processId = "${processId}";
 var flowId = "${flowId}";
 var type = "${type}";
 
+
 var flwOptGrid;
 //공통코드 목록
 $(document).ready(function() {
@@ -97,8 +98,15 @@ $(document).ready(function() {
 			$("#flowDpl")[0].checked = false;
 			fnOptPreviewOnOff("optDpl", false);	//아이콘 onOff
 		}
-		if(selFlowPro.flowAuth == "on"){			//허용 역할
+		if(selFlowPro.flowAuth == "on"){			//허용역할
+			$("#flowAuth")[0].checked = true;
+			fnOptPreviewOnOff("optAuth", true);	//아이콘 onOff
+			fnAuthGridOnOff();
+			
+			// 팝업 높이 변경
+	        fnChangeFlowPopUp(true);
 		}else{
+			$("#flowAuth")[0].checked = false;
 			fnOptPreviewOnOff("optAuth", false);	//아이콘 onOff
 		}
 		
@@ -127,6 +135,11 @@ $(document).ready(function() {
 	
 	//작업흐름 추가
 	$("#btn_flow_save").click(function(){
+		// 저장 전 유효성 체크
+		if(!gfnSaveInputValChk(arrChkObj)){
+			return false;
+		}
+		
 		//error있는경우 오류
 		if($(".inputError").length > 0){
 			jAlert("유효하지 않은 값이 입력된 항목이 존재합니다.<br>항목을 확인해주세요.","알림");
@@ -157,11 +170,6 @@ $(document).ready(function() {
 		
 		//flowChart
 		$flowchart = $('#flowChartDiv');
-		
-		// 저장 전 유효성 체크
-		if(!gfnSaveInputValChk(arrChkObj)){
-			return false;
-		}
 		
 		//작업흐름 추가인경우
 		if(type == "insert"){
@@ -201,15 +209,24 @@ $(document).ready(function() {
 		//아이콘 onOff
 		fnOptPreviewOnOff(opt,chkVal);
 	});
+	
+
+	// 허용역할 체크에 따른 팝업 높이 변경
+	$("#flowAuth").click(function(){
+		// 허용역할 체크값을 가져온다
+		var isAuthChk = $("#flowAuth").is(":checked");
+		// 팝업 높이 변경
+        fnChangeFlowPopUp(isAuthChk);
+    });
 });
 
 //미리보기 작업흐름 아이콘 onOff
 function fnOptPreviewOnOff(id, onOff){
 	//show
 	if(onOff){
-		$("#previewOpt.flowOptionDiv_preview > .fa#"+id).show({"display":"inline-block"});
+		$("#previewOpt.flowOptionDiv_preview > i#"+id).show({"display":"inline-block"});
 	}else{ //hide
-		$("#previewOpt.flowOptionDiv_preview > .fa#"+id).hide({"display":"none"});
+		$("#previewOpt.flowOptionDiv_preview > i#"+id).hide({"display":"none"});
 	}
 }
 		
@@ -258,6 +275,7 @@ function fnFlowSaveAjax(type,flowInfo){
 				flowContentColor:flowInfo.flowContentColor,
 				flowEssential:flowInfo.flowEssential,
 				flowSign:flowInfo.flowSign,
+				flowSignStop:flowInfo.flowSignStop,
 				flowEnd:flowInfo.flowEnd,
 				flowWork:flowInfo.flowWork,
 				flowRevision:flowInfo.flowRevision,
@@ -278,6 +296,7 @@ function fnFlowSaveAjax(type,flowInfo){
 	//필수, 결재, 종료분기 체크박스 세팅
 	var flowEssentialCd = null;
 	var flowSignCd = null;
+	var flowSignStopCd = null;
 	var flowEndCd = null;
 	var flowWorkCd = null;
 	var flowRevisionCd = null;
@@ -329,7 +348,7 @@ function fnFlowSaveAjax(type,flowInfo){
    		
    		//허용 역할
    		if(typeof flowInfo.flowAuth != "undefined" && flowInfo.flowAuth == "on"){
-			flowAuthCd = "01";
+   			flowAuthCd = "01";
 		}else{
 			flowAuthCd = "02";
 		}
@@ -376,9 +395,10 @@ function fnFlowSaveAjax(type,flowInfo){
 			flowDplCd = "02";
 		}
    		
+
    		//허용 역할
    		if(typeof selFlowPorp.flowAuth != "undefined" && selFlowPorp.flowAuth == "on"){
-			flowAuthCd = "01";
+   			flowAuthCd = "01";
 		}else{
 			flowAuthCd = "02";
 		}
@@ -396,7 +416,6 @@ function fnFlowSaveAjax(type,flowInfo){
   			jAlert("url 오류가 발생했습니다.","알림");
   		}
   		
-  		//debugger;
   		//return false;
 	//AJAX 설정
 	var ajaxObj = new gfnAjaxRequestAction(
@@ -411,6 +430,7 @@ function fnFlowSaveAjax(type,flowInfo){
 				,flowContentColor :flowInfo.flowContentColor
 				,flowEssentialCd :flowEssentialCd
 				,flowSignCd :flowSignCd
+				,flowSignStopCd :flowSignStopCd
 				,flowEndCd :flowEndCd
 				,flowWorkCd :flowWorkCd
 				,flowRevisionCd :flowRevisionCd
@@ -436,6 +456,7 @@ function fnFlowSaveAjax(type,flowInfo){
 				if(processConfirmCd == "02") {
 					flowInfo.flowEssential = selFlowPorp.flowEssential;
 					flowInfo.flowSign = selFlowPorp.flowSign;
+					flowInfo.flowSignStop = selFlowPorp.flowSignStop;
 					flowInfo.flowEnd = selFlowPorp.flowEnd;
 					flowInfo.flowWork = selFlowPorp.flowWork;
 					flowInfo.flowRevision = selFlowPorp.flowRevision;
@@ -462,6 +483,7 @@ function fnFlowSaveAjax(type,flowInfo){
 						flowNextId:selFlowData.properties.flowNextId,
 						flowEssential:flowInfo.flowEssential,
 						flowSign:flowInfo.flowSign,
+						flowSignStop:flowInfo.flowSignStop,
 						flowEnd:flowInfo.flowEnd,
 						flowWork:flowInfo.flowWork,
 						flowRevision:flowInfo.flowRevision,
@@ -524,47 +546,48 @@ function selColorChgGo(titleBg, contentBg){
 	$("#flowContentColor").val(titleBg);
 }
 
+
 //역할 그룹 그리드
 function fnAuthListGrid(){
 	authGrid = new ax5.ui.grid();
- 
-    authGrid.setConfig({
-        target: $('[data-ax5grid="auth-grid"]'),
-        sortable:true,
-        showRowSelector: true,
-        header: {align:"center"},
-        columns: [
-         {key: "authGrpNm", label: "역할그룹 명", width: 160, align: "center"},
-         {key: "usrTypNm", label: "사용자유형", width: 120, align: "center"},
-         {key: "authGrpDesc", label: "역할그룹 설명", width: 225, align: "center"},
-         {key: "authGrpId", label: "역할그룹 Id", width: 225, align: "center",display:false}
-        ],
-        body: {
-            align: "center",
-            columnHeight: 30
-        },
-        page:{display:false}
-    });
-    
-    signAuthGrid = new ax5.ui.grid();
- 
-    signAuthGrid.setConfig({
-        target: $('[data-ax5grid="sign-auth-grid"]'),
-        sortable:true,
-        showRowSelector: true,
-        header: {align:"center"},
-        columns: [
-         {key: "authGrpNm", label: "역할그룹 명", width: 160, align: "center"},
-         {key: "usrTypNm", label: "사용자유형", width: 120, align: "center"},
-         {key: "authGrpDesc", label: "역할그룹 설명", width: 225, align: "center"},
-         {key: "authGrpId", label: "역할그룹 Id", width: 225, align: "center",display:false}
-        ],
-        body: {
-            align: "center",
-            columnHeight: 30
-        },
-        page:{display:false}
-    });
+
+  authGrid.setConfig({
+      target: $('[data-ax5grid="auth-grid"]'),
+      sortable:true,
+      showRowSelector: true,
+      header: {align:"center"},
+      columns: [
+       {key: "authGrpNm", label: "역할그룹 명", width: 160, align: "center"},
+       {key: "usrTypNm", label: "사용자유형", width: 120, align: "center"},
+       {key: "authGrpDesc", label: "역할그룹 설명", width: 225, align: "center"},
+       {key: "authGrpId", label: "역할그룹 Id", width: 225, align: "center",display:false}
+      ],
+      body: {
+          align: "center",
+          columnHeight: 30
+      },
+      page:{display:false}
+  });
+  
+  signAuthGrid = new ax5.ui.grid();
+
+  signAuthGrid.setConfig({
+      target: $('[data-ax5grid="sign-auth-grid"]'),
+      sortable:true,
+      showRowSelector: true,
+      header: {align:"center"},
+      columns: [
+       {key: "authGrpNm", label: "역할그룹 명", width: 160, align: "center"},
+       {key: "usrTypNm", label: "사용자유형", width: 120, align: "center"},
+       {key: "authGrpDesc", label: "역할그룹 설명", width: 225, align: "center"},
+       {key: "authGrpId", label: "역할그룹 Id", width: 225, align: "center",display:false}
+      ],
+      body: {
+          align: "center",
+          columnHeight: 30
+      },
+      page:{display:false}
+  });
 }
 
 //역할그룹 정보 조회
@@ -589,7 +612,7 @@ function fnAuthRefresh(authGrpTargetCd,gridTarget){
 	ajaxObj.setFnError(function(xhr, status, err){
 		data = JSON.parse(data);
 		jAlert(data.message, "알림");
- 	});
+	});
 	//AJAX 전송
 	ajaxObj.send();
 }
@@ -602,8 +625,11 @@ function fnAuthGridOnOff(){
 		
 		//그리드 세팅 및 정보 불러오기
 		fnAuthListGrid();
-		fnAuthRefresh('01',authGrid);
-		fnAuthRefresh('02',signAuthGrid);
+		// 수정일 경우 그리드 데이터 조회
+		if(type == "update"){
+			fnAuthRefresh('01',authGrid);
+			fnAuthRefresh('02',signAuthGrid);
+		}
 	}else{ //그리드 감추기
 		$(".flow_auth_gridFrame").hide();
 	}
@@ -625,7 +651,7 @@ function fnAuthInsert(authGrpTargetCd){
 		return false;
 	}else{
 		//cmm1700 공통팝업 호출
-		gfnCommonAuthPopup("" ,true,function(objs){
+		gfnCommonAuthPopup("", "" ,true,function(objs){
 			if(objs.length>0){
 				var selAuthFd = new FormData();
 				
@@ -733,6 +759,17 @@ function fnAuthDelete(authGrpTargetCd){
 	//AJAX 전송
 	ajaxObj.send();
 }
+
+//허용역할 체크에 따라 팝업 높이 변경
+function fnChangeFlowPopUp(isAuthChk){
+	// 허용역할 체크이면
+	if(isAuthChk){
+		$(".layer_popup_box").height(820);
+	// 허용역할 체크가 아닐 경우	
+	}else{
+		$(".layer_popup_box").height(620);
+	}
+}
 </script>
 
 <div class="popup" style="height:100%;">
@@ -744,6 +781,7 @@ function fnAuthDelete(authGrpTargetCd){
 				<div class="flowOptionDiv_preview" id="previewOpt" style="width: 200px;">
 					<i class="fa fa-key previewOpt" title="필수" id="optKey"></i>
 					<i class="fa fa-file-signature previewOpt" title="결재" id="optSign"></i>
+					<i class="far fa-stop-circle previewOpt" title="결재 반려종료" id="optSignStop"></i>
 					<i class="fa fa-sign-out-alt previewOpt" title="종료 분기" id="optEnd"></i>
 					<i class="fa fa-code-branch previewOpt" title="작업" id="optWork"></i>
 					<i class="fa fa-code previewOpt" title="리비전 저장유무" id="optRevision"></i>
@@ -811,6 +849,18 @@ function fnAuthDelete(authGrpTargetCd){
 			<div class="flw_sub_box flw_sub1">
 				<input type="text" name="flowTitleColor" id="flowTitleColor" value="#FFFFFF"/>
 			</div>
+			<div class="flw_sub_box flw_sub_title flw_sub1">
+			
+			</div>
+			<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right">
+			
+			</div>
+			<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right">
+				내용 배경 색상
+			</div>
+			<div class="flw_sub_box flw_sub1">
+				<input type="text" name="flowContentBgColor" id="flowContentBgColor" value="#FFFFFF"/>
+			</div>
 			<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right" title="다음 작업흐름 변경시 바로 최종완료 작업흐름으로 변경이 가능하도록 합니다.">
 				종료 분기
 			</div>
@@ -820,42 +870,87 @@ function fnAuthDelete(authGrpTargetCd){
 				</div>
 			</div>
 			<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right">
-				내용 배경 색상
-			</div>
-			<div class="flw_sub_box flw_sub1">
-				<input type="text" name="flowContentBgColor" id="flowContentBgColor" value="#FFFFFF"/>
-			</div>
-			<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right" title="현재 작업흐름에서 작업을 추가 할 수 있도록 지정합니다.">
-				작업
-			</div>
-			<div class="flw_sub_box flw_sub1 flw_line_right">
-				<div class="flw_chk"> 
-					<input type="checkbox" title="체크박스" name="flowWork" id="flowWork" class="optPreviewCdChg" opt="optWork"/><label></label>
-				</div>
-			</div>
-			<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right">
 				내용 글씨 색상
 			</div>
 			<div class="flw_sub_box flw_sub1">
 				<input type="text" name="flowContentColor" id="flowContentColor" value="#515769"/>
 			</div>
-			<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right" title="현재 작업흐름에서 리비전 번호를 입력 받도록 지정합니다.">
-				리비전 저장
+			<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right" title="현재 작업흐름에서 담당자 허용 역할그룹을 제한합니다.">
+				허용 역할 제한
 			</div>
 			<div class="flw_sub_box flw_sub1 flw_line_right">
 				<div class="flw_chk"> 
-					<input type="checkbox" title="체크박스" name="flowRevision" id="flowRevision" class="optPreviewCdChg" opt="optRevision"/><label></label>
+					<input type="checkbox" title="체크박스" name="flowAuth" id="flowAuth" class="optPreviewCdChg" opt="optAuth" onchange="fnAuthGridOnOff()"/><label></label>
 				</div>
 			</div>
-			<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right">
-				배포 계획 저장
+			<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right" title="현재 작업흐름에서 작업을 추가 할 수 있도록 지정합니다.">
+				작업
 			</div>
 			<div class="flw_sub_box flw_sub1">
 				<div class="flw_chk"> 
-					<input type="checkbox" title="체크박스" name="flowDpl" id="flowDpl" class="optPreviewCdChg" opt="optDpl"/><label></label>
+					<input type="checkbox" title="체크박스" name="flowWork" id="flowWork" class="optPreviewCdChg" opt="optWork"/><label></label>
 				</div>
 			</div>
-	
+			<c:choose>
+				<c:when test="${empty svnkitModuleUseChk or svnkitModuleUseChk == true }">
+					<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right" title="현재 작업흐름에서 리비전 번호를 입력 받도록 지정합니다.">
+						리비전 저장
+					</div>
+					<div class="flw_sub_box flw_sub1 flw_line_right">
+						<div class="flw_chk"> 
+							<input type="checkbox" title="체크박스" name="flowRevision" id="flowRevision"/><label></label>
+						</div>
+					</div>
+				</c:when>
+				<c:otherwise>
+					<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right" title="현재 작업흐름에서 리비전 번호를 입력 받도록 지정합니다.">
+					</div>
+					<div class="flw_sub_box flw_sub1 flw_line_right">
+						<input type="hidden" title="체크박스" name="flowRevision" id="flowRevision"/>
+					</div>
+				</c:otherwise>
+			</c:choose>
+			<c:choose>
+				<c:when test="${empty jenkinsModuleUseChk or jenkinsModuleUseChk == true }">
+					<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right" title="현재 작업흐름에서 베포계획을 배정합니다.">
+						배포 계획 저장
+					</div>
+					<div class="flw_sub_box flw_sub1">
+						<div class="flw_chk"> 
+							<input type="checkbox" title="체크박스" name="flowDpl" id="flowDpl" class="optPreviewCdChg" opt="optDpl"/><label></label>
+						</div>
+					</div>
+				</c:when>
+				<c:otherwise>
+					<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right">
+					</div>
+					<div class="flw_sub_box flw_sub1">
+							<input type="hidden" title="체크박스" name="flowDpl" id="flowDpl" class="optPreviewCdChg" opt="optDpl"/>
+					</div>
+				</c:otherwise>
+			</c:choose>
+			<div class="flow_auth_gridFrame">
+				<div class="flw_sub_box flw_sub_desc flw_sub_title flw_sub1">
+					담당자 허용 역할 목록
+				</div>
+				<div class="flw_sub_box flw_sub_desc flw_sub2 flw_line_right">
+					<div data-ax5grid="auth-grid" data-ax5grid-config="{}" style="height: 100px;"></div>	
+				</div>
+				<div class="flw_sub_box flw_sub1 flw_sub_desc" style="padding: 5px;">
+					<div class="button_authBtn" id="btn_insert_auth" onclick="fnAuthInsert('01');"><i class="fa fa-save"></i>&nbsp;역할 추가</div>
+					<div class="button_authBtn" id="btn_delete_auth" onclick="fnAuthDelete('01');"><i class="fa fa-times"></i>&nbsp;선택 삭제</div>
+				</div>
+				<div class="flw_sub_box flw_sub_desc flw_sub_title flw_sub1">
+					결재자 허용 역할 목록
+				</div>
+				<div class="flw_sub_box flw_sub_desc flw_sub2 flw_line_right">
+					<div data-ax5grid="sign-auth-grid" data-ax5grid-config="{}" style="height: 100px;"></div>	
+				</div>
+				<div class="flw_sub_box flw_sub1 flw_sub_desc" style="padding: 5px;">
+					<div class="button_authBtn" id="btn_insert_auth" onclick="fnAuthInsert('02');"><i class="fa fa-save"></i>&nbsp;역할 추가</div>
+					<div class="button_authBtn" id="btn_delete_auth" onclick="fnAuthDelete('02');"><i class="fa fa-times"></i>&nbsp;선택 삭제</div>
+				</div>
+			</div>
 		</div>
 		<div class="flw_btn_box">
 			<div class="button_complete" id="btn_flow_save"><i class="fa fa-save"></i>&nbsp;<span class="flow_action_type">추가</span></div>
