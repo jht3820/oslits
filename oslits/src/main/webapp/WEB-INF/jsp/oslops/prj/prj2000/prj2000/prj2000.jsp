@@ -2,7 +2,7 @@
 <%@ include file="/WEB-INF/jsp/oslops/top/header.jsp" %>
 <jsp:include page="/WEB-INF/jsp/oslops/top/aside.jsp" />
 
-<link rel='stylesheet' href='<c:url value='/css/oslits/prj.css'/>' type='text/css'>
+<link rel='stylesheet' href='<c:url value='/css/oslops/prj.css'/>' type='text/css'>
 
 <script src="<c:url value='/js/common/layerPopup.js'/>"></script>
 
@@ -49,15 +49,7 @@ $(document).ready(function() {
 	*	프로젝트 권한 관리 부분 정의 시작											*		
 	*********************************************************************/
 	
-	// 프로젝트 권한관리 - 권한 목록 클릭시 소메뉴 권한 목록 조회
-	$('.left_table tbody tr').on("click",function(){
-	    $('.left_table tbody tr').removeClass("table_active");
-	    $('.left_table tbody tr').addClass("table_inactive");
-	    $(this).addClass("table_active");
-	    $(this).removeClass("table_inactive");
-	  	
-	    fnAuthGrpSmallMenuList($(this).attr("id"), '${sessionScope.selPrjId}');
-	});
+	
 	
 	// 그룹메뉴명 전체 체크/전체 해제 이벤트 처리
 	// 전체체크박스는 form에 담지 않기 위해 밸류값을 변경하지 않는다.
@@ -76,6 +68,11 @@ $(document).ready(function() {
 				$("input[name$=" + allName + "]").prop("checked", false);
 				$("input[name$=" + allName + "]").val("N");
 				$("input[name^=status]").val("U");
+				
+				//접근권한 체크해제인경우 메인화면 해제
+				if(allName == "accessYn"){
+					$('input[id^=rd]:checked').prop("checked",false);
+				}
 			}
 			
 			//전체선택 체크박스 값을 초기화 하지 않으면 오류 발생함. substring으로 자를수 없기 때문
@@ -86,7 +83,7 @@ $(document).ready(function() {
 	// 프로젝트 권한 관리 - 추가
 	$('#btn_insert_prjAuth').click(function() {
 		//layer_popup('/prj/prj2000/prj2000/selectPrj2001View.do', null);
-		gfnLayerPopupOpen('/prj/prj2000/prj2000/selectPrj2001View.do', null, '730', '650','scroll');
+		gfnLayerPopupOpen('/prj/prj2000/prj2000/selectPrj2001View.do', null, '730', '700','scroll');
 		
 	});
 	
@@ -107,7 +104,7 @@ $(document).ready(function() {
 		
 		
 		var data = { "gb" : "update" , "authGrpId" : authGrpId};
-		gfnLayerPopupOpen('/prj/prj2000/prj2000/selectPrj2001View.do', data , '730', '650','scroll');
+		gfnLayerPopupOpen('/prj/prj2000/prj2000/selectPrj2001View.do', data , '730', '700','scroll');
 	});
 
 	// 프로젝트 버튼권한 저장
@@ -118,7 +115,7 @@ $(document).ready(function() {
 	/********************************************************************
 	*	프로젝트 권한 관리 부분 정의 종료											*		
 	*********************************************************************/	
-	
+	fnSelectPrj2000PrjAuthGrpList();
 	
 });
 
@@ -147,6 +144,12 @@ function fnAuthGrpSmallMenuList(authGrpId, selPrjId){
     	//기존 조회 정보 모두 제거
     	$("#authTblBody").children().remove();
     	
+    	//rowspan 대상 ID
+    	var prevUpupMenuId = '';
+    	
+    	//메뉴 rowspan 담기
+    	var menuIdRowSpan = {};
+    	
     	//반복하며 그리기
     	$.each(data.authGrpSmallMenuList,function(idx, data){
     		//시스템 관리자 막기
@@ -161,15 +164,23 @@ function fnAuthGrpSmallMenuList(authGrpId, selPrjId){
     		//생성한 tr태그 객체 얻기
     		var trObj = $("#tr" + data.menuId );
     		
-    		//각 그룹에서 첫번째 로우이면
-    		if(data.grpRank == '1'){
-    			//첫번째 로우이면서 자식 메뉴의 갯수가 2개 이상이면 rowspan 처리함.
-    			if(data.grpCnt == '1'){
-    				trObj.append("<td class='right_con wd_2_1'>" + data.upupMenuNm + "</td>");
-    			}else{
-    				trObj.append("<td class='right_con wd_2_1' rowspan='" + data.grpCnt + "'>" + data.upupMenuNm + "</td>");	
+    		//새로운 대 메뉴인경우
+    		if(gfnIsNull(prevUpupMenuId) || prevUpupMenuId != data.upupMenuId){
+    				trObj.append("<td class='right_con wd_2_1' id='menuRow_"+data.upupMenuId+"' rowspan='1'>" + data.upupMenuNm + "</td>");	
+    		}else{
+    			//menuId별 rowspan 생성
+    			if(gfnIsNull(menuIdRowSpan[data.upupMenuId])){
+    				menuIdRowSpan[data.upupMenuId] = 1;
     			}
+    			
+    			//오류 처리 안함
+   				try{
+   					//대메뉴 rowspan +1
+    				var upObjRowspan = parseInt(menuIdRowSpan[data.upupMenuId]);
+    				menuIdRowSpan[data.upupMenuId] = (upObjRowspan+1);
+   				}catch(err){console.log(err);}
     		}
+    		prevUpupMenuId = data.upupMenuId;
     		
     		trObj.append("<td class='right_con wd_2_2'>" + data.upMenuNm + " &#62; " + data.menuNm + "</td>");
     		
@@ -201,6 +212,9 @@ function fnAuthGrpSmallMenuList(authGrpId, selPrjId){
     			trObj.append("<td class='right_con wd_2_" + cnt + " prj_chk' style='text-align: center;' ><input type='hidden' name='" + hidMenuId + "' id='" + hidMenuId + "' value='" + eval("data." + val) + "' /> <input type='checkbox' title='체크박스' onclick='fnValToChk(this,"+idx+");' name='" + strMenuId + "' id='" + strMenuId + "' value='" + eval("data." + val) + "' /><label for='" + strMenuId + "'></label></td>");
     		});
     		
+    		// 가로로 전체 체크가능한 체크박스 
+    		trObj.append("<td class='right_con wd_2_11 prj_chk' style='text-align: center;' ><input type='checkbox' title='체크박스'  style='left:calc(50% - 7px);' name='"+data.menuId+"_prjAuthHorizon' id='"+data.menuId+"_prjAuthHorizon' onclick='fnHorizonChk(this);' value /><label for='"+data.menuId+"_authHorizon'></label></td>");
+    		
     		//밸류값 확인하여 체크 상태 변경
     		$.each(strArrYn, function(idx, val){
     			var objYn = $("#" + data.menuId + val);
@@ -218,8 +232,16 @@ function fnAuthGrpSmallMenuList(authGrpId, selPrjId){
     		//전체 선택 체크 풀기
     		$("input[id^=prjAuthAll_]").prop("checked",false);
     	});
+    	
+    	//rowspan 걸기
+    	$.each(menuIdRowSpan, function(idx, map){
+    		$("#menuRow_"+idx).attr("rowspan",map);
+    	});
+    	
     	toast.push(data.message);
     	
+    	//출력 감추기
+    	$("input[name$=printYn]").parent().hide();
     	
 	});
 	
@@ -291,11 +313,7 @@ function fnDeleteAuthGrp(){
 		    		return;
 		    	}else{
 		    		//삭제 성공시 권한그룹 목록, 메뉴별접근권한 목록, 프로젝트사용자배정 권한그룹 목록, 배정 및 등록 사용자 목록 초기화
-		    		$(".left_table tbody #" + authGrpId).remove();
-		    		$('.left_tb tbody #' + authGrpId).remove();
-		    		$("#authTblBody").children().remove();
-		    		$("#addUsrTblBody").children().remove();
-		    		$("#allUsrTblBody").children().remove();
+		    		fnSelectPrj2000PrjAuthGrpList();
 		    		
 		    		//현재 선택한 권한그룹인경우 페이지 새로고침
 		    		if($("#LNB_project_select").val() == authGrpId){
@@ -365,6 +383,41 @@ function fnSaveAuthGrpMenuAuthListAjax(){
 	ajaxObj.send();
 }
 
+
+/*
+ *	해당 메뉴의 가로 전체 체크/전체 해제 처리
+ * @param chkObj 가로 전체체크 체크박스
+ */
+function fnHorizonChk(chkObj){
+	
+	// 체크박스의 ID를 가져온다
+	var horizonChkId = $(chkObj).attr("id"); 
+	// 체크박스 ID에서 메뉴 ID를 추출
+	var horizonMenuId = horizonChkId.split("_")[0];
+	
+	// 가로 전체체크 할 경우
+	if($(chkObj).is(':checked')){
+		$("input[name^=" + horizonMenuId + "]").prop("checked", true);
+		$("input[name^=" + horizonMenuId + "]").val("Y");
+		$("input[name^=hidden" + horizonMenuId + "]").val("Y");
+		$("input[name^=status" + horizonMenuId + "]").val("U");
+	// 가로 전체 체크해제 할 경우	
+	}else{
+		$("input[name^=" + horizonMenuId + "]").prop("checked", false);
+		$("input[name^=" + horizonMenuId + "]").val("N");
+		$("input[name^=hidden" + horizonMenuId + "]").val("N");
+		$("input[name^=status" + horizonMenuId + "]").val("U");
+		
+		// 접근 체크박스인지 체크할 ID값
+		var accessChkId = $("input[name^=" + horizonMenuId + "]").attr("id");
+		
+		//접근권한 체크해제인경우 메인화면 해제
+		if(accessChkId.indexOf("accessYn") != -1){
+			$('input[id^=rd_'+horizonMenuId+']:checked').prop("checked",false);
+		}
+	}
+}
+
 /**
 *	권한관리 체크박스 클릭시 체크상태를 확인하여 밸류값을 변환 
 */
@@ -402,6 +455,72 @@ function fnValToChk(chkObj,index){
 *********************************************************************/
 
 
+/**
+*	권한정보 클릭시 메뉴권한 정보 조회 
+**/
+function fnSelectPrj2000PrjAuthGrpList(){
+	//AJAX 설정
+	var ajaxObj = new gfnAjaxRequestAction(
+			{"url":"<c:url value='/prj/prj2000/prj2000/selectPrj2000PrjAuthGrpList.do'/>","loadingShow":true}
+			,{ });
+	//AJAX 전송 성공 함수
+	ajaxObj.setFnSuccess(function(data){
+		data = JSON.parse(data);
+
+    	//기존 조회 정보 모두 제거
+    	$("#prjAuthGrpList").children().remove();
+    	
+    	//반복하며 그리기
+    	$.each(data.prjAuthGrpList,function(idx, data){
+    		
+    		var authGrpDesc = data.authGrpDesc;
+    		authGrpDesc = (authGrpDesc.replace(/</g,"&lt;")).replace(/>/g,"&gt;");
+    		authGrpDesc = gfnReplace(authGrpDesc, 'null', ' ');
+    		
+    		//tr 태그 id 부여하여 생성
+    		var html = "";
+    		html += '<tr class="left_con" id="'+data.authGrpId+'">';
+    		html += '	<td class="left_con right_line">'+data.authGrpNm+'</td>';
+    		html += '	<td class="left_con  right_line" title="'+authGrpDesc+'">'+gfnCutStrLen(authGrpDesc, 60)+'</td>';
+    		html += '	<td class="left_con right_line">'+data.usrTypNm+'</td>';
+    		html += '</tr>';
+    		
+    		$("#prjAuthGrpList").append(html);
+    	});
+    	
+    	// 프로젝트 권한관리 - 권한 목록 클릭시 소메뉴 권한 목록 조회
+    	$('.left_table tbody tr').on("click",function(){
+    	    $('.left_table tbody tr').removeClass("table_active");
+    	    $('.left_table tbody tr').addClass("table_inactive");
+    	    $(this).addClass("table_active");
+    	    $(this).removeClass("table_inactive");
+    	  	
+    	    fnAuthGrpSmallMenuList($(this).attr("id"), '${sessionScope.selPrjId}');
+    	});
+    	
+    	toast.push(data.message);
+    	
+	});
+	
+	//AJAX 전송 오류 함수
+	ajaxObj.setFnError(function(xhr, status, err){
+		data = JSON.parse(data);
+		jAlert(data.message, "알림창");
+ 	});
+	
+	//AJAX 전송
+	ajaxObj.send();
+}
+
+
+function fnNvl(str){
+	if(str==null){
+		return "";
+	}else{
+		return str;
+	}
+}
+
 </Script>
 
 <div class="main_contents" style="height: auto;"  >
@@ -424,20 +543,13 @@ function fnValToChk(chkObj,index){
 					<thead>
 						<tr>
 							<th class="left_sub_title right_line" style="width: 30%;">그룹 명</th>
-							<th class="left_sub_title right_line" style="width: 40%;">설명</th>
-							<th class="left_sub_title" style="width: 30%;">사용자유형</th>
+							<th class="left_sub_title right_line" style="width: 30%;">설명</th>
+							<th class="left_sub_title" style="width: 20%;">사용자<br/>유형</th>
 						</tr>
 					</thead>
-					<tbody>
+					<tbody id="prjAuthGrpList" >
 					
-						<!-- 프로젝트 권한관리 권한그룹 목록 뿌리기 -->
-						<c:forEach items="${requestScope.prjAuthGrpList }" var="map">
-							<tr class="left_con" id="${map.authGrpId}">
-								<td class="left_con right_line">${map.authGrpNm}</td>
-								<td class="left_con  right_line">${map.authGrpDesc}</td>
-								<td class="left_con ">${map.usrTypNm}</td>
-							</tr>
-						</c:forEach>
+					
 						
 					</tbody>
 				</table>
@@ -459,39 +571,40 @@ function fnValToChk(chkObj,index){
 								<th class="right_sub_title wd_2_3">메인</th>
 								<th class="right_sub_title wd_2_4" >
 									<div class="prj_chk"> 
-										<input type="checkbox" title="체크박스" style="left:calc(50% - 23px);" name="accessYn" id="prjAuthAll_ch1"/><label></label><span class="title_align">접근</span>
+										<input type="checkbox" title="체크박스" style="left:calc(50% - 23px);" name="accessYn" id="prjAuthAll_ch1"/><label for="prjAuthAll_ch1"></label><span class="title_align">접근</span>
 									</div>
 								</th>
 								<th class="right_sub_title wd_2_5">
 									<div class="prj_chk">
-										<input type="checkbox" title="체크박스" style="left:calc(50% - 23px);" name="selectYn" id="prjAuthAll_ch2"/><label></label><span class="title_align">조회</span>
+										<input type="checkbox" title="체크박스" style="left:calc(50% - 23px);" name="selectYn" id="prjAuthAll_ch2"/><label for="prjAuthAll_ch2"></label><span class="title_align">조회</span>
 									</div>
 								</th>
 								<th class="right_sub_title wd_2_6">
 									<div class="prj_chk">
-										<input type="checkbox" title="체크박스" style="left:calc(50% - 23px);" name="regYn" id="prjAuthAll_ch3"/><label></label><span class="title_align">등록</span>
+										<input type="checkbox" title="체크박스" style="left:calc(50% - 23px);" name="regYn" id="prjAuthAll_ch3"/><label for="prjAuthAll_ch3"></label><span class="title_align">등록</span>
 									</div>
 								</th>
 								<th class="right_sub_title wd_2_7">
 									<div class="prj_chk">
-										<input type="checkbox" title="체크박스" style="left:calc(50% - 23px);" name="modifyYn" id="prjAuthAll_ch4"/><label></label><span class="title_align">수정</span>
+										<input type="checkbox" title="체크박스" style="left:calc(50% - 23px);" name="modifyYn" id="prjAuthAll_ch4"/><label for="prjAuthAll_ch4"></label><span class="title_align">수정</span>
 									</div>
 								</th>
 								<th class="right_sub_title wd_2_8">
 									<div class="prj_chk">
-										<input type="checkbox" title="체크박스" style="left:calc(50% - 23px);" name="delYn" id="prjAuthAll_ch5"/><label></label><span class="title_align">삭제</span>
+										<input type="checkbox" title="체크박스" style="left:calc(50% - 23px);" name="delYn" id="prjAuthAll_ch5"/><label for="prjAuthAll_ch5"></label><span class="title_align">삭제</span>
 									</div>
 								</th>
 								<th class="right_sub_title wd_2_9">
 									<div class="prj_chk">
-										<input type="checkbox" title="체크박스" style="left:calc(50% - 23px);" name="excelYn" id="prjAuthAll_ch6"/><label></label><span class="title_align">엑셀</span>
+										<input type="checkbox" title="체크박스" style="left:calc(50% - 23px);" name="excelYn" id="prjAuthAll_ch6"/><label for="prjAuthAll_ch6"></label><span class="title_align">엑셀</span>
 									</div>
 								</th>
-								<th class="right_sub_title wd_2_10">
+								<!-- <th class="right_sub_title wd_2_10">
 									<div class="prj_chk">
-										<input type="checkbox" title="체크박스" style="left:calc(50% - 31px);" name="printYn" id="prjAuthAll_ch7"/><label></label><span class="title_align">출력</span>
+										<input type="checkbox" title="체크박스" style="left:calc(50% - 23px);" name="printYn" id="prjAuthAll_ch7"/><label for="prjAuthAll_ch7"></label><span class="title_align">출력</span>
 									</div>
-								</th>
+								</th> -->
+								<th class="right_sub_title wd_2_11">전체</br>체크</th>
 							</tr>
 						</thead>
 						
