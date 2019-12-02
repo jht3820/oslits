@@ -1,9 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
-<%@ include file="/WEB-INF/jsp/oslits/top/header.jsp"%>
+<%@ include file="/WEB-INF/jsp/oslops/top/header.jsp"%>
 <jsp:include page="/WEB-INF/jsp/oslops/top/aside.jsp" />
 
-<link rel='stylesheet' href='<c:url value='/css/oslits/req.css'/>' type='text/css'>
+<link rel='stylesheet' href='<c:url value='/css/oslops/req.css'/>' type='text/css'>
 <link rel='stylesheet' href='<c:url value='/css/common/fileUpload.css'/>' type='text/css'>
 <link rel='stylesheet' href='<c:url value='/css/ztree/zTreeStyle/zTreeStyle.css'/>' type='text/css'>
 <script type="text/javascript" src="/js/ztree/jquery.ztree.all.min.js"></script>
@@ -53,8 +53,6 @@ var fileSnVar = 0;
 var menuUseCd = '01';
 //zTree
 var zTree;
-//선택된 산출물ID 및 하위 산출물 ID가 담긴 배열, 산출물 삭제 시 사용
-var chkDocIdArr = [];
 //선택된 산출물 및 하위 산출물 노드가 담긴 배열, 산출물 삭제 시 사용
 var chkDocNodeArr = [];
 // 노드에서 마우스 우클릭 시 산출물 명을 담아둘 변수 
@@ -94,8 +92,11 @@ function sortableFile(){
 				//일반 산출물간 이동인 경우
 				 if($(this).hasClass('documentFileList')){
 					if($(ui.item).parent().hasClass('ok_document')){
-						$(beforeFileDiv).removeClass('okDiv');
-						$('.documentFileList').append(beforeFileDiv);
+						//확정 산출물이 존재하는 경우에만 스왑
+						if($(".ok_document").children("div.file_frame_box").length > 1){
+							$(beforeFileDiv).removeClass('okDiv');
+							$('.documentFileList').append(beforeFileDiv);
+						}
 						$(ui.item).addClass('okDiv');
 						beforeFileDiv = $('.ok_document').children('div');
 						fnFileSelectSuccess($(ui.item));
@@ -131,8 +132,12 @@ function sortableFile(){
 }
 
 $(document).ready(function() {
+	
+	//가이드 상자 호출
+	gfnGuideStack("add",fnPrj3000GuideShow);
+	
 	//트리메뉴 도움말 클릭
-	$(".menu_tree_help").click(function(){
+/* 	$(".menu_tree_help").click(function(){
 		if($(".menu_tree_helpBox").hasClass("boxOn")){
 			$(".menu_tree_helpBox").hide();
 			$(".menu_tree_helpBox").removeClass("boxOn");
@@ -140,7 +145,7 @@ $(document).ready(function() {
 			$(".menu_tree_helpBox").show();
 			$(".menu_tree_helpBox").addClass("boxOn");
 		}
-	});
+	}); */
 	/********************************************************************
 	*	공통기능 부분 정의 시작													*
 	*********************************************************************/
@@ -260,20 +265,21 @@ $(document).ready(function() {
 		   			if( result ){
 		   				jConfirm("선택된 개발문서 및 하위 개발문서, 업로드 된 파일도 삭제되며 삭제 시 되돌릴 수 없습니다. \n\n그래도 삭제 하시겠습니까?", "알림창", function( result ) {
 		   	   				if( result ){
-		   	   					
-		   	   					// 산출물 ID를 담은 배열초기화
-		   	   					chkDocIdArr.length = 0;
 		   	   					// 산출물 노드를 담은 배열 초기화
 		   	   					chkDocNodeArr.length = 0;
 		   	   						
-		   	   					// 선택된 산출물 및 하위 산출물의 ID, 노드를 배열 추가
+		   	   					// 선택된 산출물 및 하위 산출물 노드를 배열 추가
 		   	   					fnGetDocList(menu);
 		   	   					
-		   	   					// 배열에 담긴 산출물ID를 문자열로 가져온다.
-		   	   					var strDocId = fnGetDocIdStr(chkDocIdArr);
-
+		   	   					var ajaxParam = "";
+		   	   					
+		   	   					// 산출물 ID, 첨부파일 ID, 확정 산출물 파일 ID를 문자열로 만들어 삭제시 넘긴다.
+			   	   				$(chkDocNodeArr).each(function(idx, map){
+			   	   					ajaxParam +="&docId="+map.docId+"&docAtchFileId="+map.docAtchFileId+"&docFormFileId="+map.docFormFileId;
+			   	   				});
+		   	   					
 		   	   					// 산출물 삭제
-		   	   					fnDeleteMenuInfoAjax(chkDocNodeArr, strDocId);
+		   	   					fnDeleteMenuInfoAjax(chkDocNodeArr, ajaxParam);
 		   	   				}
 		   	   			});
 		   			}
@@ -369,10 +375,16 @@ $(document).ready(function() {
         		$('#btn_download_formFileZip').css({display:"inline-block"});
         		$('#btn_insert_fileSelect').hide();
         		$('#fileListDiv').hide();
+        		// 가이드 hide
+        		$('#confirmDocFile_guide').hide();
+        		$('#docFileList_guide').hide();
         	}else{
         		btnAuthInsertYn == 'Y' ? $("[id^=btn_insert]").show() : $("[id^=btn_insert]").hide();
         		$('#btn_download_formFileZip').css({display:"inline-block"});
         		$('#fileListDiv').show();
+        		// 가이드 show
+        		$('#confirmDocFile_guide').show();
+        		$('#docFileList_guide').show();
         	}
         	
         	var zTreeObj = $.fn.zTree.getZTreeObj("prjDocJson");	
@@ -469,7 +481,7 @@ function fnFileItemDelete(thisObj, event){
 			        		$(uiItem).parent().parent().remove();
 			        		
 			        		//파일 Sn -1
-				        	fileSnVar--;
+				        	//fileSnVar--;
 			        	}else{
 			        		toast.push(data.message);
 			        	}
@@ -496,9 +508,10 @@ function fnSearchMenuList(){
 	var ajaxObj = new gfnAjaxRequestAction(
 			{"url":"<c:url value='/prj/prj3000/prj3000/selectPrj3000MenuListAjax.do'/>","loadingShow":false});
 	//AJAX 전송 성공 함수
+	ajaxObj.async = false;
 	ajaxObj.setFnSuccess(function(data){
 		data = JSON.parse(data);
-		
+		var listSize = data.baseDocList.length;
 		// 우측 상세정보 화면 초기화
 		fnFormReset();
     	
@@ -523,56 +536,6 @@ function fnSearchMenuList(){
 				onClick: function(event, treeId, treeNode){
 					//우측 메뉴 정보
 					fnGetMenuInfoAjax(treeNode.docId);
-				},
-				/* onRightClick : function(event, treeId, treeNode){
-
-					// 마우스 우클릭 후 산출물 명을 공백으로 입력하지 못하도록 하기 위해 사용
-					rightClickDocName = treeNode.docNm;
-					
-					//메뉴명 변경 상자 나타내기
-					zTree.editName(treeNode);
-				},
-				onRename : function(event, treeId, treeNode){
-
-					var docName = treeNode.docNm;
-					
-					// 산출물명이 없을경우 
-					if( gfnIsNull(docName) ){
-
-						jAlert("개발문서 명은 공백을 입력할 수 없습니다.", "알림창");
-						
-						// 다시 기존 산출물 명으로 세팅
-						treeNode.docNm = rightClickDocName;
-						zTree.updateNode(treeNode);
-						return false;
-					}
-					
-					// 산출물 명이 200 바이트를 초과할 경우
-					if( gfnStrByteLen(docName) > 200 ){
-						
-						jAlert("개발문서 명은 200byte까지 입력이 가능합니다.", "알림창");
-
-						// 200바이트가 초과할 경우 문자열을 초과한 만큼 문자열 잘라낸다
-						var cutStrDocNm = gfnByteLenCutStr(docName, 200);
-						
-						// 잘라낸 문자열을 산출물명으로 세팅
-						treeNode.docNm = cutStrDocNm;
-						zTree.updateNode(treeNode);
-						return false;
-					}
-
-					//메뉴명 변경 이벤트 일어 날 경우, 메뉴명 수정 이벤트 
-					fnUpdateMenuInfoAjax(treeNode,"editRename",false);
-					
-				}, */
-				onDblClick : function(event, treeId, treeNode){
-					//노드 더블 클릭시 발생
-					if(!gfnIsNull(treeNode)){
-						//자식노드가 없는 노드 더블 클릭시 사용유무 변경
-						if(!treeNode.isParent && typeof treeNode.children == "undefined"){
-							fnUpdateMenuInfoAjax(treeNode,"editUseCd",false);
-						}
-					}
 				}
 			},
 			view : {
@@ -583,9 +546,11 @@ function fnSearchMenuList(){
 					// 트리가 undefined, 노드가 2레벨(뎁스) 미만, isParent 값이 없을경우
 					if(typeof zTree != "undefined" && treeNode.level < 2 && !treeNode.isParent){
 						// 노드를 부모형 (폴더 아이콘)으로 변경
-						treeNode.isParent = true;
-						zTree.updateNode(treeNode);
-						zTree.refresh();
+						if(listSize>1){
+							treeNode.isParent = true;
+							zTree.updateNode(treeNode);
+							zTree.refresh();
+						}
 					}
 					return true;
 				}
@@ -639,6 +604,7 @@ function fnFileSelectSuccess(obj){
  */
 function fnInsertMenuInfoAjax(docObj){
 	//AJAX 설정
+	
 	var ajaxObj = new gfnAjaxRequestAction(
 			{"url":"<c:url value='/prj/prj3000/prj3000/insertPrj3000MenuInfoAjax.do'/>","loadingShow":false}
 			,{ docId:docObj.docId });
@@ -651,17 +617,23 @@ function fnInsertMenuInfoAjax(docObj){
     		return false;
     	}
     	else{
-
+    		fnSearchMenuList();
     		// 2뎁스 미만 산출물 메뉴는 폴더형 아이콘으로(부모 아이콘)
     		// 그외 산출물 메뉴는 추가될 경우 문서 아이콘으로(자식 아이콘) 
     		if(data.lvl < 2){
     			data.isParent = true;
     		}
+    		
+    		var treeNodes = zTree.getNodesByParam("docId", data.docId);
+    		var pNode = treeNodes[0].getParentNode();
+    		zTree.expandNode(pNode, true, true, null, false);   		
+    		zTree.selectNode(treeNodes[0]);
+    		fnGetMenuInfoAjax(treeNodes[0].docId);
 
-    		var selectNode = zTree.getSelectedNodes()[0];
+    		//var selectNode = zTree.getSelectedNodes()[0];
     		
     		// 산출물 추가
-    		zTree.addNodes(selectNode, data);
+    		//zTree.addNodes(selectNode, data);
     	}
     	
     	toast.push(data.message);
@@ -745,6 +717,20 @@ function fnUpdateMenuInfoAjax(docObj, updateType, updateAsync){
     			
     		//폼으로 정보 수정인 경우
     		}else if(updateType == "normal"){
+    			/* 
+    			var docId = $('#docId').val();
+    			fnSearchMenuList();
+
+        		var treeNodes = zTree.getNodesByParam("docId", docId );        		
+        		var pNode = treeNodes[0].getParentNode();
+        		zTree.expandNode(pNode, true, true, null, false);   		
+        		zTree.selectNode(treeNodes[0]);
+        		fnGetMenuInfoAjax(treeNodes[0].docId);
+    			 */
+    			 
+        		// 2뎁스 미만 산출물 메뉴는 폴더형 아이콘으로(부모 아이콘)
+        		// 그외 산출물 메뉴는 추가될 경우 문서 아이콘으로(자식 아이콘) 
+        		
     			//메뉴명이 변경된 경우
     			if(zTree.getSelectedNodes()[0].docNm != $("#docNm").val()){
     				//폼값 수정이기 때문에 메뉴값 수정 필요
@@ -774,6 +760,7 @@ function fnUpdateMenuInfoAjax(docObj, updateType, updateAsync){
     				// 사용유무 수정 후 우측정보 재조회
     				fnGetMenuInfoAjax(zTree.getSelectedNodes()[0].docId);
     			}
+
     		//하위 메뉴 사용유무 수정인경우 CSS 변경
     		}else if(updateType == "editSubUseCd"){
     			//사용유무에 따른 폰트 색상 수정
@@ -816,12 +803,12 @@ function fnUpdateMenuInfoAjax(docObj, updateType, updateAsync){
 *	메뉴 삭제 함수
 *	선택한 메뉴를 삭제한다.(DB에서 삭제 처리시 자식 메뉴들이 존재하면 삭제하지 않고 알림)
 */
-function fnDeleteMenuInfoAjax(chkDocNodeArr, strDocId){
+function fnDeleteMenuInfoAjax(chkDocNodeArr, ajaxParam){
 
 	//AJAX 설정
 	var ajaxObj = new gfnAjaxRequestAction(
 			{"url":"<c:url value='/prj/prj3000/prj3000/deletePrj3000AuthGrpInfoAjax.do'/>","loadingShow":false}
-			, { "docId":strDocId });
+			, ajaxParam);
 	//AJAX 전송 성공 함수
 	ajaxObj.setFnSuccess(function(data){
 		data = JSON.parse(data);
@@ -976,6 +963,10 @@ function fnFileAjaxUpload(files){
     		//첨부파일 세팅
     		$(upFileObj).attr('atchId',data.addFileId);
     		$(upFileObj).attr('fileSn',data.addFileSn);
+    		
+    		//삭제 버튼 onclick 및 atchid 세팅
+    		$(upFileObj).siblings("#btn_delete_file").attr("onclick","fnFileItemDelete(this, event)");
+    		$(upFileObj).siblings("#btn_delete_file").attr("atchid",data.addFileId);
     		sortableFile();
     	}
 	});
@@ -1057,9 +1048,7 @@ function fnGetDocList(selectDocOjb){
 	
 	// 배열에 산출물 노드를 담는다.
 	chkDocNodeArr.push(selectDocOjb);
-	// 배열에 산출물ID를 담는다.
-	chkDocIdArr.push(selectDocOjb.docId);
-
+	
 	//자식 객체가 있는 경우에만 동작
 	if(typeof selectDocOjb.children != "undefined"){
 		
@@ -1071,25 +1060,6 @@ function fnGetDocList(selectDocOjb){
 	}
 }
 
-/** 
- *	선택된 산출물 및 하위 산출물의 ID를 문자열로 리턴한다.
- *	@param docIdArr 산출물ID를 담은 배열
- */
-function fnGetDocIdStr(docIdArr){
-	
-	// 산출물ID 문자열
-	var strDocId = "";
-	
-	// 배열에 담긴 산출물ID를 문자열로 변환
-	$(docIdArr).each(function(idx, docId) {
-		strDocId += ",'"+docId+"'";
-	});
-	
-	// 처음 , 자르기
-	strDocId = strDocId.substring(1);
-	
-	return strDocId
-}
 
 /** 
  *	우측 상세정보 화면을 초기화 시킨다.
@@ -1109,12 +1079,25 @@ function fnFormReset(){
 	//$('#docConfDesc').val('');
 }
 
+//가이드 상자
+function fnPrj3000GuideShow(){
+	var mainObj = $(".main_contents");
+	
+	//mainObj가 없는경우 false return
+	if(mainObj.length == 0){
+		return false;
+	}
+	//guide box setting
+	var guideBoxInfo = globals_guideContents["prj3000"];
+	gfnGuideBoxDraw(true,mainObj,guideBoxInfo);
+}
+
 </script>
 
 <div class="main_contents">
 	<div class="doc_title">${sessionScope.selMenuNm }</div>
 	<div class="tab_contents menu">
-			<div class="top_control_wrap">
+			<div class="top_control_wrap"><!-- 
 				<span style="float:left;">*개발문서 양식을 설정할 수 있습니다.</span>
 				<span class="menu_tree_help"><i class="fa fa-question"></i>
 					<div class="menu_tree_helpBox">
@@ -1127,16 +1110,17 @@ function fnFormReset(){
 						</span>
 					</div>
 				</span>
-				<span class="button_normal2" id="btn_download_formFileZip" onclick="fnOslDocFormZipDownload()"><i class='fa fa-file-zip-o' aria-hidden='true'></i>&nbsp;확정 개발문서 양식 전체 다운로드</span>
+				 -->
+				<div class="button_normal2" id="btn_download_formFileZip" onclick="fnOslDocFormZipDownload()" guide="formFileZip" ><i class='fa fa-file-zip-o' aria-hidden='true'></i>&nbsp;확정 개발문서 양식 전체 다운로드</div>
 				<span class="button_normal2 btn_inquery" id="btn_search_menuInfo"><i class='fa fa-list' aria-hidden='true'></i>&nbsp;조회</span>
 				<span class="button_normal2 btn_save" id="btn_update_menuInfo" tabindex=5><i class='fa fa-edit' aria-hidden='true'></i>&nbsp;정보 수정</span>
-				<span class="button_normal2" onclick="fnOslDocUploadClick()" id="btn_insert_fileSelect">
-				<input type="file" style="display: none" id="oslDocFileUpload" name="oslDocFileUpload" /><i class='fa fa-upload' aria-hidden='true'></i>&nbsp;개발문서 양식 업로드
-				</span>
+				<div class="button_normal2" onclick="fnOslDocUploadClick()" id="btn_insert_fileSelect" guide="docFileUpload">
+					<input type="file" style="display: none" id="oslDocFileUpload" name="oslDocFileUpload" /><i class='fa fa-upload' aria-hidden='true'></i>&nbsp;개발문서 양식 업로드
+				</div>
 			</div>		
 		<div class="menu_wrap">
 			<div class="menu_ctrl_wrap">
-				<div class="menu_ctrl_btn_wrap">
+				<div class="menu_ctrl_btn_wrap" guide="leftMenu">
 					<span class="button_normal2 btn_menu_add" id="btn_insert_menuAddInfo"><i class='fa fa-save' aria-hidden='true'></i>&nbsp;추가</span>
 					<span class="button_normal2 btn_menu_del" id="btn_delete_menuDeleteInfo"><i class='fa fa-trash-alt' aria-hidden='true'></i>&nbsp;삭제</span>
 					<!-- <span class="button_normal2 btn_menu_reset" id="btn_delete_menuInsertAllDefault">초기화</span> -->
@@ -1208,8 +1192,9 @@ function fnFormReset(){
 						<input type="hidden" name="docFormFileSn" id="docFormFileSn" value=""/>
 						<input type="hidden" name="docAtchFileId" id="docAtchFileId" value=""/>
 						<input type="hidden" name="docFileSn" id="docFileSn" value=""/>
-						<div class="ok_document">
-	
+						<div id="confirmDocFile_guide" guide="confirmDocFile" >
+							<div class="ok_document" >
+							</div>
 						</div>
 						
 						<div class="left_con_div" style="float:none;">
@@ -1222,7 +1207,8 @@ function fnFormReset(){
 						<div class="left_con_div">
 							<span class="documentSpanImg"></span><span>개발문서 양식 업로드 목록 (Drag&Drop 한번에 최대 5개 제한)</span>
 						</div>
-						<div class="documentFileList" id="documentFileList" onclick="fnOslDocUploadClick()">
+						<div id="docFileList_guide" guide="docFileList" >
+							<div class="documentFileList" id="documentFileList" onclick="fnOslDocUploadClick()" guide="docFileList">
 						</div>
 						
 					</div>
