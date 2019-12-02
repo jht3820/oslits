@@ -2,7 +2,7 @@
 <%@ include file="/WEB-INF/jsp/oslops/top/header.jsp" %>
 <jsp:include page="/WEB-INF/jsp/oslops/top/aside.jsp" />
 
-<link rel='stylesheet' href='<c:url value='/css/oslits/prj.css'/>' type='text/css'>
+<link rel='stylesheet' href='<c:url value='/css/oslops/prj.css'/>' type='text/css'>
 
 <style>
 /* 클래스를 추가해서 왼쪽에서는 안나오게 , 오른쪽에서는 나오게 설정한다 */
@@ -10,7 +10,7 @@
 .right_td_div .block_td { display: table-cell; }
 .search_div { height: 37px; vertical-align: middle; text-align: right; margin-top: 10px;}
 #btn_search_usr { float: right; margin-right: 7px;}
-#searchSelect_usr { width:15%; float: right; margin-right: 7px;}
+#searchSelect_usr { width:15%; float: right; margin-right: 7px; height: 29px;}
 #searchTxt { float: right; margin-right: 7px; width: 150px; height: 28px; border: 1px solid #ccc; font-size: 13px; box-shadow: inset 0px 1px 2px #dddddd; padding-left: 6px;}
 /* 화면로드 시 검색창 안나오도록 */
 #search_th{ display: none;}
@@ -85,7 +85,7 @@ $(document).ready(function() {
 		var strUsrIdInSql = "";
 		
 		$(chkArr).each(function(idx, data){
-			strUsrIdInSql += "'" + data + "',";
+			strUsrIdInSql += data + ",";
 		});
 
 		// 사용자 추가 시 검색창 초기화 필요할 경우 사용
@@ -128,7 +128,7 @@ $(document).ready(function() {
 					return false;
 				}
 			}
-			strUsrIdInSql += "'" + data + "',";
+			strUsrIdInSql += data + ",";
 		});
 		
 		if(!continueChk){
@@ -278,7 +278,7 @@ function fnReDrawUsrAddList(data, status){
 		$("#addUsrTblBody").append(	"<tr id='tr" + map.usrId + "'>" 
 								+		"<td class='middle_cn prj_chk m_td1'><input type='checkbox' title='체크박스' id='prj_chk_m_"+map.usrId+"' name='prj_chk_m_"+map.usrId+"' value='" + map.usrId + "'/><label for='prj_chk_m_"+map.usrId+"'></label></td>"
 								+		"<td class='middle_cn m_td2'>" + map.usrId + "</td>"
-								+		"<td class='middle_cn m_td3'>" + map.usrNm + "</td>"
+								+		"<td class='middle_cn m_td3' title="+map.usrNm+">" + gfnCutStrLen(map.usrNm, 20) + "</td>"
 								+		"<td class='middle_cn hidden_td'></td>"
 								+		"<td class='middle_cn hidden_td'></td>"
 								+		"<td class='middle_cn hidden_td'></td>"
@@ -295,10 +295,10 @@ function fnReDrawUsrAddList(data, status){
 		$("#allUsrTblBody").append(	"<tr id='tr" + map.usrId + "'>" 
 								+		"<td class='right_cn prj_chk block_td'><input type='checkbox' title='체크박스' id='prj_chk_r_"+map.usrId+"' name='prj_chk_r_"+map.usrId+"' value='" + map.usrId + "'/><label for='prj_chk_r_"+map.usrId+"'></label></td>"
 								+		"<td class='right_cn m_td2'>" + map.usrId + "</td>"
-								+		"<td class='right_cn m_td3'>" + map.usrNm + "</td>"
+								+		"<td class='right_cn m_td3' title="+map.usrNm+">" + gfnCutStrLen(map.usrNm, 20) + "</td>"
 								+		"<td class='right_cn hidden_td'>" + email + "</td>"
 								+		"<td class='right_cn hidden_td'>" + telno + "</td>"
-								+		"<td class='right_cn hidden_td'>" + etc + "</td>"
+								+		"<td class='right_cn hidden_td'>" + etc.replace(/</gi,'&lt;').replace(/>/gi,'&gt;') + "</td>"
 								+	"</tr>"
 								);
 		
@@ -318,7 +318,7 @@ function fnReDrawUsrAddList(data, status){
 			$("#allUsrTblBody").append(	"<tr id='tr" + map.usrId + "'>" 
 										+		"<td class='right_cn prj_chk block_td'><input type='checkbox' title='체크박스' id='prj_chk_r_"+map.usrId+"' name='prj_chk_r_"+map.usrId+"' value='" + map.usrId + "'/><label for='prj_chk_r_"+map.usrId+"'></label></td>"
 										+		"<td class='right_cn m_td2'>" + map.usrId + "</td>"
-										+		"<td class='right_cn m_td3'>" + map.usrNm + "</td>"
+										+		"<td class='right_cn m_td3' title="+map.usrNm+">" + gfnCutStrLen(map.usrNm, 20) + "</td>"
 										+		"<td class='right_cn hidden_td'>" + email + "</td>"
 										+		"<td class='right_cn hidden_td'>" + telno + "</td>"
 										+		"<td class='right_cn hidden_td'>" + etc + "</td>"
