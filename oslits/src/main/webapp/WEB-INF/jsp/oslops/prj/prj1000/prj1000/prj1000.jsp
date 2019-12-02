@@ -3,9 +3,18 @@
 <%@ include file="/WEB-INF/jsp/oslops/top/header.jsp" %>
 <jsp:include page="/WEB-INF/jsp/oslops/top/aside.jsp" />
 
-<link rel='stylesheet' href='<c:url value='/css/oslits/prj.css'/>' type='text/css'>
+<link rel='stylesheet' href='<c:url value='/css/oslops/prj.css'/>' type='text/css'>
 <link rel='stylesheet' href='<c:url value='/css/ztree/zTreeStyle/zTreeStyle.css'/>' type='text/css'>
+<link rel='stylesheet' href='<c:url value='/vendors/smartWizrd/css/smart_wizard.css'/>' type='text/css'>
+<link rel='stylesheet' href='<c:url value='/vendors/smartWizrd/css/smart_wizard_theme_arrows.css'/>' type='text/css'>
+<link rel='stylesheet' href='<c:url value='/css/oslops/flw.css'/>' type='text/css'>
+<link rel='stylesheet' href='<c:url value='/css/common/spectrum.css'/>' type='text/css'>
+<link rel='stylesheet' href='<c:url value='/css/flowchart/jquery.flowchart.css'/>' type='text/css'>
 <script type="text/javascript" src="/js/ztree/jquery.ztree.all.min.js"></script>
+<script type="text/javascript" src="/vendors/smartWizrd/js/jquery.smartWizard.js"></script>
+<script src="<c:url value='/js/common/spectrum.js'/>" ></script>
+<script src="<c:url value='/js/flowchart/jquery.flowchart.js'/>"></script>
+<script src="<c:url value='/js/panzoom/jquery.panzoom.min.js'/>"></script>
 
 <style>
 	/* 달력 */
@@ -16,6 +25,7 @@
 	.sel_menu{ width: 60%; height: 100%;}
 	.required_info{color:red; font-weight: bold; }
 	.prjAcrm {ime-mode:disabled; }
+	
 </style>
 
 <script>
@@ -27,12 +37,15 @@ var ax5Mask = new ax5.ui.mask();
 var arrChkObj = {"prjNm":{"type":"length","msg":"프로젝트 (그룹)명은 200byte까지 입력이 가능합니다.",max:200}
 				,"prjAcrm":{"type":"length","msg":"프로젝트 약어는 10byte까지 입력이 가능합니다.",max:10}
 				,"prjDesc":{"type":"length","msg":"프로젝트 설명은 4000byte까지 입력이 가능합니다.",max:4000}
-				,"itemOrd":{"type":"number"}};
+				,"ord":{"type":"number"}};
+
+// 프로젝트 약어 영문 숫자여부 체크
+var arrChkObj2 = {"prjAcrm":{"type":"english","engOption":"includeNumber"}};
 
 // 프로젝트 약어 유효성 검증
 var saveObjectValid = {
-			"prjAcrm":{"type":"regExp","pattern":/^[A-Z]{3,10}$/ ,"msg":"프로젝트 약어는 영문 대문자 3~10자만 사용 가능합니다.", "required":true} 
-}
+		"prjAcrm":{"type":"regExp","pattern":/^(?=.*?[A-Z])(?=.*?[0-9])|[A-Z]{3,10}$/ ,"msg":"프로젝트 약어는 영문 대문자 또는 영문 대문자, 숫자 조합으로 3~10자만 사용 가능합니다.", "required":true} 
+};
 
 $(document).ready(function() {
 	/* 	
@@ -44,17 +57,16 @@ $(document).ready(function() {
 	*	5. 동기 비동기모드 선택 (true:비동기 통신, false:동기 통신)
 	*	마스터 코드 = REQ00001:요구사항 타입, REQ00002:중요도 , CMM00001:
 	*/
-	var mstCdStrArr = "CMM00001|PRJ00013";
+	var mstCdStrArr = "CMM00001";
 	var strUseYn = 'Y';
-	var arrObj = [$("#useCd"),$("#prjType")];
+	var arrObj = [$("#useCd")];
 	var arrComboType = ["",""];
 	gfnGetMultiCommonCodeDataForm(mstCdStrArr, strUseYn, arrObj, arrComboType , false);
 	
-
+	// 유효성 체크
 	gfnInputValChk(arrChkObj);
 	
-	// 프로젝트 약어 영문여부 체크
-	var arrChkObj2 = {"prjAcrm":{"type":"english"}};
+	// 프로젝트 약어 영문 숫자여부 체크
 	gfnInputValChk(arrChkObj2);
 	
 	//프로젝트 목록 조회
@@ -105,12 +117,12 @@ $(document).ready(function() {
 			//루트 선택의경우 프로젝트 그룹 추가
 			if(gfnIsNull(selZtree.prjGrpCd)){
 				var data = { "type":"group",prjGrpId:null};
-				var popupHeight = "420";
+				var popupHeight = "430";
 			}
 			//프로젝트 그룹 선택 시 프로젝트 추가
 			else if(selZtree.prjGrpCd == "01"){
 				var data = { "type":"project","prjGrpId":selZtree.prjId, "prjGrpNm":selZtree.prjNm,"startDt":selZtree.startDt,"endDt":selZtree.endDt};
-				var popupHeight = "570";
+				var popupHeight = "630";
 			}
 				gfnLayerPopupOpen('/prj/prj1000/prj1000/selectPrj1001View.do', data, '700', popupHeight, 'scroll');
 			
@@ -124,7 +136,7 @@ $(document).ready(function() {
 		
 		//선택 객체가 없는경우 오류
 		if(gfnIsNull(selZtree)){
-			jAlert("프로젝트 그룹 또는 프로젝트를 선택해주세요.", "알림창");
+			jAlert("프로젝트 그룹 또는 프로젝트를 선택해주세요.");
 			return false;
 		}
 		
@@ -158,7 +170,7 @@ $(document).ready(function() {
 				return false;	
 			}
 		}
-		
+
 		//jsonArray to json Map
 		var prjInfo = {};
 		$.each($("#prjInfoFrm").serializeArray(),function(idx, map){
@@ -190,7 +202,7 @@ $(document).ready(function() {
 		
 		//선택 객체가 없는경우 오류
 		if(gfnIsNull(selZtree)){
-			jAlert("프로젝트 그룹 또는 프로젝트를 선택해주세요.", "알림창");
+			jAlert("프로젝트 그룹 또는 프로젝트를 선택해주세요.");
 			return false;
 		}
 		
@@ -233,6 +245,7 @@ function fnSelectPrjList(){
 	//AJAX 설정
 	var ajaxObj = new gfnAjaxRequestAction(
 			{"url":"<c:url value='/prj/prj1000/prj1000/selectPrj1000ViewAjax.do'/>","loadingShow":false},{viewType:"all"});
+	ajaxObj.async = false;
 	//AJAX 전송 성공 함수
 	ajaxObj.setFnSuccess(function(data){
 		data = JSON.parse(data);
@@ -257,23 +270,6 @@ function fnSelectPrjList(){
 					
 					//우측 프로젝트 정보
 					fnGetPrjInfoAjax(treeNode);
-				},
-				/* onRightClick : function(event, treeId, treeNode){
-					//프로젝트명 변경 상자 나타내기
-					zTree.editName(treeNode);
-				},
-				onRename : function(event, treeId, treeNode){
-					//프로젝트명 변경 이벤트 일어 날 경우, 프로젝트명 수정 이벤트 
-					fnUpdatePrjInfoAjax(treeNode,"editRename",false);
-				}, */
-				onDblClick : function(event, treeId, treeNode){
-					//노드 더블 클릭시 발생
-					if(!gfnIsNull(treeNode)){
-						//자식노드가 없는 노드 더블 클릭시 사용유무 변경
-						if(!treeNode.isParent && typeof treeNode.children == "undefined"){
-							fnUpdatePrjInfoAjax(treeNode,"editUseCd",false);
-						}
-					}
 				}
 			},
 			view : {
@@ -291,7 +287,7 @@ function fnSelectPrjList(){
 	    };
     	
     	var prjList = data.list;
-    	prjList.unshift({prjId:null,prjGrpId:null,prjNm:"OSLITS",useCd:"01",open:"true"});
+    	prjList.unshift({prjId:null,prjGrpId:null,prjNm:"SW형상관리시범프로젝트",useCd:"01",open:"true"});
     	
 		// zTree 초기화
 	    zTree = $.fn.zTree.init($("#prjListJson"), setting, data.list);
@@ -354,6 +350,7 @@ function fnGetPrjInfoAjax(treeNode){
 			
 			//Mask 제거
 			ax5Mask.close();
+			
 			// 우측 상세정보 화면초기화
 			fnFormReset();
 			
@@ -365,9 +362,6 @@ function fnGetPrjInfoAjax(treeNode){
 				//그룹 정보 표시
 				$(".prjGrpNameSpan").show();
 				
-				//프로젝트 유형 숨김
-				$(".prjTypeDiv").hide();
-				
 				// 프로젝트 약어 숨김
 				$(".prjAcrmDiv").hide();
 				
@@ -378,9 +372,6 @@ function fnGetPrjInfoAjax(treeNode){
 			else if(treeNode.prjGrpCd == "02"){
 				//그룹 정보 숨김
 				$(".prjGrpNameSpan").hide();
-				
-				//프로젝트 유형 표시
-				$(".prjTypeDiv").show();
 				
 				// 프로젝트 약어 표시
 				$(".prjAcrmDiv").show();
@@ -521,6 +512,15 @@ function fnUpdatePrjInfoAjax(prjInfoObj, updateType, updateAsync){
 				fnHeaderHandle(prjInfoObj,"update_useCd");
     		//폼으로 정보 수정인 경우
     		}else if(updateType == "normal"){
+    			//그룹 수정인경우
+    			if($("#prjGrpCd").val() == "01"){
+    				$("select#header_select optgroup[value="+$("#prjId").val()+"]").attr("data-ord",$("#ord").val());
+    			}
+    			//단위 수정인경우
+    			else{
+    				$("select#header_select option[value="+$("#prjId").val()+"]").attr("data-ord",$("#ord").val());
+    			}
+    			
     			//프로젝트명이 변경된 경우
     			if(zTree.getSelectedNodes()[0].prjNm != $("#prjNm").val()){
     				//폼값 수정이기 때문에 프로젝트값 수정 필요
@@ -534,6 +534,8 @@ function fnUpdatePrjInfoAjax(prjInfoObj, updateType, updateAsync){
 	    			else{
 	    				$("select#header_select option[value="+$("#prjId").val()+"]").text($("#prjNm").val());
 	    			}
+    				//상단 콤보박스 정보 변경
+	    			fnHeaderHandle(prjInfoObj,"update_editName");
     			}
     			//사용유무 변경된 경우
     			if(zTree.getSelectedNodes()[0].useCd != $("#useCd").val()){
@@ -583,6 +585,9 @@ function fnUpdatePrjInfoAjax(prjInfoObj, updateType, updateAsync){
     		
     		//해당 노드 갱신
     		if(updateType == "normal"){	//폼값으로 수정
+    			//그룹 기간 갱신
+    			zTree.getSelectedNodes()[0].startDt = prjInfoObj.startDt;
+    			zTree.getSelectedNodes()[0].endDt = prjInfoObj.endDt;
     			zTree.updateNode(zTree.getSelectedNodes()[0]);
     		}else{	//Json Object로 수정
     			zTree.updateNode(prjInfoObj);
@@ -688,7 +693,31 @@ function fnHeaderHandle(objInfo,type){
 	if(objInfo.prjGrpCd == "01"){
 		//그룹 - 추가
 		if(type == "insert"){
-			$("select#header_select").append('<optgroup label="[그룹]'+objInfo.prjNm+'" value="'+objInfo.prjId+'" style="display:none;"></optgroup>');
+			//정렬 순서로 추가됬는지 체크
+			var ordFlag = false;
+			
+			//ord에 맞게 위치 추가
+			$.each($("select#header_select > optgroup"), function(idx, map){
+				//정렬 순서
+				var ord = $(map).data("ord");
+				
+				if(!gfnIsNull(ord)){
+					ord = parseInt(ord);
+					
+					//현재 추가된 프로젝트 그룹 정렬 순서보다 높은경우
+					if(parseInt(objInfo.ord) < ord){
+						$(map).before('<optgroup label="[그룹]'+objInfo.prjNm+'" value="'+objInfo.prjId+'" data-ord="'+objInfo.ord+'" disabled="disabled"></optgroup>');
+						ordFlag = true;
+						return false;
+					}
+					
+				}
+			});
+
+			//정렬 추가 안된경우 마지막에 추가
+			if(!ordFlag){
+				$("select#header_select").append('<optgroup label="[그룹]'+objInfo.prjNm+'" value="'+objInfo.prjId+'" data-ord="'+objInfo.ord+'" disabled="disabled"></optgroup>');
+			}
 		}
 		//이름 수정
 		else if(type == "update_editName"){
@@ -697,27 +726,52 @@ function fnHeaderHandle(objInfo,type){
 		//사용유무 수정
 		else if(type == "update_useCd"){
 			if(objInfo.useCd == "02"){//사용
-				$("select#header_select optgroup[value="+objInfo.prjId+"]").show();
+				$("select#header_select optgroup[value="+objInfo.prjId+"]").removeAttr("disabled");
 			}else{//미사용
-				$("select#header_select optgroup[value="+objInfo.prjId+"]").hide();
+				$("select#header_select optgroup[value="+objInfo.prjId+"]").attr("disabled","disabled");
 			}
 		}
 		//제거
 		else if(type == "delete"){
 			$("select#header_select optgroup[value="+objInfo.prjId+"]").remove();
 		}
+		//프로젝트 목록 select2
+		headerPrjListSetting();
 	}
 	//단위
 	else{
 		//단위 - 추가
 		if(type == "insert"){
 			//프로젝트 최초 추가인경우 그룹 show
-			if($("select#header_select optgroup[value="+objInfo.prjGrpId+"]").css("display") == "none"){
-				$("select#header_select optgroup[value="+objInfo.prjGrpId+"]").show();
+			if($("select#header_select optgroup[value="+objInfo.prjGrpId+"]").attr("disabled") == "disabled"){
+				$("select#header_select optgroup[value="+objInfo.prjGrpId+"]").removeAttr("disabled");
 			}
 			
-			//프로젝트 항목 추가
-			$("select#header_select optgroup[value="+objInfo.prjGrpId+"]").append('<option value="'+objInfo.prjId+'">'+objInfo.prjNm+'</option>');	
+			//정렬 순서로 추가됬는지 체크
+			var ordFlag = false;
+			
+			//ord에 맞게 위치 추가
+			$.each($("select#header_select optgroup[value="+objInfo.prjGrpId+"] > option"), function(idx, map){
+				//정렬 순서
+				var ord = $(map).data("ord");
+				
+				if(!gfnIsNull(ord)){
+					ord = parseInt(ord);
+					
+					//현재 추가된 프로젝트 그룹 정렬 순서보다 높은경우
+					if(parseInt(objInfo.ord) < ord){
+						$(map).before('<option value="'+objInfo.prjId+'" data-ord="'+objInfo.ord+'">'+objInfo.prjNm+'</option>');
+						ordFlag = true;
+						return false;
+					}
+					
+				}
+			});
+			
+			if(!ordFlag){
+				//프로젝트 항목 추가
+				$("select#header_select optgroup[value="+objInfo.prjGrpId+"]").append('<option value="'+objInfo.prjId+'" data-ord="'+objInfo.ord+'">'+objInfo.prjNm+'</option>');	
+			}
 		}
 		//이름 수정
 		else if(type == "update_editName"){
@@ -737,8 +791,8 @@ function fnHeaderHandle(objInfo,type){
 			
 				//상위 그룹이 hidden인지 체크
 				var parentNode = zTree.getSelectedNodes()[0].getParentNode();
-				if($("select#header_select optgroup[value="+objInfo.prjGrpId+"]").css("display") == "none"){
-					$("select#header_select optgroup[value="+objInfo.prjGrpId+"]").show();
+				if($("select#header_select optgroup[value="+objInfo.prjGrpId+"]").attr("disabled") == "disabled"){
+					$("select#header_select optgroup[value="+objInfo.prjGrpId+"]").removeAttr("disabled");
 				}
 				
 			}else{//미사용
@@ -761,6 +815,9 @@ function fnHeaderHandle(objInfo,type){
 			//수정 또는 제거할때 그룹에 자식 개체가 없는경우 그룹 가리기
 			inFnPrjGrpObjChk();
 		}
+		
+		//프로젝트 목록 select2
+		headerPrjListSetting();
 	}
 	
 	function inFnPrjGrpObjChk(){
@@ -795,6 +852,7 @@ function fnHeaderHandle(objInfo,type){
 		}
 	}
 }
+
 /** 
  *	우측 상세정보 화면을 초기화 시킨다.
  */
@@ -804,10 +862,10 @@ function fnFormReset(){
 }
 
 </script>
-<div class="main_contents">
+<div class="main_contents" style="position: relative;">
 	<div class="prj_title">${sessionScope.selMenuNm }</div>
 	<form id="searchFrm" ></form>
-	<div class="tab_contents menu">
+	<div class="tab_contents menu" id="projectInfoCreate">
 		<div class="top_control_wrap">
 			<span class="button_normal2 btn_select" id="btn_select_prjList"><i class='fa fa-list' aria-hidden='true'></i>&nbsp;조회</span>
 			<span class="button_normal2 btn_save" id="btn_update_prjInfo"><i class='fa fa-edit' aria-hidden='true'></i>&nbsp;저장</span>
@@ -833,6 +891,7 @@ function fnFormReset(){
 					<input type="hidden" id="prjGrpId" name="prjGrpId"/>
 					<input type="hidden" id="prjId" name="prjId"/>
 					<input type="hidden" id="prjGrpCd" name="prjGrpCd"/>
+					<input type="hidden" id="prjType" name="prjType" value="01"/>
 					<div class="menu_row top_menu_row">
 						<div class="menu_col1"><label for="prjNm">프로젝트 <span class="prjGrpNameSpan">그룹</span>명</label><span class="required_info">&nbsp;*</span></div>
 						<div class="menu_col2"><input id="prjNm" type="text"  name="prjNm" tabindex=1 /></div>
@@ -845,13 +904,13 @@ function fnFormReset(){
 							<span class="fl"><input type="text" id="endDt" name="endDt" class="calendar_input" readonly="readonly" title="프로젝트 종료일" value="" style="height:90%;" /></span>
 						</div>
 					</div>
-					<div class="menu_row prjTypeDiv">
-						<div class="menu_col1"><label for="prjType">프로젝트 유형</label><span class="required_info">&nbsp;*</span></div>
-						<div class="menu_col2"><select class="sel_menu" name="prjType" id="prjType"></select></div>
-					</div>
 					<div class="menu_row prjAcrmDiv">
 						<div class="menu_col1"><label for="prjAcrm">프로젝트 약어</label><span class="required_info">&nbsp;*</span></div>
 						<div class="menu_col2"><input id="prjAcrm" type="text"  readonly="readonly" name="prjAcrm" maxlength="10" /></div>
+					</div>
+					<div class="menu_row prjAcrmDiv">
+						<div class="menu_col1"><label for="prjTaskTypeNm">프로젝트 사업 구분</label><span class="required_info">&nbsp;*</span></div>
+						<div class="menu_col2"><input id="prjTaskTypeNm" type="text"  readonly="readonly" name="prjTaskTypeNm"/></div>
 					</div>
 					<div class="menu_row menu_col_textarea">
 						<div class="menu_col1"><label for="prj_dsecription">프로젝트  <span class="prjGrpNameSpan">그룹</span>설명</label></div>
