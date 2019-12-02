@@ -12,7 +12,7 @@
 </style>
 
 <link rel="stylesheet" href="<c:url value='/css/common/common.css'/>">
-<link rel='stylesheet' href='<c:url value='/css/oslits/prj.css'/>' type='text/css'>
+<link rel='stylesheet' href='<c:url value='/css/oslops/prj.css'/>' type='text/css'>
 
 <script src="<c:url value='/js/jquery/jquery-1.11.2.min.js'/>" ></script>
 
@@ -22,11 +22,11 @@
 var type = "${type}";
 $(document).ready(function() {
 	//프로젝트 그룹 생성 높이
-	var popupHeight = "570";
+	var popupHeight = "580";
 								
 	//프로젝트 생성 높이
 	if(type == "group"){
-		popupHeight = "370";
+		popupHeight = "380";
 	}
 	var data = {type: type};
 	gfnLayerPopupOpen('/prj/prj1000/prj1000/selectPrj1003View.do', data, '761', popupHeight,'auto');
