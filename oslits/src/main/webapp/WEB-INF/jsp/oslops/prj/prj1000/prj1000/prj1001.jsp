@@ -27,11 +27,10 @@
 var arrChkObj = {"prjNm":{"type":"length","msg":"프로젝트 ${prjGrpNm}명은 200byte까지 입력이 가능합니다.",max:200}
 				,"prjAcrm":{"type":"length","msg":"프로젝트 약어는 10byte까지 입력이 가능합니다.",max:10}
 				,"prjDesc":{"type":"length","msg":"프로젝트 설명은 4000byte까지 입력이 가능합니다.",max:4000}
-				,"itemOrd":{"type":"number"}
-				};
+				,"ord":{"type":"number"}};
 
-// 프로젝트 약어 영문여부 체크
-var arrChkObj2 = {"prjAcrm":{"type":"english"}};
+// 프로젝트 약어 영문 숫자여부 체크
+var arrChkObj2 = {"prjAcrm":{"type":"english","engOption":"includeNumber"}};
 
 $(document).ready(function() {
 	//그룹 or 단위
@@ -40,7 +39,7 @@ $(document).ready(function() {
 	// 유효성 체크
 	gfnInputValChk(arrChkObj);
 	
-	// 프로젝트 약어 영문여부 체크
+	// 프로젝트 약어 영문 숫자여부 체크
 	gfnInputValChk(arrChkObj2);
 	
 	var prjGrpStartDt = "${startDt}";
@@ -50,9 +49,6 @@ $(document).ready(function() {
 	if(type == "group"){
 		//그룹 정보 숨김
 		$("#popupPrjForm .prjGrpNameSpan").hide();
-		
-		//프로젝트 유형 숨김
-		$("#popupPrjForm .prjTypeDiv").hide();
 		
 		// 프로젝트 약어 숨김
 		$("#popupPrjForm .popPrjAcrmDiv").hide();
@@ -75,9 +71,6 @@ $(document).ready(function() {
 		//그룹 정보 표시
 		$("#popupPrjForm .prjGrpNameSpan").show();
 		
-		//프로젝트 유형 표시
-		$("#popupPrjForm .prjTypeDiv").show();
-		
 		//프로젝트 약어 표시
 		$("#popupPrjForm .popPrjAcrmDiv").show();
 		
@@ -97,9 +90,9 @@ $(document).ready(function() {
 	*	5. 동기 비동기모드 선택 (true:비동기 통신, false:동기 통신)
 	*	마스터 코드 = REQ00001:요구사항 타입, REQ00002:중요도 , CMM00001:
 	*/
-	var mstCdStrArr = "CMM00001|PRJ00013";
+	var mstCdStrArr = "PRJ00001";
 	var strUseYn = 'Y';
-	var arrObj = [$("#useCd"),$("#prjType")];
+	var arrObj = [$("#prjTaskTypeCd")];
 	var arrComboType = ["",""];
 	gfnGetMultiCommonCodeDataForm(mstCdStrArr, strUseYn, arrObj, arrComboType , false);
 	
@@ -128,7 +121,8 @@ $(document).ready(function() {
 
 			// 프로젝트 약어 유효성 검증
 			var saveObjectValid = {
-						"prjAcrm":{"type":"regExp","pattern":/^[A-Z]{3,10}$/ ,"msg":"프로젝트 약어는 영문 대문자 3~10자만 사용 가능합니다.", "required":true} 
+						// 영문 대문자 또는 영문대문자+숫자 조합 입력
+						"prjAcrm":{"type":"regExp","pattern":/^(?=.*?[A-Z])(?=.*?[0-9])|[A-Z]{3,10}$/ ,"msg":"프로젝트 약어는 영문 대문자 또는 영문 대문자, 숫자 조합으로 3~10자만 사용 가능합니다.", "required":true}
 			}
 			
 			// 약어 유효성 검사
@@ -142,19 +136,19 @@ $(document).ready(function() {
 			}
 		}
 		
+		// 등록 전 입력값 유효성 검사
+		if(!gfnSaveInputValChk(arrChkObj)){
+			return false;	
+		}
+		
 		//error있는경우 오류
 		if($("#popupPrjForm .inputError").length > 0){
 			jAlert("유효하지 않은 값이 입력된 항목이 존재합니다.<br>항목을 확인해주세요.","알림");
 			$(".inputError")[0].focus()
 			return false;
 		}
-		
-		// 등록 전 입력값 유효성 검사
-		if(!gfnSaveInputValChk(arrChkObj)){
-			return false;	
-		}
-		
-		// 프로젝트 등록 전 유효성 체크
+
+		// 프로젝트 등록
 		fnInsertReg();
 	});
 	
@@ -172,6 +166,19 @@ $(document).ready(function() {
 	 	$("#prjAcrm").val(inputVal.toUpperCase());
 	});
 	
+	// 프로젝트 약어 focusout 이벤트
+	$("#prjAcrm").focusout(function(e){
+		var inputVal = $("#prjAcrm").val();  
+		// 입력된 값을 대문자로 변환
+	 	$("#prjAcrm").val(inputVal.toUpperCase());
+		// 숫자만 입력했는지 체크
+		if($.isNumeric($("#prjAcrm").val())){
+			jAlert("프로젝트 약어는 영문 대문자 또는 영문 대문자, 숫자 조합으로 입력해야 합니다.", "알림창");
+			$("#prjAcrm").val(''); 
+			$("#prjAcrm").focus();
+		}
+	});
+	
 	/* 취소버튼 클릭 시 팝업 창 사라지기*/
 	$('#btn_cancelReg').click(function() {
 		gfnLayerPopupClose();
@@ -185,6 +192,11 @@ $(document).ready(function() {
  * 프로젝트 생성관리 등록(insert) AJAX
  */
 function fnInsertReg(){
+	//프로젝트 설명이 빈값인경우 빈문자열 추가
+	if(gfnIsNull($("#popupPrjForm #prjDesc").val())){
+		$("#popupPrjForm #prjDesc").val(" ");
+	}
+	
 	//입력 정보
 	var prjInfoArray = $("#popupPrjForm").serializeArray();
 	
@@ -205,9 +217,10 @@ function fnInsertReg(){
 			}
 		}else{
 	    	toast.push(data.message);
+	    	fnSelectPrjList();
+	    	zTree.expandAll(true);
 	    	
-	    	//prjId 추가
-	    	prjInfoArray.push({"name":"prjId","value":data.prjId});
+			prjInfoArray.push({"name":"prjId","value":data.prjId});
 	    	
 	    	//jsonArray to json Map
 			var prjInfo = {};
@@ -224,11 +237,15 @@ function fnInsertReg(){
 			//상단 콤보박스 정보 변경
 			fnHeaderHandle(prjInfo,"insert");
 	    	
+	    	/*
+	    	//prjId 추가
+	    	
+	    	
 			
 			//zTree에 생성 프로젝트 추가
 			var parentNode = zTree.getSelectedNodes()[0];
 			zTree.addNodes(parentNode,prjInfo);
-			
+			*/
 	    	//layerpopup close
 			gfnLayerPopupClose();
 		}
@@ -256,6 +273,7 @@ function fnInsertReg(){
 			<input type="hidden" name="prjGrpId" id="prjGrpId" value="${prjGrpId}"/>
 			<input type="hidden" id="useCd" name="useCd" value="01" />
 			<input type="hidden" id="prjGrpCd" name="prjGrpCd" value="01" />
+			<input type="hidden" id="prjType" name="prjType" value="01" />
 			<div class="pop_left prjGrpNameSpan">프로젝트 그룹</div>
 			<div class="pop_right prjGrpNameSpan">
 					<input type="text" id="prjGrpNm_txt" name="prjGrpNm_txt" class="grpNm_txt" readonly="readonly" title="프로젝트 그룹 명" value="${prjGrpNm}"/>
@@ -277,15 +295,13 @@ function fnInsertReg(){
 				<span class="calendar_bar fl">~</span>
 				<span class="fl"><input type="text" id="endDt" name="endDt" class="calendar_input" readonly="readonly" title="개발 종료일"/ style="height: 32px;"></span>
 			</div>
-			
-			<div class="pop_left prjTypeDiv">프로젝트 유형<span class="required_info">&nbsp;*</span> </div>
-			<div class="pop_right prjTypeDiv">
-				<select class="search_select" title="셀렉트 박스" id="prjType" name="prjType" style="height: 100%;">
-						</select>
-			</div>
 			<div class="pop_left popPrjAcrmDiv">프로젝트 약어<span class="required_info">&nbsp;*</span> </div>
 			<div class="pop_right popPrjAcrmDiv">
 				<input id="prjAcrm" type="text"  name="prjAcrm" maxlength="10" />
+			</div>
+			<div class="pop_left popPrjAcrmDiv">프로젝트 사업 구분<span class="required_info">&nbsp;*</span> </div>
+			<div class="pop_right popPrjAcrmDiv">
+				<select class="sel_menu" name="prjTaskTypeCd" id="prjTaskTypeCd"></select> (* 생성시 수정 불가)
 			</div>
 			<div class="menu_col_textarea">
 				<div class="pop_left">프로젝트 ${groupStr}설명</div>
