@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="/WEB-INF/jsp/oslops/top/header.jsp" %>
 <jsp:include page="/WEB-INF/jsp/oslops/top/aside.jsp" />
-<link rel='stylesheet' href='<c:url value='/css/oslits/req.css'/>' type='text/css'>
+<link rel='stylesheet' href='<c:url value='/css/oslops/req.css'/>' type='text/css'>
 <style type="text/css">
 	.accptFont{color:#4b73eb !important;text-shadow: none !important;}
 	.rejectFont{color:#eb4b6a !important;text-shadow: none !important;}
@@ -37,10 +37,10 @@ $(document).ready(function(){
 function fnRequestEvent(type){
 	var item = firstGrid.list[firstGrid.selectedDataIndexs[0]];
 	
-	 //선택 데이터 없는경우
+	//선택 데이터 없는경우
 	if(gfnIsNull(item)){
-	      jAlert("결재 대기 요구사항을 선택해주세요.","알림창");
-	      return false;
+		jAlert("결재 대기 요구사항을 선택해주세요.","알림창");
+		return false;
 	}
 	
 	var reqStatusCd = item.signCd;
@@ -55,16 +55,22 @@ function fnRequestEvent(type){
 	}
 	// 작업흐름 정보 필요
 	var nextFlowInfo = fnGetFlowNextNextId(item);
+	//var nextFlowInfo = firstGrid.list[firstGrid.selectedDataIndexs[0]].flowNextId;
 
 	if(type == "accept"){
 		jConfirm("결재 승인하시겠습니까?", "알림", function( result ) {
 			if( result ){
 				//다음 작업흐름Id의 다음 작업흐름 Id(최종 종료 분기)
 				
+				var flowNextNextId = nextFlowInfo.flowNextId;
+				if(gfnIsNull(flowNextNextId)){
+					flowNextNextId = "null";
+				}
+				
 				var rtnData = item;
 				rtnData.signCd ="02";
 				rtnData.preFlowId  = item.flowId;
-				rtnData.flowNextNextId = nextFlowInfo.flowNextId; // 현재 요구사항읜 다음, 다음 작업흐름 ID
+				rtnData.flowNextNextId = flowNextNextId; // 현재 요구사항읜 다음, 다음 작업흐름 ID
 				rtnData.signRegUsrId = item.regUsrId;
 				fnReqSignComplete(rtnData);
 			}
@@ -83,9 +89,9 @@ function fnRequestEvent(type){
 						preFlowId: item.flowId, 
 						flowNextNextId: nextFlowInfo.flowNextId, 
 						signRegUsrId: item.regUsrId,
+						flowSignStopCd: item.flowSignStopCd, 
 						type: 'reject'
 					};
-
 		//팝업 화면 오픈
 		gfnLayerPopupOpen("/req/req4000/req4100/selectReq4108View.do", rtnData, '500', '290','scroll');
 	}
@@ -275,6 +281,13 @@ function fnInGridListSet(_pageNo,ajaxParam){
 		//AJAX 전송 성공 함수
 		ajaxObj.setFnSuccess(function(data){
 			data = JSON.parse(data);
+			
+			// 조회 실패
+	    	if(data.errorYn == 'Y'){ 
+	    		toast.push(data.message);
+	    		return;
+	    	}
+			
 			var list = data.list;
 			var page = data.page;
 			
@@ -331,7 +344,6 @@ function fnSearchBoxControl(){
 							options:[
 								{optionValue:"0", optionText:"전체 보기",optionAll:true},
 								{optionValue:'reqNm', optionText:'요구사항 명'},
-								{optionValue:'reqNo', optionText:'요구사항 번호'},
 								{optionValue:"regUsrNm", optionText:"담당자 명"},
 								{optionValue:'reqId', optionText:'요구사항 ID'},
 								
@@ -395,7 +407,7 @@ function fnSearchBoxControl(){
 						
 						{label:"", labelWidth:"", type:"button", width:"70",style:"float:right;", key:"btn_print_newReqDemand",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-print' aria-hidden='true'></i>&nbsp;<span>프린트</span>",
 							onclick:function(){
-								$(firstGrid.exportExcel()).printThis();
+								$(firstGrid.exportExcel()).printThis({importCSS: false,importStyle: false,loadCSS: "/css/common/printThis.css"});
 						}},
 						{label:"", labelWidth:"", type:"button", width:"60",style:"float:right;", key:"btn_excel_newReqDemand",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-file-excel' aria-hidden='true'></i>&nbsp;<span>엑셀</span>",
 							onclick:function(){
