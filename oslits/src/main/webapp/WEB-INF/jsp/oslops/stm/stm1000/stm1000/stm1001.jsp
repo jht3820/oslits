@@ -4,7 +4,7 @@
 <html lang="ko">
 <title>OpenSoftLab</title>
 <script src="<c:url value='/js/common/oslFile.js'/>"></script>
-<script src="<c:url value='/js/common/comOslits.js'/>"></script>
+<script src="<c:url value='/js/common/comOslops.js'/>"></script>
 <link rel='stylesheet' href='<c:url value='/css/common/fileUpload.css'/>' type='text/css'>
 <style>
 .layer_popup_box .close_btn{top:12px; width:18px; height:18px; background:url(/images/login/x_white.png) no-repeat}
@@ -37,6 +37,8 @@ var arrChkObj = {	"apiNm":{"type":"length","msg":"서비스명은 500byte까지 
 //파일 업로드 제한 사이즈
 var FILE_INFO_MAX_SIZE = "${fileInfoMaxSize}";
 var FILE_SUM_MAX_SIZE = "${fileSumMaxSize}";
+
+globals_guideChkFn = fnStm1001GuideShow;
 
 $(document).ready(function() {
 	var languages = gfnGetUrlList();
@@ -80,7 +82,7 @@ $(document).ready(function() {
 		$("#btn_save_popup").text('등록');
 	}
 	else if('${param.popupGb}' == 'update'){
-		$(".pop_title").text("API 등록");
+		$(".pop_title").text("API 수정");
 		$("#btn_save_popup").text('수정');
 		
 		var apiId = '${param.apiId}';
@@ -172,7 +174,6 @@ $(document).ready(function() {
 		console.log(11);
 	});
 
-	
 });
 
 //요구사항 등록 함수
@@ -223,6 +224,18 @@ function fnInsertReqInfoAjax(formId){
 	});
 }
 
+function fnStm1001GuideShow(){
+	var mainObj = $(".popup");
+	
+	//mainObj가 없는경우 false return
+	if(mainObj.length == 0){
+		return false;
+	}
+	//guide box setting
+	var guideBoxInfo = globals_guideContents["stm1001"];
+	gfnGuideBoxDraw(true,mainObj,guideBoxInfo);
+}
+
 </script>
 
 <div class="popup" id="aaa">
@@ -244,7 +257,7 @@ function fnInsertReqInfoAjax(formId){
 		
 		<div class="pop_menu_row pop_menu_oneRow">
 			<div class="pop_menu_col1 pop_oneRow_col1"><label for="apiUrl" style="height: 100%; margin-bottom: 0px;">서비스 주소(URL)</label><span class="required_info">&nbsp;*</span></div>
-			<div class="pop_menu_col2 pop_oneRow_col2">
+			<div class="pop_menu_col2 pop_oneRow_col2" guide="apiUrl"  >
 				<input type="text" title="링크정보" class="input_txt" name="apiUrl" style="width:88%;" id="apiUrl" value="" maxlength="500" readonly  />
 				<span class="button_normal2 fl" id="btn_api_select"><i class="fa fa-search" styel="font-size: 15px;"></i></span>	
 			</div>
