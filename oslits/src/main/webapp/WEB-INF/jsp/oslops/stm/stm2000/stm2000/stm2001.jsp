@@ -4,7 +4,7 @@
 <html lang="ko">
 <title>OpenSoftLab</title>
 <script src="<c:url value='/js/common/oslFile.js'/>"></script>
-<script src="<c:url value='/js/common/comOslits.js'/>"></script>
+<script src="<c:url value='/js/common/comOslops.js'/>"></script>
 <link rel='stylesheet' href='<c:url value='/css/common/fileUpload.css'/>' type='text/css'>
 <style>
 .layer_popup_box .close_btn{top:12px; width:18px; height:18px; background:url(/images/login/x_white.png) no-repeat}
@@ -21,6 +21,9 @@
 #popup_authFrame{display:none;}
 </style>
 <script>
+
+globals_guideChkFn = fnStm2001GuideShow;
+
 var fd = new FormData();
 //중복 파일 업로드 방지 전역변수
 var fileChk = new Array();
@@ -80,7 +83,7 @@ $(document).ready(function() {
 		//역할 목록 그리드 세팅
 		fnAuthListGrid();
 		 */
-		$(".pop_title").text("REPOSITORY 등록");
+		$(".pop_title").text("REPOSITORY 수정");
 		$("#btn_update_popup").text('수정');
 		
 		var svnRepId = '${param.svnRepId}';
@@ -212,6 +215,18 @@ function fnAuthListGrid(){
     });
 }
 
+function fnStm2001GuideShow(){
+	var mainObj = $(".popup");
+	
+	//mainObj가 없는경우 false return
+	if(mainObj.length == 0){
+		return false;
+	}
+	//guide box setting
+	var guideBoxInfo = globals_guideContents["stm2001"];
+	gfnGuideBoxDraw(true,mainObj,guideBoxInfo);
+}
+
 </script>
 
 <div class="popup" >
@@ -233,18 +248,18 @@ function fnAuthListGrid(){
 		
 		<div class="pop_menu_row pop_menu_oneRow">
 			<div class="pop_menu_col1 pop_oneRow_col1"><label for="svnRepUrl">URL</label><span class="required_info">&nbsp;*</span></div>
-			<div class="pop_menu_col2 pop_oneRow_col2">
+			<div class="pop_menu_col2 pop_oneRow_col2" guide="svnUrl" >
 				<input type="text" title="URL" class="input_txt" name="svnRepUrl" id="svnRepUrl" value=""  maxlength="500"  />
 			</div>
 		</div>
 		
 		<div class="pop_menu_row">
 			<div class="pop_menu_col1 menu_col1_subStyle"><label for="svnUsrId">USER</label><span class="required_info">&nbsp;*</span></div>
-			<div class="pop_menu_col2 menu_col2_subStyle"><input type="text" title="USER" class="input_txt" name="svnUsrId" id="svnUsrId" value="" maxlength="30" /></div>
+			<div class="pop_menu_col2 menu_col2_subStyle" guide="svnUser" ><input type="text" title="USER" class="input_txt" name="svnUsrId" id="svnUsrId" value="" maxlength="30" /></div>
 		</div>
 		<div class="pop_menu_row">
 			<div class="pop_menu_col1 menu_col1_subStyle pop_menu_col1_right"><label for="svnUsrPw">PASSWORD</label><span class="required_info">&nbsp;*</span></div>
-			<div class="pop_menu_col2 menu_col2_subStyle"><input type="password" title="PASSWORD" class="input_txt" name="svnUsrPw" id="svnUsrPw" value="" maxlength="50" /></div>
+			<div class="pop_menu_col2 menu_col2_subStyle" guide="svnPassword" ><input type="password" title="PASSWORD" class="input_txt" name="svnUsrPw" id="svnUsrPw" value="" maxlength="50" /></div>
 		</div>
 
 		<div class="pop_menu_row pop_menu_oneRow">
