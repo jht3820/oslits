@@ -8,7 +8,7 @@
 
 	<!-- Oracle db 트랜잭션 / 2015.12.22 추가 - 정형택 -->
 	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-	  <property name="dataSource" ref="oslits.dataSource"/>
+	  <property name="dataSource" ref="oslops.dataSource"/>
 	</bean>
 	  
 	<!-- Select문의 경우 1분이상 조회시 타임아웃으로 떨어지도록 설정 -->  

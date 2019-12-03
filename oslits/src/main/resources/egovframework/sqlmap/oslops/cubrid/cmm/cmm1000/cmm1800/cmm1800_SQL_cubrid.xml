@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="cmm1800DAO">
+	<typeAlias alias="egovMap" 		type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+
+	
+	 
+    <!-- 프로세스 가져오기 -->
+    <select id="cmm1800DAO.selectCmm1800ProcessList" parameterClass="java.util.Map"  resultClass="egovMap" >
+    	/* cmm1800DAO.selectCmm1800ProcessList 프로세스 목록 조회 */
+    		SELECT
+	            	PRJ_ID              /* 프로젝트 ID */ 
+	            ,	PROCESS_ID          /* 프로세스 ID */ 
+	            ,	PROCESS_NM          /* 프로세스명 */ 
+	            ,	PROCESS_DESC        /* 프로세스 설명 */ 
+	            ,	PROCESS_CONFIRM_CD  /* 확정처리 */ 
+	            ,	USE_CD              /* 사용여부 */ 
+	            ,	PROCESS_ORD         /* 프로세스 순서 */ 
+			FROM FLW1000
+			WHERE 1=1
+		    AND PRJ_ID = #prjId# 
+				<isNotEmpty property="searchPopTxt"> 
+  			AND PROCESS_NM like '%' || #searchPopTxt#  ||'%' 
+    			</isNotEmpty>
+		    AND PROCESS_CONFIRM_CD = '02'
+		    ORDER BY PROCESS_ORD ASC
+    </select>
+</sqlMap>            

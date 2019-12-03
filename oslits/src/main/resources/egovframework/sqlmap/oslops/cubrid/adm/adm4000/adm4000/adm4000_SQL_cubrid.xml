@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="adm4000DAO">
+
+	<!--  in / out class define  -->
+	<typeAlias  alias="egovMap" 	type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias alias="loginVO"	type="kr.opensoftlab.oslops.com.vo.LoginVO"/>
+
+	<!-- 공통코드 마스터 가져오기 -->
+	<select id="adm4000DAO.selectAdm4000CommonCodeMasterList" parameterClass="java.util.Map" resultClass="egovMap">
+		<![CDATA[
+			/* adm4000DAO.selectAdm4000CommonCodeMasterList - 	공통코드 마스터 조회  */
+				SELECT
+					  	A.MST_CD
+					, 	A.UPPER_MST_CD
+					, 	A.MST_CD_NM
+					, 	A.MST_CD_ENG_NM
+					, 	A.MST_CD_DESC
+					, 	SF_REPLACE_ALL(A.MST_CD_DESC ,'</br>|<br>|<br/>|</BR>|<BR>|<BR/>' , ' ' ) AS MST_CD_DESC_GRID
+					, 	A.LVL
+					, 	A.ORD
+					, 	A.USE_YN
+					, 	A.STM_USE_YN
+				FROM ADM4000 A
+		]]>
+				WHERE A.LIC_GRP_ID = #licGrpId#
+			<isNotEmpty property="searchSelect">
+				<isNotEmpty property="searchTxt">
+					<isEqual property="searchSelect" compareValue="mstCd" prepend="AND">
+						A.MST_CD LIKE '%'||#searchTxt#||'%'
+					</isEqual>
+					<isEqual property="searchSelect" compareValue="mstCdNm" prepend="AND">
+						A.MST_CD_NM LIKE '%'||#searchTxt#||'%'
+					</isEqual>
+					<isEqual property="searchSelect" compareValue="mstCdDesc" prepend="AND">
+						A.MST_CD_DESC LIKE '%'||#searchTxt#||'%'
+					</isEqual>
+				</isNotEmpty>
+				<isNotEmpty property="searchCd">
+					<isEqual property="searchSelect" compareValue="useYn" prepend="AND">
+							<![CDATA[ A.USE_YN = #searchCd# ]]> 
+					</isEqual>
+				</isNotEmpty>
+			</isNotEmpty>
+			ORDER BY ORD
+	</select>
+	
+	<!-- 공통코드 디테일 가져오기 -->
+	<select id="adm4000DAO.selectAdm4000CommonCodeDetailList" parameterClass="java.util.Map" resultClass="egovMap">
+		<![CDATA[
+			/* adm4000DAO.selectAdm4000CommonCodeDetailList - 	공통코드 디테일 조회  */
+				SELECT
+						A.MST_CD
+					,	A.SUB_CD
+					, 	A.SUB_CD_NM
+					,	A.SUB_CD_REF1
+					,	A.SUB_CD_REF2
+					,	A.SUB_CD_REF3
+					,	A.SUB_CD_REF4
+					,	A.SUB_CD_REF5
+					,	A.SUB_CD_DESC
+					,	SF_REPLACE_ALL (A.SUB_CD_DESC ,'</br>|<br>|<br/>|</BR>|<BR>|<BR/>' , ' ' ) AS SUB_CD_DESC_GRID
+					,	A.ORD
+					,	A.USE_YN
+					,	( 
+							SELECT B.STM_USE_YN 
+							FROM ADM4000 B 
+							WHERE 1=1
+							AND B.LIC_GRP_ID = #licGrpId# 
+							AND B.MST_CD = #mstCd#
+						 ) AS STM_USE_YN
+				FROM ADM4100 A
+		]]>
+				WHERE A.LIC_GRP_ID = #licGrpId#
+				AND A.MST_CD = #mstCd#
+				<isNotEmpty property="selSubCd" prepend="AND">
+					A.SUB_CD = #selSubCd#
+				</isNotEmpty>
+				<isNotEmpty property="searchSelect">
+				<isNotEmpty property="searchTxt">
+					<isEqual property="searchSelect" compareValue="subCdNm" prepend="AND">
+						A.SUB_CD_NM LIKE '%'||#searchTxt#||'%'
+					</isEqual>
+					<isEqual property="searchSelect" compareValue="subCdRef" prepend="AND">
+						A.SUB_CD_REF1 LIKE '%'||#searchTxt#||'%' OR A.SUB_CD_REF2 LIKE '%'||#searchTxt#||'%' 
+					</isEqual>
+					<isEqual property="searchSelect" compareValue="subCdDesc" prepend="AND">
+						A.SUB_CD_DESC LIKE '%'||#searchTxt#||'%' 
+					</isEqual>
+				</isNotEmpty>
+				<isNotEmpty property="searchCd">
+					<isEqual property="searchSelect" compareValue="useYn" prepend="AND">
+						<![CDATA[ A.USE_YN = #searchCd# ]]> 					
+					</isEqual>
+				</isNotEmpty>
+			</isNotEmpty>
+	</select>
+	
+	<!-- 공통코드 마스터 정보 저장 -->
+	<update id="adm4000DAO.saveAdm4000CommonCodeMaster" parameterClass="java.util.Map">
+		<![CDATA[
+			/* adm4000DAO.saveAdm4000CommonCodeMaster - 공통코드 마스터 정보 저장 */ 
+			MERGE INTO ADM4000 ADM
+			USING (
+					SELECT 
+							#licGrpId# AS LIC_GRP_ID
+						,	UPPER(#mstCd#) AS MST_CD
+					FROM db_root 
+					) TMP
+			ON ( ADM.LIC_GRP_ID = TMP.LIC_GRP_ID AND ADM.MST_CD  = TMP.MST_CD ) 
+			WHEN MATCHED THEN
+			UPDATE SET 
+		]]>		
+			<isNotEmpty property="stmUseYn">
+				<isEqual property="stmUseYn" compareValue="N"> 
+					ADM.UPPER_MST_CD  = #upperMstCd#
+					, ADM.MST_CD_NM  = #mstCdNm#
+					, ADM.MST_CD_ENG_NM = #mstCdEngNm#
+					, ADM.MST_CD_DESC = #mstCdDesc#
+					, ADM.ABORT_DT = #abortDt#
+					, ADM.LVL = #lvl#
+					, ADM.ORD = #ord#
+					, ADM.USE_YN = #useYn#
+					, ADM.STM_USE_YN = 'N' /* 시스템 사용여부 미사용인 코드는 수정시  STM_USE_YN = N 으로 */
+				</isEqual>	
+				<isEqual property="stmUseYn" compareValue="Y"> 
+					ADM.ORD = #ord#
+				</isEqual>
+					, ADM.MODIFY_DTM = CURRENT_TIMESTAMP
+					, ADM.MODIFY_USR_ID = #modifyUsrId#
+					, ADM.MODIFY_USR_IP = #modifyUsrIp#
+			</isNotEmpty>			
+		<![CDATA[					
+				WHEN NOT MATCHED THEN
+				INSERT
+				(
+					ADM.LIC_GRP_ID			, ADM.MST_CD				
+					, ADM.UPPER_MST_CD			
+					, ADM.MST_CD_NM			
+					, ADM.MST_CD_ENG_NM  
+					, ADM.MST_CD_DESC			
+					, ADM.ABORT_DT				
+					, ADM.LVL				, ADM.ORD			 , ADM.USE_YN		, ADM.STM_USE_YN
+					, ADM.REG_DTM			, ADM.REG_USR_ID	 , ADM.REG_USR_IP	, ADM.MODIFY_DTM			
+					, ADM.MODIFY_USR_ID		, ADM.MODIFY_USR_IP
+				) 
+		]]>		
+				VALUES
+				(
+					#licGrpId#				, upper(#mstCd#)
+								
+					 <isEmpty property="upperMstCd">
+						,NULL
+					 </isEmpty>
+					 <isNotEmpty property="upperMstCd">
+					 	,#upperMstCd#
+					 </isNotEmpty> 
+				
+					, #mstCdNm#	
+						
+					 <isEmpty property="mstCdEngNm">
+						,NULL
+					 </isEmpty>
+					 <isNotEmpty property="mstCdEngNm">
+					 	,#mstCdEngNm#	
+					 </isNotEmpty> 		
+					 <isEmpty property="mstCdDesc">
+						,NULL
+					 </isEmpty>
+					 <isNotEmpty property="mstCdDesc">
+					 	,#mstCdDesc#
+					 </isNotEmpty> 
+					 <isEmpty property="abortDt">
+						,NULL
+					 </isEmpty>
+					 <isNotEmpty property="abortDt">
+					 	,#abortDt#
+					 </isNotEmpty> 
+					<![CDATA[	 
+					, #lvl#					, #ord#				, #useYn#		, #stmUseYn#
+					, CURRENT_TIMESTAMP		, #regUsrId#		, #regUsrIp#	, CURRENT_TIMESTAMP	
+					, #modifyUsrId#			, #modifyUsrIp#
+				)
+					]]>
+	</update>
+	
+	<!-- 배포 버전 정보 삭제 -->
+	<delete id="adm4000DAO.deleteAdm4000CommonCodeList" parameterClass="java.util.Map">
+		<![CDATA[ 
+			/* adm4000DAO.deleteAdm400CommonCodeList - 배포 버전 정보 삭제  */
+			DELETE FROM	DPL1000 A
+        	WHERE 1=1
+        	AND	A.PRJ_ID = #prjId#
+        	AND	A.DPL_ID = #dplId#
+		]]>
+	</delete>
+	
+	<!-- 공통코드 디테일 정보 저장 -->
+	<update id="adm4000DAO.saveAdm4000CommonCodeDetail" parameterClass="java.util.Map">
+		<![CDATA[
+			/* adm4000DAO.saveAdm4000CommonCodeDetail - 공통코드 디테일 정보 저장 */ 
+			MERGE INTO ADM4100 ADM
+			USING (
+					SELECT 
+							#licGrpId# AS LIC_GRP_ID  	/*   라이선스 그룹 ID */
+						, UPPER(#mstCd#) AS MST_CD  /*   공통코드 */
+						, UPPER(#subCd#) AS SUB_CD  /*   서브코드 */
+					FROM  db_root 
+				) TMP
+			ON ( ADM.LIC_GRP_ID = TMP.LIC_GRP_ID AND ADM.MST_CD  = TMP.MST_CD AND ADM.SUB_CD  = TMP.SUB_CD ) 
+			WHEN MATCHED THEN
+			UPDATE SET
+		]]>		
+			<isNotEmpty property="stmUseYn">
+				<isEqual property="stmUseYn" compareValue="N"> 
+				   ADM.SUB_CD_NM	  	=  #subCdNm#  	/*  서브코드명  */
+					, ADM.ORD	 	  	=  #ord#      	/*  화면표시순서  */
+					, ADM.USE_YN	  	=  #useYn#      /*  사용YN    */  
+					, ADM.SUB_CD_REF1 	=  #subCdRef1#  /* 	보조필드1  */
+					, ADM.SUB_CD_REF2 	=  #subCdRef2#  /* 	보조필드2  */
+					, ADM.SUB_CD_REF3 	=  #subCdRef3#  /* 	보조필드3  */
+					, ADM.SUB_CD_REF4 	=  #subCdRef4#  /* 	보조필드4  */
+					, ADM.SUB_CD_REF5 	=  #subCdRef5#  /* 	보조필드5  */
+					, ADM.SUB_CD_DESC 	=  #subCdDesc#  /* 	설명		*/	
+				</isEqual>	
+				<isEqual property="stmUseYn" compareValue="Y"> 
+					ADM.ORD	 	  		=  #ord#      	/*  화면표시순서  */
+				</isEqual>	
+			</isNotEmpty>				
+					, ADM.MODIFY_DTM    = CURRENT_TIMESTAMP
+					, ADM.MODIFY_USR_ID = #modifyUsrId#
+					, ADM.MODIFY_USR_IP = #modifyUsrIp#
+		<![CDATA[		
+			WHEN NOT MATCHED THEN
+				INSERT
+				(
+					ADM.LIC_GRP_ID				, ADM.MST_CD				, ADM.SUB_CD				, ADM.SUB_CD_NM				
+					, ADM.ORD					, ADM.USE_YN				
+					, ADM.SUB_CD_REF1			
+					, ADM.SUB_CD_REF2			
+					, ADM.SUB_CD_REF3			
+					, ADM.SUB_CD_REF4			
+					, ADM.SUB_CD_REF5			
+					, ADM.SUB_CD_DESC			
+					, ADM.REG_DTM				, ADM.REG_USR_ID			, ADM.REG_USR_IP			, ADM.MODIFY_DTM			
+					, ADM.MODIFY_USR_ID 		, ADM.MODIFY_USR_IP
+					
+				) 
+				VALUES
+				(
+					#licGrpId#					, upper(#mstCd#)			, upper(#subCd#)			, #subCdNm#					
+					, #ord#						, #useYn#	
+		]]>
+					<isEmpty property="subCdRef1">
+						,NULL
+					</isEmpty>
+					<isNotEmpty property="subCdRef1">
+						,#subCdRef1#
+					</isNotEmpty>				
+					<isEmpty property="subCdRef1">
+						, NULL
+					</isEmpty>
+					<isNotEmpty property="subCdRef1">
+						,#subCdRef2#
+					</isNotEmpty>
+					<isEmpty property="subCdRef1">
+						,NULL
+					</isEmpty>
+					<isNotEmpty property="subCdRef1">
+						,#subCdRef3#
+					</isNotEmpty>	
+					<isEmpty property="subCdRef1">
+						,NULL
+					</isEmpty>
+					<isNotEmpty property="subCdRef1">
+						,#subCdRef4#
+					</isNotEmpty>	
+					<isEmpty property="subCdRef1">
+						,NULL
+					</isEmpty>
+					<isNotEmpty property="subCdRef1">
+						,#subCdRef5#
+					</isNotEmpty>	
+					<isEmpty property="subCdRef1">
+						,NULL
+					</isEmpty>
+					<isNotEmpty property="subCdRef1">
+						,#subCdDesc# 
+					</isNotEmpty>		
+			<![CDATA[ 
+					, CURRENT_TIMESTAMP			, #regUsrId#				, #regUsrIp#				, CURRENT_TIMESTAMP					
+					, #modifyUsrId#				, #modifyUsrIp#
+				)
+			]]>
+	</update>
+	
+	<!-- 공통코드 디테일 정보 삭제 -->
+	<delete id="adm4000DAO.deleteAdm4000CommonCodeDetail" parameterClass="java.util.Map">
+		<![CDATA[ 
+			/* adm4000DAO.deleteAdm4000CommonCodeDetail - 공통코드 디테일 삭제  */
+			DELETE FROM	ADM4100 A
+        	WHERE 1=1
+        	AND	A.LIC_GRP_ID = #licGrpId#
+        	AND	A.MST_CD = #mstCd#
+        	AND	A.SUB_CD = #subCd#
+		]]>
+	</delete>
+	
+	<!-- 공통코드 디테일 정보 일괄 삭제 -->
+	<delete id="adm4000DAO.deleteAdm4000CommonCodeDetailToMstCd" parameterClass="java.util.Map">
+		<![CDATA[ 
+			/* adm4000DAO.deleteAdm4000CommonCodeDetailToMstCd - 공통코드 디테일 정보 일괄 삭제  */
+			DELETE FROM	ADM4100 A
+        	WHERE 1=1
+        	AND	A.LIC_GRP_ID = #licGrpId#
+        	AND	A.MST_CD = #mstCd#       	
+		]]>
+	</delete>
+	
+		<!-- 공통코드 마스터 정보 삭제 -->
+	<delete id="adm4000DAO.deleteAdm4000CommonCodeMaster" parameterClass="java.util.Map">
+		<![CDATA[ 
+			/* adm4000DAO.deleteAdm4000CommonCodeMaster - 공통코드 마스터 정보 삭제  */
+			DELETE FROM ADM4000 A
+        	WHERE 1=1
+        	AND	A.LIC_GRP_ID = #licGrpId#
+        	AND	A.MST_CD = #mstCd#       	
+		]]>
+	</delete>
+	
+	<!-- 공통코드 마스터 엑셀 조회 -->
+	<select id="adm4000DAO.selectAdm4000MasterExcelList" parameterClass="loginVO"  resultClass="egovMap">
+	    /*adm4000DAO.selectAdm4000ExcelList 공통코드 마스터 엑셀 조회 */
+			SELECT
+				  	A.MST_CD
+				, 	A.UPPER_MST_CD
+				, 	A.MST_CD_NM
+				, 	A.MST_CD_ENG_NM
+				, 	A.MST_CD_DESC
+				, 	A.LVL
+				, 	A.ORD
+				, 	A.USE_YN
+			FROM ADM4000 A
+			WHERE 1=1
+			AND A.LIC_GRP_ID = #licGrpId#
+    </select>
+    
+    <!-- 공통코드 디테일 엑셀 목록 조회 -->
+    <select id="adm4000DAO.selectAdm4000DetailExcelList" parameterClass="java.util.Map"  resultClass="egovMap">
+	    /*adm4000DAO.selectAdm4000DetailExcelList 공통코드 디테일 엑셀 목록 조회 */
+			SELECT
+				  	A.MST_CD
+				, 	A.SUB_CD
+				, 	A.SUB_CD_NM
+				, 	A.SUB_CD_REF1
+				, 	A.SUB_CD_REF2
+				, 	A.SUB_CD_REF3
+				, 	A.SUB_CD_REF4
+				, 	A.SUB_CD_REF5
+				, 	A.SUB_CD_DESC
+				, 	A.ORD
+				, 	A.USE_YN
+			FROM ADM4100 A
+			WHERE 1=1
+			AND A.LIC_GRP_ID = #licGrpId#
+			AND A.MST_CD = #mstCd#
+    </select>
+    
+    <!-- 공통코드 마스터가 이미 등록되어있는지 확인한다. -->
+    <select id="adm4000DAO.selectAdm4000CommonCodeCount" parameterClass="java.util.Map"  resultClass="java.lang.Integer">
+	    /*adm4000DAO.selectAdm4000CommonCodeCount  공통코드 마스터가 이미 등록되어있는지 확인한다. */
+			SELECT	COUNT(1) AS CNT
+			FROM ADM4000 A
+			WHERE 1=1
+			AND A.LIC_GRP_ID = #licGrpId#
+			AND A.MST_CD = #mstCd#
+    </select>    
+
+	<!-- 공통코드 디테일이 이미 등록되어있는지 확인한다. -->
+    <select id="adm4000DAO.selectAdm4000CommonDetailCodeCount" parameterClass="java.util.Map"  resultClass="java.lang.Integer">
+	    /*adm4000DAO.selectAdm4000CommonDetailCodeCount 공통코드 디테일이 이미 등록되어있는지 확인한다. */
+			SELECT COUNT(1) AS CNT
+			FROM ADM4100 A
+			WHERE 1=1
+			AND A.LIC_GRP_ID = #licGrpId#
+			AND A.MST_CD = #mstCd#
+			AND	A.SUB_CD = #subCd#
+    </select>    
+	
+</sqlMap>

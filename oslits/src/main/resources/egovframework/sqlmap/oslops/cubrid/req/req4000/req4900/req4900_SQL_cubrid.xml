@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="req4900DAO">
+	 <!-- out class define  -->
+	<typeAlias alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	
+	<!-- 요구사항 결재정보 등록-->
+	<insert id="req4900DAO.insertReq4900ReqSignInfo" parameterClass="java.util.Map">
+		<selectKey resultClass="java.lang.String" keyProperty="newSignId">
+		<![CDATA[
+			/* req4900DAO.insertReq4900ReqSignInfo */ 
+			SELECT	COALESCE( 
+							SUBSTR(NEW_SIGN_ID, 1, 11) || LPAD( (TO_NUMBER(SUBSTR(NEW_SIGN_ID, 12, 5)) + 1) , 5, '0')
+						,	'SIG' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDD') || '00001'
+            		) AS NEW_SIGN_ID 
+			FROM	(
+			            SELECT	MAX(SIGN_ID)  AS NEW_SIGN_ID
+			            FROM	REQ4900 A
+			            WHERE	1=1
+			            AND		SIGN_ID LIKE 'SIG' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDD') || '%'
+					)
+		]]>
+		</selectKey>
+	    	/*req4900DAO.insertReq4900ReqSignInfo 요구사항 결재정보 등록*/
+		    INSERT     	INTO     REQ4900
+			(
+			            PRJ_ID             	, /* 프로젝트 ID */ 
+			            REQ_ID             	, /* 요구사항 ID */ 
+			            SIGN_ID             , /* 결재 ID */ 
+			            PROCESS_ID          , /* 프로세스 ID */
+			            SIGN_PREV_FLOW_ID	, /* 결재 이전 작업흐름ID */ 
+			            SIGN_FLOW_ID        , /* 결재 작업흐름 ID */ 
+			            SIGN_USR_ID         , /* 결재자 ID */ 
+			            SIGN_CD             , /* 결재 승인 상태 */ 
+			            SIGN_REJECT_CMNT    , /* 결재 반려내용 */ 
+			            SIGN_DTM            , /* 결재 일시 */ 
+			            REG_DTM             , /* 최초등록 일시 */ 
+			            REG_USR_ID          , /* 최초등록자 ID */ 
+			            REG_USR_IP          , /* 최초등록자 IP */ 
+			            MODIFY_DTM          , /* 최종수정일시 */ 
+			            MODIFY_USR_ID       , /* 최종수정자 ID */ 
+			            MODIFY_USR_IP         /* 최종수정자 IP */ 
+			)
+			VALUES
+			(
+			            #prjId#, 
+			            #reqId#, 
+			            #newSignId#, 
+			            #processId#,
+			            #preFlowId#,
+			            #signFlowId#, 
+			            #signUsrId#, 
+			            #signCd#,
+			            #signRejectCmnt#, 
+			            CURRENT_TIMESTAMP, 
+			            CURRENT_TIMESTAMP, 
+			            #regUsrId#, 
+			            #regUsrIp#, 
+			            CURRENT_TIMESTAMP, 
+			            #modifyUsrId#, 
+			            #modifyUsrIp# 
+			)
+	</insert>
+</sqlMap>
