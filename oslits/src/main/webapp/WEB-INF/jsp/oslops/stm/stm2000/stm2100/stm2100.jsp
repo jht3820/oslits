@@ -4,7 +4,7 @@
 <%@ include file="/WEB-INF/jsp/oslops/top/header.jsp" %>
 <jsp:include page="/WEB-INF/jsp/oslops/top/aside.jsp" />
 
-<link rel='stylesheet' href='<c:url value='/css/oslits/req.css'/>' type='text/css'>
+<link rel='stylesheet' href='<c:url value='/css/oslops/req.css'/>' type='text/css'>
 <link rel='stylesheet' href='<c:url value='/css/ztree/zTreeStyle/zTreeStyle.css'/>' type='text/css'>
 <script type="text/javascript" src="/js/ztree/jquery.ztree.all.min.js"></script>
 
@@ -38,6 +38,9 @@ $(function(){
 		zTreeStm2100.expandAll(false);
 	});
 	
+
+	//가이드 상자 호출
+	gfnGuideStack("add",fnStm2100GuideShow);
 	
 });
 
@@ -138,7 +141,7 @@ function fnSearchBoxControl(){
 									}
 									
 									var prjId = selNode.prjId;
-      								gfnSvnRevisionPopup(prjId,false,function(data){
+      								gfnSvnRevisionPopup(prjId,"admin",false,function(data){
       								});								
       						}}
                     						
@@ -148,7 +151,7 @@ function fnSearchBoxControl(){
 					
 						{label:"", labelWidth:"", type:"button", width:"60",style:"float:right;", key:"btn_print_api",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-print' aria-hidden='true'></i>&nbsp;<span>프린트</span>",
 							onclick:function(){
-								$(firstGrid.exportExcel()).printThis();
+								$(firstGrid.exportExcel()).printThis({importCSS: false,importStyle: false,loadCSS: "/css/common/printThis.css"});
 						}},
 						{label:"", labelWidth:"", type:"button", width:"55",style:"float:right;", key:"btn_excel_api",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-file-excel' aria-hidden='true'></i>&nbsp;<span>엑셀</span>",
 							onclick:function(){
@@ -186,7 +189,7 @@ function fnSearchBoxControl(){
 									"prjId": prjId,
 									"svnRepId":selSvnId
 								};
-								gfnLayerPopupOpen('/stm/stm2000/stm2100/selectStm2102View.do',data,"640","330",'scroll');
+								gfnLayerPopupOpen('/stm/stm2000/stm2100/selectStm2102View.do',data,"640","370",'scroll');
 						}}
 						
 					]}
@@ -266,16 +269,18 @@ function fnSearchBoxControl(){
 		    zTreeStm2100 = $.fn.zTree.init($("#prjTreeJson"), setting, data.prjList);
 		    
 		    var treeNode = [];
+		    // 프로젝트 목록이 있을 경우
 		    if(data.prjList.length>0){
 		    	treeNode =  zTreeStm2100.getNodes();
-		    	if(treeNode.length>0){
+		    	// 프로젝트 트리를 모두 펼친다.
+		    	zTreeStm2100.expandAll(true);
+		    	// 트리노드가 존재하고 트리노드가 1개 이상 있을경우
+		    	if(!gfnIsNull(treeNode) && treeNode.length>0){
+		    		// 첫번째 트리노드의 자식 노드를 가져온다.
 		    		var childNodes = treeNode[0].children;
-		    		if(childNodes.length>0){
+		    		// 자식노드가 존재하고, 자식노드가 1개이상 있을경우
+		    		if(!gfnIsNull(childNodes) && childNodes.length>0){
 		    			currentNode=childNodes[0];
-		    			var treeObj = $.fn.zTree.getZTreeObj("prjTreeJson");
-		    			
-		    			treeObj.expandAll(true);
-		    			
 		    			//fnInGridListSet(childNodes[0].prjId);
 		    		}
 			    	
@@ -291,6 +296,19 @@ function fnSearchBoxControl(){
 		//AJAX 전송
 		ajaxObj.send();
 	}
+	
+	//가이드 상자
+	function fnStm2100GuideShow(){
+		var mainObj = $(".main_contents");
+		
+		//mainObj가 없는경우 false return
+		if(mainObj.length == 0){
+			return false;
+		}
+		//guide box setting
+		var guideBoxInfo = globals_guideContents["stm2100"];
+		gfnGuideBoxDraw(true,mainObj,guideBoxInfo);
+	}
 </script>
 
 
@@ -300,7 +318,7 @@ function fnSearchBoxControl(){
 			<div class="req_title">${sessionScope.selMenuNm }</div>
 			<div class="tab_contents menu">
 				<input type="hidden" name="strInSql" id="strInSql" />
-				<div id="AXSearchTarget" style="border-top:1px solid #ccc;"></div>
+				<div id="AXSearchTarget" style="border-top:1px solid #ccc;" guide="stm2100button"  ></div>
 				<br />
 				<div class="menu_wrap">
 				<div class="menu_ctrl_wrap">

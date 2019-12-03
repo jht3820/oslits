@@ -36,7 +36,7 @@ function fnAuthListGrid(){
         sortable:true,
         showRowSelector: true,
         header: {align:"center"},
-        multipleSelect: false ,
+        multipleSelect: true ,
         columns: [
          {key: "authGrpNm", label: "역할그룹 명", width: 160, align: "center"},
          {key: "usrTypNm", label: "사용자유형", width: 120, align: "center"},
@@ -80,7 +80,7 @@ function fnAuthRefresh(){
 //역할 추가
 function fnAuthInsert(){
 	//cmm1700 공통팝업 호출
-	gfnCommonAuthPopup("" ,true,function(objs){
+	gfnCommonAuthPopup("${param.prjId}", "", true,function(objs){
 		if(objs.length>0){
 			var selAuthFd = new FormData();
 			
