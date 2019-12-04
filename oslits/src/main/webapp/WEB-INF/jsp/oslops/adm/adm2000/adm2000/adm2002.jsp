@@ -49,10 +49,17 @@ input[type="checkbox"] + label:before { margin: 0 !important; }
 tbody.invalidRow{ background: rgba(255,0,0,0.6);}
 .data_sel_fail_msg {width: 100%;margin: 2px 0;border: 1px solid #ccc;border-left: 5px solid #f8d2cb;height: 95px;padding: 2px 2px 2px 5px;text-align: left;overflow-y: auto;line-height: 15px;}
 .grid-cell-red{background: #f8d2cb;}
+span#fileTextSpan {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
 </style>
 
 <script>
 
+	globals_guideChkFn = fnAdm2002GuideShow;
+	
 	// 중복체크 여부  flag
 	var chkId = false;
 	var useCdArr = [ 'Y', 'N' ]; 
@@ -158,11 +165,13 @@ tbody.invalidRow{ background: rgba(255,0,0,0.6);}
 		//그리드 초기화
 		insertGrid.setData([]);
 		
+		//이메일 중복체크
+		var emailExistArr = [];
+		
 		$.each(dataList, function(idx, map) {
 			
-			if((dataList.length-1) == idx) return;
 			//아이디 빈 값인경우 skip
-			if(gfnIsNull(map["usrId"])) return;
+			//if(gfnIsNull(map["usrId"])) return;
 			
 			//조건 검색 후 실패 스위치
 			var failChk = false;
@@ -171,15 +180,32 @@ tbody.invalidRow{ background: rgba(255,0,0,0.6);}
 			//유효하지 않은 데이터 Flag
 			var invalidCheck = false;;
 			
+			/** 입력값 공백 제거 **/
+			map.usrId = map.usrId.trim().replace(/</gi,'&lt;').replace(/>/gi,'&gt;'); 
+			map.usrNm = map.usrNm.trim().replace(/</gi,'&lt;').replace(/>/gi,'&gt;'); 
+			map.telno = map.telno.trim().replace(/</gi,'&lt;').replace(/>/gi,'&gt;'); 
+			map.email = map.email.trim().replace(/</gi,'&lt;').replace(/>/gi,'&gt;'); 
+			map.deptId = map.deptId.trim().replace(/</gi,'&lt;').replace(/>/gi,'&gt;'); 
+			map.useCd = map.useCd.trim().replace(/</gi,'&lt;').replace(/>/gi,'&gt;'); 
+			map.etc = map.etc.trim().replace(/</gi,'&lt;').replace(/>/gi,'&gt;'); 
+			
+			var usrId = map["usrId"];		// 사용자 ID
+			var usrNm = map["usrNm"];		// 사용자명
+			var telno = map["telno"];		// 전화번호
+			var email = map["email"];		// 이메일
+			var deptId = map["deptId"];		// 조직ID
+			var useCd = map["useCd"];		// 사용여부
+			var etc = map["etc"];			// 비고
+			
 			/** 입력 값 유효성 체크 시작 **/
 			//사용자 아이디
-			if(!gfnIsNull(map["usrId"])) {
+			if(!gfnIsNull(usrId)) {
 				var pattern = /^[a-z0-9_-]{5,20}$/;
-				if(pattern.test(map["usrId"]) == false){
+				if(pattern.test(usrId) == false){
 					failChk = true;
 					failMsg += "아이디는 5~20자의 영문 소문자, 숫자와 특수기호(_),(-)만 사용 가능합니다.<br>";
 				}
-				if(gfnStrByteLen(map["usrId"]) > 20){
+				if(gfnStrByteLen(usrId) > 20){
 					failChk = true;
 					failMsg += "사용자 아이디 글자 수가 최대치(20Byte)를 초과했습니다.<br>";
 				}
@@ -189,24 +215,30 @@ tbody.invalidRow{ background: rgba(255,0,0,0.6);}
 			}
 			
 			//이름
-			if(!gfnIsNull(map["usrNm"])){
-				if(gfnStrByteLen(map["usrNm"]) > 200){
+			if(!gfnIsNull(usrNm)){
+				if(gfnStrByteLen(usrNm) > 200){
 					failChk = true;
 					failMsg += "성명 글자 수가 최대치(200Byte)를 초과했습니다.<br>";
 				}
+				
+				var pattern = /^[0-9a-zA-Zㄱ-ㅎㅏ-ㅣ가-힣_-]{1,200}$/;
+				if(pattern.test(usrNm) == false){
+                	failChk = true;
+					failMsg += "이름은 한글, 영문, 숫자, 특수문자( _ -) 만 입력가능합니다.";
+                }
 			}else{
 				failChk = true;
 				failMsg += "성명은 필수 입력값 입니다.<br>";
 			}
 			
 			//연락처
-			if(!gfnIsNull(map["telno"])){
+			if(!gfnIsNull(telno)){
 				var pattern = /^[0-9]*$/;
-				if(map["telno"].length < 9 || map["telno"].length > 11){
+				if(telno.length < 3 || telno.length > 13){
                 	failChk = true;
-					failMsg += "연락처를 다시 확인해 주세요. 예) 01012341234 <br>";
+					failMsg += "연락처를 다시 확인해 주세요.(3~13자리) 예) 01012341234 <br>";
                 }
-				if(pattern.test(map["telno"]) == false){
+				if(pattern.test(telno) == false){
                 	failChk = true;
 					failMsg += "연락처 형식이 맞지 않습니다. 숫자만 입력해 주세요. 예) 01012341234 <br>";
                 }
@@ -216,15 +248,24 @@ tbody.invalidRow{ background: rgba(255,0,0,0.6);}
 			}
 			
 			//이메일
-			if(!gfnIsNull(map["email"])){
+			if(!gfnIsNull(email)){
 				var pattern = /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i;
-				if(pattern.test(map["email"]) == false){
+				if(pattern.test(email) == false){
                 	failChk = true;
 					failMsg += "이메일 형식이 맞지 않습니다. 예) mymail@gmail.com <br>";
                 }
-				if(gfnStrByteLen(map["email"]) > 50){
+				if(gfnStrByteLen(email) > 50){
 					failChk = true;
 					failMsg += "이메일 글자 수가 최대치(50Byte)를 초과했습니다.<br>";
+				}
+				
+				//이메일 중복 체크
+				if(emailExistArr.indexOf(email) != -1){
+					failChk = true;
+					failMsg += "중복된 이메일입니다.<br>";
+				}else{
+					//유일값 넣기
+					emailExistArr.push(email);
 				}
 			}else{
 				failChk = true;
@@ -232,10 +273,9 @@ tbody.invalidRow{ background: rgba(255,0,0,0.6);}
 			}
 			
 			// 소속
-			if(!gfnIsNull(map["deptId"])){
+			if(!gfnIsNull(deptId)){
 
 				var pattern = /^[0-9]*$/; 
-				var deptId = map["deptId"];
 				
 				//글자수가 16자리인지 확인
              	if(deptId.length != 16){
@@ -258,16 +298,16 @@ tbody.invalidRow{ background: rgba(255,0,0,0.6);}
 			}
 			
 			//사용유무
-			if(!gfnIsNull(map["useCd"])){
+			if(!gfnIsNull(useCd)){
 				//글자수가 1자리인지 확인
-             	if(map["useCd"].length == 1){
-             		map["useCd"] = map["useCd"].replace(/\"/gi,'&quot');
+             	if(useCd.length == 1){
+             		useCd = useCd.replace(/\"/gi,'&quot');
              	}else{
              		failChk = true;
 					failMsg += "사용유무 입력 값은 최대 1 글자입니다.<br>";
              	}
 				
-				var strUseCd = map["useCd"];
+				var strUseCd = useCd;
 				
              	if( useCdArr.indexOf(strUseCd.toUpperCase()) < 0){
 					failChk = true;
@@ -280,8 +320,8 @@ tbody.invalidRow{ background: rgba(255,0,0,0.6);}
 			}
 			
 			//비고
-			if(!gfnIsNull(map["etc"])){
-				if(gfnStrByteLen(map["etc"]) > 4000){
+			if(!gfnIsNull(etc)){
+				if(gfnStrByteLen(etc) > 4000){
 					failChk = true;
 					failMsg += "비고 글자 수가 최대치(4000Byte)를 초과했습니다.<br>";
 				}
@@ -466,7 +506,7 @@ tbody.invalidRow{ background: rgba(255,0,0,0.6);}
 	
 	/* 메뉴 전체 아이디 중복 체크 */
 	$("#btn_select_idchk").click(function(){
-		var dataList = insertGrid.list;	console.log(insertGrid); console.log(insertGrid.list);
+		var dataList = insertGrid.list;
 		if(gfnIsNull(dataList)){
 			toast.push("아이디 중복체크를 위한 업로드 데이터가 없습니다.");
 			return false;
@@ -563,6 +603,7 @@ tbody.invalidRow{ background: rgba(255,0,0,0.6);}
 				return false;
 			}
 		});
+		
 		if(dataChk){
 			//AJAX 설정
 			var ajaxObj = new gfnAjaxRequestAction(
@@ -600,6 +641,18 @@ tbody.invalidRow{ background: rgba(255,0,0,0.6);}
 		}
 		
 	};
+	
+	function fnAdm2002GuideShow(){
+		var mainObj = $(".popup");
+		
+		//mainObj가 없는경우 false return
+		if(mainObj.length == 0){
+			return false;
+		}
+		//guide box setting
+		var guideBoxInfo = globals_guideContents["adm2002"];
+		gfnGuideBoxDraw(true,mainObj,guideBoxInfo);
+	}
 </script>
 
 <div class="popup">
@@ -608,11 +661,11 @@ tbody.invalidRow{ background: rgba(255,0,0,0.6);}
 		<form id="findFrm" name="findFrm" method="post">
 			<input type="hidden" id="parseClass" name="parseClass" >
 			<input type="hidden" id="licGrpId" name="${sessionScope.loginVO.licGrpId}" >
-			<div class="del_box">
+			<div class="del_box" guide="selectDelete"  >
 				<span class="button_normal2 del_btn" style="width:100px;" id="btn_delete_req" >선택 삭제</span>
 				<span class="button_normal2 idChk_btn" style="width:150px;" id="btn_select_idchk" >전체 아이디 중복 체크</span>
 			</div>
-			<div class="up_box">
+			<div class="up_box" guide="selectUpload"   >
 				<span class="button_normal2 up_btn" id="btn_insert_excelUpload">
 					<img src="/images/contents/upload_img.png" alt="업로드" style="margin-right: 5px"/>업로드
 				</span>
@@ -626,7 +679,7 @@ tbody.invalidRow{ background: rgba(255,0,0,0.6);}
 		</form>
 		<div class="pop_table">
 			<div data-ax5grid="adm2003-insert-grid" data-ax5grid-config="{}" style="height: 360px;"></div>
-			<div class="data_sel_fail_msg">
+			<div class="data_sel_fail_msg" guide="showExcelErrorLog"  >
 				선택 오류 메시지
 			</div>
 		</div>
@@ -640,7 +693,7 @@ tbody.invalidRow{ background: rgba(255,0,0,0.6);}
 				<span style="color:red;">- 엑셀파일은 두개의 시트가 필요합니다. 업로드할 사용자 정보는 두번째 시트에 입력해야 합니다. </span>
 				<span style="color:red;">- 저장시 비밀번호는 아이디와 동일하게 적용 됩니다. </span>
 				<span>- 행과 행사이에 빈 행이 들어갈 수 없습니다.(연속된 행 조건)</span>
-				<span>- 아이디는 영문 + 숫자 조합으로 이루어져야 합니다. (5~20자의 영문 소문자, 숫자와 특수기호(_),(-)만 사용 가능합니다.) </span>
+				<span>- 아이디는 5~20자의 영문 소문자, 숫자와 특수기호(_),(-)만 사용 가능합니다. </span>
 				<span>- 아이디, 성명, 연락처, 이메일, 소속, 사용여부는 필수 입력 값입니다.</span>
 				<span>- 조직 코드값의 조직관리 화면에서 등록된 조직 목록을 엑셀 파일로 다운로드 하여 확인할 수 있습니다.</span>
 				<span>- 사용여부 ( 사용=Y, 미사용=N )</span>
