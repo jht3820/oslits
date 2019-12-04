@@ -1,13 +1,12 @@
-package kr.opensoftlab.oslits.prs.prs3000.prs3000.service.impl;
+package kr.opensoftlab.oslops.prs.prs3000.prs3000.service.impl;
 
-import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.adm.adm5000.adm5200.service.impl.Adm5200DAO;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.oslits.prs.prs3000.prs3000.service.Prs3000Service;
+import kr.opensoftlab.oslops.adm.adm5000.adm5200.service.impl.Adm5200DAO;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.oslops.prs.prs3000.prs3000.service.Prs3000Service;
 
 import org.springframework.stereotype.Service;
 
@@ -78,49 +77,118 @@ public class Prs3000ServiceImpl extends EgovAbstractServiceImpl implements Prs30
     @SuppressWarnings({ "rawtypes", "unchecked" })
    	public int updatePrs3000(Map paramMap) throws Exception {
     	
-		String usrPw 		= (String) paramMap.get("usrPw");
-		String usrId 		= (String) paramMap.get("usrId");
-		
-    	// 이전 패스워드 조회
-    	String bePw = prs3000DAO.selectPrs3000PwCheck( paramMap );
-    	
-		// 이전 패스워드와 , 넘어온 패스워드가 같다면 이전 패스워드 적용
-		if( bePw.equals(EgovStringUtil.isNullToString(usrPw)) ){
-			paramMap.put("enUsrPw", usrPw);
-		}else{
-			String enUsrPw 	= EgovFileScrty.encryptPassword(usrPw, usrId);	// 패스워드 암호화
-			paramMap.put("enUsrPw", enUsrPw);
-			
-			// 비밀번호 변경여부 세팅
-			paramMap.put("pwChangeState", "Y");
-		}
-		
-    	int uCnt = prs3000DAO.updatePrs3000(paramMap) ;
-    	if(uCnt == 0){
-			throw new Exception(egovMessageSource.getMessage("prs3000.fail.user.update"));
-		}
+    	int uCnt = prs3000DAO.updatePrs3000(paramMap);
     	
 		// 사용자 변경이력값 세팅
 		paramMap.put("logState", "U");	// 사용자 변경이력 상태
-		
+		paramMap.put("pwChangeState", "N");	
 		// 개인정보 수정되면 변경이력 등록
 		adm5200DAO.insertAdm5200UserChangeLog(paramMap);
     	
    		return uCnt;
    	}
 
-
-
+    
     /**
-	 * Prs3000 개인정보 수정(수정 전 비밀번호 조회) AJAX
-	 * @param Map
-	 * @return int
-	 * @exception Exception
-	 */
-    @SuppressWarnings("rawtypes")
+   	 * Prs3001 비밀번호 수정(UPDATE) AJAX
+   	 * @param Map
+   	 * @return int
+   	 * @exception Exception
+   	 */
 	@Override
-	public String selectPrs3000PwCheck(Map paramMap) throws Exception {
-		return prs3000DAO.selectPrs3000PwCheck( paramMap );
+	public int updatePrs3001(Map<String, String> paramMap) throws Exception {
+		
+		String usrPw 		= (String) paramMap.get("usrPw");
+		String usrId 		= (String) paramMap.get("usrId");
+		String newUsrPw 	= (String) paramMap.get("newUsrPw");
+		
+		// 이전 패스워드 조회
+    	String bePw = prs3000DAO.selectPrs3001PwCheck( paramMap );
+    	
+		// 이전 패스워드가 입력한 현재 비밀번호와 일지 하는지 확인하기 위한 용
+		String enUsrPw 	= EgovFileScrty.encryptPassword(usrPw, usrId);	// 패스워드 암호화
+		
+		// 새비밀번호 암호화
+		newUsrPw = EgovFileScrty.encryptPassword(newUsrPw, usrId);
+		paramMap.put("newUsrPw", newUsrPw);
+		
+		// 비밀번호 수정확인용
+		int pCnt = 0;
+		
+		// 현재비밀번호와 이전 패스워드 일치
+		if(bePw.equals(EgovStringUtil.isNullToString(enUsrPw))) {
+			
+			// 1년간 사용한 비밀번호 체크
+			String isUsedPw = (String) prs3000DAO.selectPrs3001BeforeUsedPwCheck(paramMap);
+			
+			// 새비밀번호가 1년안에 사용한 비밀번호가 아닐 시 수정
+			if(!isUsedPw.equals("Y")) {
+				
+				// 비밀번호 수정
+				pCnt = prs3000DAO.updatePrs3001(paramMap) ;
+				
+				// 사용자 변경이력값 세팅
+				paramMap.put("logState", "U");	// 사용자 변경이력 상태
+				paramMap.put("pwChangeState", "Y");	// 비밀번호 변경이력 
+				
+				// 개인정보 수정되면 변경이력 등록
+				adm5200DAO.insertAdm5200UserChangeLog(paramMap);
+				
+			} else {
+				pCnt = 2;
+			}
+			
+		} else {
+			pCnt = 3;
+		}
+		
+		return pCnt;
+	}
+
+	/**
+   	 * Prs3002 대시 보드 표시 구분 , 메인 프로젝트  조회 (SELECT) AJAX
+   	 * @param Map
+   	 * @return Map
+   	 * @exception Exception
+   	 */
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Map selectPrs3002(Map<String, String> paramMap) throws Exception {
+		return prs3000DAO.selectPrs3002(paramMap);
+	}
+
+
+	/**
+   	 * Prs3002 기타정보 수정(UPDATE)  AJAX
+   	 * @param Map
+   	 * @return void
+   	 * @exception Exception
+   	 */
+	@Override
+	public int updatePrs3002(Map<String, String> paramMap) throws Exception {
+		
+		int dCnt = prs3000DAO.updatePrs3002(paramMap);
+		
+		// 기타정보 상태 업데이트 로그
+		paramMap.put("logState", "U");
+		paramMap.put("pwChangeState", "N");	
+		
+		// 기타정보 변경이력 등록
+		adm5200DAO.insertAdm5200UserChangeLog(paramMap);
+		
+		return dCnt;
+	}
+
+
+	/**
+   	 * Prs3000LoginVO 세션 갱신
+   	 * @param Map
+   	 * @return Map
+   	 * @exception Exception
+   	 */
+	@Override
+	public LoginVO selectPrs3000LoginVO(Map<String, String> paramMap) throws Exception {
+		return prs3000DAO.selectPrs3000LoginVO(paramMap);
 	}
     
 }

@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.com.vo;
+package kr.opensoftlab.oslops.com.vo;
 
 /**
  * @Class Name : DefaultVO.java
@@ -13,7 +13,7 @@ package kr.opensoftlab.oslits.com.vo;
  *  
  *  Copyright (C) OpenSoftLab All right reserved.
  */
-public abstract class DefaultVO{
+public class DefaultVO{
 
     private String regDtm;
     private String regUsrId;

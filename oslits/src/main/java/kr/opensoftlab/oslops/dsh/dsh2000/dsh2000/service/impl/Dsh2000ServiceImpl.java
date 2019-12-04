@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.dsh.dsh2000.dsh2000.service.impl;
+package kr.opensoftlab.oslops.dsh.dsh2000.dsh2000.service.impl;
 
 /**
  * @Class Name : Dsh2000Service.java
@@ -18,7 +18,8 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.dsh.dsh2000.dsh2000.service.Dsh2000Service;
+import kr.opensoftlab.oslops.dsh.dsh2000.dsh2000.service.Dsh2000Service;
+import kr.opensoftlab.oslops.dsh.dsh2000.dsh2000.vo.Dsh2000VO;
 
 import org.springframework.stereotype.Service;
 
@@ -94,5 +95,28 @@ public class Dsh2000ServiceImpl extends EgovAbstractServiceImpl implements Dsh20
 	@SuppressWarnings("rawtypes")
 	public List selectDsh2000ReqDtmOverAlertList(Map paramMap) throws Exception{
 		return dsh2000DAO.selectDsh2000ReqDtmOverAlertList(paramMap);
+	}
+	
+	/**
+	 * 프로세스 별 계획대비 미처리 건수 요구사항 목록
+	 * 계획대비 미처리 건수 차트 클릭 시 나오는 팝업에 사용
+	 * @param Dsh1000VO
+	 * @return List
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public List selectDsh2000ProcessReqDtmOverList(Dsh2000VO dsh2000VO) throws Exception{
+		return dsh2000DAO.selectDsh2000ProcessReqDtmOverList(dsh2000VO);
+	}
+
+	/**
+	 * 프로세스 별 계획대비 미처리 건수 요구사항 목록 총 건수
+	 * 계획대비 미처리 건수 차트 클릭 시 나오는 팝업에 사용
+	 * @param Dsh1000VO
+	 * @return List
+	 * @throws Exception
+	 */
+	public int selectDsh2000ProcessReqDtmOverListCnt(Dsh2000VO dsh2000VO) throws Exception{
+		return dsh2000DAO.selectDsh2000ProcessReqDtmOverListCnt(dsh2000VO);
 	}
 }

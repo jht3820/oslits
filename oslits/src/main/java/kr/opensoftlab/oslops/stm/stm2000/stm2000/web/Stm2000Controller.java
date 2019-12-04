@@ -1,7 +1,5 @@
-package kr.opensoftlab.oslits.stm.stm2000.stm2000.web;
+package kr.opensoftlab.oslops.stm.stm2000.stm2000.web;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,37 +9,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import kr.opensoftlab.oslits.com.fms.web.service.FileMngService;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.oslits.stm.stm2000.stm2000.service.Stm2000Service;
-import kr.opensoftlab.oslits.stm.stm2000.stm2000.vo.Stm2000VO;
+import kr.opensoftlab.oslops.com.exception.UserDefineException;
+import kr.opensoftlab.oslops.com.fms.web.service.FileMngService;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.oslops.stm.stm2000.stm2000.service.Stm2000Service;
+import kr.opensoftlab.oslops.stm.stm2000.stm2000.vo.Stm2000VO;
 import kr.opensoftlab.sdf.svn.SVNConnector;
 import kr.opensoftlab.sdf.util.CommonScrty;
 import kr.opensoftlab.sdf.util.OslAgileConstant;
@@ -55,7 +27,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.tmatesoft.svn.core.SVNAuthenticationException;
 import org.tmatesoft.svn.core.SVNException;
@@ -64,7 +35,6 @@ import org.tmatesoft.svn.core.io.SVNRepository;
 import egovframework.com.cmm.EgovMessageSource;
 import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.EgovProperties;
-import egovframework.com.cmm.service.FileVO;
 import egovframework.rte.fdl.idgnr.EgovIdGnrService;
 import egovframework.rte.fdl.property.EgovPropertyService;
 import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
@@ -88,21 +58,27 @@ public class Stm2000Controller {
 	/** 로그4j 로거 로딩 */
 	private static final Logger Log = Logger.getLogger(Stm2000Controller.class);
 
-	/*
+	/**
 	 * testConnect 실행시 
 	 * 1.svn 접속 url의 문제가 있을시에 발생 
-	 * */
+	 */
 	public static final String SVN_EXCEPTION = "SVN_EXCEPTION"; 
-	/*
+
+	/**
 	 * testConnect 실행시 
 	 * 1.svn 사용자의 아이디 혹은 패스워드가 잘못되있을 경우 발생 
-	 * */	
+	 */	
 	public static final String SVN_AUTHENTICATION_EXCEPTION = "SVN_AUTHENTICATION_EXCEPTION";
 
-	/*
+	/**
 	 * testConnect 실행시  Svn 사용가능할 때 
-	 * */
+	 */
 	public static final String SVN_OK = "SVN_OK";
+	
+	/**
+	 * SVN KIT 모듈 사용 불가
+	 */
+	public static final String SVN_MODULE_USE_EXCEPTION = "SVN_MODULE_USE_EXCEPTION";
 
 	/** EgovMessageSource */
 	@Resource(name = "egovMessageSource")
@@ -112,31 +88,15 @@ public class Stm2000Controller {
 	@Resource(name = "propertiesService")
 	protected EgovPropertyService propertiesService;
 
-
-	/** FileMngService */
-	@Resource(name="fileMngService")
-	private FileMngService fileMngService;
-
 	@Value("${Globals.fileStorePath}")
 	private String tempPath;
-
-	/** EgovFileMngUtil - 파일 업로드 Util */
-	@Resource(name="EgovFileMngUtil")
-	private EgovFileMngUtil fileUtil;	
-
-	@Resource(name = "egovFileIdGnrService")
-	private EgovIdGnrService idgenService;
-
-	@Resource(name = "historyMng")
-	private ReqHistoryMngUtil historyMng;
 	
+	/** Stm2000Service DI */
 	@Resource(name = "stm2000Service")
 	private Stm2000Service stm2000Service;
 	
-	
-
 	/**
-	 * SVN Repository 설정화면으로 이동
+	 * Stm2000 SVN Repository 관리화면으로 이동한다.
 	 * @param request
 	 * @param response
 	 * @param model
@@ -148,11 +108,8 @@ public class Stm2000Controller {
 		return "/stm/stm2000/stm2000/stm2000";
 	}
 
-	
-
 	/**
-	 * SVN Repository 설정 조회
-	 * 
+	 * Stm2000 SVN Repository 목록을 조회한다.
 	 * @param 
 	 * @return 
 	 * @exception Exception
@@ -217,20 +174,23 @@ public class Stm2000Controller {
 			
 			model.addAttribute("page", pageMap);
 			
+			// 조회 성공여부 및 성공 메시지 세팅
+			model.addAttribute("errorYn", 'N');
+			model.addAttribute("message", egovMessageSource.getMessage("success.common.select"));
+			
 			return new ModelAndView("jsonView");
 		}
 		catch(Exception ex){
 			Log.error("selectStm2000RepositoryListAjaxView()", ex);
-			throw new Exception(ex.getMessage());
+			// 조회 실패여부 및 실패 메시지 세팅
+			model.addAttribute("errorYn", 'Y');
+			model.addAttribute("message", egovMessageSource.getMessage("fail.common.select"));
+			return new ModelAndView("jsonView");
 		}
 	}
 	
-	
-	
-	
 	/**
-	 * REPOSITORY 설정 등록/수정 팝업 화면으로 이동
-	 * 
+	 * Stm2000 Svn Repository  등록/수정 팝업으로 이동한다.
 	 * @param request
 	 * @param response
 	 * @param model
@@ -242,17 +202,15 @@ public class Stm2000Controller {
 		return "/stm/stm2000/stm2000/stm2001";
 	}
 	
-	
 	/**
-	 * 
-	 * 상세 SVN Repository 설정 조회
-	 * 
+	 * Stm2000 SVN Repository 정보를 단건 조회한다.
 	 * @param request
 	 * @param response
 	 * @param model
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/stm/stm2000/stm2000/selectStm2000InfoAjax.do")
 	public ModelAndView selectStm2000Info(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
 
@@ -266,12 +224,13 @@ public class Stm2000Controller {
 
 			paramMap.put("licGrpId", loginVO.getLicGrpId());
 	
-			// 요구사항 일괄저장
+			// SVN Repository 정보 단건 조회
 			Map repMap = stm2000Service.selectStm2000Info(paramMap);
 			
 			model.addAttribute("repInfo", repMap);
 	
-			//등록 성공 메시지 세팅
+			// 조회 성공여부 및 조회 성공 메시지 세팅
+			model.addAttribute("errorYn", "N");
 			model.addAttribute("message", egovMessageSource.getMessage("success.common.select"));
 
 			return new ModelAndView("jsonView");
@@ -279,27 +238,25 @@ public class Stm2000Controller {
 		catch(Exception ex){
 			Log.error("selectStm2000Info()", ex);
 
-
+			// 조회실패 메시지 세팅
+			model.addAttribute("errorYn", "Y");
 			model.addAttribute("message", egovMessageSource.getMessage("fail.common.select"));
 			return new ModelAndView("jsonView");
 		}
 	}
+	
 	/**
-	 * 
-	 * 상세 SVN Repository 등록/수정
-	 * 
+	 * Stm2000 SVN Repository 정보를 등록/수정한다.
 	 * @param request
 	 * @param response
 	 * @param model
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/stm/stm2000/stm2000/saveSvn2000InfoAjax.do")
 	public ModelAndView saveSvn2000InfoAjax(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
 
 		try{
-			
 			
 			// request 파라미터를 map으로 변환
 			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
@@ -313,7 +270,7 @@ public class Stm2000Controller {
 			String type = (String) paramMap.get("type");
 
 			//globals.properties에서 salt값 가져오기
-			String salt = EgovProperties.getProperty("Globals.oslits.salt");
+			String salt = EgovProperties.getProperty("Globals.lunaops.salt");
 			
 			//기존 비밀번호
 			String nowPw = (String)paramMap.get("nowPw");
@@ -348,7 +305,7 @@ public class Stm2000Controller {
 			//저장
 			Object insertKey = stm2000Service.saveStm2000Info(paramMap);
 	
-			//등록 성공 메시지 세팅
+			// 등록/수정 성공 메시지 세팅
 			model.addAttribute("message", egovMessageSource.getMessage("success.common.save"));
 
 			return new ModelAndView("jsonView");
@@ -356,7 +313,7 @@ public class Stm2000Controller {
 		catch(Exception ex){
 			Log.error("saveSvn2000InfoAjax()", ex);
 
-			//조회실패 메시지 세팅 및 저장 성공여부 세팅
+			// 등록/수정 실패여부 및 실패 메시지 세팅
 			model.addAttribute("saveYN", "N");
 			model.addAttribute("message", egovMessageSource.getMessage("fail.common.save"));
 			return new ModelAndView("jsonView");
@@ -364,31 +321,28 @@ public class Stm2000Controller {
 	}
 	
 	/**
-	 * SVN Repository 상세 삭제
-	 * 
+	 * Stm2000 SVN Repository 정보를 삭제한다.
 	 * @param request
 	 * @param response
 	 * @param model
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/stm/stm2000/stm2000/deleteStm2000InfoAjax.do")
 	public ModelAndView deleteStm2000InfoAjax(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
 
 		try{
-			
-			
+
 			// request 파라미터를 map으로 변환
 			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
-			HttpSession ss = request.getSession();
 			
 			int useCount = stm2000Service.selectStm2000UseCountInfo(paramMap);
 			if(useCount==0){
 				stm2000Service.deleteStm2000Info(paramMap);
-				//등록 성공 메시지 세팅
+				// 삭제 성공 메시지 세팅
 				model.addAttribute("message", egovMessageSource.getMessage("success.common.delete"));
 			}else{
+				// 삭제 실패 여부 및 실패 메시지 세팅
 				model.addAttribute("saveYN", "N");
 				model.addAttribute("message", egovMessageSource.getMessage("fail.common.existInfo"));
 			}
@@ -398,7 +352,7 @@ public class Stm2000Controller {
 		catch(Exception ex){
 			Log.error("deleteStm2000InfoAjax()", ex);
 
-			//조회실패 메시지 세팅 및 저장 성공여부 세팅
+			// 삭제 실패여부 및 실패 메시지 세팅
 			model.addAttribute("saveYN", "N");
 			model.addAttribute("message", egovMessageSource.getMessage("fail.common.save"));
 			return new ModelAndView("jsonView");
@@ -406,20 +360,26 @@ public class Stm2000Controller {
 	}
 	
 	
+	/**
+	 * Stm2000 SVN Repository 접속 가능여부를 체크한다. (접속성공, 접속실패)
+	 * @param request
+	 * @param response
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
 	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/stm/stm2000/stm2000/selectStm2000ConfirmConnect.do")
 	public ModelAndView selectStm2000ConfirmConnect(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
 
-		try{
-			
+		try{	
 			// request 파라미터를 map으로 변환
 			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
-			HttpSession ss = request.getSession();
 			
 			Map repMap = stm2000Service.selectStm2000Info(paramMap);
 			
 			//globals.properties에서 salt값 가져오기
-			String salt = EgovProperties.getProperty("Globals.oslits.salt");
+			String salt = EgovProperties.getProperty("Globals.lunaops.salt");
 			
 			//비밀번호
 			String svnUsrPw = (String)repMap.get("svnUsrPw");
@@ -444,6 +404,12 @@ public class Stm2000Controller {
 			
 			return new ModelAndView("jsonView");
 		}
+		catch(UserDefineException ude) {
+			// 접속실패여부 및 접속실패 메시지 세팅
+			model.addAttribute("saveYN", "N");
+			model.addAttribute("message", ude.getMessage());
+			return new ModelAndView("jsonView");
+		}
 		catch(Exception ex){
 			Log.error("selectStm2000ConfirmConnect()", ex);
 			if(ex instanceof SVNAuthenticationException ){
@@ -451,16 +417,17 @@ public class Stm2000Controller {
 			}else if(ex instanceof SVNException ){
 				model.addAttribute("MSG_CD", SVN_EXCEPTION);
 			} else{
+				// 접속실패여부 및 접속실패 메시지 세팅
 				model.addAttribute("saveYN", "N");
 				model.addAttribute("message", egovMessageSource.getMessage("fail.common.save"));
 			}
-			//조회실패 메시지 세팅 및 저장 성공여부 세팅
+
 			return new ModelAndView("jsonView");
 		}
 	}
 
 	/**
-	 * SVN Repository 허용 역할 목록 불러오기 Ajax
+	 * Stm2000 SVN Repository 허용 역할 목록을 조회한다.
 	 * @param 
 	 * @return 
 	 * @exception Exception
@@ -477,7 +444,7 @@ public class Stm2000Controller {
 			List<Map> svnAuthGrpList = stm2000Service.selectStm2000SvnAuthGrpList(paramMap);
 			model.addAttribute("svnAuthGrpList", svnAuthGrpList);
 			
-			//성공 메시지 세팅
+			// 조회 성공여부 및 조회성공 메시지 세팅
 			model.addAttribute("errorYN", "N");
 			model.addAttribute("message", egovMessageSource.getMessage("success.common.select"));
 			
@@ -486,7 +453,7 @@ public class Stm2000Controller {
 		catch(Exception ex){
 			Log.error("selectStm2000SvnAuthGrpList()", ex);
 			
-			//조회실패 메시지 세팅 및 저장 성공여부 세팅
+			// 조회 실패여부 및 조회실패 메시지 세팅
 			model.addAttribute("errorYN", "Y");
 			model.addAttribute("message", egovMessageSource.getMessage("fail.common.select"));
 			return new ModelAndView("jsonView");
@@ -494,7 +461,7 @@ public class Stm2000Controller {
 	}
 	
 	/**
-	 *  SVN Repository 허용 역할 저장
+	 * Stm2000 SVN Repository 허용 역할 목록을 저장한다.
 	 * @param request
 	 * @param model
 	 * @return
@@ -521,11 +488,11 @@ public class Stm2000Controller {
 			}
 			//실패 역할그룹 갯수가 0이상인경우 메시지 변경
 			else if(addFailAuthCnt > 0){
-				//실패 갯수 메시지 세팅
+				// 실패 수,메시지 세팅
 				model.addAttribute("errorYn", "N");
 				model.addAttribute("message", egovMessageSource.getMessage("success.common.insert")+"</br>"+addFailAuthCnt+"건의 중복 선택 역할그룹은 제외되었습니다.");
 			}else{
-				//조회 성공 메시지 세팅
+				// 등록 성공여부 및 성공메시지 세팅
 				model.addAttribute("errorYn", "N");
 				model.addAttribute("message", egovMessageSource.getMessage("success.common.insert"));
 			}
@@ -534,15 +501,15 @@ public class Stm2000Controller {
 
 		}catch(Exception e){
 			Log.error("insertStm2000SvnAuthGrpList()", e);
+			// 등록 실패여부 및 실패메시지 세팅
 			model.addAttribute("errorYn", "Y");
 			model.addAttribute("message", egovMessageSource.getMessage("fail.common.insert"));
 			return new ModelAndView("jsonView");
 		}
 	}
 	
-
 	/**
-	 *  SVN Repository 역할그룹 제한 제거
+	 * Stm2000 SVN Repository 허용 역할 목록을 삭제한다.
 	 * @param request
 	 * @param model
 	 * @return
@@ -558,7 +525,7 @@ public class Stm2000Controller {
 			//역할그룹 제거
 			stm2000Service.deleteStm2000SvnAuthGrpList(paramMap);
 			
-			//조회 성공 메시지 세팅
+			// 삭제 성공여부 및 삭제성공 메시지 세팅
 			model.addAttribute("errorYn", "N");
 			model.addAttribute("message", egovMessageSource.getMessage("success.common.delete"));
 			
@@ -566,6 +533,7 @@ public class Stm2000Controller {
 
 		}catch(Exception e){
 			Log.error("deleteStm2000SvnAuthGrpList()", e);
+			// 삭제 실패여부 및 실패메시지 세팅
 			model.addAttribute("errorYn", "Y");
 			model.addAttribute("message", egovMessageSource.getMessage("fail.common.delete"));
 			return new ModelAndView("jsonView");

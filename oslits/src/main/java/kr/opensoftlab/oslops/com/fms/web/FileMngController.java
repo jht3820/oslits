@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.com.fms.web;
+package kr.opensoftlab.oslops.com.fms.web;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -24,9 +24,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import kr.opensoftlab.oslits.com.fms.web.service.FileMngService;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.oslits.req.req4000.req4800.service.Req4800Service;
+import kr.opensoftlab.oslops.com.fms.web.service.FileMngService;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.oslops.req.req4000.req4800.service.Req4800Service;
 import kr.opensoftlab.sdf.util.OslAgileConstant;
 import kr.opensoftlab.sdf.util.ReqHistoryMngUtil;
 import kr.opensoftlab.sdf.util.RequestConvertor;
@@ -357,7 +357,7 @@ public class FileMngController {
 	    		boolean zipMakeChk = true;
 	    		try{
 	    			//압축 파일 생성
-	    			zipOut = new ZipOutputStream(new FileOutputStream(zipFilePath+zipFileName),Charset.forName("EUC-KR"));
+	    			zipOut = new ZipOutputStream(new FileOutputStream(zipFilePath+zipFileName));
 		    		
 	    			
 	    			//FileSns 루프 돌면서 파일 데이터 가져오기

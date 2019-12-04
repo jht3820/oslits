@@ -1,9 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
-<%@ include file="/WEB-INF/jsp/oslits/top/header.jsp"%>
+<%@ include file="/WEB-INF/jsp/oslops/top/header.jsp"%>
 <jsp:include page="/WEB-INF/jsp/oslops/top/aside.jsp" />
 
-<link rel='stylesheet' href='<c:url value='/css/oslits/req.css'/>' type='text/css'>
+<link rel='stylesheet' href='<c:url value='/css/oslops/req.css'/>' type='text/css'>
 <link rel='stylesheet' href='<c:url value='/css/ztree/zTreeStyle/zTreeStyle.css'/>' type='text/css'>
 <script type="text/javascript" src="/js/ztree/jquery.ztree.all.min.js"></script>
 
@@ -15,6 +15,10 @@
 <script>
 //zTree
 var zTree;
+//선택된 분류 및 하위 분류 노드가 담긴 배열, 분류 삭제 시 사용
+var chkReqClsNodeArr = [];
+// mask
+var ax5Mask = new ax5.ui.mask();
 
 // 유효성
 var arrChkObj = {"reqClsNm":{"type":"length","msg":"요구사항 분류명은 200byte까지 입력이 가능합니다.","max":200}
@@ -23,7 +27,7 @@ var arrChkObj = {"reqClsNm":{"type":"length","msg":"요구사항 분류명은 20
 
 $(document).ready(function() {
 	
-	
+	$("[id*='btn_print']").hide();
 	//유효성 체크
 	gfnInputValChk(arrChkObj);
 	
@@ -114,18 +118,10 @@ $(document).ready(function() {
 			jAlert("선택된 분류가 없습니다.");
 			return false;
 		}
-		
-		var docId = selZtree.docId;
-			//메뉴 선택시 폴더가 접혀있으면 열고 선택되어 있던 폴더 선택 해제후 추가한 폴더를 삽입한다.
-			if( selZtree.level >= 3){
-				jAlert("3뎁스 이상 추가할 수 없습니다.","알림창");
-				return;
-			}else{
-				//인서트 로직 정상적으로 동작했을때 선택되어 있던 폴더 선택해제하고 DB 인서트된 정보를 이용하여 하위엘레먼트로 추가한다.
-				//선택한 로우의 메뉴ID를 인자로 보냄
-			    fnInsertMenuInfoAjax(selZtree);	
-			}
-		});
+
+		// 요구사항 분류추가 - 무한뎁스 추가 가능
+		fnInsertMenuInfoAjax(selZtree);	
+	});
 
 		//	메뉴 삭제 버튼 
 		$("#btn_delete_menuDeleteInfo").click(function(){
@@ -146,23 +142,25 @@ $(document).ready(function() {
 					toast.push("메뉴를 선택하지 않았습니다. 메뉴를 선택해 주세요.");
 				}
 				else{
-					if(menu.check_Child_State != -1){
-						toast.push("하위 메뉴가 존재하기때문에 삭제할 수 없습니다. 하위메뉴를 먼저 삭제해주세요.");
-					}else{
-						//삭제 컨펌
-						jConfirm("삭제 하면 되돌릴 수 없습니다. 삭제 하시겠습니까?", "알림창", function( result ) {
-							if( result ){
-								fnDeleteMenuInfoAjax(menu);
-							}
-						});
-					}
+					//삭제 컨펌
+					jConfirm("삭제시 하위 분류까지 모두 삭제되며 되돌릴 수 없습니다. \n요구사항 분류를 삭제 하시겠습니까?", "알림창", function( result ) {
+						if( result ){
+		   	   				// 분류 노드를 담은 배열 초기화
+		   	   				chkReqClsNodeArr.length = 0;
+		   	   						
+		   	   				// 선택된 분류 및 하위 분류 노드를 배열 추가
+		   	   				fnGetReqClsList(menu);
+		
+							fnDeleteMenuInfoAjax(chkReqClsNodeArr);
+						}
+					});
 				}
 			}
 		});
 	
 	//프린트
 	$("#btn_print_menuInfo").click(function(){
-		$("#divMenu").printThis();
+		$("#divMenu").printThis({importCSS: false,importStyle: false,loadCSS: "/css/common/printThis.css"});
 	});
 	
 	/* 엑셀 조회 버튼 클릭 이벤트 */
@@ -197,6 +195,9 @@ function fnGetMenuInfoAjax(reqClsId){
 		data = JSON.parse(data);
     	//디테일폼 세팅
     	gfnSetData2Form(data, "reqClsInfoFrm");
+    	
+    	//Mask 제거
+		ax5Mask.close();
 	});
 	
 	//AJAX 전송 오류 함수
@@ -212,85 +213,82 @@ function fnGetMenuInfoAjax(reqClsId){
 /**
  * 조회버튼 클릭시 메뉴 리스트 조회 AJAX
  */
-function fnSearchMenuList(){
-	
-	//AJAX 설정
-	var ajaxObj = new gfnAjaxRequestAction(
-			{"url":"<c:url value='/req/req4000/req4000/selectReq4000ReqClsListAjax.do'/>","loadingShow":false});
-	//AJAX 전송 성공 함수
-	ajaxObj.setFnSuccess(function(data){
-		data = JSON.parse(data);
-    	
-		var listSize = data.reqClsList.length;
+ function fnSearchMenuList(){
 		
-    	toast.push(data.message);
-    	// zTree 설정 
-	    var setting = {
-	        data: {
-	        	key: {
-					name: "reqClsNm"
+		//AJAX 설정
+		var ajaxObj = new gfnAjaxRequestAction(
+				{"url":"<c:url value='/req/req4000/req4000/selectReq4000ReqClsListAjax.do'/>","loadingShow":false});
+		//AJAX 전송 성공 함수
+
+		ajaxObj.setFnSuccess(function(data){
+			data = JSON.parse(data);
+			
+			var listSize = data.reqClsList.length;
+	    	
+	    	toast.push(data.message);
+	    	// zTree 설정 
+		    var setting = {
+		        data: {
+		        	key: {
+						name: "reqClsNm"
+					},
+		            simpleData: {
+		                enable: true,
+		                idKey: "reqClsId",
+						pIdKey: "upperReqClsId",
+		            }
+		        },
+				callback: {
+					onClick: function(event, treeId, treeNode){
+						//우측 메뉴 정보
+						fnGetMenuInfoAjax(treeNode.reqClsId);
+					}
 				},
-	            simpleData: {
-	                enable: true,
-	                idKey: "reqClsId",
-					pIdKey: "upperReqClsId",
-	            }
-	        },
-			callback: {
-				onClick: function(event, treeId, treeNode){
-					//우측 메뉴 정보
-					fnGetMenuInfoAjax(treeNode.reqClsId);
-				},
-				/* onRightClick : function(event, treeId, treeNode){
-					//메뉴명 변경 상자 나타내기
-					zTree.editName(treeNode);
-				},
-				onRename : function(event, treeId, treeNode){
-					//메뉴명 변경 이벤트 일어 날 경우, 메뉴명 수정 이벤트 
-					fnUpdateMenuInfoAjax(treeNode,"editRename",false);
-				}, */
-				onDblClick : function(event, treeId, treeNode){
-					//노드 더블 클릭시 발생
-					if(!gfnIsNull(treeNode)){
-						//자식노드가 없는 노드 더블 클릭시 사용유무 변경
-						if(!treeNode.isParent && typeof treeNode.children == "undefined"){
-							fnUpdateMenuInfoAjax(treeNode,"editUseCd",false);
+				view : {
+					fontCss: function(treeId, treeNode){
+						return (treeNode.useCd == "02")? {color:"#ddd"} :{};
+					},
+					showIcon : function(treeId, treeNode) {
+						// 트리가 undefined, 노드가 2레벨(뎁스) 미만, isParent 값이 없을경우
+						if(typeof zTree != "undefined" && treeNode.level < 2 && !treeNode.isParent){
+							// 노드를 부모형 (폴더 아이콘)으로 변경
+							if(listSize>1){
+								treeNode.isParent = true;
+								zTree.updateNode(treeNode);
+								zTree.refresh();
+							}
 						}
+						return true;
 					}
 				}
-			},
-			view : {
-				fontCss: function(treeId, treeNode){
-					return (treeNode.useCd == "02")? {color:"#ddd"} :{};
-				},
-				showIcon : function(treeId, treeNode) {
-					if(typeof zTree != "undefined" && treeNode.level != 3 && !treeNode.isParent){
-						if(listSize>1){
-							treeNode.isParent = true;
-							//zTree.updateNode(treeNode);
-							zTree.refresh();
-						}	
-						
-					}
-					return true;
-				}
-			}
-	    };
-	    // zTree 초기화
-	    zTree = $.fn.zTree.init($("#reqClsJson"), setting, data.reqClsList);
-	  //폴더의 계층구조가 3단계가 아니면  tree전체 펼침 시에 일회적 동작 안함(좋은방법같진않고 임시방편 추후개선)
-		zTree.expandAll(false);
-	});
-	
-	//AJAX 전송 오류 함수
-	ajaxObj.setFnError(function(xhr, status, err){
-		data = JSON.parse(data);
-		jAlert(data.message,"알림창");
-	});
-	
-	//AJAX 전송
-	ajaxObj.send();
-}
+		    };
+		    // zTree 초기화
+		    zTree = $.fn.zTree.init($("#reqClsJson"), setting, data.reqClsList);
+
+		  //폴더의 계층구조가 3단계가 아니면  tree전체 펼침 시에 일회적 동작 안함(좋은방법같진않고 임시방편 추후개선)
+			zTree.expandAll(false);
+		  
+			//목록 조회시 우측 정보 창 mask
+			ax5Mask.open({
+				zIndex:90,
+				target: $("#selReqClsInfoDiv"),
+				content: "요구사항 분류를 선택해주세요."
+			});
+			
+			// 우측정보 리셋
+			$("#reqClsInfoFrm")[0].reset();
+		  
+		});
+		
+		//AJAX 전송 오류 함수
+		ajaxObj.setFnError(function(xhr, status, err){
+			data = JSON.parse(data);
+			jAlert(data.message,"알림창");
+		});
+		
+		//AJAX 전송
+		ajaxObj.send();
+	}
 
 /**
  * 	신규 메뉴 등록 함수
@@ -311,11 +309,12 @@ function fnInsertMenuInfoAjax(reqClsObj){
     		return false;
     	} 
     	else{
-    		//3뎁스가 아니라면 부모형 메뉴
-    		if(data.lvl != 3){
+    		// 2뎁스 이하는 폴더 아이콘
+    		if(data.lvl < 2){
     			data.isParent = true;
     		}
-    		//산출물 추가
+    		
+    		// 요구사항 분류 추가
     		zTree.addNodes(zTree.getSelectedNodes()[0], data);
     	}
     	
@@ -327,38 +326,92 @@ function fnInsertMenuInfoAjax(reqClsObj){
 }
 
 /**
-*	메뉴 삭제 함수
-*	선택한 메뉴를 삭제한다.(DB에서 삭제 처리시 자식 메뉴들이 존재하면 삭제하지 않고 알림)
-*/
-function fnDeleteMenuInfoAjax(reqClsObj){
+ *	요구사항 분류를 삭제한다.
+ *	reqClsObjList 삭제할 요구사항 분류 List
+ */
+function fnDeleteMenuInfoAjax(reqClsObjList){
 	
+	// 삭제하려는 분류가 없을경우
+	if(gfnIsNull(reqClsObjList)){
+		toast.push("선택된 분류가 없습니다. 삭제하려는 분류를 선택해주세요.");
+		return false;
+	}
+	
+	var params = "";
+	
+	// 항목으로부터 분류 ID세팅, 분류명
+	$(reqClsObjList).each(function(idx, map){
+		params += "&reqClsId="+map.reqClsId+"&reqClsNm="+map.reqClsNm;
+	});
+
 	//AJAX 설정
 	var ajaxObj = new gfnAjaxRequestAction(
 			{"url":"<c:url value='/req/req4000/req4000/deleteReq4000ReqClsInfoAjax.do'/>","loadingShow":false}
-			,{ "reqClsId":reqClsObj.reqClsId });
+			,params);
 	//AJAX 전송 성공 함수
 	ajaxObj.setFnSuccess(function(data){
 		data = JSON.parse(data);
-    	
+
     	//삭제가 실패하면 실패 메시지 후 리턴
-    	if(data.saveYN == 'N'){
-    		toast.push(data.message);
+    	if(data.errorYn == 'Y'){
+    		
+    		// 메시지를 가져온다.
+    		var message = data.message;
+    		// 요구사항이 배정된 분류를 가져온다.
+    		var notDelReqClsList = data.notDelReqClsList;
+  			// 요구사항 분류명 문자열
+    		var clsNmStr = "";
+    		
+    		// 요구사항이 배정된 분류가 있을 경우 
+    		if(!gfnIsNull(notDelReqClsList)){
+    			// 분류명 문자열로
+    			$(notDelReqClsList).each(function(idx, map){
+    				clsNmStr += ", "+map;
+    			});
+				// 메시지 세팅
+    			message = clsNmStr.substring(2)+"\n\n"+message;
+    		}
+
+    		jAlert(message, "알림");
     		return false;
     	} 
     	else{
-    		//해당 노드 제거
-			zTree.removeNode(reqClsObj);
-			
-    		//삭제 후 부모노드의 자식 수가 0일 경우 폴더형 메뉴로 변경
-    		var parentNode = reqClsObj.getParentNode();
+    		// 삭제할 분류 노드 중 최상위 분류 노드를 가져온다.
+    		var firstReqClsNode = chkReqClsNodeArr[0];	
     		
-    		//메뉴 뎁스가 3이 아닌데, 자식 노드가 없는 경우
-    		if(parentNode.level != 3 && parentNode.children.length == 0){
-    			
+    		// 삭제처리를 위해 역순 - 최하위 요구사항 분류부터 배열에 배치
+    		chkReqClsNodeArr.reverse();
+    		
+    		// 최하위 분류부터 삭제처리
+    		$(chkReqClsNodeArr).each(function(idx, clsNode) {
+    			zTree.removeNode(clsNode);
+    		});
+    		
+    		// 삭제 후 부모노드의 자식 수가 0일 경우 폴더 아이콘으로(부모형) 변경
+    		var parentNode = firstReqClsNode.getParentNode();
+    		
+    		// 2뎁스 미만, 자식 노드가 없는 경우
+    		if( parentNode.level < 2 &&  parentNode.children.length == 0){
     			//부모형 노드로 변경하고, 업데이트
     			parentNode.isParent = true;
-    			zTree.updateNode(parentNode);
+    			
+    		}else if(parentNode.children.length == 0){
+    			// 그외에는 자식형 노드로 변경(문서 아이콘으로 변경)
+    			parentNode.isParent = false;
     		}
+    		
+    		// 트리 노드 업데이트
+    		zTree.updateNode(parentNode);
+    		
+    		// 분류 삭제 후 우측 상세정보 화면 리셋
+    		$("#reqClsInfoFrm")[0].reset();
+    		
+    		// 분류 삭제 후 우측 정보 창 mask
+			ax5Mask.open({
+				zIndex:90,
+				target: $("#selReqClsInfoDiv"),
+				content: "요구사항 분류를 선택해주세요."
+			});
     	}
     	
     	toast.push(data.message);
@@ -502,6 +555,25 @@ function fnUpdateMenuInfoAjax(reqClsObj, updateType, updateAsync){
 
 }
 
+/** 
+ *	선택된 요구사항 분류 및 및 하위 분류를 모두 가져오는 함수
+ *	@param selectClsOjb 현재 선택된 분류
+ */
+function fnGetReqClsList(selectClsOjb){
+
+	// 배열에 분류 노드를 담는다.
+	chkReqClsNodeArr.push(selectClsOjb);
+
+	//자식 객체가 있는 경우에만 동작
+	if(typeof selectClsOjb.children != "undefined"){
+		
+		$.each(selectClsOjb.children,function(){
+			var subClsObj = this;
+			// 재귀
+			fnGetReqClsList(subClsObj);
+		});
+	}
+}
 
 /********************************************************************
 * 메뉴 관리 기능 부분 정의 종료												*
@@ -521,8 +593,6 @@ function fnUpdateMenuInfoAjax(reqClsObj, updateType, updateAsync){
 							<br/>
 							&nbsp;-메뉴 클릭: 메뉴 상세 정보 보기<br/>
 							&nbsp;-더블 클릭: 폴더형 메뉴의 경우 하위 메뉴 보기<br/>
-							&nbsp;<span style="margin-left: 71px;"></span>하위 메뉴의 경우 사용여부 변경<br/>
-							&nbsp;-우측 클릭: 메뉴명 변경
 						</span>
 					</div>
 				</span>
@@ -548,7 +618,7 @@ function fnUpdateMenuInfoAjax(reqClsObj, updateType, updateAsync){
 				</div>
 			</div>
 
-			<div class="menu_info_wrap">
+			<div class="menu_info_wrap" id="selReqClsInfoDiv">
 				<form id="reqClsInfoFrm" name="reqClsInfoFrm" method="post">
 					<input type="hidden" id="licGrpId" name="licGrpId"/>
 					

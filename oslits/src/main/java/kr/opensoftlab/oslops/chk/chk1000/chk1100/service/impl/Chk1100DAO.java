@@ -1,10 +1,10 @@
-package kr.opensoftlab.oslits.chk.chk1000.chk1100.service.impl;
+package kr.opensoftlab.oslops.chk.chk1000.chk1100.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.chk.chk1000.chk1100.vo.Chk1100VO;
-import kr.opensoftlab.oslits.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.chk.chk1000.chk1100.vo.Chk1100VO;
+import kr.opensoftlab.oslops.com.dao.ComOslitsAbstractDAO;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 
 import org.springframework.stereotype.Repository;

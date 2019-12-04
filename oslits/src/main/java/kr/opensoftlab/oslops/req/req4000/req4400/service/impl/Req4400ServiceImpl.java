@@ -1,11 +1,12 @@
-package kr.opensoftlab.oslits.req.req4000.req4400.service.impl;
+package kr.opensoftlab.oslops.req.req4000.req4400.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.req.req4000.req4400.service.Req4400Service;
+import kr.opensoftlab.oslops.req.req4000.req4400.service.Req4400Service;
+import kr.opensoftlab.oslops.req.req4000.req4400.vo.Req4400VO;
 
 import org.springframework.stereotype.Service;
 
@@ -28,16 +29,26 @@ public class Req4400ServiceImpl  extends EgovAbstractServiceImpl implements Req4
 	/** Req4400DAO DI */
     @Resource(name="req4400DAO")
     private Req4400DAO req4400DAO;
-    
-    /**
-	 * Req4400 요구사항 작업흐름별 작업 목록 조회
-	 * @param param - Map
-	 * @return list - List
+
+	
+	/**
+	 * Req4400 요구사항 작업흐름별 작업 목록 조회(Grid page)
+	 * @param Req4400VO
 	 * @exception Exception
 	 */
 	@SuppressWarnings("rawtypes")
-	public List selectReq4400ReqWorkList(Map paramMap) throws Exception{
-		return (List) req4400DAO.selectReq4400ReqWorkList(paramMap);
+	public List selectReq4400ReqWorkList(Req4400VO req4400VO) throws Exception{
+		return (List) req4400DAO.selectReq4400ReqWorkList(req4400VO);
+	}
+	
+	/**
+	 * Req4400 요구사항 작업흐름별 작업 목록 총 건수(Grid page)
+	 * @param Req4400VO
+	 * @return 
+	 * @exception Exception
+	 */
+	public int selectReq4400ReqWorkListCnt(Req4400VO req4400VO) throws Exception {
+		return req4400DAO.selectReq4400ReqWorkListCnt(req4400VO);
 	}
 	
 	/**

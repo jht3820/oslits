@@ -1,10 +1,10 @@
-package kr.opensoftlab.oslits.req.req4000.req4100.service.impl;
+package kr.opensoftlab.oslops.req.req4000.req4100.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.com.dao.ComOslitsAbstractDAO;
-import kr.opensoftlab.oslits.req.req4000.req4100.vo.Req4100VO;
+import kr.opensoftlab.oslops.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.req.req4000.req4100.vo.Req4100VO;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 
 import org.springframework.stereotype.Repository;
@@ -36,11 +36,25 @@ public class Req4100DAO extends ComOslitsAbstractDAO {
 	}
 	
 	/**
+	 * Req4100 요구사항 key값 수정
+	 * 프로젝트 ID와 요구사항 등록 시 생성된 요구사항 ID를 조합하여 암호화 시킨 후
+	 * 요구사항 키로 등록하여 요구사항의 고유한 해시값으로 사용한다.
+	 * @param 
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings({ "rawtypes" })
+	public void updateReq4100ReqKey(Map paramMap) throws Exception{
+		update("req4100DAO.updateReq4100ReqKey",paramMap);
+	}
+	
+	/**
 	 * Req4100 요구사항 업로드 추가시 사용자(ADM2000) ID 검색 
 	 * @param param - Map
 	 * @return 
 	 * @exception Exception
 	 */
+	@SuppressWarnings("rawtypes")
 	public int selectReq4100ReqUsrChk(Map paramMap) throws Exception{
 		return (int)select("req4100DAO.selectReq4100ReqUsrChk", paramMap);
 	}
@@ -128,6 +142,17 @@ public class Req4100DAO extends ComOslitsAbstractDAO {
 	}
 	
 	/**
+	 * REQ4100 프로세스, 작업흐름 별 요구사항 수 조회 
+	 * @param param - Map
+	 * @return Integer
+	 * @exception Exception
+	 */
+	@SuppressWarnings({ "rawtypes"})
+	public int selectReq4100ProcessFlowReqCnt(Map paramMap) throws Exception {
+		return (int) select("req4100DAO.selectReq4100ProcessFlowReqCnt",paramMap);
+	}
+	
+	/**
 	 * REQ4100 프로세스, 작업흐름 별 요구사항 조회 
 	 * @param param - Map
 	 * @return list - List
@@ -149,6 +174,7 @@ public class Req4100DAO extends ComOslitsAbstractDAO {
 		return	(Map) select("req4100DAO.selectReq4100ReqUserInfo", paramMap);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Map selectReq4100ReqInfo(Map<String, String> paramMap) {
 		return (Map) select("req4100DAO.selectReq4100ReqInfo", paramMap);
 	}
@@ -157,13 +183,32 @@ public class Req4100DAO extends ComOslitsAbstractDAO {
 		return (String)insert("req4100DAO.insertReq4100ReqInfo", paramMap);	
 	}
 
+	@SuppressWarnings("rawtypes")
 	public int updateReq4100ReqInfo(Map paramMap) throws Exception{
 		return update("req4100DAO.updateReq4100ReqInfo",paramMap);
 	}
-	public List<Map> selectReq4100RevisionList(Map paramMap) throws Exception{
-		return (List<Map>) list("req4100DAO.selectReq4100RevisionList",paramMap);
-	}
 
+	/**
+	 * REQ4100 요구사항에 포함된 리비전 목록 조회(Grid page)
+	 * @param Whk1000VO
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public List<Map> selectReq4100RevisionList(Req4100VO req4100VO) throws Exception{
+		return (List<Map>) list("req4100DAO.selectReq4100RevisionList",req4100VO);
+	}
+	
+	/**
+	 * REQ4100요구사항에 포함된 리비전 목록 총 건수 조회(Grid page)
+	 * @param Whk1000VO
+	 * @return 
+	 * @exception Exception
+	 */
+	public int selectReq4100RevisionListCnt(Req4100VO req4100VO) throws Exception {
+		return (Integer) select("req4100DAO.selectReq4100RevisionListCnt", req4100VO);
+	}
+	
 	/**
 	 * REQ4100 요구사항 다음 순번정보 조회
 	 * @param param - Map
@@ -171,8 +216,8 @@ public class Req4100DAO extends ComOslitsAbstractDAO {
 	 * @exception Exception
 	 */
 	@SuppressWarnings("rawtypes")
-	public String selectReq4100NextReqOrd(Map paramMap) throws Exception{
-		return (String) select("req4100DAO.selectReq4100NextReqOrd", paramMap);
+	public Map selectReq4100NextReqOrd(Map paramMap) throws Exception{
+		return (Map) select("req4100DAO.selectReq4100NextReqOrd", paramMap);
 	}	
 	
 	/**
@@ -209,7 +254,7 @@ public class Req4100DAO extends ComOslitsAbstractDAO {
 	public List<Map> selectReq4100PrjAuthReqList(Map paramMap) throws Exception {
 		return (List<Map>) list("req4100DAO.selectReq4100PrjAuthReqList",paramMap);
 	}
-	
+
 	/**
 	 * Req4105 요구사항 담당자 변경
 	 * @param param - Map
@@ -229,5 +274,27 @@ public class Req4100DAO extends ComOslitsAbstractDAO {
 	@SuppressWarnings("rawtypes")
 	public void selectReq4100ExcelList(Map paramMap, ExcelDataListResultHandler resultHandler) throws Exception {
 		listExcelDownSql("req4100DAO.selectReq4100ExcelList", paramMap, resultHandler);
+	}
+	
+	/**
+	 * REQ4100 프로세스별 요구사항 조회 
+	 * @param param - Map
+	 * @return list - List
+	 * @exception Exception
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public List<Map> selectReq4100ProcessReqList(Map paramMap) throws Exception {
+		return (List<Map>) list("req4100DAO.selectReq4100ProcessReqList",paramMap);
+	}
+	
+	/**
+	 * REQ4100 외부 팝업 요구사항 조회 - 요구사항 상세정보를 조회한다.
+	 * @param param - Map
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public Map selectReq4110ReqInfo(Map paramMap) throws Exception {
+		return (Map) select("req4100DAO.selectReq4110ReqInfo", paramMap);
 	}
 }

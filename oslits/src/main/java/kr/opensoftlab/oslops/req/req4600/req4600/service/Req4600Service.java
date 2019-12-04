@@ -1,9 +1,7 @@
-package kr.opensoftlab.oslits.req.req4600.req4600.service;
+package kr.opensoftlab.oslops.req.req4600.req4600.service;
 
 import java.util.List;
 import java.util.Map;
-
-import kr.opensoftlab.oslits.req.req4600.req4600.vo.Req4600VO;
 
 
 /**
@@ -99,5 +97,12 @@ public interface Req4600Service {
 	@SuppressWarnings("rawtypes")
 	List selectReq4600ReqWbsListAjax(Map paramMap) throws Exception;
 
-	void updateReq4600ProgresInfo(List<Req4600VO> list) throws Exception;
+	/**
+	 * Req4600 요구사항 WBS 진척률 수정
+	 * @param paramMap
+	 * @return
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	void updateReq4600ProgresInfo(Map paramMap) throws Exception;
 }

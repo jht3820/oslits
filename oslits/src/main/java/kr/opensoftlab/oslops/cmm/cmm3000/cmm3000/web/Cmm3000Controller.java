@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.cmm.cmm3000.cmm3000.web;
+package kr.opensoftlab.oslops.cmm.cmm3000.cmm3000.web;
 
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;

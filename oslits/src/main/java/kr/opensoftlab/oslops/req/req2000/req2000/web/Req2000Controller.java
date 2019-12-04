@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.req.req2000.req2000.web;
+package kr.opensoftlab.oslops.req.req2000.req2000.web;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,22 +9,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import kr.opensoftlab.oslits.com.fms.web.service.FileMngService;
-import kr.opensoftlab.oslits.com.vo.LicVO;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.oslits.prj.prj1000.prj1100.service.Prj1100Service;
-import kr.opensoftlab.oslits.req.req2000.req2000.service.Req2000Service;
-import kr.opensoftlab.oslits.req.req4000.req4100.service.Req4100Service;
-import kr.opensoftlab.oslits.req.req4000.req4100.vo.Req4100VO;
-import kr.opensoftlab.sdf.excel.BigDataSheetWriter;
-import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
-import kr.opensoftlab.sdf.excel.Metadata;
-import kr.opensoftlab.sdf.excel.SheetHeader;
-import kr.opensoftlab.sdf.util.OslAgileConstant;
-import kr.opensoftlab.sdf.util.PagingUtil;
-import kr.opensoftlab.sdf.util.ProjectOptionInfoUtil;
-import kr.opensoftlab.sdf.util.RequestConvertor;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,10 +21,23 @@ import org.springframework.web.servlet.ModelAndView;
 import com.google.gson.GsonBuilder;
 
 import egovframework.com.cmm.EgovMessageSource;
-import egovframework.com.cmm.service.FileVO;
 import egovframework.rte.fdl.cmmn.trace.LeaveaTrace;
 import egovframework.rte.fdl.property.EgovPropertyService;
 import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
+import kr.opensoftlab.oslops.com.fms.web.service.FileMngService;
+import kr.opensoftlab.oslops.com.vo.LicVO;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.oslops.prj.prj1000.prj1100.service.Prj1100Service;
+import kr.opensoftlab.oslops.req.req2000.req2000.service.Req2000Service;
+import kr.opensoftlab.oslops.req.req4000.req4100.service.Req4100Service;
+import kr.opensoftlab.oslops.req.req4000.req4100.vo.Req4100VO;
+import kr.opensoftlab.sdf.excel.BigDataSheetWriter;
+import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
+import kr.opensoftlab.sdf.excel.Metadata;
+import kr.opensoftlab.sdf.excel.SheetHeader;
+import kr.opensoftlab.sdf.util.OslAgileConstant;
+import kr.opensoftlab.sdf.util.PagingUtil;
+import kr.opensoftlab.sdf.util.RequestConvertor;
 
 /**
  * @Class Name : Req2000Controller.java
@@ -121,7 +118,7 @@ public class Req2000Controller {
     	//프로젝트 작업 흐름 목록 가져오기
     	List<Map> selectFlowList = null;
     	String selectFlowListJson = (new GsonBuilder().serializeNulls().create()).toJsonTree(selectFlowList).toString();
-    	model.addAttribute("flowList", selectFlowListJson);
+    	model.addAttribute("flowList", selectFlowListJson.replaceAll("<", "&lt"));
     	
     	//작업흐름, 개발주기 아이디값 넘어온 경우
     	model.addAttribute("flowId", paramMap.get("flowId"));
@@ -271,7 +268,7 @@ public class Req2000Controller {
     	//프로젝트 작업 흐름 목록 가져오기
     	List<Map> selectFlowList = null;
     	String selectFlowListJson = (new GsonBuilder().serializeNulls().create()).toJsonTree(selectFlowList).toString();
-    	model.addAttribute("flowList", selectFlowListJson);
+    	model.addAttribute("flowList", selectFlowListJson.replaceAll("<", "&lt"));
     	
     	//작업흐름, 개발주기 아이디값 넘어온 경우
     	model.addAttribute("flowId", paramMap.get("flowId"));
@@ -329,6 +326,8 @@ public class Req2000Controller {
 		String strReqUsrNm 		= egovMessageSource.getMessage("excel.reqUsrNm");		// 요청자 명
 		String strReqDtm 		= egovMessageSource.getMessage("excel.reqDtm");			// 요청일
 		String strReUsrDeptNm 	= egovMessageSource.getMessage("excel.reqUsrDeptNm");	// 요청자 소속
+		String strReqUsrPositionNm 	= egovMessageSource.getMessage("excel.reqUsrPositionNm");	// 요청자 직급
+		String strReqUsrDutyNm 	= egovMessageSource.getMessage("excel.reqUsrDutyNm");	// 요청자 직책
 		String strReqUsrEmail 	= egovMessageSource.getMessage("excel.reqUsrEmail");	// 요청자 이메일
 		String strReqUsrNum 	= egovMessageSource.getMessage("excel.reqUsrNum");		// 요청자 연락처
 		//String strReqChargerId 	= egovMessageSource.getMessage("excel.reqChargerId");	// 담당자 ID
@@ -358,7 +357,7 @@ public class Req2000Controller {
 		
 		
 		SheetHeader header = new SheetHeader(new String[]{strReqOrd, strPrjId, strReqId, strReqProTypeNm, strReqNewTypeNm
-														,strReqNo ,strReqNm ,strReqDesc ,strReqDtm , strReqUsrNm, strReUsrDeptNm, strReqUsrEmail 
+														,strReqNo ,strReqNm ,strReqDesc ,strReqDtm , strReqUsrNm, strReUsrDeptNm, strReqUsrPositionNm, strReqUsrDutyNm,  strReqUsrEmail 
 														,strReqUsrNum ,strReqChargerNm  ,strProcessNm	,strFlowNm ,strReqCompleteRatio
 														,strReqFp ,strReqExFp ,strReqStDtm ,strReqEdDtm ,strReqStDuDtm
 														,strReqEdDuDtm ,strReqTypeNm ,strSclNm ,strPiaNm ,strLabInp
@@ -381,6 +380,8 @@ public class Req2000Controller {
 		metadatas.add(new Metadata("reqDtm", "00-00-00"));
 		metadatas.add(new Metadata("reqUsrNm"));
 		metadatas.add(new Metadata("reqUsrDeptNm"));
+		metadatas.add(new Metadata("reqUsrPositionNm"));
+		metadatas.add(new Metadata("reqUsrDutyNm"));
 		metadatas.add(new Metadata("reqUsrEmail"));
 		metadatas.add(new Metadata("reqUsrNum"));
 		metadatas.add(new Metadata("reqChargerNm"));
@@ -431,6 +432,5 @@ public class Req2000Controller {
 
 		return writer.getModelAndView();
 	}
-	
 	
 }

@@ -1,9 +1,9 @@
-package kr.opensoftlab.oslits.adm.adm2000.adm2000.service;
+package kr.opensoftlab.oslops.adm.adm2000.adm2000.service;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.adm.adm2000.adm2000.vo.Adm2000VO;
+import kr.opensoftlab.oslops.adm.adm2000.adm2000.vo.Adm2000VO;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 
 

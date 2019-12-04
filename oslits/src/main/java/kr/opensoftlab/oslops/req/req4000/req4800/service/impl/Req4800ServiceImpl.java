@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.req.req4000.req4800.service.impl;
+package kr.opensoftlab.oslops.req.req4000.req4800.service.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,9 +7,10 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.prj.prj1000.prj1100.service.impl.Prj1100DAO;
-import kr.opensoftlab.oslits.req.req4000.req4100.service.impl.Req4100DAO;
-import kr.opensoftlab.oslits.req.req4000.req4800.service.Req4800Service;
+import kr.opensoftlab.oslops.dpl.dpl1000.dpl1100.service.impl.Dpl1100DAO;
+import kr.opensoftlab.oslops.prj.prj1000.prj1100.service.impl.Prj1100DAO;
+import kr.opensoftlab.oslops.req.req4000.req4100.service.impl.Req4100DAO;
+import kr.opensoftlab.oslops.req.req4000.req4800.service.Req4800Service;
 
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -22,11 +23,11 @@ import egovframework.rte.fdl.cmmn.EgovAbstractServiceImpl;
 @Service("req4800Service")
 public class Req4800ServiceImpl  extends EgovAbstractServiceImpl implements Req4800Service{
 
-	private final String MOD_CHG_GB_CD  = "01"; // 요구사항 수정
-	private final String FLOW_MOD_CHG_GB_CD  = "02"; // 추가항목 수정
-	private final String FILE_ADD_CHG_GB_CD  = "03"; // 첨부파일 추가
-	private final String FILE_DEL_CHG_GB_CD  = "04"; // 첨부파일 삭제
-	//private final String NEW_REQ_CHG_GB_CD  = "05"; // 접수
+	private static final String MOD_CHG_GB_CD  = "01"; // 요구사항 수정
+	private static final String FLOW_MOD_CHG_GB_CD  = "02"; // 추가항목 수정
+	private static final String FILE_ADD_CHG_GB_CD  = "03"; // 첨부파일 추가
+	private static final String FILE_DEL_CHG_GB_CD  = "04"; // 첨부파일 삭제
+	private static final String DPL_CHG_GB_CD  = "05"; // 배포
 	//private final String WORK_ADD_CHG_GB_CD  = "05"; // 작업 추가
 	//private final String WORK_MOD_CHG_GB_CD  = "05"; // 작업 수정
 	
@@ -38,6 +39,9 @@ public class Req4800ServiceImpl  extends EgovAbstractServiceImpl implements Req4
     
     @Resource(name="req4800DAO")
     private Req4800DAO req4800DAO;
+    
+    @Resource(name="dpl1100DAO")
+    private Dpl1100DAO dpl1100DAO;
     
     /**
 	 * Req4800 요구사항 수정이력 목록 가져오기
@@ -72,6 +76,15 @@ public class Req4800ServiceImpl  extends EgovAbstractServiceImpl implements Req4
 			addOptMap.put(addOptInfo.get("itemId"),addOptInfo.get("itemValue"));
 		}
 		
+		//배포 정보 정보 불러오기
+		List<Map> dplList = (List<Map>) dpl1100DAO.selectDpl1100ReqDplList(paramMap);
+		      
+		//List to Map
+		Map dplMap = new HashMap<>();
+		for (Map dplInfo : dplList) {
+		   dplMap.put("dplId_"+dplInfo.get("flowId"),dplInfo.get("dplId"));
+		}
+		
 		//새로운 NEW_CHG_DETAIL_ID 구하기
 		String newChgDetailId = req4800DAO.selectReq4800NewChgDetailId(paramMap);
 		paramMap.put("newChgDetailId", newChgDetailId);
@@ -85,10 +98,10 @@ public class Req4800ServiceImpl  extends EgovAbstractServiceImpl implements Req4
 				String fileActionType = (String)paramMap.get("fileActionType");
 				String CHG_GB_CD = "00";
 				if("add".equals(fileActionType)){
-					CHG_GB_CD = this.FILE_ADD_CHG_GB_CD;
+					CHG_GB_CD = FILE_ADD_CHG_GB_CD;
 				}
 				else if("del".equals(fileActionType)){
-					CHG_GB_CD = this.FILE_DEL_CHG_GB_CD;
+					CHG_GB_CD = FILE_DEL_CHG_GB_CD;
 				}
 				
 				//첨부파일 목록
@@ -156,7 +169,7 @@ public class Req4800ServiceImpl  extends EgovAbstractServiceImpl implements Req4
 					//요구사항 기본 컬럼에 없는경우 skip
 					if(reqInfoMap.containsKey(key)){
 						reqInfoVal = String.valueOf(reqInfoMap.get(key));
-						chgDetailType = this.MOD_CHG_GB_CD;
+						chgDetailType = MOD_CHG_GB_CD;
 					}else{
 						continue;
 					}
@@ -164,7 +177,12 @@ public class Req4800ServiceImpl  extends EgovAbstractServiceImpl implements Req4
 				//추가 항목
 				else if("02".equals(opttarget)){
 					reqInfoVal = String.valueOf(addOptMap.get(key));
-					chgDetailType = this.FLOW_MOD_CHG_GB_CD;
+					chgDetailType = FLOW_MOD_CHG_GB_CD;
+				}
+				//배포
+				else if("03".equals(opttarget)){
+					reqInfoVal = String.valueOf(dplMap.get(key));
+					chgDetailType = DPL_CHG_GB_CD;
 				}
 				
 				//넘겨 받은 값이 빈 값인지 체크

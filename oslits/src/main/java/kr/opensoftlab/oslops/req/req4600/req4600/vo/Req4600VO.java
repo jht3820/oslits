@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.req.req4600.req4600.vo;
+package kr.opensoftlab.oslops.req.req4600.req4600.vo;
 
 /**
  * @Class Name : Req1000Controller.java
@@ -13,7 +13,7 @@ package kr.opensoftlab.oslits.req.req4600.req4600.vo;
  *  Copyright (C) OpenSoftLab Corp All right reserved.
  */
 
-import kr.opensoftlab.oslits.com.vo.PageVO;
+import kr.opensoftlab.oslops.com.vo.PageVO;
 
 public class Req4600VO extends PageVO {
 	

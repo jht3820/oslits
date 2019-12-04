@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.com.fms.web.service;
+package kr.opensoftlab.oslops.com.fms.web.service;
 
 import java.util.List;
 

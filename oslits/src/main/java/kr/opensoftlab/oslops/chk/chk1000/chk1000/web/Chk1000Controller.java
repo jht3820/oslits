@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.chk.chk1000.chk1000.web;
+package kr.opensoftlab.oslops.chk.chk1000.chk1000.web;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,20 +10,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import kr.opensoftlab.oslits.chk.chk1000.chk1000.service.Chk1000Service;
-import kr.opensoftlab.oslits.chk.chk1000.chk1000.vo.Chk1000VO;
-import kr.opensoftlab.oslits.com.fms.web.service.FileMngService;
-import kr.opensoftlab.oslits.com.vo.LicVO;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.oslits.req.req1000.req1000.service.Req1000Service;
-import kr.opensoftlab.oslits.req.req4000.req4100.service.Req4100Service;
+import kr.opensoftlab.oslops.chk.chk1000.chk1000.service.Chk1000Service;
+import kr.opensoftlab.oslops.chk.chk1000.chk1000.vo.Chk1000VO;
+import kr.opensoftlab.oslops.com.fms.web.service.FileMngService;
+import kr.opensoftlab.oslops.com.vo.LicVO;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.oslops.req.req4000.req4100.service.Req4100Service;
 import kr.opensoftlab.sdf.excel.BigDataSheetWriter;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 import kr.opensoftlab.sdf.excel.Metadata;
 import kr.opensoftlab.sdf.excel.SheetHeader;
 import kr.opensoftlab.sdf.util.OslAgileConstant;
 import kr.opensoftlab.sdf.util.PagingUtil;
-import kr.opensoftlab.sdf.util.ProjectOptionInfoUtil;
 import kr.opensoftlab.sdf.util.RequestConvertor;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -97,7 +95,6 @@ public class Chk1000Controller {
 	 * @param response
 	 * @throws Exception
 	 */
-	@SuppressWarnings({"unchecked","rawtypes"})
 	@RequestMapping(value="/chk/chk1000/chk1000/selectChk1000View.do")
 	public String selectChk1000View(@ModelAttribute("chk1000VO") Chk1000VO chk1000VO, HttpServletRequest request, HttpServletResponse response, ModelMap model )	throws Exception {
 		// request 파라미터를 map으로 변환
@@ -112,6 +109,7 @@ public class Chk1000Controller {
 		paramMap.put("licGrpId", licVo.getLicGrpId());
 		return "/chk/chk1000/chk1000/chk1000";
 	}
+	
 	/**
 	 * Chk1000 요구사항 목록 AJAX 조회
 	 * @param request
@@ -237,7 +235,7 @@ public class Chk1000Controller {
 			String chk1000ListJson = (new GsonBuilder().serializeNulls().create()).toJsonTree(chk1000List).toString();
 
 			model.addAttribute("chk1000List", chk1000List); 			/** 조회 목록 List 형태로 화면에 Return 한다. */
-			model.addAttribute("chk1000ListJson", chk1000ListJson); 	/** 화면에서 JSON 데이터 형식도 동일하게 필요할 경우 사용한다. */
+			model.addAttribute("chk1000ListJson", chk1000ListJson.replaceAll("<", "&lt")); 	/** 화면에서 JSON 데이터 형식도 동일하게 필요할 경우 사용한다. */
 			model.addAttribute("paginationInfo", paginationInfo );      /** 페이징 */
 
 			return "/chk/chk1000/chk1000/chk1000";

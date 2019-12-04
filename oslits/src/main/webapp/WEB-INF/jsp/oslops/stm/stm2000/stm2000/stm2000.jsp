@@ -4,7 +4,7 @@
 <%@ include file="/WEB-INF/jsp/oslops/top/header.jsp" %>
 <jsp:include page="/WEB-INF/jsp/oslops/top/aside.jsp" />
 
-<link rel='stylesheet' href='<c:url value='/css/oslits/req.css'/>' type='text/css'>
+<link rel='stylesheet' href='<c:url value='/css/oslops/req.css'/>' type='text/css'>
 <style type="text/css">
 	.accptFont{color:#4b73eb !important;text-shadow: none !important;}
 	.rejectFont{color:#eb4b6a !important;text-shadow: none !important;}
@@ -14,32 +14,12 @@
 var mySearch;
 
 $(function(){
-	//타겟이 상세정보 창이 아닌 경우 상세 정보 창 닫기
-	$(document).click(function(event){
-		//타겟이 상세정보 창, 그리드 노드가 아닌 경우 확인
-		if(!$(event.target).is('.slideBox') && !$(event.target.offsetParent).is('.slideBox, .req_right_table_wrap')){
-			//디테일 창이 표시되어 있는지 확인, 그리드 선택인지 확인
-		    if((!$(event.target).is($('[data-ax5grid] *')) || !$(event.target.offsetParent).is($('[data-ax5grid] *'))) && !$('.req_right_table_wrap').hasClass('on')){
-				$('.req_right_table_wrap, .slideBox, .slideBox > img').toggleClass('on');
-	    	} 
-		}
-	});	
-	
-	//우측 디테일 창 'ESC'버튼으로도 닫히기
-	$(document).on('keydown', function(e){
-		if(e.keyCode==27 && !$('.req_right_table_wrap').hasClass('on')){
-			$('.req_right_table_wrap, .slideBox, .slideBox > img').toggleClass('on');	
-		};
-	});
-	
-	//우측 디테일 창
-	$('.slideBox').click(function(){
-		$('.req_right_table_wrap, .slideBox, .slideBox > img').toggleClass('on');
-	});
-	
 	//그리드 검색 호출
 	fnAxGrid5View();
 	fnSearchBoxControl();
+	
+	//가이드 상자 호출
+	gfnGuideStack("add",fnStm2000GuideShow);
 });
 
 
@@ -68,7 +48,7 @@ function fnAxGrid5View(){
 				
 				{key: "svnRepNm", label: "Reposityory 명", width: 250, align: "center"},
 				{key: "svnTxt", label: "Reposityory 설명", width: 450, align: "left"},
-				{key: "svnRepUrl", label: "URl", width: 450, align: "center"},
+				{key: "svnRepUrl", label: "URL", width: 450, align: "center"},
 				{key: "useNm", label: "사용여부", width: 100, align: "center"} ,
 				
 				{key: "result", label: "접속가능결과", width: 220, align: "center"} 
@@ -268,7 +248,7 @@ function fnSearchBoxControl(){
 						
 						{label:"", labelWidth:"", type:"button", width:"60",style:"float:right;", key:"btn_print_svn",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-print' aria-hidden='true'></i>&nbsp;<span>프린트</span>",
 							onclick:function(){
-								$(firstGrid.exportExcel()).printThis();
+								$(firstGrid.exportExcel()).printThis({importCSS: false,importStyle: false,loadCSS: "/css/common/printThis.css"});
 						}},
 						
 						{label:"", labelWidth:"", type:"button", width:"55",style:"float:right;", key:"btn_excel_svn",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-file-excel' aria-hidden='true'></i>&nbsp;<span>엑셀</span>",
@@ -373,6 +353,8 @@ function fnSelectStm2000ConfirmConnect(svnRepId,index){
 			firstGrid.setValue(index, "result", "접속실패 SVN 접속오류");
 		}else if(data.MSG_CD =="SVN_AUTHENTICATION_EXCEPTION"){
 			firstGrid.setValue(index, "result", "접속실패 SVN 사용자 권한없음");
+		}else{
+			firstGrid.setValue(index, "result", data.message);
 		} 	
 	});
 	
@@ -386,6 +368,18 @@ function fnSelectStm2000ConfirmConnect(svnRepId,index){
 	ajaxObj.send();
 } 
 
+//가이드 상자
+function fnStm2000GuideShow(){
+	var mainObj = $(".main_contents");
+	
+	//mainObj가 없는경우 false return
+	if(mainObj.length == 0){
+		return false;
+	}
+	//guide box setting
+	var guideBoxInfo = globals_guideContents["stm2000"];
+	gfnGuideBoxDraw(true,mainObj,guideBoxInfo);
+}
 </script>
 
 
@@ -395,7 +389,7 @@ function fnSelectStm2000ConfirmConnect(svnRepId,index){
 	<div class="req_title">${sessionScope.selMenuNm }</div>
 	<div class="tab_contents menu">
 		<input type="hidden" name="strInSql" id="strInSql" />
-		<div id="AXSearchTarget" style="border-top:1px solid #ccc;"></div>
+		<div id="AXSearchTarget" style="border-top:1px solid #ccc;" guide="stm2000button" ></div>
 		<br />
 		<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px;"></div>	
 	</div>

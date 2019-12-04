@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.cmm.cmm3000.cmm3200.web;
+package kr.opensoftlab.oslops.cmm.cmm3000.cmm3200.web;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,7 +8,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import kr.opensoftlab.oslits.cmm.cmm3000.cmm3200.service.Cmm3200Service;
+import kr.opensoftlab.oslops.cmm.cmm3000.cmm3200.service.Cmm3200Service;
 import kr.opensoftlab.sdf.util.RequestConvertor;
 
 import org.apache.log4j.Logger;
@@ -82,7 +82,7 @@ public class Cmm3200Controller {
 	@RequestMapping(value="/cmm/cmm3000/cmm3200/selectCmm3200View.do")
 	public String selectCmm3200View(HttpServletRequest request, ModelMap model) throws Exception {
 		//이메일 인증여부 전달
-		String emailAuthChk = EgovProperties.getProperty("Globals.oslits.emailAuth");
+		String emailAuthChk = EgovProperties.getProperty("Globals.lunaops.emailAuth");
 		model.addAttribute("emailAuthChk", emailAuthChk);
 		
 		return "/cmm/cmm3000/cmm3200/cmm3200";
@@ -298,7 +298,7 @@ public class Cmm3200Controller {
 				map.put("authNum", "Y");
 
 				//사용자가 입력한 인증 번호 암호화
-				String enUsrInAN = EgovFileScrty.encryptPassword(InSendVal.toString(), "Search");
+				String enUsrInAN = EgovFileScrty.encryptPassword(InSendVal, "Search");
 
 				
 				//세션에 저장된 인증번호
@@ -338,6 +338,7 @@ public class Cmm3200Controller {
 	 * @return
 	 */
 	private StringBuffer randomAuthNumber(int MaxNum) throws Exception   {
+		int paramMaxNum = MaxNum;
 		/* 인증 코드 생성 로직 
 		 * rand: 랜덤 객체
 		 * buf : 인증 코드를 저장하려는 StringBuffer
@@ -345,14 +346,14 @@ public class Cmm3200Controller {
 		 * 숫자 0~9
 		 * 문자 a~z 
 		 */
-		if(MaxNum < 0 && MaxNum > 30){
-			MaxNum = 10;
+		if(paramMaxNum < 0 && paramMaxNum > 30){
+			paramMaxNum = 10;
 		}
 		Random rand =new Random();
 		StringBuffer buf =new StringBuffer();
 		
 		//인증 코드는 MaxNum자리
-		for(int i=0;i<MaxNum;i++){
+		for(int i=0;i<paramMaxNum;i++){
 			// boolean 랜덤 생성 (랜덤으로 true or false 생성)
 			if(rand.nextBoolean()){
 				// 생성된 값이 true인 경우

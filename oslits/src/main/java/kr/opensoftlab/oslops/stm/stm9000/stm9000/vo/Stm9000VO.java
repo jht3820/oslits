@@ -1,7 +1,7 @@
-package kr.opensoftlab.oslits.stm.stm9000.stm9000.vo;
+package kr.opensoftlab.oslops.stm.stm9000.stm9000.vo;
 
 
-import kr.opensoftlab.oslits.com.vo.PageVO;
+import kr.opensoftlab.oslops.com.vo.PageVO;
 
 
 

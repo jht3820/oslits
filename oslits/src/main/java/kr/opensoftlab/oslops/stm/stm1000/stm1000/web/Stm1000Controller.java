@@ -1,6 +1,5 @@
-package kr.opensoftlab.oslits.stm.stm1000.stm1000.web;
+package kr.opensoftlab.oslops.stm.stm1000.stm1000.web;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,18 +11,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-
-
-
-
-
-
-
-
-import kr.opensoftlab.oslits.com.fms.web.service.FileMngService;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.oslits.stm.stm1000.stm1000.service.Stm1000Service;
-import kr.opensoftlab.oslits.stm.stm1000.stm1000.vo.Stm1000VO;
+import kr.opensoftlab.oslops.com.fms.web.service.FileMngService;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.oslops.stm.stm1000.stm1000.service.Stm1000Service;
+import kr.opensoftlab.oslops.stm.stm1000.stm1000.vo.Stm1000VO;
 import kr.opensoftlab.sdf.util.OslAgileConstant;
 import kr.opensoftlab.sdf.util.PagingUtil;
 import kr.opensoftlab.sdf.util.ReqHistoryMngUtil;
@@ -94,15 +85,15 @@ public class Stm1000Controller {
 	@Resource(name = "historyMng")
 	private ReqHistoryMngUtil historyMng;
 
+	/** Stm1000Service DI */
 	@Resource(name = "stm1000Service")
 	private Stm1000Service stm1000Service;
 	
     @Autowired
     private ApplicationContext ac;
 
-	/**
-	 * API 관리 조회하면으로 이동
-	 * 
+    /**
+	 * Stm1000 API 관리 화면으로 이동한다.
 	 * @param request
 	 * @param response
 	 * @param model
@@ -115,9 +106,7 @@ public class Stm1000Controller {
 	}
 	
 	/**
-	 * 
-	 * API 관리 등록/수정 화면으로 이동
-	 * 
+	 * Stm1000 API 관리 등록/수정 팝업으로 이동한다.
 	 * @param request
 	 * @param response
 	 * @param model
@@ -135,8 +124,8 @@ public class Stm1000Controller {
     		model.addAttribute("regUsrId",loginVO.getUsrId());
 
         	//파일 업로드 사이즈 구하기
-    		String fileInfoMaxSize = EgovProperties.getProperty("Globals.oslits.fileInfoMaxSize");
-    		String fileSumMaxSize = EgovProperties.getProperty("Globals.oslits.fileSumMaxSize");
+    		String fileInfoMaxSize = EgovProperties.getProperty("Globals.lunaops.fileInfoMaxSize");
+    		String fileSumMaxSize = EgovProperties.getProperty("Globals.lunaops.fileSumMaxSize");
     		model.addAttribute("fileInfoMaxSize",fileInfoMaxSize);
     		model.addAttribute("fileSumMaxSize",fileSumMaxSize);
     		
@@ -150,7 +139,7 @@ public class Stm1000Controller {
 
 	
 	/**
-	 * API 관리 화면 조회 
+	 * Stm1000 API 목록을 조회한다.
 	 * @param 
 	 * @return 
 	 * @exception Exception
@@ -215,23 +204,30 @@ public class Stm1000Controller {
 			
 			model.addAttribute("page", pageMap);
 			
+			// 조회성공 여부 및 조회 성공메시지 세팅
+			model.addAttribute("errorYn", "N");
+			model.addAttribute("message", egovMessageSource.getMessage("success.common.select"));
+			
 			return new ModelAndView("jsonView");
 		}
 		catch(Exception ex){
 			Log.error("selectStm1000ListAjaxView()", ex);
-			throw new Exception(ex.getMessage());
+			// 조회 실패여부 및 실패메시지 세팅
+			model.addAttribute("errorYn", "Y");
+			model.addAttribute("message", egovMessageSource.getMessage("fail.common.select"));
+			return new ModelAndView("jsonView");
 		}
 	}
 	
 	/**
-	 * API 관리 상세 조회
-	 * 
+	 * Stm1000 API 단건 조회한다.
 	 * @param request
 	 * @param response
 	 * @param model
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/stm/stm1000/stm1000/selectStm1001InfoAjax.do")
 	public ModelAndView selectStm1001InfoAjax( HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
 
@@ -285,31 +281,26 @@ public class Stm1000Controller {
 			throw new Exception(ex.getMessage());
 		}
 	}
+
 	/**
-	 * API 관리 상세 저장
-	 * 
+	 * Stm1000 API 정보를 등록/수정한다.
 	 * @param request
 	 * @param response
 	 * @param model
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/stm/stm1000/stm1000/saveStm1001InfoAjax.do")
 	public ModelAndView saveApi1001InfoAjax(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
 
 		try{
-			
-			
 			// request 파라미터를 map으로 변환
 			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
-			HttpSession ss = request.getSession();
 			
 			saveFile(paramMap,request);
 
-			// 요구사항 일괄저장
+			// API 정보 등록/수정
 			Object insertKey = stm1000Service.saveStm1000Info(paramMap);
-			
 	
 			//등록 성공 메시지 세팅
 			model.addAttribute("message", egovMessageSource.getMessage("success.common.save"));
@@ -319,14 +310,21 @@ public class Stm1000Controller {
 		catch(Exception ex){
 			Log.error("saveApi1001InfoAjax()", ex);
 
-			//조회실패 메시지 세팅 및 저장 성공여부 세팅
+			// 등록 실패여부 및 실패메시지 세팅
 			model.addAttribute("saveYN", "N");
 			model.addAttribute("message", egovMessageSource.getMessage("fail.common.save"));
 			return new ModelAndView("jsonView");
 		}
 	}
 	
-	
+	/**
+	 * Stm1000 첨부파일을 저장한다.
+	 * @param request
+	 * @param response
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
 	public void saveFile(Map<String, String> paramMap,HttpServletRequest request) throws Exception{
 		MultipartHttpServletRequest mptRequest = (MultipartHttpServletRequest)request;
 		
@@ -373,31 +371,27 @@ public class Stm1000Controller {
 	}
 
 	/**
-	 * API 관리 상세 삭제
-	 * 
+	 * Stm1000 API를 삭제한다.
 	 * @param request
 	 * @param response
 	 * @param model
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/stm/stm1000/stm1000/deleteStm1000InfoAjax.do")
 	public ModelAndView deleteStm1000InfoAjax(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
 
 		try{
-			
-			
 			// request 파라미터를 map으로 변환
 			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
-			HttpSession ss = request.getSession();
 			
 			int useCount = stm1000Service.selectStm1000UseCountInfo(paramMap);
 			if(useCount==0){
 				stm1000Service.deleteStm1000Info(paramMap);
-				//등록 성공 메시지 세팅
+				// 삭제 성공 메시지 세팅
 				model.addAttribute("message", egovMessageSource.getMessage("success.common.delete"));
 			}else{
+				// 삭제 실패여부 및 사용중인 API는 삭제할수 없다는 메시지 세팅
 				model.addAttribute("saveYN", "N");
 				model.addAttribute("message", egovMessageSource.getMessage("fail.common.existInfo"));
 			}
@@ -407,17 +401,15 @@ public class Stm1000Controller {
 		catch(Exception ex){
 			Log.error("deleteStm1000InfoAjax()", ex);
 
-			//조회실패 메시지 세팅 및 저장 성공여부 세팅
+			// 삭제 실패여부 및 실패메시지 세팅
 			model.addAttribute("saveYN", "N");
-			model.addAttribute("message", egovMessageSource.getMessage("fail.common.save"));
+			model.addAttribute("message", egovMessageSource.getMessage("fail.common.delete"));
 			return new ModelAndView("jsonView");
 		}
 	}
 	
 	/**
-	 *
-	 * 유효한 RestUrl 선택 팝업 화면 이동
-	 * 
+	 * Stm1000 유효한 Rest Url 선택 팝업 화면 이동한다.
 	 * @param request
 	 * @param response
 	 * @param model
@@ -430,12 +422,19 @@ public class Stm1000Controller {
 	}
 	
 	
-	@SuppressWarnings("rawtypes")
+	/**
+	 * Stm1000 유효한 RestUrl 목록을 조회한다.
+	 * @param request
+	 * @param response
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@RequestMapping(value="/stm/stm1000/stm1000/selectStm1000ValidRestfulApiListAjax.do")
 	public ModelAndView selectStm1000ValidRestfulApiListAjax(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
 
 		try{
-			
 			
 			// request 파라미터를 map으로 변환
 			Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
@@ -464,13 +463,13 @@ public class Stm1000Controller {
 			}
 									
 			model.addAttribute("urlList", urlList);			
-			
+			// 조회 성공메시지 세팅
 			model.addAttribute("message", egovMessageSource.getMessage("success.common.select"));
 			return new ModelAndView("jsonView");
 		}
 		catch(Exception ex){
 			Log.error("selectStm1000ValidRestfulApiListAjax()", ex);
-
+			// 조회 실패 메시지 세팅
 			model.addAttribute("message", egovMessageSource.getMessage("fail.common.select"));
 			return new ModelAndView("jsonView");
 		}

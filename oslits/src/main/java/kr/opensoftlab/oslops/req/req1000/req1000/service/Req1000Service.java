@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.req.req1000.req1000.service;
+package kr.opensoftlab.oslops.req.req1000.req1000.service;
 
 /**
  * @Class Name : Req1000Service.java
@@ -16,7 +16,7 @@ package kr.opensoftlab.oslits.req.req1000.req1000.service;
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.req.req1000.req1000.vo.Req1000VO;
+import kr.opensoftlab.oslops.req.req1000.req1000.vo.Req1000VO;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 
 public interface Req1000Service {
@@ -27,7 +27,6 @@ public interface Req1000Service {
 	 * @return List 로그인 이력 로그 목록
 	 * @throws Exception
 	 */
-	@SuppressWarnings({ "rawtypes" })
 	List<Req1000VO>  selectReq1000AllList(Req1000VO req1000VO) throws Exception;
 	
 	/**
@@ -103,4 +102,22 @@ public interface Req1000Service {
 	 */
 	@SuppressWarnings("rawtypes")
 	public Map selectReq1000ReqPrjInfo(Map paramMap) throws Exception;
+	
+	/**
+	 * 톱합대시보드의 요구사항 접수대기 목록을 조회한다.
+	 * @param paramMap
+	 * @return List 접수대기 요구사항 목록
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public List<Map> selectReq1000IntegratedDshAcceptReqList(Map paramMap) throws Exception;
+	
+	/**
+	 * 통합대시보드의 요구사항 접수대기 목록 총 건수를 조회한다.
+	 * @param paramMap
+	 * @return int 접수대기 요구사항 목록 총 건수
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public int selectReq1000IntegratedDshAcceptReqListCnt(Map paramMap) throws Exception;
 }

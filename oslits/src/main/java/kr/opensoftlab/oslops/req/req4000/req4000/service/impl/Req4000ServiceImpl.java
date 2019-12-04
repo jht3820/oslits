@@ -1,11 +1,12 @@
-package kr.opensoftlab.oslits.req.req4000.req4000.service.impl;
+package kr.opensoftlab.oslops.req.req4000.req4000.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.req.req4000.req4000.service.Req4000Service;
+import kr.opensoftlab.oslops.req.req4000.req4000.service.Req4000Service;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 
 import org.springframework.stereotype.Service;
@@ -94,31 +95,71 @@ public class Req4000ServiceImpl extends EgovAbstractServiceImpl implements Req40
 	}
 	
 	/**
-	 * Req4000 분류 정보 삭제(단건) AJAX
-	 * 메뉴정보 삭제
+	 * Req4000 분류에 요구사항이 배정되어있는지 체크한다.
+	 * @param 
+	 * @return List<String> 요구사항이 배정된 분류 명 목록
+	 * @exception Exception
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked"})
+	public List<String> deleteReq4000ReqClsAssignChk(Map paramMap) throws Exception{
+		
+		List<Map<String,String>> list = (List<Map<String,String>>) paramMap.get("list");
+		// 프로젝트 ID 세팅
+		String prjId = (String)paramMap.get("selPrjId");
+		
+		// 요구사항이 배정된 분류 목록
+		List<String> notDelReqClsNmList = new ArrayList<String>();
+		
+		int listSize = list.size();
+		for (int i = 0; i < listSize; i++) {
+			
+			Map<String,String> delClsMap = list.get(i);
+			delClsMap.put("prjId", prjId);
+			
+			// 분류 삭제여부 체크
+			Map rsltMap = req4000DAO.selectReq4000DelPosibleYn(delClsMap);
+			// 삭제여부 값을 가져온다.
+			String delYn = (String) rsltMap.get("delYn");
+			// 분류에 요구사항이 배정되어 있을 경우
+			if("N".equals(delYn)){
+				// 요구사항 배정된 분류 List에 추가한다.
+				notDelReqClsNmList.add(delClsMap.get("reqClsNm"));
+			}
+		}
+		return notDelReqClsNmList;
+	}
+	
+	/**
+	 * Req4000 분류 정보 삭제
+	 * 요구사항 분류를 삭제한다.
 	 * @param 
 	 * @return 
 	 * @exception Exception
 	 */
-	@SuppressWarnings({ "rawtypes" })
-	public Map deleteReq4000ReqClsInfo(Map paramMap) throws Exception{
+	@SuppressWarnings({ "rawtypes", "unchecked"})
+	public void deleteReq4000ReqClsInfo(Map paramMap) throws Exception{
 		
-		Map rsltMap = req4000DAO.selectReq4000DelPosibleYn(paramMap);
+		List<Map<String,String>> list = (List<Map<String,String>>) paramMap.get("list");
+	
+		// 프로젝트 ID 세팅
+		String prjId = (String)paramMap.get("selPrjId");
 		
-		String delYn = (String) rsltMap.get("delYn");
-		
-		//삭제 가능 여부가 가능이면 리턴
-		if("Y".equals(delYn)){
-			//메뉴정보 삭제
-			int delCnt = req4000DAO.deleteReq4000ReqClsInfo(paramMap);
+		int listSize = list.size();
+
+		// 요구사항 분류를 삭제한다.
+		for (int i = 0; i < listSize; i++) {
 			
-			//삭제된 건이 없으면 튕겨냄
+			Map<String,String> delClsMap = list.get(i);
+			delClsMap.put("prjId", prjId);
+
+			// 요구사항 분류 정보 삭제
+			int delCnt = req4000DAO.deleteReq4000ReqClsInfo(delClsMap);
+				
+			// 삭제된 건이 없으면 튕겨냄
 			if(delCnt == 0 ){
 				throw new Exception(egovMessageSource.getMessage("fail.common.delete"));
 			}
 		}
-		
-		return rsltMap;
 	}
 	
 	/**

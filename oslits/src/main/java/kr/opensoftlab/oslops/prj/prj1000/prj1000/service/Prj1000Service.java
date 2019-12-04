@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.prj.prj1000.prj1000.service;
+package kr.opensoftlab.oslops.prj.prj1000.prj1000.service;
 
 import java.util.List;
 import java.util.Map;
@@ -109,6 +109,25 @@ public interface Prj1000Service {
 	void deletePrj1001Ajax(Map paramMap) throws Exception;
 	
 	List<Map> selectPrj1000ProjectGroupListAjax(Map<String, String> paramMap);
-
+	
 	int selectPrj1000ProjectAcronymCount(Map paramMap) throws Exception;
+	
+
+	/**
+	 * Prj1000 관리 권한 있는 프로젝트 목록 검색
+	 * @param param - Map
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	List selectPrj1000AdminPrjList(Map paramMap) throws Exception;
+	
+	/**
+	 * Prj1000 프로젝트 생성 마법사
+	 * @param param - Map
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	String insertPrj1000WizardProject(Map paramMap) throws Exception;
 }

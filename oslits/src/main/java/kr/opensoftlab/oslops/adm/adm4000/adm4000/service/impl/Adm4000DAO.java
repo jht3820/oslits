@@ -1,10 +1,10 @@
-package kr.opensoftlab.oslits.adm.adm4000.adm4000.service.impl;
+package kr.opensoftlab.oslops.adm.adm4000.adm4000.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.com.dao.ComOslitsAbstractDAO;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
+import kr.opensoftlab.oslops.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 
 import org.springframework.stereotype.Repository;
@@ -111,6 +111,10 @@ public class Adm4000DAO extends ComOslitsAbstractDAO {
 
 	public int selectAdm4000CommonCodeCount(Map paramMap) throws Exception {
 		return (Integer)select("adm4000DAO.selectAdm4000CommonCodeCount", paramMap);
+	}
+
+	public int selectAdm4000CommonDetailCodeCount(Map paramMap) throws Exception {
+		return (Integer)select("adm4000DAO.selectAdm4000CommonDetailCodeCount", paramMap);
 	}
 
 }

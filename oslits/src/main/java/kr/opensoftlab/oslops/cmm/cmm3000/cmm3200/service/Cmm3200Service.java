@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.cmm.cmm3000.cmm3200.service;
+package kr.opensoftlab.oslops.cmm.cmm3000.cmm3200.service;
 
 import java.util.Map;
 

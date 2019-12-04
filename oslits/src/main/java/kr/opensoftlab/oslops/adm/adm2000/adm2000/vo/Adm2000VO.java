@@ -1,6 +1,6 @@
-package kr.opensoftlab.oslits.adm.adm2000.adm2000.vo;
+package kr.opensoftlab.oslops.adm.adm2000.adm2000.vo;
 
-import kr.opensoftlab.oslits.com.vo.PageVO;
+import kr.opensoftlab.oslops.com.vo.PageVO;
 import kr.opensoftlab.sdf.excel.annotation.ExcelColumn;
 
 /**
@@ -63,6 +63,11 @@ public class Adm2000VO extends PageVO {
 	private String reqMainColor;
 	/** 요구사항 폰트 컬러 */
 	private String reqFontColor;
+	/** 대시보드 표시 구분 코드 */
+	private String dshDisplayCd;
+	/** 대시보드 표시 구분명 */
+	private String dshDisplayNm;
+	
 	/** 프로젝트 id */
 	private String prjId;
 	/** 검색어 */
@@ -251,6 +256,23 @@ public class Adm2000VO extends PageVO {
 	public void setReqFontColor(String reqFontColor) {
 		this.reqFontColor = reqFontColor;
 	}
+	
+	public String getDshDisplayCd() {
+		return dshDisplayCd;
+	}
+
+	public void setDshDisplayCd(String dshDisplayCd) {
+		this.dshDisplayCd = dshDisplayCd;
+	}
+
+	public String getDshDisplayNm() {
+		return dshDisplayNm;
+	}
+
+	public void setDshDisplayNm(String dshDisplayNm) {
+		this.dshDisplayNm = dshDisplayNm;
+	}
+
 	public String getPrjId() {
 		return prjId;
 	}

@@ -1,5 +1,5 @@
-package kr.opensoftlab.oslits.cmm.cmm1000.cmm1300.vo;
-import kr.opensoftlab.oslits.com.vo.PageVO;
+package kr.opensoftlab.oslops.cmm.cmm1000.cmm1300.vo;
+import kr.opensoftlab.oslops.com.vo.PageVO;
 
 /**
  * @Class Name : Cmm1300VO.java

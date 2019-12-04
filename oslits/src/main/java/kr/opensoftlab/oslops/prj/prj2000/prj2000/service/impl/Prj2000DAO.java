@@ -1,9 +1,9 @@
-package kr.opensoftlab.oslits.prj.prj2000.prj2000.service.impl;
+package kr.opensoftlab.oslops.prj.prj2000.prj2000.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.com.dao.ComOslitsAbstractDAO;
 
 import org.springframework.stereotype.Repository;
 
@@ -110,8 +110,8 @@ public class Prj2000DAO extends ComOslitsAbstractDAO {
 	 * @exception Exception
 	 */
 	@SuppressWarnings({ "rawtypes" })
-	public int savePrj2000AuthGrpMenuAuthListAjax(Map paramMap) throws Exception{
-		return update("prj2000DAO.savePrj2000AuthGrpMenuAuthListAjax", paramMap);
+	public void savePrj2000AuthGrpMenuAuthListAjax(Map paramMap) throws Exception{
+		 select("prj2000DAO.savePrj2000AuthGrpMenuAuthListAjax", paramMap);
 	}
 	
 	
@@ -159,8 +159,8 @@ public class Prj2000DAO extends ComOslitsAbstractDAO {
 	 * @exception Exception
 	 */
 	@SuppressWarnings("rawtypes")
-	public List selectPrj2000DelUsrInfoListAjax(Map paramMap) throws Exception{
-		return list("prj2000DAO.selectPrj2000DelUsrInfoListAjax", paramMap);
+	public Map selectPrj2000DelUsrInfoListAjax(Map paramMap) throws Exception{
+		return (Map) select("prj2000DAO.selectPrj2000DelUsrInfoListAjax", paramMap);
 	}
 	
 	/**
@@ -187,14 +187,48 @@ public class Prj2000DAO extends ComOslitsAbstractDAO {
 		return (int) delete("prj2000DAO.deletePrj2000PrjUsrAuthListAjax", paramMap);
 	}
 
+	/**
+	 * Prj2000 선택한 권한그룹을 조회한다.
+	 * @param 
+	 * @return 
+	 * @exception Exception
+	 */
 	@SuppressWarnings("rawtypes")
 	public Map selectPrj2000AuthGrpInfoAjax(Map paramMap) throws Exception{
 		return (Map)select("prj2000DAO.selectPrj2000AuthGrpInfoAjax", paramMap);
 	}
 	
+	/**
+	 * Prj2000 권한그룹을 수정한다.
+	 * @param 
+	 * @return 
+	 * @exception Exception
+	 */
 	@SuppressWarnings({ "rawtypes" })
 	public int updatePrj2000AuthGrpInfoAjax(Map paramMap) throws Exception{
 		return update("prj2000DAO.updatePrj2000AuthGrpInfoAjax", paramMap);
 	}
+
+	/**
+	 * Prj2000 [역할그룹 복사] 관리자 권한을 가지고있는 프로젝트의 역할그룹 목록
+	 * @param 
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public List selectPrj2000AuthGrpCopyList(Map paramMap) throws Exception{
+		return list("prj2000DAO.selectPrj2000AuthGrpCopyList", paramMap);
+	}
 	
+	/**
+	 * Prj2000 역할그룹 추가 시 현재 프로젝트의 역할그룹 최고 순번+1 값을 을 가져온다.
+	 * 역할그룹 관리 - 역할그룹 등록 팝업에 사용
+	 * @param 
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public int selectPrj2000AuthGrpNextOrd(Map paramMap) throws Exception{
+		return (int) select("prj2000DAO.selectPrj2000AuthGrpNextOrd",paramMap);
+	}
 }

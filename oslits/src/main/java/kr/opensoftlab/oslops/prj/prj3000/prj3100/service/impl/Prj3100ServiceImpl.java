@@ -1,11 +1,11 @@
-package kr.opensoftlab.oslits.prj.prj3000.prj3100.service.impl;
+package kr.opensoftlab.oslops.prj.prj3000.prj3100.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.prj.prj3000.prj3100.service.Prj3100Service;
+import kr.opensoftlab.oslops.prj.prj3000.prj3100.service.Prj3100Service;
 
 import org.springframework.stereotype.Service;
 

@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.cmm.cmm9000.cmm9100.web;
+package kr.opensoftlab.oslops.cmm.cmm9000.cmm9100.web;
 
 import java.util.HashMap;
 import java.util.List;
@@ -9,7 +9,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import kr.opensoftlab.oslits.cmm.cmm9000.cmm9100.service.Cmm9100Service;
+import kr.opensoftlab.oslops.cmm.cmm9000.cmm9100.service.Cmm9100Service;
 import kr.opensoftlab.sdf.util.RequestConvertor;
 
 import org.springframework.stereotype.Controller;
@@ -57,7 +57,8 @@ public class Cmm9100Controller {
 		// 결과 코드 세팅
 		String code = "";
 		String text = "";
-
+		String subCdRef1 = "";
+		
 		String mstCdStr = (String) request.getParameter("mstCdStr");
 		StringTokenizer st = new StringTokenizer(mstCdStr, "|");
 
@@ -81,11 +82,13 @@ public class Cmm9100Controller {
 				String mstCd = st.nextElement().toString();
 				code = "";
 				text = "";
-
+				subCdRef1 = "";
+				
 				for (Map comboMap : commonCodeList) {
 					if (mstCd.equals(comboMap.get("mstCd"))) {
 						code += comboMap.get("subCd") + "|";
 						text += comboMap.get("subCdNm") + "|";
+						subCdRef1 += comboMap.get("subCdRef1") + "|";
 						// System.out.println(mstCd);
 						// System.out.println(code);
 						// System.out.println(text);
@@ -96,11 +99,16 @@ public class Cmm9100Controller {
 				if (code.length() > 0) {
 					code = code.substring(0, code.length() - 1);
 					text = text.substring(0, text.length() - 1);
+					subCdRef1 = subCdRef1.substring(0, subCdRef1.length() - 1);
 				}
 
 				/* 맵에 대분류코드+code, text 라는 key 명으로 해당 코드, 텍스트 세팅한다. */
 				rtnMap.put("mstCd" + mstCd + "code", code);
 				rtnMap.put("mstCd" + mstCd + "text", text);
+				
+				if(subCdRef1.length() > 0) {
+					rtnMap.put("subCdRef1" + mstCd + "code", subCdRef1);
+				}
 				// System.out.println("mstCd" + mstCd + "code =============== "
 				// + rtnMap.get("mstCd" + mstCd + "code"));
 				// System.out.println("mstCd" + mstCd + "text =============== "

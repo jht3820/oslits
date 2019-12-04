@@ -1,5 +1,6 @@
-package kr.opensoftlab.oslits.dsh.dsh2000.dsh2000.web;
+package kr.opensoftlab.oslops.dsh.dsh2000.dsh2000.web;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -8,28 +9,30 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import kr.opensoftlab.oslits.cmm.cmm4000.cmm4000.service.Cmm4000Service;
-import kr.opensoftlab.oslits.com.fms.web.service.FileMngService;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.oslits.dsh.dsh1000.dsh1000.service.Dsh1000Service;
-import kr.opensoftlab.oslits.dsh.dsh2000.dsh2000.service.Dsh2000Service;
-import kr.opensoftlab.oslits.prj.prj1000.prj1000.service.Prj1000Service;
-import kr.opensoftlab.oslits.req.req1000.req1000.service.Req1000Service;
-import kr.opensoftlab.oslits.req.req1000.req1000.vo.Req1000VO;
-import kr.opensoftlab.oslits.req.req4000.req4100.service.Req4100Service;
-import kr.opensoftlab.oslits.req.req4000.req4400.service.Req4400Service;
-import kr.opensoftlab.sdf.util.RequestConvertor;
-
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import egovframework.com.cmm.EgovMessageSource;
 import egovframework.rte.fdl.cmmn.trace.LeaveaTrace;
 import egovframework.rte.fdl.property.EgovPropertyService;
+import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
+import kr.opensoftlab.oslops.cmm.cmm4000.cmm4000.service.Cmm4000Service;
+import kr.opensoftlab.oslops.com.fms.web.service.FileMngService;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.oslops.dsh.dsh1000.dsh1000.service.Dsh1000Service;
+import kr.opensoftlab.oslops.dsh.dsh2000.dsh2000.service.Dsh2000Service;
+import kr.opensoftlab.oslops.dsh.dsh2000.dsh2000.vo.Dsh2000VO;
+import kr.opensoftlab.oslops.prj.prj1000.prj1000.service.Prj1000Service;
+import kr.opensoftlab.oslops.req.req1000.req1000.service.Req1000Service;
+import kr.opensoftlab.oslops.req.req4000.req4100.service.Req4100Service;
+import kr.opensoftlab.oslops.req.req4000.req4400.service.Req4400Service;
+import kr.opensoftlab.sdf.util.PagingUtil;
+import kr.opensoftlab.sdf.util.RequestConvertor;
 
 /**
  * @Class Name : Dsh1000Controller.java
@@ -60,27 +63,6 @@ public class Dsh2000Controller {
 	/** Dsh2000Service DI */
     @Resource(name = "dsh2000Service")
     private Dsh2000Service dsh2000Service;
-    
-    /** Cmm4000Service DI */
-    @Resource(name = "cmm4000Service")
-    private Cmm4000Service cmm4000Service;
-
-    /** Req1000Service DI */
-	@Resource(name = "req1000Service")
-	private Req1000Service req1000Service;
-
-    /** Req4100Service DI */
-	@Resource(name = "req4100Service")
-	private Req4100Service req4100Service;
-	
-	/** Req4400Service DI */
-	@Resource(name = "req4400Service")
-	private Req4400Service req4400Service;
-	
-	/** Prj1000Service DI */
-    @Resource(name = "prj1000Service")
-    private Prj1000Service prj1000Service;
-    
     /** EgovMessageSource */
 	@Resource(name = "egovMessageSource")
 	EgovMessageSource egovMessageSource;
@@ -88,10 +70,6 @@ public class Dsh2000Controller {
 	/** EgovPropertyService */
 	@Resource(name = "propertiesService")
 	protected EgovPropertyService propertiesService;
-
-	/** FileMngService */
-   	@Resource(name="fileMngService")
-   	private FileMngService fileMngService;
 	
 	@Value("${Globals.fileStorePath}")
 	private String tempPath;
@@ -109,6 +87,17 @@ public class Dsh2000Controller {
 	@RequestMapping(value="/dsh/dsh2000/dsh2000/selectDsh2000View.do")
     public String selectDsh2000View(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
         return "/dsh/dsh2000/dsh2000/dsh2000";
+    }
+	
+    /**
+	 * Dsh2001 화면 이동 (계획대비 미처리 요구사항 팝업)
+	 * @param 
+	 * @return 
+	 * @exception Exception
+	 */
+	@RequestMapping(value="/dsh/dsh2000/dsh2000/selectDsh2001View.do")
+    public String selectDsh2001View(HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
+        return "/dsh/dsh2000/dsh2000/dsh2001";
     }
 	
 	/**
@@ -157,23 +146,6 @@ public class Dsh2000Controller {
     		
     		//[차트2] 월별 프로세스별 요구사항 갯수
     		List<Map> monthProcessReqCnt = dsh1000Service.selectDsh1000MonthProcessReqCntList(paramMap);
-    		
-    		Req1000VO req1000Vo = new Req1000VO();
-			req1000Vo.setPrjId(prjId);
-			req1000Vo.setLoginUsrId(usrId);
-			req1000Vo.setReqProType("01"); //접수 요청중 요구사항만
-			
-			//해당 프로젝트 접수 대기 목록
-			List<Req1000VO> newReqList = req1000Service.selectReq1000AllList(req1000Vo);
-			
-			//담당 작업 목록
-			List<Map> workList = req4400Service.selectReq4400ReqChargerWorkList(paramMap);
-			
-			//담당 결재 대기 목록
-			//reqId제거하고 호출
-			paramMap.remove("reqId");
-			paramMap.put("signUsrId", usrId);
-			List<Map> signList = req4100Service.selectReq4900ReqSignList(paramMap);
 			
 			model.addAttribute("prjInfo",prjInfo);
 			model.addAttribute("processList",processList);
@@ -183,9 +155,6 @@ public class Dsh2000Controller {
 			model.addAttribute("processReqCnt",processReqCnt);
 			model.addAttribute("monthProcessReqCnt",monthProcessReqCnt);
 			model.addAttribute("reqDtmOverAlertList",reqDtmOverAlertList);
-			model.addAttribute("newReqList", newReqList);
-			model.addAttribute("workList", workList);
-			model.addAttribute("signList", signList);
 			
 			//등록 성공 메시지 세팅
 			model.addAttribute("errorYN", "N");
@@ -267,35 +236,6 @@ public class Dsh2000Controller {
     			
     			model.addAttribute("docDtmOverList", docDtmOverList);
     		}
-    		//접수
-    		else if("request".equals(redoId)){
-    			Req1000VO req1000Vo = new Req1000VO();
-    			req1000Vo.setPrjId(prjId);
-    			req1000Vo.setLoginUsrId(usrId);
-    			req1000Vo.setReqProType("01"); //접수 요청중 요구사항만
-    			
-    			//해당 프로젝트 접수 대기 목록
-    			List<Req1000VO> newReqList = req1000Service.selectReq1000AllList(req1000Vo);
-    			
-    			model.addAttribute("newReqList", newReqList);
-    		}
-    		//작업 목록
-    		else if("work".equals(redoId)){
-    			//담당 작업 목록
-    			List<Map> workList = req4400Service.selectReq4400ReqChargerWorkList(paramMap);
-    			
-    			model.addAttribute("workList", workList);
-    		}
-    		//결재 목록
-    		else if("sign".equals(redoId)){
-    			//담당 결재 대기 목록
-    			//reqId제거하고 호출
-    			paramMap.remove("reqId");
-    			paramMap.put("signUsrId", usrId);
-    			List<Map> signList = req4100Service.selectReq4900ReqSignList(paramMap);
-    			
-    			model.addAttribute("signList", signList);
-    		}
     		//프로세스
     		else if("process".equals(redoId)){
     			//프로세스 목록 조회
@@ -327,4 +267,81 @@ public class Dsh2000Controller {
 			return new ModelAndView("jsonView");
 		}
 	}
+	
+	/**
+	 * Dsh2000 계획대비 미처리 건수 요구사항 목록을 조회한다.
+	 * 계획대비 미처리 건수 차트 클릭 시 나오는 팝업에 사용
+	 * @param 
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	@RequestMapping(value="/dsh/dsh2000/dsh2000/selectDsh2000ReqDtmOverAlertListAjax.do")
+	public ModelAndView selectDsh2000ReqDtmOverAlertListAjax(@ModelAttribute("dsh2000VO") Dsh2000VO dsh2000VO, HttpServletRequest request, HttpServletResponse response, ModelMap model)	throws Exception {
+		
+    	try{
+    		//리퀘스트에서 넘어온 파라미터를 맵으로 세팅
+        	Map<String, String> paramMap = RequestConvertor.requestParamToMapAddSelInfo(request, true);
+        	
+       		//현재 페이지 값, 보여지는 개체 수
+			String _pageNo_str = paramMap.get("pageNo");
+			String _pageSize_str = paramMap.get("pageSize");
+			
+			int _pageNo = 1;
+			int _pageSize = 10;
+			
+			if(_pageNo_str != null && !"".equals(_pageNo_str)){
+				_pageNo = Integer.parseInt(_pageNo_str)+1;  
+			}
+			if(_pageSize_str != null && !"".equals(_pageSize_str)){
+				_pageSize = Integer.parseInt(_pageSize_str);  
+			}
+			
+			//페이지 사이즈
+			dsh2000VO.setPageIndex(_pageNo);
+			dsh2000VO.setPageSize(_pageSize);
+			dsh2000VO.setPageUnit(_pageSize);
+			
+			dsh2000VO.setPrjId((String) request.getSession().getAttribute("selPrjId"));
+        	
+    		PaginationInfo paginationInfo = PagingUtil.getPaginationInfo(dsh2000VO);  /** paging - 신규방식 */
+        	
+    		List dsh2000ReqTimeOverList = null;
+
+			HttpSession ss = request.getSession();
+			LoginVO loginVO = (LoginVO) ss.getAttribute("loginVO");
+			dsh2000VO.setLicGrpId(loginVO.getLicGrpId());
+
+			// 총 건수
+		    int totCnt = dsh2000Service.selectDsh2000ProcessReqDtmOverListCnt(dsh2000VO);
+		    paginationInfo.setTotalRecordCount(totCnt);
+			
+    		// 프로세스별 계획대비 미처리건수 요구사항 목록 조회
+		    dsh2000ReqTimeOverList = dsh2000Service.selectDsh2000ProcessReqDtmOverList(dsh2000VO);
+		    
+		    model.addAttribute("list", dsh2000ReqTimeOverList);
+		    
+		    //페이지 정보 보내기
+			Map<String, Integer> pageMap = new HashMap<String, Integer>();
+			pageMap.put("pageNo",dsh2000VO.getPageIndex());
+			pageMap.put("listCount", dsh2000ReqTimeOverList.size());
+			pageMap.put("totalPages", paginationInfo.getTotalPageCount());
+			pageMap.put("totalElements", totCnt);
+			pageMap.put("pageSize", _pageSize);
+
+			model.addAttribute("page", pageMap);
+        	
+        	// 조회성공여부 및 조회성공메시지 세팅
+			model.addAttribute("errorYn", "N");
+        	model.addAttribute("message", egovMessageSource.getMessage("success.common.select"));
+        	
+        	return new ModelAndView("jsonView", model);
+    	}catch(Exception ex){
+    		
+    		// 조회실패 여부 및 조회실패 메시지 세팅
+    		model.addAttribute("errorYn", "Y");
+    		model.addAttribute("message", egovMessageSource.getMessage("fail.common.select"));
+    		return new ModelAndView("jsonView", model);
+    	}
+	}	
 }

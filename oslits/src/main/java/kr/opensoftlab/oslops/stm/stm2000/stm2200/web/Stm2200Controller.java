@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.stm.stm2000.stm2200.web;
+package kr.opensoftlab.oslops.stm.stm2000.stm2200.web;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,11 +30,12 @@ import javax.servlet.http.HttpSession;
 
 
 
-import kr.opensoftlab.oslits.com.fms.web.service.FileMngService;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.oslits.stm.stm2000.stm2200.service.Stm2200Service;
-import kr.opensoftlab.oslits.stm.stm2000.stm2200.vo.Stm2200VO;
 
+
+import kr.opensoftlab.oslops.com.fms.web.service.FileMngService;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.oslops.stm.stm2000.stm2200.service.Stm2200Service;
+import kr.opensoftlab.oslops.stm.stm2000.stm2200.vo.Stm2200VO;
 import kr.opensoftlab.sdf.util.OslAgileConstant;
 import kr.opensoftlab.sdf.util.PagingUtil;
 import kr.opensoftlab.sdf.util.ReqHistoryMngUtil;
@@ -83,30 +84,16 @@ public class Stm2200Controller {
 	@Resource(name = "propertiesService")
 	protected EgovPropertyService propertiesService;
 
-
-	/** FileMngService */
-	@Resource(name="fileMngService")
-	private FileMngService fileMngService;
-
 	@Value("${Globals.fileStorePath}")
 	private String tempPath;
-
-	/** EgovFileMngUtil - 파일 업로드 Util */
-	@Resource(name="EgovFileMngUtil")
-	private EgovFileMngUtil fileUtil;	
-
-	@Resource(name = "egovFileIdGnrService")
-	private EgovIdGnrService idgenService;
-
-	@Resource(name = "historyMng")
-	private ReqHistoryMngUtil historyMng;
 	
+	/** Stm2200Service DI */
 	@Resource(name = "stm2200Service")
 	private Stm2200Service stm2200Service;
 	
 	
 	/**
-	 * 전체 REPOSITORY 관리 목록 화면으로 이동
+	 * Stm2200 SVN 저장소 전체현황 화면으로 이동한다.
 	 * @param request
 	 * @param response
 	 * @param model
@@ -117,10 +104,9 @@ public class Stm2200Controller {
 	public String selectStm2200RepositoryView( HttpServletRequest request, HttpServletResponse response, ModelMap model ) throws Exception {
 		return "/stm/stm2000/stm2200/stm2200";
 	}
+
 	/**
-	 * 
-	 * 전체 REPOSITORY 관리 목록 조회
-	 * 
+	 * Stm2200 프로젝트 별 배정된 SVN Repository 전체 목록을 조회한다.
 	 * @param stm2200VO
 	 * @param request
 	 * @param response
@@ -188,11 +174,18 @@ public class Stm2200Controller {
 			
 			model.addAttribute("page", pageMap);
 			
+			// 조회성공 여부 및 조회 성공메시지 세팅
+			model.addAttribute("errorYn", "N");
+			model.addAttribute("message", egovMessageSource.getMessage("success.common.select"));
+			
 			return new ModelAndView("jsonView");
 		}
 		catch(Exception ex){
 			Log.error("selectStm2200RepProjectListAjaxView()", ex);
-			throw new Exception(ex.getMessage());
+			// 조회 실패여부 및 실패메시지 세팅
+			model.addAttribute("errorYn", "Y");
+			model.addAttribute("message", egovMessageSource.getMessage("fail.common.select"));
+			return new ModelAndView("jsonView");
 		}
 	}
 	

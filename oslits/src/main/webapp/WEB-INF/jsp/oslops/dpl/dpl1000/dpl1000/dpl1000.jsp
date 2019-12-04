@@ -1,9 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ include file="/WEB-INF/jsp/oslits/top/header.jsp"%>
+<%@ include file="/WEB-INF/jsp/oslops/top/header.jsp"%>
 <jsp:include page="/WEB-INF/jsp/oslops/top/aside.jsp" />
 
-<link rel='stylesheet' href='<c:url value='/css/oslits/dpl.css'/>' type='text/css'>
-<link rel='stylesheet' href='<c:url value='/css/oslits/req.css'/>' type='text/css'>
+<link rel='stylesheet' href='<c:url value='/css/oslops/dpl.css'/>' type='text/css'>
+<link rel='stylesheet' href='<c:url value='/css/oslops/req.css'/>' type='text/css'>
 
 <script src="<c:url value='/js/common/layerPopup.js'/>"></script>
 <style type="text/css">
@@ -37,45 +37,76 @@
 		columnOption : {
 			dpl1000Search : [ 
 	                 {optionValue : "rn",optionText : "전체 보기",optionAll : true}, 
-	                
+	                 {optionValue : "dplStsCd",optionText : '배포 상태' , optionCommonCode:"DPL00001" }, 
+	                 {optionValue : "dplVer",optionText : '배포 버전'}, 
 	                 {optionValue : "dplNm",optionText : '배포 명'}, 
-	                 {optionValue : "dplUsrId",optionText : "배포자"} 
-	                 ]
+	                 {optionValue : "dplTypeCd",optionText : '배포 방법' , optionCommonCode:"DPL00003"},
+	                 {optionValue : "dplUsrNm",optionText : "배포자"},
+	                 {optionValue : "dplDesc",optionText : "배포 설명"} 
+	        		]
 			}
 		}
 
 	/* 배포 정보  삭제 */
 	var fnDeleteDplInfo = function(chkList) {
-		var strInSql = "";
-		var isExistFlowId = false;
 		if (gfnIsNull(chkList)) {
-			jAlert("선택한 배포버전 요구사항이 없습니다.", "알림창");
+			jAlert("선택된 배포계획이 없습니다.", "알림창");
 			return false;
 		}
-		//체크된 요구사항의 ID를 IN 쿼리로 만들수 있도록 'reqId', 'reqId' 형식으로 감싸기
-		$(chkList).each(function(idx, data) {
-			strInSql += "'" + data.dplId + "',";
-		});
-
-		//마지막 , 자르기
-		strInSql = strInSql.substring(0, strInSql.length - 1);
-
-		jConfirm("삭제 하시겠습니까?","알림창",
+		
+		jConfirm("배포 계획을 삭제하시겠습니까?</br>연관된 모든 정보가 삭제됩니다.","알림창",
 				function(result) {
 					if (result) {
+						var params = "";
+						var delCount = 0;
+						var delSkipCount = 0;
+						
+						//삭제 dplId 세팅
+						$(chkList).each(function(idx, val){
+							//결재 대기중 삭제 불가능
+							if( val.signStsCd == "01" ){
+								delSkipCount++;
+								return false;
+							}
+							
+							if(delCount==0){
+								params ="dplId="+val.dplId;
+							}else{
+								params +="&dplId="+val.dplId;
+							}
+							
+							delCount++;
+						});
+						
+						//삭제 배포 계획 없는 경우
+						if(delCount===0){
+							//삭제 제외 수
+							if(delSkipCount > 0){
+								jAlert('결재 대기중인 배포 계획은 삭제가 불가능합니다.</br>-> '+delSkipCount+'개의 배포계획 삭제 취소','알림창');
+								return false;
+							}
+							
+							jAlert("선택한 배포계획이 없습니다.","알림창");
+							return false;
+						}
+										
 						//AJAX 설정
 						var ajaxObj = new gfnAjaxRequestAction(
 								{"url" : "<c:url value='/dpl/dpl1000/dpl1000/deleteDpl1000DeployVerInfoListAjax.do'/>"}, 
-								{"dplIds" : strInSql});
+								params);
 						//AJAX 전송 성공 함수
 						ajaxObj.setFnSuccess(function(data) {
 							data = JSON.parse(data);
 							if (data.successYn == "Y") {
-								jAlert(data.message, '알림창', function(result) {
-									if (result) {
-										fnInGridListSet(firstGrid.page.currentPage,mySearch.getParam());
-									}
-								});
+								fnInGridListSet(firstGrid.page.currentPage,mySearch.getParam());
+								delSkipMsg ="";
+								
+								//결재 대기 취소건 있는 경우
+								if(delSkipCount > 0){
+									delSkipMsg = "</br>결재 대기 중인 "+delSkipCount+"개의 배포 계획 삭제를 취소했습니다.";
+								}
+								
+								jAlert(data.message+delSkipMsg, "알림창");
 							} else {
 								toast.push(data.message);
 							}
@@ -91,9 +122,16 @@
 				});
 
 	};
+	
+	
+	
 	$(document).ready(function() {
 		// AXISJ Grid 초기화 실행 부분들
 		Grid.init(); 
+		
+		// 배포 계획 생성관리 가이드 상자 호출
+		gfnGuideStack("add",fnDpl1000GuideShow);
+		
 	});
 
 //axisj5 그리드
@@ -107,17 +145,21 @@ function fnAxGrid5View(){
 
             header: {align:"center"},
             columns: [
+                {key : "signStsNm",label : "결재 상태",width : 100,align : "center"},
                 {key : "dplStsNm",label : "배포 상태",width : 100,align : "center"},
-				{key : "dplNm",label : "배포 명",width : '40%',align : "left"},
-				{key : "dplDt",label : "배포 날짜",width : '16%',align : "center",
+                {key : "dplVer",label : "배포 버전",width : 100,align : "center"},
+				{key : "dplNm",label : "배포 명",width : 260,align : "left"},
+				{key : "dplTypeNm",label : "배포 방법",width : 120,align : "center"},
+				{key : "dplDt",label : "배포 일자",width : 200,align : "center",
 					formatter : function() {
 						var fmtDt = this.item.dplDt;
-						return new Date(fmtDt.substr(0, 4), fmtDt.substr(4,2) - 1, fmtDt.substr(6, 2)).format("yyyy-MM-dd", true);
+						// IE에서는 날짜값 뒤에 시간값이 붙어있을경우 format("yyyy-MM-dd")이 정상동작 하지 않아 yyyy-MM-dd만 자른다.
+						var fmtDtStr = fmtDt.substring(0, 10);
+						return new Date(fmtDtStr).format("yyyy-MM-dd", true);
 					}
 				},
-				{key : "dplId",label : "배포 ID",width : '21%',align : "center"},
-				{key : "dplUsrId",label : "배포자",width :'17%',align : "center"}				 
-				
+				{key : "dplUsrNm",label : "배포자",width :200,align : "center"},
+				{key : "dplDesc",label : "배포 설명",width :350,align : "center"}
             ],
             body: {
                 align: "center",
@@ -127,8 +169,8 @@ function fnAxGrid5View(){
                 },onDBLClick:function(){
                 	// 더블클릭 시 상세보기
                 	var item = this.item;
-                	var data = {"dplId" : item.dplId, "prjId" : item.prjId, "popupGb" : "select"};
-					gfnLayerPopupOpen('/dpl/dpl1000/dpl1000/selectDpl1001View.do',data, "560", "560",'scroll');
+                	var data = {"dplId" : item.dplId, "prjId" : item.prjId};
+					gfnLayerPopupOpen('/dpl/dpl1000/dpl1000/selectDpl1003View.do',data, "1200", "870",'scroll');
                 }
             },
             page: {
@@ -199,7 +241,6 @@ function fnInGridListSet(_pageNo,ajaxParam){
 }
 	//검색 상자
 	function fnSearchBoxControl() {
-		var pageID = "AXSearch";
 		mySearch = new AXSearch();
 
 		var fnObjSearch = {
@@ -257,7 +298,7 @@ function fnInGridListSet(_pageNo,ajaxParam){
 										}
 									}
 									},
-									{label : "",labelWidth : "",type : "inputText",width : "150",key : "searchTxt",addClass : "secondItem sendBtn",valueBoxStyle : "padding-left:0px;",value : "",
+									{label : "",labelWidth : "",type : "inputText",width : "225",key : "searchTxt",addClass : "secondItem sendBtn",valueBoxStyle : "padding-left:0px;",value : "",
 										onkeyup:function(e){
 											if(e.keyCode == '13' ){
 												axdom("#" + mySearch.getItemId("btn_search_dlp")).click();
@@ -279,7 +320,7 @@ function fnInGridListSet(_pageNo,ajaxParam){
 													{optionValue:10000, optionText:"10000"}
 					                                
 					                            ],onChange: function(selectedObject, value){
-					                            	fnInGridListSet(0,$('form#searchFrm').serialize()+"&pageSize="+value);
+					                            	fnInGridListSet(0,$('form#searchFrm').serialize()+"&"+mySearch.getParam());
 					    						}
 									},
 									{label:"<i class='fas fa-arrows-v'></i>&nbsp;목록 높이&nbsp;", labelWidth:"60", type:"selectBox", width:"", key:"gridHeight", addClass:"", valueBoxStyle:"", value:"600",
@@ -296,12 +337,12 @@ function fnInGridListSet(_pageNo,ajaxParam){
 									},
 									{label : "",labelWidth : "",type : "button",width : "70",key : "btn_print_newReqDemand",style : "float:right;",valueBoxStyle : "padding:5px;",value : "<i class='fa fa-print' aria-hidden='true'></i>&nbsp;<span>프린트</span>",
 										onclick : function() {
-											$(firstGrid.exportExcel()).printThis();
+											$(firstGrid.exportExcel()).printThis({importCSS: false,importStyle: false,loadCSS: "/css/common/printThis.css"});
 										}
 									},									
 									{label : "",labelWidth : "",type : "button",width : "55",key : "btn_excel_newReqDemand",style : "float:right;",valueBoxStyle : "padding:5px;",value : "<i class='fa fa-file-excel' aria-hidden='true'></i>&nbsp;<span>엑셀</span>",
 										onclick : function() {
-											firstGrid.exportExcel("all_request_list.xls");
+											firstGrid.exportExcel("${sessionScope.selMenuNm}.xls");
 										}
 									},
 									
@@ -315,35 +356,56 @@ function fnInGridListSet(_pageNo,ajaxParam){
 										onclick : function() {
 											var item = (!gfnIsNull(Object.keys(firstGrid.focusedColumn)))? firstGrid.list[firstGrid.focusedColumn[Object.keys(firstGrid.focusedColumn)].doindex]:null;
 											if(gfnIsNull(item)){
-												toast.push('먼저 배포 버전 항목을 선택하시고 수정하세요.');
+												toast.push('수정하려는 배포 계획을 선택해주세요.');
 												return;
 											}
+											
+											//결재 승인된 배포 계획은 수정 불가능
+											if(item.signStsCd == "02"){
+												jAlert("결재 승인된 배포 계획은 수정이 불가능합니다.", "알림창");
+												return false;
+											}
+											//배포상태 성공된 배포 계획은 수정 불가능
+											if(item.dplStsCd == "02"){
+												jAlert("성공된 배포 계획은 수정이 불가능합니다.", "알림창");
+												return false;
+											}
 
-											var data = {"dplId" : item.dplId,"prjId" : item.prjId,"popupGb" : "update"};
-											gfnLayerPopupOpen('/dpl/dpl1000/dpl1000/selectDpl1001View.do',data, "560", "560",'scroll');
+											var data = {"dplId" : item.dplId,"popupGb" : "update"};
+											gfnLayerPopupOpen('/dpl/dpl1000/dpl1000/selectDpl1001View.do',data, "1200", "830",'scroll');
 										}
 									},
 									{label : "",labelWidth : "",type : "button",width : "55",key : "btn_insert_dpl",style : "float:right;",valueBoxStyle : "padding:5px;",value : "<i class='fa fa-save' aria-hidden='true'></i>&nbsp;<span>등록</span>",
 										onclick : function() {
- 											gfnLayerPopupOpen('/dpl/dpl1000/dpl1000/selectDpl1001View.do',{"popupGb" : "insert"}, "560", "560",'scroll');
+ 											gfnLayerPopupOpen('/dpl/dpl1000/dpl1000/selectDpl1001View.do',{"popupGb" : "insert"}, "1200", "830",'scroll');
 										}
 									},
 									{label : "",labelWidth : "",type : "button",width : "55",key : "btn_search_dlp",style : "float:right;",valueBoxStyle : "padding:5px;",value : "<i class='fa fa-list' aria-hidden='true'></i>&nbsp;<span>조회</span>",
 										onclick : function() {
 											/* 검색 조건 설정 후 reload */
-				 							var pars = mySearch.getParam();
-										    var ajaxParam = $('form#searchFrm').serialize();
-				
-										    if(!gfnIsNull(pars)){
-										    	ajaxParam += "&"+pars;
-										    }
+								            fnInGridListSet(0,mySearch.getParam());
+										}
+									},
+									{label : "",labelWidth : "",type : "button",width : "80",key : "btn_insert_sign",style : "float:right;",valueBoxStyle : "padding:5px;",value : "<i class='fa fa-file-signature' aria-hidden='true'></i>&nbsp;<span>결재 요청</span>",
+										onclick : function() {
+											var item = (!gfnIsNull(Object.keys(firstGrid.focusedColumn)))? firstGrid.list[firstGrid.focusedColumn[Object.keys(firstGrid.focusedColumn)].doindex]:null;
+											if(gfnIsNull(item)){
+												toast.push('결재를 요청하려는 배포 계획을 선택해주세요');
+												return;
+											}
 											
-								            fnInGridListSet(0,ajaxParam);
-								            
-								            //폼 데이터 변경
-											$('#searchSelect').val(axdom("#" + mySearch.getItemId("searchSelect")).val());
-											$('#searchCd').val(axdom("#" + mySearch.getItemId("searchCd")).val());
-											$('#searchTxt').val(axdom("#" + mySearch.getItemId("searchTxt")).val());
+											if(item.signStsCd == "05" || item.signStsCd == "04" || item.signStsCd == "03"){
+												jConfirm("선택한 배포 계획을 결재 요청하시겠습니까?","알림창",
+													function(result) {
+														if (result) {
+															fnDplSignRequest(item);
+														}
+													}
+												);
+											}else{
+												jAlert("결재 상태가 '대기','기안','거절'인 배포 계획만 요청이 가능합니다.", "알림창");
+											}
+ 											
 										}
 									}
 									
@@ -366,14 +428,53 @@ function fnInGridListSet(_pageNo,ajaxParam){
 
 				});
 	}
+	
+	//결재 대기 요청
+	function fnDplSignRequest(item){
+		//AJAX 설정
+		var ajaxObj = new gfnAjaxRequestAction(
+				{"url" : "<c:url value='/dpl/dpl1000/dpl1000/insertDpl1000DplsignRequestAjax.do'/>"}, 
+				{dplId: item.dplId, dplSignTxt: item.dplSignTxt, signUsrId: item.signUsrId, dplNm: item.dplNm});
+		//AJAX 전송 성공 함수
+		ajaxObj.setFnSuccess(function(data) {
+			data = JSON.parse(data);
+			if (data.errorYn == "N") {
+				fnInGridListSet(firstGrid.page.currentPage,mySearch.getParam());
+				
+			} else {
+				toast.push(data.message);
+			}
+		});
+		//AJAX 전송 오류 함수
+		ajaxObj.setFnError(function(xhr, status, err) {
+			data = JSON.parse(data);
+			toast.push(data.message);
+		});
+		//AJAX 전송
+		ajaxObj.send();
+	}
+	
+	// 배포 계획 생성관리 가이드 상자
+	function fnDpl1000GuideShow(){
+		var mainObj = $(".main_contents");
+		
+		//mainObj가 없는경우 false return
+		if(mainObj.length == 0){
+			return false;
+		}
+		//guide box setting
+		var guideBoxInfo = globals_guideContents["dpl1000"];
+		gfnGuideBoxDraw(true,mainObj,guideBoxInfo);
+	}
+	
 </script>
 <div class="main_contents" style="height: auto;">
 	<div class="dpl_title">${sessionScope.selMenuNm }</div>
 	<div class="tab_contents menu" style="max-width: 1500px;">
 		<form:form commandName="dpl1000VO" id="searchFrm" name="searchFrm" method="post" onsubmit="return false"></form:form>
-		<div id="AXSearchTarget" style="border-top: 1px solid #ccc;"></div>
+		<div id="AXSearchTarget" style="border-top: 1px solid #ccc;" guide="dpl1000button" ></div>
 		<br />
-		<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px;"></div>
+		<div data-ax5grid="first-grid" data-ax5grid-config="{}" style="height: 600px;" guide="dpl1000Grid"></div>
 	</div>
 </div>
 

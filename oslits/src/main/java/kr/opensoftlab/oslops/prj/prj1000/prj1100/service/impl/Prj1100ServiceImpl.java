@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.prj.prj1000.prj1100.service.impl;
+package kr.opensoftlab.oslops.prj.prj1000.prj1100.service.impl;
 
 /**
  * @Class Name : Prj1100Service.java
@@ -19,8 +19,9 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.com.fms.web.service.FileMngService;
-import kr.opensoftlab.oslits.prj.prj1000.prj1100.service.Prj1100Service;
+import kr.opensoftlab.oslops.com.fms.web.service.FileMngService;
+import kr.opensoftlab.oslops.prj.prj1000.prj1100.service.Prj1100Service;
+import kr.opensoftlab.oslops.prj.prj1000.prj1100.vo.Prj1100VO;
 
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.stereotype.Service;
@@ -34,13 +35,6 @@ public class Prj1100ServiceImpl extends EgovAbstractServiceImpl implements Prj11
 	/** DAO Bean Injection */
     @Resource(name="prj1100DAO")
     private Prj1100DAO prj1100DAO; 
-    
-    /** FileMngService */
-   	@Resource(name="fileMngService")
-   	private FileMngService fileMngService;
-   	
-   	@Resource(name = "egovFileIdGnrService")
-	private EgovIdGnrService idgenService;
    	
     /**
 	 * 프로세스 목록 조회 
@@ -51,7 +45,16 @@ public class Prj1100ServiceImpl extends EgovAbstractServiceImpl implements Prj11
 	public List selectFlw1000ProcessList(Map paramMap) throws Exception {
 		return prj1100DAO.selectFlw1000ProcessList(paramMap);
 	}
-	
+
+	/**
+	 * 프로세스 단건 조회 
+	 * @param paramMap
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public Map selectFlw1000ProcessInfo(Map paramMap) throws Exception {
+		return prj1100DAO.selectFlw1000ProcessInfo(paramMap);
+	}
 	/**
 	 * 프로세스 수정 (이름, json데이터)
 	 * @param paramMap
@@ -122,8 +125,8 @@ public class Prj1100ServiceImpl extends EgovAbstractServiceImpl implements Prj11
 	 * @throws Exception
 	 */
 	@SuppressWarnings("rawtypes")
-	public void insertFlw1000ProcessInfo(Map paramMap) throws Exception {
-		prj1100DAO.insertFlw1000ProcessInfo(paramMap);
+	public String insertFlw1000ProcessInfo(Map paramMap) throws Exception {
+		return (String) prj1100DAO.insertFlw1000ProcessInfo(paramMap);
 	}
 	
 	/**
@@ -133,7 +136,14 @@ public class Prj1100ServiceImpl extends EgovAbstractServiceImpl implements Prj11
 	 */
 	@SuppressWarnings("rawtypes")
 	public void deleteFlw1000ProcessInfo(Map paramMap) throws Exception {
+		//프로세스 제거
 		prj1100DAO.deleteFlw1000ProcessInfo(paramMap);
+		
+		//작업흐름 제거
+		prj1100DAO.deleteFlw1100FlowInfo(paramMap);
+		
+		//추가항목 제거
+		prj1100DAO.deleteFlw1200OtpInfo(paramMap);
 	}
 	
 	/**
@@ -220,6 +230,16 @@ public class Prj1100ServiceImpl extends EgovAbstractServiceImpl implements Prj11
 	@SuppressWarnings("rawtypes")
 	public List selectFlw1200OptList(Map paramMap) throws Exception {
 		return prj1100DAO.selectFlw1200OptList(paramMap);
+	}
+
+	/**
+	 * 선택 작업흐름에 해당하는 추가 항목 목록
+	 * @param paramMap
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public List selectFlw1300OptFileList(Map paramMap) throws Exception {
+		return prj1100DAO.selectFlw1300OptFileList(paramMap);
 	}
 	
 	/**
@@ -419,15 +439,25 @@ public class Prj1100ServiceImpl extends EgovAbstractServiceImpl implements Prj11
 	public void deleteFlw1400RevisionNumInfo(Map paramMap) throws Exception {
 		prj1100DAO.deleteFlw1400RevisionNumInfo(paramMap);
 	}
-
+	
 	/**
-	 * 요구사항별 리비전 목록 가져오기
-	 * @param paramMap
+	 * 요구사항별 리비전 목록 가져오기(Grid page)
+	 * @param Prj1100VO
 	 * @throws Exception
 	 */
 	@SuppressWarnings("rawtypes")
-	public List selectFlw1400ReqRevisionNumList(Map paramMap) throws Exception {
-		return prj1100DAO.selectFlw1400ReqRevisionNumList(paramMap);
+	public List selectFlw1400ReqRevisionNumList(Prj1100VO prj1100VO) throws Exception {
+		return prj1100DAO.selectFlw1400ReqRevisionNumList(prj1100VO);
+	}
+	
+	/**
+	 * 요구사항별 리비전 목록 총 건수(Grid page)
+	 * @param Prj1100VO
+	 * @return 
+	 * @exception Exception
+	 */
+	public int selectFlw1400ReqRevisionNumListCnt(Prj1100VO prj1100VO) throws Exception {
+		return prj1100DAO.selectFlw1400ReqRevisionNumListCnt(prj1100VO);
 	}
 
 	/**
@@ -590,5 +620,96 @@ public class Prj1100ServiceImpl extends EgovAbstractServiceImpl implements Prj11
 	@SuppressWarnings("rawtypes")
 	public int selectFlw1500FlowAuthGrpCnt(Map paramMap) throws Exception {
 		return prj1100DAO.selectFlw1500FlowAuthGrpCnt(paramMap);
+	}
+
+	/**
+	 * [프로세스 복사] 관리자 권한을 가지고있는 프로젝트의 프로세스 목록
+	 * @param paramMap
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public List selectFlw1000ProcessCopyList(Map paramMap) throws Exception {
+		return prj1100DAO.selectFlw1000ProcessCopyList(paramMap);
+	}
+	
+	/**
+	 * [프로세스 복사] prjId, processId로 프로세스 복사 
+	 * @param paramMap
+	 * @throws Exception
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void insertPrj1100ProcessCopyInfo(Map paramMap) throws Exception{
+		//작업흐름 목록 가져오기
+		List<Map> flowList = prj1100DAO.selectFlw1100FlowList(paramMap);
+
+		//추가항목 목록 가져오기
+		List<Map> flowOptList = prj1100DAO.selectFlw1200OptList(paramMap);
+		
+		//허용 역할 목록 가져오기
+		List<Map> flowAuthGrpList = prj1100DAO.selectFlw1500FlowAuthGrpList(paramMap);
+				
+		paramMap.remove("prjId");
+		paramMap.put("prjId", paramMap.get("selPrjId"));
+		
+		//프로세스 추가하기
+		paramMap.put("processConfirmCd", "02");
+		String processJsonData = (String) paramMap.get("processJsonData");
+		paramMap.remove("processJsonData");
+		
+		String newProcessId = prj1100DAO.insertFlw1000ProcessInfo(paramMap);
+		
+		paramMap.put("processJsonData", processJsonData);
+		paramMap.put("processId", newProcessId);
+		
+		prj1100DAO.updateFlw1000ProcessInfo(paramMap);
+		
+		for(Map flowInfo: flowList){
+			//prjId, processId 교체
+			flowInfo.remove("prjId");
+			flowInfo.remove("processId");
+			
+			flowInfo.put("prjId", paramMap.get("prjId"));
+			flowInfo.put("processId", newProcessId);
+			
+			//작업흐름 추가
+			prj1100DAO.insertFlw1100FlowInfo(flowInfo);
+		}
+		
+
+		for(Map flowOptInfo: flowOptList){
+			//prjId, processId 교체
+			flowOptInfo.remove("prjId");
+			flowOptInfo.remove("processId");
+			
+			flowOptInfo.put("prjId", paramMap.get("prjId"));
+			flowOptInfo.put("processId",newProcessId);
+			
+			//항목 추가
+			prj1100DAO.insertFlw1200OtpCopyInfo(flowOptInfo);
+		}
+		
+		
+		for(Map flowAuthGrpInfo: flowAuthGrpList){
+			//prjId, processId 교체
+			flowAuthGrpInfo.remove("prjId");
+			flowAuthGrpInfo.remove("processId");
+			
+			flowAuthGrpInfo.put("prjId", paramMap.get("prjId"));
+			flowAuthGrpInfo.put("processId", newProcessId);
+			
+			//허용 권한 그룹 추가
+			prj1100DAO.insertFlw1500FlowAuthGrpInfo(flowAuthGrpInfo);
+		}
+	}
+	
+
+	/**
+	 * 추가 항목에 존재하는 첨부파일 ID 목록 조회 
+	 * @param paramMap
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public List selectFlw1200FlwOptExistFileIdList(Map paramMap) throws Exception {
+		return prj1100DAO.selectFlw1200FlwOptExistFileIdList(paramMap);
 	}
 }

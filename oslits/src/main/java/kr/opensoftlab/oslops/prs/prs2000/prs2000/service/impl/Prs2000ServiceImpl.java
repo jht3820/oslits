@@ -1,12 +1,12 @@
-package kr.opensoftlab.oslits.prs.prs2000.prs2000.service.impl;
+package kr.opensoftlab.oslops.prs.prs2000.prs2000.service.impl;
 
 import java.util.List;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.dpl.dpl1000.dpl1000.vo.Dpl1000VO;
-import kr.opensoftlab.oslits.prs.prs2000.prs2000.service.Prs2000Service;
-import kr.opensoftlab.oslits.prs.prs2000.prs2000.vo.Prs2000VO;
+import kr.opensoftlab.oslops.dpl.dpl1000.dpl1000.vo.Dpl1000VO;
+import kr.opensoftlab.oslops.prs.prs2000.prs2000.service.Prs2000Service;
+import kr.opensoftlab.oslops.prs.prs2000.prs2000.vo.Prs2000VO;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 
 import org.springframework.stereotype.Service;

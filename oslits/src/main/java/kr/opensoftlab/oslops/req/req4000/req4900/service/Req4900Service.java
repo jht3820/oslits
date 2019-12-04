@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.req.req4000.req4900.service;
+package kr.opensoftlab.oslops.req.req4000.req4900.service;
 
 import java.util.Map;
 

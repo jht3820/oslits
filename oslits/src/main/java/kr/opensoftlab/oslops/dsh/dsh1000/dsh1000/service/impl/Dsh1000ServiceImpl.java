@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.dsh.dsh1000.dsh1000.service.impl;
+package kr.opensoftlab.oslops.dsh.dsh1000.dsh1000.service.impl;
 
 /**
  * @Class Name : Dsh1000Service.java
@@ -18,7 +18,8 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.dsh.dsh1000.dsh1000.service.Dsh1000Service;
+import kr.opensoftlab.oslops.dsh.dsh1000.dsh1000.service.Dsh1000Service;
+import kr.opensoftlab.oslops.dsh.dsh1000.dsh1000.vo.Dsh1000VO;
 
 import org.springframework.stereotype.Service;
 
@@ -51,5 +52,15 @@ public class Dsh1000ServiceImpl extends EgovAbstractServiceImpl implements Dsh10
 	@SuppressWarnings("rawtypes")
 	public List selectDsh1000MonthProcessReqCntList(Map paramMap) throws Exception{
 		return dsh1000DAO.selectDsh1000MonthProcessReqCntList(paramMap);
+	}
+	
+	@Override	
+	public List selectDsh1000ReqList(Dsh1000VO dsh1000VO) throws Exception{
+		return dsh1000DAO.selectDsh1000ReqList(dsh1000VO);
+	}
+
+	@Override
+	public int selectDsh1000ReqListCnt(Dsh1000VO dsh1000VO) throws Exception{
+		return dsh1000DAO.selectDsh1000ReqListCnt(dsh1000VO);
 	}
 }

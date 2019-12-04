@@ -1,11 +1,8 @@
-package kr.opensoftlab.oslits.cmm.cmm3000.cmm3200.service.impl;
+package kr.opensoftlab.oslops.cmm.cmm3000.cmm3200.service.impl;
 
 import java.util.Map;
 
 import javax.annotation.Resource;
-
-import kr.opensoftlab.oslits.adm.adm5000.adm5200.service.impl.Adm5200DAO;
-import kr.opensoftlab.oslits.cmm.cmm3000.cmm3200.service.Cmm3200Service;
 
 import org.springframework.stereotype.Service;
 
@@ -13,6 +10,9 @@ import egovframework.com.cmm.EgovMessageSource;
 import egovframework.com.utl.fcc.service.EgovStringUtil;
 import egovframework.com.utl.sim.service.EgovFileScrty;
 import egovframework.rte.fdl.cmmn.EgovAbstractServiceImpl;
+import kr.opensoftlab.oslops.adm.adm5000.adm5200.service.impl.Adm5200DAO;
+import kr.opensoftlab.oslops.cmm.cmm3000.cmm3200.service.Cmm3200Service;
+import kr.opensoftlab.sdf.util.TableMakePrimaryKey;
 
 /**
  * @Class Name : Cmm3200ServiceImpl.java
@@ -109,6 +109,10 @@ public class Cmm3200ServiceImpl extends EgovAbstractServiceImpl implements Cmm32
 		if( "".equals(EgovStringUtil.isNullToString(authGroupInfo)) ){
 			throw new Exception(egovMessageSource.getMessage("cmm3200.fail.authGroup.insert"));
 		}
+		
+		//조직 insert Id 구하기
+		String deptId = TableMakePrimaryKey.makeKeyId("DPT", 5, 1);
+		paramMap.put("deptId",deptId);
 		
 		String rootDeptInfo 		= cmm3200DAO.insertAdm4100RootDeptInfo( paramMap );			// 조직 루트디렉토리 정보 저장
 		if( "".equals(EgovStringUtil.isNullToString(rootDeptInfo)) ){

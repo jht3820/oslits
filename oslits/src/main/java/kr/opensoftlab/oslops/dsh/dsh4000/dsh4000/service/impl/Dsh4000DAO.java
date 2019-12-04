@@ -1,10 +1,10 @@
-package kr.opensoftlab.oslits.dsh.dsh4000.dsh4000.service.impl;
+package kr.opensoftlab.oslops.dsh.dsh4000.dsh4000.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.com.dao.ComOslitsAbstractDAO;
-import kr.opensoftlab.oslits.dsh.dsh4000.dsh4000.vo.Dsh4000VO;
+import kr.opensoftlab.oslops.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.dsh.dsh4000.dsh4000.vo.Dsh4000VO;
 
 import org.springframework.stereotype.Repository;
 

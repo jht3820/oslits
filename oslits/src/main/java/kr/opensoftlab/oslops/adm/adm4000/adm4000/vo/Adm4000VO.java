@@ -1,6 +1,6 @@
-package kr.opensoftlab.oslits.adm.adm4000.adm4000.vo;
+package kr.opensoftlab.oslops.adm.adm4000.adm4000.vo;
 
-import kr.opensoftlab.oslits.com.vo.PageVO;
+import kr.opensoftlab.oslops.com.vo.PageVO;
 
 /**
  * 

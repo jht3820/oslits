@@ -1,9 +1,9 @@
-package kr.opensoftlab.oslits.prj.prj3000.prj3000.service.impl;
+package kr.opensoftlab.oslops.prj.prj3000.prj3000.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.com.dao.ComOslitsAbstractDAO;
 
 import org.springframework.stereotype.Repository;
 
@@ -114,4 +114,36 @@ public class Prj3000DAO extends ComOslitsAbstractDAO {
 		return (List)list("prj3000DAO.selectPrj3000MenuTree",paramMap);
 	}
 	
+	/**
+	 * Prj3000 ROOTSYSTEM_PRJ 산출물 메뉴 정보 가져오기
+	 * @param param - Map
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public List selectPrj3000RootMenuList(Map paramMap) throws Exception{
+		return (List)list("prj3000DAO.selectPrj3000RootMenuList",paramMap);
+	}
+
+	/**
+	 * Prj3000 [프로젝트 마법사] 단순 산출물 정보 가져오기
+	 * @param param - Map
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public Map selectPrj3000WizardMenuInfo(Map paramMap) throws Exception{
+		return (Map) select("prj3000DAO.selectPrj3000WizardMenuInfo", paramMap);
+	}
+	
+	/**
+	 * [프로젝트 마법사] 개발문서 양식 생성(전체 정보 입력값)
+	 * @param 
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public String insertPrj3000ParamMenuInfo(Map paramMap) throws Exception{
+		return (String) insert("prj3000DAO.insertPrj3000ParamMenuInfo", paramMap);
+	}
 }

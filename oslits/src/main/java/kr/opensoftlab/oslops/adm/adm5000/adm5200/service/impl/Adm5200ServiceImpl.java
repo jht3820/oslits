@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.adm.adm5000.adm5200.service.impl;
+package kr.opensoftlab.oslops.adm.adm5000.adm5200.service.impl;
 
 
 
@@ -6,8 +6,8 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.adm.adm2000.adm2000.service.impl.Adm2000DAO;
-import kr.opensoftlab.oslits.adm.adm5000.adm5200.service.Adm5200Service;
+import kr.opensoftlab.oslops.adm.adm2000.adm2000.service.impl.Adm2000DAO;
+import kr.opensoftlab.oslops.adm.adm5000.adm5200.service.Adm5200Service;
 
 import org.springframework.stereotype.Service;
 

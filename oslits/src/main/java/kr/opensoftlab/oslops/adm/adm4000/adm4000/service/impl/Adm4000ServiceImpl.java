@@ -1,12 +1,12 @@
-package kr.opensoftlab.oslits.adm.adm4000.adm4000.service.impl;
+package kr.opensoftlab.oslops.adm.adm4000.adm4000.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.adm.adm4000.adm4000.service.Adm4000Service;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
+import kr.opensoftlab.oslops.adm.adm4000.adm4000.service.Adm4000Service;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 
 import org.springframework.stereotype.Service;
@@ -117,9 +117,14 @@ public class Adm4000ServiceImpl  extends EgovAbstractServiceImpl implements Adm4
 	@Override
 	public void selectAdm4000DetailExcelList(Map paramMap, ExcelDataListResultHandler resultHandler) throws Exception {
 		adm4000DAO.selectAdm4000DetailExcelList(paramMap, resultHandler);
-	}	
+	}
 	@Override
 	public int selectAdm4000CommonCodeCount(Map paramMap) throws Exception {
 		return adm4000DAO.selectAdm4000CommonCodeCount(paramMap);
 	}
+	@Override
+	public int selectAdm4000CommonDetailCodeCount(Map paramMap) throws Exception {
+		return adm4000DAO.selectAdm4000CommonDetailCodeCount(paramMap);
+	}
+
 }

@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.adm.adm7000.adm7000.web;
+package kr.opensoftlab.oslops.adm.adm7000.adm7000.web;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,8 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import kr.opensoftlab.oslits.adm.adm7000.adm7000.service.Adm7000Service;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
+import kr.opensoftlab.oslops.adm.adm7000.adm7000.service.Adm7000Service;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
 import kr.opensoftlab.sdf.excel.BigDataSheetWriter;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 import kr.opensoftlab.sdf.excel.Metadata;
@@ -139,6 +139,7 @@ public class Adm7000Controller {
 			
     		//조회 성공메시지 세팅
 			model.addAttribute("deptList", deptList);
+			model.addAttribute("errorYn", "N");
 			model.addAttribute("message", egovMessageSource.getMessage("success.common.select"));
     		
 			return new ModelAndView("jsonView");
@@ -147,6 +148,7 @@ public class Adm7000Controller {
 			Log.error("selectAdm7000DeptListAjax()", ex);
 
 			//조회실패 메시지 세팅
+			model.addAttribute("errorYn", "Y");
 			model.addAttribute("message", egovMessageSource.getMessage("fail.common.select"));
 			return new ModelAndView("jsonView");
 		}
@@ -203,6 +205,7 @@ public class Adm7000Controller {
 			Map deptInfoMap = (Map)adm7000Service.insertAdm7000DeptInfo(paramMap);
 			
 			//등록 성공 메시지 세팅
+			model.addAttribute("errorYn", "N");
 			model.addAttribute("message", egovMessageSource.getMessage("success.common.insert"));
 			
 			return new ModelAndView("jsonView", deptInfoMap);
@@ -211,6 +214,7 @@ public class Adm7000Controller {
 			Log.error("insertAdm7000DeptInfoAjax()", ex);
 
 			//등록실패 메시지 세팅
+			model.addAttribute("errorYn", "Y");
 			model.addAttribute("message", egovMessageSource.getMessage("fail.common.insert"));
 			return new ModelAndView("jsonView");
 		}
@@ -236,6 +240,7 @@ public class Adm7000Controller {
 			adm7000Service.updateAdm7000DpteInfo(paramMap);
 		
 			//수정 성공 메시지 세팅
+			model.addAttribute("errorYn", "N");
 			model.addAttribute("message", egovMessageSource.getMessage("success.common.update"));
 
 			return new ModelAndView("jsonView");
@@ -244,6 +249,7 @@ public class Adm7000Controller {
 			Log.error("updateAdm7000DpteInfoAjax()", ex);
 
 			//수정실패 메시지 세팅
+			model.addAttribute("errorYn", "Y");
 			model.addAttribute("message", egovMessageSource.getMessage("fail.common.update"));
 			return new ModelAndView("jsonView");
 		}	
@@ -269,6 +275,7 @@ public class Adm7000Controller {
 			adm7000Service.deleteAdm7000DeptInfo(paramMap);
 			
 			// 삭제 성공 메시지 세팅
+			model.addAttribute("errorYn", "N");
 			model.addAttribute("message", egovMessageSource.getMessage("success.common.delete"));
 			
 			return new ModelAndView("jsonView");
@@ -277,6 +284,7 @@ public class Adm7000Controller {
 			Log.error("deleteAdm7000DeptInfoAjax()", ex);
 
 			//수정실패 메시지 세팅
+			model.addAttribute("errorYn", "Y");
 			model.addAttribute("message", egovMessageSource.getMessage("fail.common.delete"));
 			return new ModelAndView("jsonView");
 		}

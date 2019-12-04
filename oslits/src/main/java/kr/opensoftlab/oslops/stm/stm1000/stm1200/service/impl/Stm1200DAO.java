@@ -1,10 +1,9 @@
-package kr.opensoftlab.oslits.stm.stm1000.stm1200.service.impl;
+package kr.opensoftlab.oslops.stm.stm1000.stm1200.service.impl;
 
 import java.util.List;
-import java.util.Map;
 
-import kr.opensoftlab.oslits.com.dao.ComOslitsAbstractDAO;
-import kr.opensoftlab.oslits.stm.stm1000.stm1200.vo.Stm1200VO;
+import kr.opensoftlab.oslops.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.stm.stm1000.stm1200.vo.Stm1200VO;
 
 import org.springframework.stereotype.Repository;
 
@@ -24,15 +23,24 @@ import org.springframework.stereotype.Repository;
 @Repository("stm1200DAO")
 public class Stm1200DAO extends ComOslitsAbstractDAO {
 	
-	
-	
-	public List<Stm1200VO> selectStm1200ProjectList(Stm1200VO stm1200vo) {
-		// TODO Auto-generated method stub
+	/**
+	 * Stm1200 전체 API 목록을 조회한다.
+	 * @param stm1200vo
+	 * @return List - 전체 API 목록
+	 * @exception Exception
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public List<Stm1200VO> selectStm1200ProjectList(Stm1200VO stm1200vo) throws Exception{
 		return (List) list("stm1200DAO.selectStm1200ProjectList", stm1200vo);
 	}
 
-	public int selectStm1200ProjectListCnt(Stm1200VO stm1200vo) {
-		// TODO Auto-generated method stub
+	/**
+	 * Stm1200 그리드 페이징 처리를 위한 전체 API 목록 총 수를 조회한다.
+	 * @param stm1200vo
+	 * @return int 전체 API 목록 수
+	 * @exception Exception
+	 */
+	public int selectStm1200ProjectListCnt(Stm1200VO stm1200vo) throws Exception{
 		return (Integer)select("stm1200DAO.selectStm1200ProjectListCnt", stm1200vo);
 	}
 }

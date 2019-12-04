@@ -1,10 +1,10 @@
-package kr.opensoftlab.oslits.dsh.dsh4000.dsh4000.service;
+package kr.opensoftlab.oslops.dsh.dsh4000.dsh4000.service;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.adm.adm8000.adm8100.vo.Adm8100VO;
-import kr.opensoftlab.oslits.dsh.dsh4000.dsh4000.vo.Dsh4000VO;
+import kr.opensoftlab.oslops.adm.adm8000.adm8100.vo.Adm8100VO;
+import kr.opensoftlab.oslops.dsh.dsh4000.dsh4000.vo.Dsh4000VO;
 
 /**
  * @Class Name : Adm8000Service.java

@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.req.req4600.req4600.service.impl;
+package kr.opensoftlab.oslops.req.req4600.req4600.service.impl;
 
 import java.util.List;
 import java.util.Map;
@@ -10,8 +10,8 @@ import javax.annotation.Resource;
 
 
 
-import kr.opensoftlab.oslits.req.req4600.req4600.service.Req4600Service;
-import kr.opensoftlab.oslits.req.req4600.req4600.vo.Req4600VO;
+import kr.opensoftlab.oslops.req.req4600.req4600.service.Req4600Service;
+import kr.opensoftlab.oslops.req.req4600.req4600.vo.Req4600VO;
 
 import org.springframework.stereotype.Service;
 
@@ -118,7 +118,7 @@ public class Req4600ServiceImpl  extends EgovAbstractServiceImpl implements Req4
 	
 	
 	/**
-	 * REQ4100 요구사항 WBS 항목 조회
+	 * Req4600 요구사항 WBS 항목 조회
 	 * @param param - Map
 	 * @return list - List
 	 * @exception Exception
@@ -129,11 +129,23 @@ public class Req4600ServiceImpl  extends EgovAbstractServiceImpl implements Req4
 		return req4600DAO.selectReq4600ReqWbsListAjax(paramMap);
 	}
 
+	/**
+	 * Req4600 요구사항 WBS 진척률 수정
+	 * @param paramMap
+	 * @return
+	 * @throws Exception
+	 */
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
-	public void updateReq4600ProgresInfo(List<Req4600VO> list) throws Exception {
-		// TODO Auto-generated method stub
-		for (Req4600VO req4600VO: list) {
-			req4600DAO.updateReq4600ProgresInfo(req4600VO);
+	public void updateReq4600ProgresInfo(Map paramMap) throws Exception {
+		
+		// 진척률을 수정할 요구사항 목록
+		List<Map<String,String>> list = (List<Map<String,String>>) paramMap.get("list");
+		
+		// 요구사항의 진척률을 수정한다.
+		for (int i = 0; i < list.size(); i++) {		
+			Map<String,String> wbsReqMap = list.get(i);
+			req4600DAO.updateReq4600ProgresInfo(wbsReqMap);
 		}
 	}
 }

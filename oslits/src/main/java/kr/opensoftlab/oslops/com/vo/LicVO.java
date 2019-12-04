@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.com.vo;
+package kr.opensoftlab.oslops.com.vo;
 
 /**
  * @Class Name : LicVO.java
@@ -22,7 +22,6 @@ public class LicVO extends DefaultVO{
 	private String licEndDt;
 	private String licGbCd;
 	private String permitUsrCnt;
-	private String licActCd;
 	private String licEndCd;
     private String actLicNo; 
     private String actLicNm;
@@ -72,12 +71,6 @@ public class LicVO extends DefaultVO{
 	}
 	public void setPermitUsrCnt(String permitUsrCnt) {
 		this.permitUsrCnt = permitUsrCnt;
-	}
-	public String getLicActCd() {
-		return licActCd;
-	}
-	public void setLicActCd(String licActCd) {
-		this.licActCd = licActCd;
 	}
 	public String getLicEndCd() {
 		return licEndCd;

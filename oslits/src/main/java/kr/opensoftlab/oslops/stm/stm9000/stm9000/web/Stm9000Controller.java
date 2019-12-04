@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.stm.stm9000.stm9000.web;
+package kr.opensoftlab.oslops.stm.stm9000.stm9000.web;
 
 import java.util.HashMap;
 import java.util.List;
@@ -9,9 +9,9 @@ import javax.annotation.Resource;
 
 import javax.servlet.http.HttpServletRequest;
 
-import kr.opensoftlab.oslits.com.fms.web.service.FileMngService;
-import kr.opensoftlab.oslits.stm.stm9000.stm9000.service.Stm9000Service;
-import kr.opensoftlab.oslits.stm.stm9000.stm9000.vo.Stm9000VO;
+import kr.opensoftlab.oslops.com.fms.web.service.FileMngService;
+import kr.opensoftlab.oslops.stm.stm9000.stm9000.service.Stm9000Service;
+import kr.opensoftlab.oslops.stm.stm9000.stm9000.vo.Stm9000VO;
 import kr.opensoftlab.sdf.util.OslAgileConstant;
 import kr.opensoftlab.sdf.util.PagingUtil;
 import kr.opensoftlab.sdf.util.ReqHistoryMngUtil;
@@ -72,22 +72,8 @@ public class Stm9000Controller {
 	protected EgovPropertyService propertiesService;
 
 
-	/** FileMngService */
-	@Resource(name="fileMngService")
-	private FileMngService fileMngService;
-
 	@Value("${Globals.fileStorePath}")
 	private String tempPath;
-
-	/** EgovFileMngUtil - 파일 업로드 Util */
-	@Resource(name="EgovFileMngUtil")
-	private EgovFileMngUtil fileUtil;	
-
-	@Resource(name = "egovFileIdGnrService")
-	private EgovIdGnrService idgenService;
-
-	@Resource(name = "historyMng")
-	private ReqHistoryMngUtil historyMng;
 
 	@Resource(name = "stm9000Service")
 	private Stm9000Service stm9000Service;
@@ -153,6 +139,7 @@ public class Stm9000Controller {
 			resultMap.put("data", reqList);
 			
 		}catch(Exception e){
+			Log.debug(e.getMessage());
 			statusMap.put("codename", "실패");
 			statusMap.put("code", "100");
 			statusMap.put("errorMessage", e.getMessage());

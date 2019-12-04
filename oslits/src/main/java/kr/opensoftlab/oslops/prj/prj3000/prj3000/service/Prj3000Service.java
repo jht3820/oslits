@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.prj.prj3000.prj3000.service;
+package kr.opensoftlab.oslops.prj.prj3000.prj3000.service;
 
 import java.util.List;
 import java.util.Map;
@@ -92,4 +92,22 @@ public interface Prj3000Service {
 	 */
 	@SuppressWarnings("rawtypes")
 	List selectPrj3000MenuTree(Map paramMap) throws Exception;
+
+	/**
+	 * Prj3000 ROOTSYSTEM_PRJ 산출물 메뉴 정보 가져오기
+	 * @param param - Map
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	List selectPrj3000RootMenuList(Map paramMap) throws Exception;
+
+	/**
+	 * Prj3000 [프로젝트 마법사] 단순 산출물 정보 가져오기
+	 * @param param - Map
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	Map selectPrj3000WizardMenuInfo(Map paramMap) throws Exception;
 }

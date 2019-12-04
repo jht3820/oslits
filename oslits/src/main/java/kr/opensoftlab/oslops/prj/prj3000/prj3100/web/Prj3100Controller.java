@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.prj.prj3000.prj3100.web;
+package kr.opensoftlab.oslops.prj.prj3000.prj3100.web;
 
 import java.util.List;
 import java.util.Map;
@@ -8,9 +8,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import kr.opensoftlab.oslits.com.fms.web.service.FileMngService;
-import kr.opensoftlab.oslits.com.vo.LoginVO;
-import kr.opensoftlab.oslits.prj.prj3000.prj3100.service.Prj3100Service;
+import kr.opensoftlab.oslops.com.fms.web.service.FileMngService;
+import kr.opensoftlab.oslops.com.vo.LoginVO;
+import kr.opensoftlab.oslops.prj.prj3000.prj3100.service.Prj3100Service;
 import kr.opensoftlab.sdf.util.RequestConvertor;
 
 import org.apache.log4j.Logger;

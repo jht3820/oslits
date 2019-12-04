@@ -1,15 +1,18 @@
-package kr.opensoftlab.oslits.prj.prj3000.prj3000.service.impl;
+package kr.opensoftlab.oslops.prj.prj3000.prj3000.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
-import kr.opensoftlab.oslits.prj.prj3000.prj3000.service.Prj3000Service;
+import kr.opensoftlab.oslops.prj.prj3000.prj3000.service.Prj3000Service;
 
 import org.springframework.stereotype.Service;
 
 import egovframework.com.cmm.EgovMessageSource;
+import egovframework.com.cmm.service.EgovFileMngUtil;
+import egovframework.com.cmm.service.FileVO;
 import egovframework.com.cmm.service.impl.FileManageDAO;
 import egovframework.rte.fdl.cmmn.EgovAbstractServiceImpl;
 
@@ -119,39 +122,105 @@ public class Prj3000ServiceImpl extends EgovAbstractServiceImpl implements Prj30
 	}
 	
 	/**
-	 * Prj3000 메뉴정보 삭제(단건) AJAX
-	 * 메뉴정보 삭제
+	 * Prj3000 개발문서 삭제 AJAX
+	 * 선택한 개발문서 및 하위 개발문서 삭제
 	 * @param 
 	 * @return 
 	 * @exception Exception
 	 */
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	public void deletePrj3000MenuInfo(Map paramMap) throws Exception{
-		//메뉴정보 삭제
-				int delCnt = prj3000DAO.deletePrj3000MenuInfo(paramMap);
+		
+		// 삭제할 개발문서 List
+		List<Map<String,String>> list = (List<Map<String,String>>) paramMap.get("list");
+		// 라이선스 그룹 Id와 프로젝트 Id를 가져온다.
+		String licGrpId = (String)paramMap.get("licGrpId");
+		String prjId = (String)paramMap.get("prjId");
+		
+		// 첨부파일 Id List
+		List<String> atchFileIdList = new ArrayList<String>();
+		
+		// 개발문서 List loop
+		for(Map docMap : list) {
+
+			// 라이선스 그룹 Id와 프로젝트 Id를 추가한다.
+			docMap.put("licGrpId", licGrpId);
+			docMap.put("prjId", prjId);
+			
+			// 산출물 삭제
+			prj3000DAO.deletePrj3000MenuInfo(docMap);
+			
+			// 산출물 첨부파일 Id
+			String docAtchFileId = (String)docMap.get("docAtchFileId");
+			// 확정 산출물 첨부파일 Id
+			String docFormFileId = (String)docMap.get("docFormFileId");
+			
+			// 산출물 첨부파일 Id 존재시 추가
+			if(docAtchFileId != null && !"".equals(docAtchFileId)){
+				atchFileIdList.add(docAtchFileId);
+			}
+			
+			// 확정 산출물 첨부파일 Id 존재시 추가
+			if(docFormFileId != null && !"".equals(docFormFileId)){
+				atchFileIdList.add(docFormFileId);
+			}
+		}
+		
+		// 삭제할 첨부파일 list
+		List<FileVO> delFileList = new ArrayList<FileVO>();
+		
+		// atchFileID 로 생성된 파일 목록 조회
+		if(atchFileIdList.size() > 0){
+			
+			for(String atchFileIdStr : atchFileIdList){
+				FileVO fileVo = new FileVO();
+				fileVo.setAtchFileId(atchFileIdStr);
 				
-				//삭제된 건이 없으면 튕겨냄
-				if(delCnt == 0 ){
-					throw new Exception(egovMessageSource.getMessage("fail.common.delete"));
+				// 파일목록 조회
+				List<FileVO> selFileList = fileMngDAO.selectFileInfs(fileVo);
+				delFileList.addAll(selFileList);
+			}
+		}
+		
+		// 파일 목록이 존재할때
+		if(delFileList.size() > 0){
+			// DB에서 파일정보 삭제
+			for(FileVO delFileInfo : delFileList){
+				// DB 파일정보 테이블에서 삭제
+				fileMngDAO.deleteAllFileInf(delFileInfo);
+				fileMngDAO.deleteFileInf(delFileInfo);
+			}
+			
+			// 파일 물리적삭제
+			for(FileVO delFileInfo : delFileList){
+				try{
+					//파일 물리적 삭제
+					String fileDeletePath  = delFileInfo.getFileStreCours()+delFileInfo.getStreFileNm();
+				    EgovFileMngUtil.deleteFile(fileDeletePath);
+				}catch(Exception fileE){	
+					//물리적 파일 삭제 오류시 skip
+					continue;
 				}
+			}
+		}
 	}
 	
 	/**
-	 * Prj3000 메뉴정보 수정(단건) AJAX
-	 * 메뉴정보 수정
+	 * Prj3000 개발문서 수정(단건) AJAX
+	 * 선택한 개발문서 단건 수정
 	 * @param 
 	 * @return 
 	 * @exception Exception
 	 */
 	@SuppressWarnings("rawtypes")
 	public void updatePrj3000MenuInfo(Map paramMap) throws Exception{
-		//메뉴정보 수정
-				int upCnt = prj3000DAO.updatePrj3000MenuInfo(paramMap);
+		//개발문서 수정
+		int upCnt = prj3000DAO.updatePrj3000MenuInfo(paramMap);
 				
-				//수정된 건이 없으면 튕겨냄
-				if(upCnt == 0 ){
-					throw new Exception(egovMessageSource.getMessage("fail.common.update"));
-				}
+		//수정된 건이 없으면 튕겨냄
+		if(upCnt == 0 ){
+			throw new Exception(egovMessageSource.getMessage("fail.common.update"));
+		}
 	}
 	
 	/**
@@ -180,5 +249,27 @@ public class Prj3000ServiceImpl extends EgovAbstractServiceImpl implements Prj30
 	@SuppressWarnings("rawtypes")
 	public List selectPrj3000MenuTree(Map paramMap) throws Exception{
 		return prj3000DAO.selectPrj3000MenuTree(paramMap);
+	}
+
+	/**
+	 * Prj3000 ROOTSYSTEM_PRJ 산출물 메뉴 정보 가져오기
+	 * @param param - Map
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public List selectPrj3000RootMenuList(Map paramMap) throws Exception{
+		return prj3000DAO.selectPrj3000RootMenuList(paramMap);
+	}
+
+	/**
+	 * Prj3000 [프로젝트 마법사] 단순 산출물 정보 가져오기
+	 * @param param - Map
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public Map selectPrj3000WizardMenuInfo(Map paramMap) throws Exception{
+		return prj3000DAO.selectPrj3000WizardMenuInfo(paramMap);
 	}
 }

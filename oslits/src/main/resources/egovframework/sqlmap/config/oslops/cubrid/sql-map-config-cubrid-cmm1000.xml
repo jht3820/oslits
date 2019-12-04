@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+		
+	<sqlMap resource="egovframework/sqlmap/oslops/cubrid/cmm/cmm1000/cmm1000/cmm1000_SQL_cubrid.xml"/>
+	<sqlMap resource="egovframework/sqlmap/oslops/cubrid/cmm/cmm1000/cmm1100/cmm1100_SQL_cubrid.xml"/>
+	<sqlMap resource="egovframework/sqlmap/oslops/cubrid/cmm/cmm1000/cmm1300/cmm1300_SQL_cubrid.xml"/>
+	<sqlMap resource="egovframework/sqlmap/oslops/cubrid/cmm/cmm1000/cmm1400/cmm1400_SQL_cubrid.xml"/>
+	<sqlMap resource="egovframework/sqlmap/oslops/cubrid/cmm/cmm1000/cmm1600/cmm1600_SQL_cubrid.xml"/>
+	<sqlMap resource="egovframework/sqlmap/oslops/cubrid/cmm/cmm1000/cmm1700/cmm1700_SQL_cubrid.xml"/>
+	<sqlMap resource="egovframework/sqlmap/oslops/cubrid/cmm/cmm1000/cmm1800/cmm1800_SQL_cubrid.xml"/>
+</sqlMapConfig>
+
+

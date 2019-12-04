@@ -1,10 +1,10 @@
-package kr.opensoftlab.oslits.req.req1000.req1000.service.impl;
+package kr.opensoftlab.oslops.req.req1000.req1000.service.impl;
 
 import java.util.List;
 import java.util.Map;
 
-import kr.opensoftlab.oslits.com.dao.ComOslitsAbstractDAO;
-import kr.opensoftlab.oslits.req.req1000.req1000.vo.Req1000VO;
+import kr.opensoftlab.oslops.com.dao.ComOslitsAbstractDAO;
+import kr.opensoftlab.oslops.req.req1000.req1000.vo.Req1000VO;
 import kr.opensoftlab.sdf.excel.ExcelDataListResultHandler;
 
 import org.springframework.stereotype.Repository;
@@ -56,7 +56,7 @@ public class Req1000DAO  extends ComOslitsAbstractDAO {
 	}
 	
 	/**
-	 * Req000 요구사항 정보 등록
+	 * Req1000 요구사항 정보 등록
 	 * @param param - Map
 	 * @return 
 	 * @exception Exception
@@ -65,6 +65,20 @@ public class Req1000DAO  extends ComOslitsAbstractDAO {
 	public String insertReq1001ReqInfo(Map paramMap) throws Exception{
 		return (String) insert("req1000DAO.insertReq1001ReqInfo", paramMap);
 	}
+	
+	/**
+	 * Req1000 요구사항 key값 수정	 
+ 	 * 프로젝트 ID와 요구사항 등록 시 생성된 요구사항 ID를 조합하여 암호화 시킨 후
+	 * 요구사항 키로 등록하여 요구사항의 고유한 해시값으로 사용한다.
+	 * @param 
+	 * @return 
+	 * @exception Exception
+	 */
+	@SuppressWarnings({ "rawtypes" })
+	public void updateReq1000ReqKey(Map paramMap) throws Exception{
+		update("req1000DAO.updateReq1000ReqKey",paramMap);
+	}
+	
 	/**
 	 * Req1000 요구사항 개발공수, 담당자 수정
 	 * @param 
@@ -100,7 +114,6 @@ public class Req1000DAO  extends ComOslitsAbstractDAO {
 
 	public void selectReq1000ExcelList(Req1000VO req1000vo,
 			ExcelDataListResultHandler resultHandler) throws Exception {
-		// TODO Auto-generated method stub
 		listExcelDownSql("req1000DAO.selectReq1000ExcelList", req1000vo, resultHandler);
 	}
 	
@@ -134,8 +147,8 @@ public class Req1000DAO  extends ComOslitsAbstractDAO {
 	 * @exception Exception
 	 */
 	@SuppressWarnings("rawtypes")
-	public String selectReq1000NextReqOrd(Map paramMap) throws Exception{
-		return (String) select("req1000DAO.selectReq1000NextReqOrd", paramMap);
+	public Map selectReq1000NextReqOrd(Map paramMap) throws Exception{
+		return (Map) select("req1000DAO.selectReq1000NextReqOrd", paramMap);
 	}	
 	
 	/**
@@ -161,5 +174,27 @@ public class Req1000DAO  extends ComOslitsAbstractDAO {
 	public int deleteReq1000ReqAtchFileDetail(Map paramMap) throws Exception{
 		return (int) delete("req1000DAO.deleteReq1000ReqAtchFileDetail", paramMap);
 	}
+	
+	/**
+	 * 톱합대시보드의 요구사항 접수대기 목록을 조회한다.
+	 * @param paramMap
+	 * @return List 접수대기 요구사항 목록
+	 * @throws Exception
+	 */
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	public List<Map>  selectReq1000IntegratedDshAcceptReqList(Map paramMap) throws Exception {
+		return  (List<Map>) list("req1000DAO.selectReq1000IntegratedDshAcceptReqList", paramMap);
+	}
+	
+	/**
+	 * 통합대시보드의 요구사항 접수대기 목록 총 건수를 조회한다.
+	 * @param paramMap
+	 * @return int 접수대기 요구사항 목록 총 건수
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public int  selectReq1000IntegratedDshAcceptReqListCnt(Map paramMap) throws Exception {
+		 return  (Integer)select("req1000DAO.selectReq1000IntegratedDshAcceptReqListCnt", paramMap);
+	} 
 	
 }

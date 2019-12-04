@@ -1,4 +1,4 @@
-package kr.opensoftlab.oslits.com.vo;
+package kr.opensoftlab.oslops.com.vo;
 
 /**
  * @Class Name : PageVO.java
@@ -239,7 +239,8 @@ import egovframework.com.utl.fcc.service.EgovStringUtil;
 		Method[] mth = this.getClass().getMethods();
 		Expression exp = null;
 		String key = "";
-		sb.append("this Class Name =>" + this.getClass().getName());
+		sb.append("this Class Name =>");
+		sb.append(this.getClass().getName());
 		sb.append("\n");
 		for( int i = 0 ; i < mth.length ; i ++) {
 			if ( mth[i].getReturnType().getName().equals("java.lang.String") ) {
@@ -250,9 +251,9 @@ import egovframework.com.utl.fcc.service.EgovStringUtil;
 						sb.append(  key + "=>" + EgovStringUtil.nullConvert(exp.getValue()) );
 						sb.append("\n");
 					} catch (Exception e) {
-						System.out.println(e.getMessage());
-						//e.printStackTrace();
-					};
+						//System.out.println(e.getMessage());
+						e.printStackTrace();
+					}
 				}
 			}
 		}
