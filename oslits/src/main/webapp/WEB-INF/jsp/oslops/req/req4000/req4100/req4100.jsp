@@ -4,7 +4,7 @@
 <jsp:include page="/WEB-INF/jsp/oslops/top/aside.jsp" />
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <script type="text/javascript" src="<c:url value='/js/axisj/dist/ax5/ax5select.min.js'/>"></script>
-<link rel='stylesheet' href='<c:url value='/css/oslits/req.css'/>' type='text/css'>
+<link rel='stylesheet' href='<c:url value='/css/oslops/req.css'/>' type='text/css'>
 <script>
 	/*   
 		business function 
@@ -106,6 +106,7 @@
 						{key: "reqNm", label: "요구사항 명", width: '20%', align: "left"},
 						{key: "reqDesc", label: "요구사항 설명", width: '30%', align: "left"},
 						{key: "reqNo", label: "공문번호", width: '9%', align: "center"},
+						{key: "reqNewTypeNm", label: "접수유형", width: '9%', align: "center"},
 						{key: "reqUsrNm", label: "요청자", width: '9%', align: "center"},
 						{key: "reqChargerNm", label: "담당자", width: '9%', align: "center"},
 						{key: "reqDtm", label: "요청일자", width: '9%', align: "center"},
@@ -113,8 +114,8 @@
 						{key: "processNm", label: "프로세스 명", width: '8%', align: "center"},
 						{key: "flowNm", label: "작업흐름 명", width: '8%', align: "center"},
 						{key: "regDtmDay", label: "등록일자", width: '9%', align: "center"},
-						{key: "reqStDtm", label: "작업 시작일자", width: '9%', align: "center"},
-						{key: "reqEdDtm", label: "작업 종료일자", width: '9%', align: "center"},
+						{key: "reqStDtm", label: "실제 작업 시작일자", width: '10%', align: "center"},
+						{key: "reqEdDtm", label: "실제 작업 종료일자", width: '10%', align: "center"},
 						{key: "reqStDuDtm", label: "작업 시작 예정일자", width: '10%', align: "center"},
 						{key: "reqEdDuDtm", label: "작업 종료 예정일자", width: '10%', align: "center"},
 						{key: "reqExFp", label: "예상 FP", width: '8%', align: "center"},
@@ -123,7 +124,7 @@
 						{key: "sclNm", label: "시스템 구분", width: '12%', align: "center"},
 						{key: "piaNm", label: "성능개선 활동여부", width: '12%', align: "center"},
 						{key: "labInp", label: "투입인력", width: '8%', align: "center"},
-						{key: "orgReqId", label: "체계별 요구사항ID", width: '12%', align: "center"}
+						{key: "orgReqId", label: "프로젝트별 요구사항ID", width: '12%', align: "center"}
 	            ],
 	            body: {
 	                align: "center",
@@ -152,16 +153,16 @@
 				               			"reqProType": this.item.reqProType,
 				               			"reqPageType" : "usrReqPage"
 				               	}; 
-				               	gfnLayerPopupOpen("/req/req1000/req1000/selectReq1002View.do", data, '640', '800','scroll');
+				               	gfnLayerPopupOpen("/req/req1000/req1000/selectReq1002View.do", data, '640', '890','scroll');
 							}else{
 								var data = {"reqId": this.item.reqId}; 
-								gfnLayerPopupOpen("/req/req4000/req4100/selectReq4106View.do", data, '880', '890','scroll');
+								gfnLayerPopupOpen("/req/req4000/req4100/selectReq4106View.do", data, '900', '950','auto');
 							}
 						}
 	                	// 반려(03)일 경우 req1002.jsp 상세보기 화면으로
 	                	else if(reqProType == "03"){
 							
-							reqProType == "03" ? popHeight = "890" : popHeight = "800";
+							reqProType == "03" ? popHeight = "930" : popHeight = "890";
 							
 							gfnLayerPopupOpen("/req/req1000/req1000/selectReq1002View.do", data, '640', popHeight,'scroll');	
 						}else{
@@ -202,9 +203,9 @@
 
 	                    if(item.type == "update"){
 	                    	
-	                    	// 처리유형이 반려(03), 최종완료(04)인 경우 수정 불가
-	                    	if(selItem.reqProType == "03" || selItem.reqProType == "04"){
-	                    		jAlert('반려, 최종완료된 요구사항은 수정할 수 없습니다.','알림창')
+	                    	// 접수요청인 요구사항만 수정가능
+	                    	if(selItem.reqProType != "01"){
+	                    		jAlert('접수 요청인 요구사항만 수정 가능합니다.','알림창');
 								return false;
 	                    	}
 	                    	
@@ -242,8 +243,8 @@
 				               			"reqPageType" : "usrReqPage"
 				               	};
 				               	
-				  				// 반려일경우 높이 890, 접수요청일경우 높이 800
-				               	var popHeight = param.itemreqProType == "03" ? "890" : "800";
+				  				// 반려일경우 높이 890, 접수요청일경우 높이 850
+				               	var popHeight = param.item.reqProType == "03" ? "930" : "890";
 				               	
 				               	gfnLayerPopupOpen("/req/req1000/req1000/selectReq1002View.do", data, '640', popHeight ,'scroll');
 				               	
@@ -332,7 +333,7 @@
         		return;
            	}
 			
-			data = JSON.parse(data);
+           	data = JSON.parse(data);
 			jAlert(data.message, "알림");
 		});
 		
@@ -398,6 +399,71 @@
 							onclick:function(){
 								$.download('/etc/uploadRequestForm.xlsx','tmp','post');
 							}},
+							{label:"", labelWidth:"", type:"button", width:"70",style:"float:right;", key:"btn_print_newReqDemand",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-print' aria-hidden='true'></i>&nbsp;<span>프린트</span>",
+								onclick:function(){
+									$(firstGrid.exportExcel()).printThis({importCSS: false,importStyle: false,loadCSS: "/css/common/printThis.css"});
+							}},
+							{label:"", labelWidth:"", type:"button", width:"55",style:"float:right;", key:"btn_excel_newReqDemand",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-file-excel' aria-hidden='true'></i>&nbsp;<span>엑셀</span>",
+								onclick:function(){
+									// 엑셀 다운로드 함수 호출
+	       							fnExcelDownLoad();
+	       							// 기존방식 - ax5grid의 함수 호출하여 엑셀 다운로드 하는방법
+									//firstGrid.exportExcel("all_request_list.xls");
+							}},
+							{label:"", labelWidth:"", type:"button", width:"55",style:"float:right;", key:"btn_delete_req",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-trash-alt' aria-hidden='true'></i>&nbsp;<span>삭제</span>",
+							onclick:function(){
+								var chkList = firstGrid.getList('selected');
+								
+								fnDeleteReqInfo(chkList);
+							}},
+							{label:"", labelWidth:"", type:"button", width:"55",style:"float:right;", key:"btn_update_req",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-edit' aria-hidden='true'></i>&nbsp;<span>수정</span>",
+							onclick:function(){
+								var item = (!gfnIsNull(Object.keys(firstGrid.focusedColumn)))? firstGrid.list[firstGrid.focusedColumn[Object.keys(firstGrid.focusedColumn)].doindex]:null;
+								
+								if(gfnIsNull(item)){
+									toast.push('먼저 요구사항을 선택해주세요');
+									return;
+								}
+								var selReqId = item.reqId;
+								var reqProType = item.reqProType;
+
+								// 접수요청인 요구사항만 수정 가능
+		                    	if(reqProType != "01"){
+		                    		jAlert('접수 요청인 요구사항만 수정 가능합니다.','알림창');
+									return false;
+		                    	}
+
+								var data = {
+									"reqId": selReqId,
+									"type" : "update"	
+								};
+								gfnLayerPopupOpen('/req/req4000/req4100/selectReq4101View.do',data,"640","880",'scroll');
+							}},
+							{label:"", labelWidth:"", type:"button", width:"55",style:"float:right;", key:"btn_insert_req",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-save' aria-hidden='true'></i>&nbsp;<span>등록</span>",
+							onclick:function(){
+								var data = {
+									"type" : "insert"
+								};
+								
+								gfnLayerPopupOpen('/req/req4000/req4100/selectReq4101View.do',data,"640","880","scroll");
+							}},
+							{label:"", labelWidth:"", type:"button", width:"55", style:"float:right;", key:"btn_search_req",valueBoxStyle:"padding-left:0px;padding-right:5px;", value:"<i class='fa fa-list' aria-hidden='true'></i>&nbsp;<span>조회</span>",
+							onclick:function(){
+								/* 검색 조건 설정 후 reload */
+	 							var pars = mySearch.getParam();
+							    var ajaxParam = $('form#searchFrm').serialize();
+	
+							    if(!gfnIsNull(pars)){
+							    	ajaxParam += "&"+pars;
+							    }
+
+					            fnInGridListSet(0,ajaxParam);
+					            
+					            //폼 데이터 변경
+								$('#searchSelect').val(axdom("#" + mySearch.getItemId("searchSelect") ).val());
+								$('#searchCd').val(axdom("#" + mySearch.getItemId("searchCd")).val() );
+								$('#searchTxt').val(axdom("#" + mySearch.getItemId("searchTxt")).val() );
+							}}
 						]},{display:true, addClass:"bottom_searchGroup", style:"", list:[
 						    {label:"<i class='fa fa-search'></i>&nbsp;", labelWidth:"30", type:"selectBox", width:"", key:"searchSelect", addClass:"", valueBoxStyle:"", value:"all",
 								options:[
@@ -410,6 +476,8 @@
 		                                {optionValue:'reqNo', optionText:'공문번호'},
 		                                {optionValue:'reqId', optionText:'요구사항 ID'},
 		                                {optionValue:"reqProType", optionText:"처리유형", optionCommonCode:"REQ00008"},
+		                                {optionValue:"reqNewType", optionText:"접수유형", optionCommonCode:"REQ00009"},
+		                                {optionValue:"reqTypeCd", optionText:"요구사항 유형", optionCommonCode:"REQ00012"},
 		                                {optionValue:'reqOrd', optionText:'순번'}
 		                                
 		                            ],onChange: function(selectedObject, value) {
@@ -441,16 +509,10 @@
 							{label:"", labelWidth:"", type:"selectBox", width:"100", key:"searchCd", addClass:"selectBox", valueBoxStyle:"padding-left:0px;", value:"01",
 								options:[]
 							},
-							{label:"기간", labelWidth:"70", type:"inputText", width:"90", key:"srchFromDt", addClass:"secondItem readonly", valueBoxStyle:"", value:defaultStDt,
-								onChange: function(){}
-								},
-							{label:"", labelWidth:"", type:"inputText", width:"90", key:"srchToDt", addClass:"secondItem readonly", valueBoxStyle:"padding-left:0px;", value:defaultEndDt,
-									AXBind:{
-										type:"twinDate", config:{
-											align:"right", valign:"top", startTargetID:"srchFromDt"
-										}
-									}
-								},
+							{label : "시작일",labelWidth : "70",type : "inputText",width : "150",key : "srchFromDt",addClass : "secondItem sendBtn",valueBoxStyle : "",value : defaultStDt,
+							},
+							{label : "종료일",labelWidth : "70",type : "inputText",width : "150",key : "srchToDt",addClass : "secondItem sendBtn",valueBoxStyle : "",value : defaultEndDt,
+							},
 							{label:"<i class='fas fa-list-ol'></i>&nbsp;목록 수&nbsp;", labelWidth:"60", type:"selectBox", width:"", key:"pageSize", addClass:"", valueBoxStyle:"", value:"30",
 								options:[
 								         	{optionValue:15, optionText:"15"},
@@ -477,72 +539,7 @@
 			                            ],onChange: function(selectedObject, value){
 			                            	firstGrid.setHeight(value);
 			    						}
-							},
-							{label:"", labelWidth:"", type:"button", width:"70",style:"float:right;", key:"btn_print_newReqDemand",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-print' aria-hidden='true'></i>&nbsp;<span>프린트</span>",
-								onclick:function(){
-									$(firstGrid.exportExcel()).printThis();
-							}},
-							{label:"", labelWidth:"", type:"button", width:"55",style:"float:right;", key:"btn_excel_newReqDemand",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-file-excel' aria-hidden='true'></i>&nbsp;<span>엑셀</span>",
-								onclick:function(){
-									// 엑셀 다운로드 함수 호출
-	       							fnExcelDownLoad();
-	       							// 기존방식 - ax5grid의 함수 호출하여 엑셀 다운로드 하는방법
-									//firstGrid.exportExcel("all_request_list.xls");
-							}},
-							{label:"", labelWidth:"", type:"button", width:"55",style:"float:right;", key:"btn_delete_req",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-trash-alt' aria-hidden='true'></i>&nbsp;<span>삭제</span>",
-							onclick:function(){
-								var chkList = firstGrid.getList('selected');
-								
-								fnDeleteReqInfo(chkList);
-							}},
-							{label:"", labelWidth:"", type:"button", width:"55",style:"float:right;", key:"btn_update_req",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-edit' aria-hidden='true'></i>&nbsp;<span>수정</span>",
-							onclick:function(){
-								var item = (!gfnIsNull(Object.keys(firstGrid.focusedColumn)))? firstGrid.list[firstGrid.focusedColumn[Object.keys(firstGrid.focusedColumn)].doindex]:null;
-								
-								if(gfnIsNull(item)){
-									toast.push('먼저 요구사항을 선택해주세요');
-									return;
-								}
-								var selReqId = item.reqId;
-								var reqProType = item.reqProType;
-
-								// 처리유형이 반려(03), 최종완료(04)인 경우 수정 불가
-		                    	if(reqProType == "03" || reqProType == "04"){
-		                    		jAlert('반려, 최종 완료된 요구사항은 수정할 수 없습니다.','알림창');
-									return false;
-		                    	}
-
-								var data = {
-									"reqId": selReqId,
-									"type" : "update"	
-								};
-								gfnLayerPopupOpen('/req/req4000/req4100/selectReq4101View.do',data,"640","845",'scroll');
-							}},
-							{label:"", labelWidth:"", type:"button", width:"55",style:"float:right;", key:"btn_insert_req",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-save' aria-hidden='true'></i>&nbsp;<span>등록</span>",
-							onclick:function(){
-								var data = {
-									"type" : "insert"
-								};
-								
-								gfnLayerPopupOpen('/req/req4000/req4100/selectReq4101View.do',data,"640","845","scroll");
-							}},
-							{label:"", labelWidth:"", type:"button", width:"55", style:"float:right;", key:"btn_search_req",valueBoxStyle:"padding-left:0px;padding-right:5px;", value:"<i class='fa fa-list' aria-hidden='true'></i>&nbsp;<span>조회</span>",
-							onclick:function(){
-								/* 검색 조건 설정 후 reload */
-	 							var pars = mySearch.getParam();
-							    var ajaxParam = $('form#searchFrm').serialize();
-	
-							    if(!gfnIsNull(pars)){
-							    	ajaxParam += "&"+pars;
-							    }
-
-					            fnInGridListSet(0,ajaxParam);
-					            
-					            //폼 데이터 변경
-								$('#searchSelect').val(axdom("#" + mySearch.getItemId("searchSelect") ).val());
-								$('#searchCd').val(axdom("#" + mySearch.getItemId("searchCd")).val() );
-								$('#searchTxt').val(axdom("#" + mySearch.getItemId("searchTxt")).val() );
-							}}
+							}
 						  ]}
 					]
 				});
@@ -560,6 +557,9 @@
 			//버튼 권한 확인
 			fnBtnAuthCheck(mySearch);
 
+			//기간 검색 달기
+			gfnCalRangeSet(mySearch.getItemId("srchFromDt"), mySearch.getItemId("srchToDt"));
+			
 			// 상단 엑셀업로드, 양식다운로드 버튼이 권한이 없어서 hide일 경우
 			// 해당 버튼이 있는 div도 hide 처리해야함 
 			// $(".top_searchGroup") div의 하위에 있는 버튼 목록을 가져온다.
@@ -641,7 +641,7 @@
 		// 검색상자 호출시 그리드 데이터 조회
 		fnSearchBoxControl();
 	});
-	
+
 	/* 전체 요구사항 관리 엑셀 다운로드 */
 	function fnExcelDownLoad(){ 
 
@@ -662,7 +662,7 @@
 		excelForm.submit();
 		return false;
 	}
-
+	
 </script>
 
 <style>
