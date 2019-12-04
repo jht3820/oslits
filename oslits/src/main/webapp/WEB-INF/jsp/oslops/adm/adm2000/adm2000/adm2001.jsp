@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <html lang="ko">
-
+<head>
 <title>OpenSoftLab</title>
 
 <style>
@@ -55,6 +55,9 @@ input::-webkit-input-placeholder, textarea::-webkit-input-placeholder { color: #
 
 
 <script>
+
+globals_guideChkFn = fnAdm2001GuideShow;
+
 // 팝업 페이지 타입
 var popupType = "${param.proStatus}";
 
@@ -69,10 +72,12 @@ var arrChkObj = {"usrId":{"type":"length","msg":"아이디는 20byte까지 입�
 					,"selectDeptName":{"type":"length","msg":"소속 명은 300byte까지 입력가능합니다.", "max":300}
 				,"usrEtc":{"type":"length","msg":"비고는 4000byte까지 입력가능합니다.", "max":4000}
 				};
-				
+		
+
 //유효성 체크
 var saveObjectValid = {
-			"usrTelNo":{"type":"regExp","pattern":/^([0-9]{9,11}).*$/ ,"msg":"연락처 형식이 아닙니다. (예) 01012341234", "required":true}
+			"usrTelNo":{"type":"regExp","pattern":/^([0-9]{3,13}).*$/ ,"msg":"연락처 형식이 아닙니다. (3~13자리) (예) 01012341234", "required":true}
+			,"usrNm":{"type":"regExp","pattern":/^[0-9a-zA-Zㄱ-ㅎㅏ-ㅣ가-힣_-]{1,200}$/ ,"msg":"이름은 한글, 영문, 숫자, 특수문자( _ -) 만 입력가능합니다.", "required":true}
 			//아이디 중복검사 시에 체크 함
 			/* "usrId":{"type":"regExp","pattern":/^[a-z0-9_-]{5,20}$/ ,"msg":"아이디는 반드시 5-20자내에서 사용 가능합니다.", "required":true} */  
 			//이메일 중복검사 시에 체크 함
@@ -206,6 +211,27 @@ $(document).ready(function() {
 		$("#usrNm").focus();
 	}
 	
+	// 차단유무 변경 이벤트
+	$("#block").change(function(){
+		// 3개월 이상 로그인하지 않았는지 체크하기 위한 값
+		var loginExprYn = "${adm2000UsrInfo.loginExprYn}";
+		// 차단여부 값
+		var usrBlock = $("#block").val();
+		
+		// 3개월이상 로그인하지 않았을 경우
+		if(loginExprYn == "Y"){
+			// 차단여부를 정상으로 변경 시
+			if(usrBlock == "01"){
+				var blockMsg = $("#usrNm").val() + " 님은 3개월 이상 미접속으로 차단되었습니다. \n\n 차단여부를 [정상]으로 변경시 로그인 할 수 있습니다";
+				jAlert(blockMsg, "알림");
+				 $("#loginExprChange").val("Y");
+			// 차단여부 차단으로 변경 시	
+			}else{
+				$("#loginExprChange").val("N");
+			}
+		}
+	});
+	
 	/* 저장버튼 클릭 시 */
 	$('#btn_insert_usrPopup').click(function() {
 		
@@ -221,8 +247,9 @@ $(document).ready(function() {
 			var pwFailCnt	= $("#pwFailCnt").val();
 			var block		= $("#block option:selected").val();
 			var deptNm		= $("#selectDeptName").val();
-			var usrDutyCd 		= $("#block option:selected").val();
-			var usrPositionCd 	= $("#usrPositionCd option:selected").val();
+			var usrDutyCd 		= $("#usrDutyCd").val();
+			var usrPositionCd 	= $("#usrPositionCd").val();
+			var loginExprChange 	= $("#loginExprChange").val();
 
 			var strFormId = "usrInfo";
 			var alertStr	= "";
@@ -272,9 +299,16 @@ $(document).ready(function() {
 			
 			// 등록, 수정시 이메일 중복검사를 하지 않았을 경우	
 			if(chkEmail == "N"){
-				jAlert("이메일 중복확인을 하세요.","알림창");
-				$("#usrEmail").focus();
-				return false;
+				if(usrEmail == usrEmailBefore){
+           			chkEmail = "Y";
+           			$("#usrEmail").removeClass("inputError");
+	        		$("#usrEmail").attr("readonly",true);
+	        		$("#usrEmail").attr("class","fl readonly");
+				}else{
+					jAlert("이메일 중복확인이 필요합니다.","알림창");
+					$("#usrEmail").focus();
+					return false;
+				}
 			}
 			
 			// 신규등록일 경우
@@ -325,10 +359,10 @@ $(document).ready(function() {
 			}
 			
 			// 사용자 등록/수정 정보
-			var usrInfo = { "usrNm":usrNm, "usrId":usrId, "usrPw":usrPw, "usrEmail":usrEmail 
+			var usrInfo = { "usrNm":usrNm, "usrId":usrId, "usrPw":usrPw, "usrEmail":usrEmail.trim()
 							,"usrEtc":usrEtc, "useCd":useCd, "usrTelNo":usrTelNo , "deptId":deptId
 							, "pwFailCnt":pwFailCnt, "block":block, "usrDutyCd":usrDutyCd, "usrPositionCd":usrPositionCd
-							, "proStatus":proStatus}
+							, "proStatus":proStatus, "loginExprChange":loginExprChange}
 			
 			// 차단유무에 따라 비밀번호 실패횟수 수정
 			block == "01" ? usrInfo.pwFailCnt = "0" : usrInfo.pwFailCnt;
@@ -357,6 +391,7 @@ $(document).ready(function() {
 	
 	/* 아이디 중복 체크 */
 	$('#usrIdChk').click(function() {
+		$(".inputError").removeClass("inputError");
 		var usrId = $("#usrId").val();
 		var strFormId = "usrInfo";
 		
@@ -416,7 +451,10 @@ $(document).ready(function() {
 	
 	/* 이메일 중복 체크 */
 	$('#usrEmailChk').click(function() {
-		var usrEmail = $("#usrEmail").val();
+		$(".inputError").removeClass("inputError");
+		
+		// 이메일값 공백제거
+		var usrEmail = $("#usrEmail").val().trim();
 		
 		var strFormId = "usrInfo";
 		var usrEmailChk = ["usrEmail"];
@@ -426,15 +464,17 @@ $(document).ready(function() {
 		if(gfnRequireCheck(strFormId, usrEmailChk, usrEmailChkNm)){
 			return false;	
 		}
+		
+		// 이메일 체크 정규식
 		var pattern =/^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i;
 		
 		if(usrEmail.length<6 || !pattern.test(usrEmail)) {
 			$("#usrEmail").addClass("inputError");
-			jAlert("이메일 형식이 아닙니다. <br>(예) mymail@naver.com", "알림창");
+			jAlert("이메일 형식이 아닙니다.<br>(예) mymail@naver.com", "알림창");
 		}else{
 			//현재 사용자의 이메일과 동일한 경우 사용유무 물어봄
-			if(usrEmail == usrEmailBefore){
-				jConfirm("현재 사용자의 이메일입니다. <br><br>현재 이메일을 사용하시겠습니까?", "알림창", function( result ) {
+			if(usrEmail == usrEmailBefore){ 
+				jConfirm("현재 사용자의 이메일입니다. <br>현재 이메일을 사용하시겠습니까?", "알림창", function( result ) {
             		if(result){
             			chkEmail = "Y";
             			$("#usrEmail").removeClass("inputError");
@@ -596,11 +636,11 @@ $(document).ready(function() {
 	function fnUsrPwValidationChk(usrId, usrPw){
 		
 		// 비밀번호 유효성체크 정규식
-		var pwRegx = /^(?=.{9,})(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]).*$/;
+		var pwRegx = /^(?=.{9,})(?=.*?[a-zA-Z])(?=.*?[0-9])(?=.*?[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]).*$/;
 		
 		//유효성 체크
 		var saveObjectValid = {  
-					"usrPw":{"type":"regExp","pattern":pwRegx ,"msg":"비밀번호는 9자 이상 영문 대소문자,숫자,특수문자를 조합해야 합니다.", "required":true}
+					"usrPw":{"type":"regExp","pattern":pwRegx ,"msg":"비밀번호는 9자 이상 영문,숫자,특수문자를 조합해야 합니다.", "required":true}
 		}
 
 		// 비밀번호 유효성 검사
@@ -735,18 +775,31 @@ $(document).ready(function() {
 		// 최초 라이선스 등록자(usrIdGrp = usrId)일 경우
 		// 사용여부, 차단여부 수정불가
 		if(popupType == "U" && usrIdGrp == usrId){
-			$(".layer_popup_box").css("height","738px");
-			$(".search_select").hide();
+			$(".select_useCd").hide();
 			$(".div_message").show();
 			$(".div_message").html("<span class='required_info'>수정 불가</span>");
-			$("#usrUpdateMsg").html("* 최초 라이선스 등록자는 사용 유무, 차단여부를 수정할 수 없습니다.");
+			$("#usrUpdateMsg").html("* 최초 라이선스 등록자는 사용 유무를 수정할 수 없습니다.");
 			$(".pop_note").css("margin-top","15px");
 			$(".bottom_menu_row").css("margin-bottom","13px");
 		}
 	}
+	
+
+	function fnAdm2001GuideShow(){
+		var mainObj = $(".popup");
+		
+		//mainObj가 없는경우 false return
+		if(mainObj.length == 0){
+			return false;
+		}
+		//guide box setting
+		var guideBoxInfo = globals_guideContents["adm2001"];
+		gfnGuideBoxDraw(true,mainObj,guideBoxInfo);
+	}
 
 </script>
-
+</head>
+<body>
 	<div class="popup">
 		<div class="pop_title">사용자 
 			<c:choose>
@@ -760,9 +813,10 @@ $(document).ready(function() {
 			<form id="usrInfo" name="usrInfo" method="post" enctype="multipart/form-data" >
 				<input type ="hidden" id="proStatus" name="proStatus" value="<c:out value='${param.proStatus}' />" />
 				<input type ="hidden" id="deptId" name="deptId" value="<c:out value='${adm2000UsrInfo.deptId}' />" />
+				<input type ="hidden" id="loginExprChange" name="loginExprChange" value="N" />
 				
 				<div class="pop_menu_row first_menu_row">
-					<div class="pop_menu_col1"><label for="usrId">아이디</label><span class="required_info">&nbsp;*</span></div>
+					<div class="pop_menu_col1 pop_menu_col1_right"><label for="usrId">아이디</label><span class="required_info">&nbsp;*</span></div>
 					<div class="pop_menu_col2">
 						<input type="text" title="아이디" class="input_txt lp10" id="usrId" name="usrId" maxlength="20" value="<c:out value='${adm2000UsrInfo.usrId}' />" <c:if test="${param.proStatus eq 'U'}">readonly="readonly"</c:if> />
 						<c:if test="${param.proStatus eq 'I'}">
@@ -772,20 +826,20 @@ $(document).ready(function() {
 				</div>
 				<div class="pop_menu_row first_menu_row">
 					<div class="pop_menu_col1 pop_menu_col1_right"><label for="reqNo">성명</label><span class="required_info">&nbsp;*</span></div>
-					<div class="pop_menu_col2">
+					<div class="pop_menu_col2 pop_menu_col1_left">
 						<input type="text" title="성명" class="input_txt lp10" id="usrNm" name="usrNm" maxlength="100" value="<c:out value='${adm2000UsrInfo.usrNm}' />"/>
 					</div>
 				</div>
 				
 				<div class="pop_menu_row">
-					<div class="pop_menu_col1"><label for="usrTelNo">연락처</label><span class="required_info">&nbsp;*</span></div>
+					<div class="pop_menu_col1 pop_menu_col1_right"><label for="usrTelNo">연락처</label><span class="required_info">&nbsp;*</span></div>
 					<div class="pop_menu_col2">
-						<input type="text" title="연락처" class="input_txt lp10" id="usrTelNo" name="usrTelNo" maxlength="11" value="<c:out value='${adm2000UsrInfo.telno}' />" />
+						<input type="text" title="연락처" class="input_txt lp10" id="usrTelNo" name="usrTelNo" maxlength="13" max="11199999999" value="<c:out value='${adm2000UsrInfo.telno}' />" />
 					</div>
 				</div>
 				<div class="pop_menu_row">
 					<div class="pop_menu_col1 pop_menu_col1_right"><label for="usrEmail">이메일</label><span class="required_info">&nbsp;*</span></div>
-					<div class="pop_menu_col2">
+					<div class="pop_menu_col2 pop_menu_col1_left">
 						<input type="text" title="이메일" class="input_txt lp10" id="usrEmail" name="usrEmail" maxlength="48" value="<c:out value='${adm2000UsrInfo.email}' />" />
 						<c:if test="${param.proStatus ne 'S'}">
 							<span class="button_normal2 fl" id="usrEmailChk">중복확인</span>
@@ -794,7 +848,7 @@ $(document).ready(function() {
 				</div>
 				
 				<div class="pop_menu_row">
-					<div class="pop_menu_col1"><label for="usrPw">비밀번호</label><span class="required_info">&nbsp;*</span></div>
+					<div class="pop_menu_col1 pop_menu_col1_right"><label for="usrPw">비밀번호</label><span class="required_info">&nbsp;*</span></div>
 					<div class="pop_menu_col2">
 						<input type="password" title="비밀번호" class="input_txt lp10" id="usrPw" name="usrPw" maxlength="150" value="<c:out value='${adm2000UsrInfo.usrPw}' />" />
 						<c:if test="${param.proStatus eq 'U'}">
@@ -807,7 +861,7 @@ $(document).ready(function() {
 				<c:if test="${param.proStatus eq 'I'}">
 				<div class="pop_menu_row" id="div_reUsrPw">
 					<div class="pop_menu_col1 pop_menu_col1_right"><label for="reUsrPw">비밀번호 확인</label> <span class="required_info">&nbsp;*</span></div>
-					<div class="pop_menu_col2">
+					<div class="pop_menu_col2 pop_menu_col1_left">
 						<input type="password" title="비밀번호 확인" id="reUsrPw" class="input_txt lp10" maxlength="150" />
 					</div>
 				</div>
@@ -818,7 +872,7 @@ $(document).ready(function() {
 				<c:if test="${param.proStatus ne 'I'}">
 				<div class="pop_menu_row" id="div_pwFailCnt">
 					<div class="pop_menu_col1 pop_menu_col1_right"><label for="pwFailCnt">비밀번호 실패 횟수</label></div>
-					<div class="pop_menu_col2">
+					<div class="pop_menu_col2 pop_menu_col1_left">
 						<input type="number" title="비밀번호 실패 횟수" class="input_txt lp10" id="pwFailCnt" name="pwFailCnt" min="0"  readonly="readonly" value="<c:out value='${adm2000UsrInfo.pwFailCnt}' />"/>
 					</div>
 				</div>
@@ -841,7 +895,7 @@ $(document).ready(function() {
 				
 				<div class="pop_menu_row" id="div_duty">
 					<div class="pop_menu_col1 pop_menu_col1_right"><label for="usrDutyCd">직책</label></div>
-					<div class="pop_menu_col2">
+					<div class="pop_menu_col2 pop_menu_col1_left">
 						<span class="search_select">
 							<select class="select_usrDutyCd" name="usrDutyCd" id="usrDutyCd" style="height:100%;"></select>
 						</span>
@@ -855,8 +909,8 @@ $(document).ready(function() {
 
 				
 				<div class="pop_menu_row pop_menu_oneRow">
-					<div class="pop_menu_col1 pop_oneRow_col1"><label for="selectDeptName">소속</label><span class="required_info">&nbsp;*</span></div>
-					<div class="pop_menu_col2 pop_oneRow_col2">
+					<div class="pop_menu_col1 pop_oneRow_col1 pop_menu_col1_right"><label for="selectDeptName">소속</label><span class="required_info">&nbsp;*</span></div>
+					<div class="pop_menu_col2 pop_oneRow_col2 pop_menu_col1_left">
 						<input type="text" title="소속" class="input_txt lp10" id="selectDeptName" name="selectDeptName" maxlength="300" value="<c:out value='${adm2000UsrInfo.deptName}' />"/>
 						<c:if test="${param.proStatus ne 'S'}">
 							<span class="button_normal2 fl" id="btn_search_dept" style="width: 64px;">소속검색</span>
@@ -867,8 +921,8 @@ $(document).ready(function() {
 				<!-- 등록일 경우 -->
 				<c:if test="${param.proStatus eq 'I'}">
 				<div class="pop_menu_row pop_menu_oneRow">
-					<div class="pop_menu_col1 pop_oneRow_col1"><label for="useCd">사용유무</label><span class="required_info">&nbsp;*</span></div>
-					<div class="pop_menu_col2 pop_oneRow_col2">
+					<div class="pop_menu_col1 pop_oneRow_col1 pop_menu_col1_right"><label for="useCd">사용유무</label><span class="required_info">&nbsp;*</span></div>
+					<div class="pop_menu_col2 pop_oneRow_col2 pop_menu_col1_left">
 						<span class="search_select">
 							<select class="select_useCd" name="useCd" id="useCd" value="" style="height:100%; width:100%; max-width: 38.5%;"></select>
 						</span>
@@ -879,7 +933,7 @@ $(document).ready(function() {
 				<!-- 수정, 상세보기일 경우 -->
 				<c:if test="${param.proStatus ne 'I'}">
 				<div class="pop_menu_row bottom_menu_row">
-					<div class="pop_menu_col1"><label for="useCd">사용유무</label><span class="required_info">&nbsp;*</span></div>
+					<div class="pop_menu_col1 pop_menu_col1_right"><label for="useCd">사용유무</label><span class="required_info">&nbsp;*</span></div>
 					<div class="pop_menu_col2">
 						<div class="div_message" style="display:none"></div>
 						<span class="search_select">
@@ -894,8 +948,7 @@ $(document).ready(function() {
 				
 				<div class="pop_menu_row bottom_menu_row">
 					<div class="pop_menu_col1 pop_menu_col1_right"><label for="block">차단여부</label><span class="required_info">&nbsp;*</span></div>
-					<div class="pop_menu_col2">
-						<div class="div_message" style="display:none"></div>
+					<div class="pop_menu_col2 pop_menu_col1_left" guide="block" >
 						<span class="search_select">
 							<select class="select_block" name="block" id="block" value="" style="height:100%; width:100%; max-width: 100%;"></select>
 						</span>
@@ -936,4 +989,5 @@ $(document).ready(function() {
 			</form>
 		</div>
 	</div>
+</body>	
 </html>
