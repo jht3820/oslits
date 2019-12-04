@@ -2,7 +2,7 @@
 <%@ include file="/WEB-INF/jsp/oslops/top/header.jsp" %>
 <jsp:include page="/WEB-INF/jsp/oslops/top/aside.jsp" />
 
-<link rel='stylesheet' href='<c:url value='/css/oslits/req.css'/>' type='text/css'>
+<link rel='stylesheet' href='<c:url value='/css/oslops/req.css'/>' type='text/css'>
 
 <style>
 .search_select select { font-size: 0.85em; }
@@ -42,29 +42,30 @@ function fnAxGrid5View(){
             header: {align:"center"},
             frozenColumnIndex: 3,
             columns: [
-      				{key: "reqOrd", label: "순번", width: '7%', align: "center"},
-    				{key: "reqProTypeNm", label: "처리유형", width: '9%', align: "center"},
-    				{key: "reqNm", label: "요구사항 명", width: '20%', align: "left"},
-    				{key: "reqDesc", label: "요구사항 설명", width: '30%', align: "left"},
-    				{key: "reqNo", label: "공문 번호", width: '8%', align: "center"},
-    				{key: "reqUsrNm", label: "요청자", width: '8%', align: "center"},
-    				{key: "reqChargerNm", label: "담당자", width: '8%', align: "center"},
-    				{key: "reqDtm", label: "요청일자", width: '8%', align: "center"},
-    				{key: "reqId", label: "요구사항 ID", width: '12%', align: "center"},
-    				{key: "processNm", label: "프로세스 명", width: '8%', align: "center"},
-    				{key: "flowNm", label: "작업흐름 명", width: '8%', align: "center"},
-    				{key: "reqStDtm", label: "시작 기간", width: '8%', align: "center"},
-    				{key: "reqEdDtm", label: "종료 기간", width: '8%', align: "center"},
-    				{key: "reqStDuDtm", label: "시작 예정일자", width: '8%', align: "center"},
-    				{key: "reqEdDuDtm", label: "종료 예정일자", width: '8%', align: "center"},
-    				{key: "reqExFp", label: "예상 FP", width: '8%', align: "center"},
-    				{key: "reqFp", label: "FP", width: '8%', align: "center"},
-    				{key: "reqTypeNm", label: "요구사항 유형", width: '8%', align: "center"},
-    				{key: "sclNm", label: "시스템 구분", width: '12%', align: "center"},
-    				{key: "piaNm", label: "성능개선 활동여부", width: '12%', align: "center"},
-    				{key: "labInp", label: "투입인력", width: '8%', align: "center"},
-    				{key: "orgReqId", label: "체계별 요구사항ID", width: '12%', align: "center"}
-            ],
+				{key: "reqOrd", label: "순번", width: '7%', align: "center"},
+				{key: "reqProTypeNm", label: "처리유형", width: '9%', align: "center"},
+				{key: "reqNm", label: "요구사항 명", width: '20%', align: "left"},
+				{key: "reqDesc", label: "요구사항 설명", width: '30%', align: "left"},
+				{key: "reqNo", label: "공문 번호", width: '8%', align: "center"},
+				{key: "reqNewTypeNm", label: "접수유형", width: '9%', align: "center"},
+				{key: "reqUsrNm", label: "요청자", width: '8%', align: "center"},
+				{key: "reqChargerNm", label: "담당자", width: '8%', align: "center"},
+				{key: "reqDtm", label: "요청일자", width: '8%', align: "center"},
+				{key: "reqId", label: "요구사항 ID", width: '12%', align: "center"},
+				{key: "processNm", label: "프로세스 명", width: '8%', align: "center"},
+				{key: "flowNm", label: "작업흐름 명", width: '8%', align: "center"},
+				{key: "reqStDtm", label: "실제 작업 시작일자", width: '10%', align: "center"},
+				{key: "reqEdDtm", label: "실제 작업 종료일자", width: '10%', align: "center"},
+				{key: "reqStDuDtm", label: "작업 시작 예정일자", width: '10%', align: "center"},
+				{key: "reqEdDuDtm", label: "작업 종료 예정일자", width: '10%', align: "center"},
+				{key: "reqExFp", label: "예상 FP", width: '8%', align: "center"},
+				{key: "reqFp", label: "FP", width: '8%', align: "center"},
+				{key: "reqTypeNm", label: "요구사항 유형", width: '8%', align: "center"},
+				{key: "sclNm", label: "시스템 구분", width: '12%', align: "center"},
+				{key: "piaNm", label: "성능개선 활동여부", width: '12%', align: "center"},
+				{key: "labInp", label: "투입인력", width: '8%', align: "center"},
+				{key: "orgReqId", label: "프로젝트별 요구사항ID", width: '12%', align: "center"}
+			],
             body: {
                 align: "center",
                 columnHeight: 30,
@@ -90,7 +91,7 @@ function fnAxGrid5View(){
 					// 처리유형이 접수요청(01), 반려(03)일 경우 req1002.jsp 상세보기 화면으로
 					if(reqProType == "01" || reqProType == "03"){
 						
-						reqProType == "03" ? popHeight = "890" : popHeight = "845";
+						reqProType == "03" ? popHeight = "930" : popHeight = "890";
 						
 						gfnLayerPopupOpen("/req/req1000/req1000/selectReq1002View.do", data, '640', popHeight,'scroll');	
 					}else{
@@ -189,7 +190,7 @@ function fnInGridListSet(_pageNo,ajaxParam){
 		//AJAX 전송 성공 함수
 		ajaxObj.setFnSuccess(function(data){
 			data = JSON.parse(data);
-			
+
 			// 조회 실패
 	    	if(data.selectYN == 'N'){ 
 	    		toast.push(data.message);
@@ -254,6 +255,8 @@ function fnSearchBoxControl(){
 		                                {optionValue:'reqNo', optionText:'공문번호'},
 		                                {optionValue:'reqId', optionText:'요구사항 ID'},
 		                                {optionValue:"reqProType", optionText:"처리유형", optionCommonCode:"REQ00008"},
+		                                {optionValue:"reqNewType", optionText:"접수유형", optionCommonCode:"REQ00009"},
+		                                {optionValue:"reqTypeCd", optionText:"요구사항 유형", optionCommonCode:"REQ00012"},
 		                                {optionValue:'reqOrd', optionText:'순번'}
 		                                
 		                            ],onChange: function(selectedObject, value){
@@ -285,16 +288,10 @@ function fnSearchBoxControl(){
 						{label:"", labelWidth:"", type:"selectBox", width:"100", key:"searchCd", addClass:"selectBox", valueBoxStyle:"padding-left:0px;", value:"01",
 							options:[]
 						},
-						{label:"기간", labelWidth:"70", type:"inputText", width:"90", key:"srchFromDt", addClass:"secondItem readonly", valueBoxStyle:"", value:defaultStDt,
-							onChange: function(){}
-							},
-						{label:"", labelWidth:"", type:"inputText", width:"90", key:"srchToDt", addClass:"secondItem readonly", valueBoxStyle:"padding-left:0px;", value:defaultEndDt,
-								AXBind:{
-									type:"twinDate", config:{
-										align:"right", valign:"top", startTargetID:"srchFromDt"
-									}
-								}
-							},
+						{label : "시작일",labelWidth : "70",type : "inputText",width : "150",key : "srchFromDt",addClass : "secondItem sendBtn",valueBoxStyle : "",value : defaultStDt,
+						},
+						{label : "종료일",labelWidth : "70",type : "inputText",width : "150",key : "srchToDt",addClass : "secondItem sendBtn",valueBoxStyle : "",value : defaultEndDt,
+						},
 						{label:"<i class='fas fa-list-ol'></i>&nbsp;목록 수&nbsp;", labelWidth:"60", type:"selectBox", width:"", key:"pageSize", addClass:"", valueBoxStyle:"", value:"30",
 							options:[
 							         	{optionValue:15, optionText:"15"},
@@ -326,7 +323,7 @@ function fnSearchBoxControl(){
 						
            				{label:"", labelWidth:"", type:"button", width:"70", key:"btn_print_newReqDemand",style:"float:right;",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-print' aria-hidden='true'></i>&nbsp;<span>프린트</span>",
            						onclick:function(){
-           							$(firstGrid.exportExcel()).printThis();
+           							$(firstGrid.exportExcel()).printThis({importCSS: false,importStyle: false,loadCSS: "/css/common/printThis.css"});
            				}},
 						{label:"", labelWidth:"", type:"button", width:"55", key:"btn_excel_newReqDemand",style:"float:right;",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-file-excel' aria-hidden='true'></i>&nbsp;<span>엑셀</span>",
        						onclick:function(){
@@ -369,51 +366,9 @@ function fnSearchBoxControl(){
 		
 		//버튼 권한 확인
 		fnBtnAuthCheck(mySearch);
-		
-	    //좌측메뉴 작업흐름으로 조회인 경우 (전체요구사항, 담당 요구사항)
-	    if(!gfnIsNull("${flowId}")){
-	    	//option 초기화
-	    	axdom("#" + mySearch.getItemId("searchCd")).html('');
 
-	    	//목록 불러오기
-	    	axdom("#"+mySearch.getItemId("searchCd")).append('<option value="ALL">전체</option>');
-			$.each(JSON.parse(flowList),function(){
-				axdom("#"+mySearch.getItemId("searchCd")).append('<option value="'+this.flowId+'">'+this.flowNm+'</option>');	
-			});
-			axdom("#"+mySearch.getItemId("searchCd")).append('<option value="FLW">미분류</option>');
-	    	
-			//파라미터 세팅
-    		axdom("#" + mySearch.getItemId("searchSelect")).val('flowId');
-    		axdom("#" + mySearch.getItemId("searchCd")).val("${flowId}");
-	    	axdom("#" + mySearch.getItemId("searchTxt")).hide();
-			axdom("#" + mySearch.getItemId("searchCd")).show();
-
-			
-			//그리드 검색 호출
-			var pars = mySearch.getParam();
-			fnInGridListSet(0,pars);
-	    }
-	  	//좌측메뉴 개발주기로 조회인 경우
-	    if(!gfnIsNull("${sprintId}")){
-	    	//option 초기화
-	    	axdom("#" + mySearch.getItemId("searchCd")).html('');
-	    	
-	    	//목록 불러오기
-			$.each(JSON.parse(sprintList),function(){
-				axdom("#"+mySearch.getItemId("searchCd")).append('<option value="'+this.sprintId+'">'+this.sprintNm+'</option>');	
-			});
-	    	
-			//파라미터 세팅
-	    	axdom("#" + mySearch.getItemId("searchSelect")).val('sprintId');
-	    	axdom("#" + mySearch.getItemId("searchCd")).val("${sprintId}");
-	    	axdom("#" + mySearch.getItemId("searchTxt")).hide();
-			axdom("#" + mySearch.getItemId("searchCd")).show();
-			
-			//그리드 검색 호출
-			var pars = mySearch.getParam();
-			fnInGridListSet(0,pars);
-	    	
-	    }
+		//기간 검색 달기
+		gfnCalRangeSet(mySearch.getItemId("srchFromDt"), mySearch.getItemId("srchToDt"));
 	  	
 	    if(!gfnIsNull(reqUsrNm)){
 	    	//option 초기화
@@ -430,16 +385,15 @@ function fnSearchBoxControl(){
 			//그리드 검색 호출
 			var pars = mySearch.getParam();
 			fnInGridListSet(0,pars);
-	    	
+	    }else{
+		 	// 화면 로드 시 그리드 데이터 불러오기
+			// 기본 세팅된 날짜를 이용해서 요구사항 조회
+			axdom("#" + mySearch.getItemId("srchFromDt")).val();
+			axdom("#" + mySearch.getItemId("srchToDt")).val();
+			
+			var pars = mySearch.getParam();
+			fnInGridListSet(0,pars);
 	    }
-	    
-	 	// 화면 로드 시 그리드 데이터 불러오기
-		// 기본 세팅된 날짜를 이용해서 요구사항 조회
-		axdom("#" + mySearch.getItemId("srchFromDt")).val();
-		axdom("#" + mySearch.getItemId("srchToDt")).val();
-		
-		var pars = mySearch.getParam();
-		fnInGridListSet(0,pars);
 		
 	});
 }
