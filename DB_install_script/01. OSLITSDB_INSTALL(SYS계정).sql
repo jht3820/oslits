@@ -1,67 +1,42 @@
-/**
-*		DB INSTALL 프로세스
+/* 데이터베이스 생성  - command*/
+cubrid createdb --db-volume-size=2G --db-volume-size=1G --db-volume-size=200M OSLITSDB ko_KR.utf8
+
+/* 데이터베이스 시작  - command*/
+cubrid server start OSLITSDB
+
+/* 데이터베이스 cubrid.conf 수정*/
+설치 드라이브\CUBRID\conf\cubrid.conf
+
+/* 주석 풀고 OSLITSDB 입력 */
+#server=foo,bar
+-> 
+server=OSLITSDB
+
+/* 자바 함수 사용하기위해 추가 */
+java_stored_procedure=yes 
+
+/* 외부 접속을 위해 추가 */
+access_ip_control=yes
+access_ip_control_file=C:/CUBRID/conf/db_acl.access
+
+/* 빈문자열 null처리 위해 추가 */
+oracle_style_empty_string=yes
+
+/* ip 허용 적용 (cubrid server acl status OSLITSDB - ip허용 확인) */
+cubrid server acl reload OSLITSDB
+
+
+[@OSLITSDB]
 *
-*		01. 테이블 스페이스 생성(TS_OSLITS_DAT01, TS_OSLITS_IDX01)
-*		02. OSLITSDB 스키마 생성
-*		03. OSLITSDB 스키마에 권한 부여
-*		04. 테이블 및 칼럼 메타정보 테이블 및 테이블 생성 SQL 저장 테이블 생성
-*		05. 메타정보 테이블에 메타정보 데이터 INSERT
-*
-*		작성자 : (주)오픈소프트랩 정형택
-*		작성일 : 2018.10.29
-*/
+-> 설치 드라이브/CUBRID/conf/db_acl.access  파일 생성 ( 추후 * 부분에 IP 등록)
 
+/*  command에서 큐브리드 재시작 요청 */
+cubrid service restart
 
-/* TS_OSLITS_DAT01 데이터 저장용 테이블 스페이스 생성 */
-CREATE TABLESPACE TS_OSLITS_DAT01 DATAFILE
-'테이블 스페이스 경로\TS_OSLITS_DAT01.DBF' SIZE 200M AUTOEXTEND ON NEXT 200M MAXSIZE UNLIMITED
-LOGGING
-ONLINE
-PERMANENT
-EXTENT MANAGEMENT LOCAL AUTOALLOCATE
-BLOCKSIZE 8K;
+/* 데이터베이스 접속  - command*/
+csql -C -u dba OSLITSDB
 
-/* TS_OSLITS_IDX01 인덱스 저장용 테이블 스페이스 생성 */
-CREATE TABLESPACE TS_OSLITS_IDX01 DATAFILE
-'테이블스페이스 경로\TS_OSLITS_IDX01.DBF' SIZE 100M AUTOEXTEND ON NEXT 100M MAXSIZE UNLIMITED
-LOGGING
-ONLINE
-PERMANENT
-EXTENT MANAGEMENT LOCAL AUTOALLOCATE
-BLOCKSIZE 8K;
+/* 데이터베이스 사용자 계정 생성 - command*/
+create user OSLITSDB GROUPS dba;
 
-
-/* OSLITSDB 스키마 생성 및 권한 부여 */
-CREATE USER OSLITSDB IDENTIFIED BY OSLITSDB;
-GRANT CONNECT,RESOURCE TO OSLITSDB IDENTIFIED BY OSLITSDB;
-GRANT CREATE VIEW TO OSLITSDB;
-ALTER USER OSLITSDB DEFAULT TABLESPACE TS_OSLITS_DAT01;
-ALTER USER OSLITSDB TEMPORARY TABLESPACE TEMP;
-
-GRANT CREATE DATABASE LINK TO OSLITSDB;
-GRANT CREATE JOB TO OSLITSDB;
-GRANT CREATE VIEW TO OSLITSDB;
-GRANT CREATE MATERIALIZED VIEW TO OSLITSDB;
-GRANT CREATE PROCEDURE TO OSLITSDB;
-GRANT CREATE SEQUENCE TO OSLITSDB;
-GRANT CREATE SYNONYM TO OSLITSDB;
-GRANT CREATE TABLE TO OSLITSDB;
-GRANT CREATE TRIGGER TO OSLITSDB;
-
-/* ORACLE 12C 에서는 아래 테이블 스페이스 사용량 언리미티드로 지정 해 줘야함. */
-alter user OSLITSDB default tablespace TS_OSLITS_DAT01 quota unlimited on TS_OSLITS_DAT01;
-alter user OSLITSDB default tablespace TS_OSLITS_IDX01 quota unlimited on TS_OSLITS_IDX01;
-
-/* 시퀀스 생성 */
-CREATE SEQUENCE OSLITSDB.LIC_NO_SEQ
-    START WITH 1
-    INCREMENT BY 1
-    MAXVALUE 99999999
-    MINVALUE 1
-    CYCLE
-    NOCACHE
-    ORDER;
-
-COMMIT;
-
-
+alter user OSLITSDB password 'OSLITSDB';
