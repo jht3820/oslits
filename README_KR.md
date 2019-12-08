@@ -28,7 +28,7 @@ SW구축 · 운영 통합관리 솔루션입니다. SW 구축 · 운영 전 생�
    ```
      - JDK 1.7 이상
      - Tomcat 7.0 이상
-     - Oracle 11g r2 이상
+     - Cubrid 9.3.3 이상
    ```
    - Client 
    ```
@@ -43,22 +43,24 @@ SW구축 · 운영 통합관리 솔루션입니다. SW 구축 · 운영 전 생�
  
 # 3. OSL™ ITS 설치
 
-### 3.1 ORACLE 11g r2에 OSL™ ITS DB 설치
+### 3.1 Cubrid에 OSL™ ITS DB 설치
  
  - DB_install_script 디렉토리에 설치 스크립트들을 1번부터 순서대로 설치 진행합니다.
+ - Cubrid 함수 생성 전 Cubrid Java Stored function 폴더에 있는 java 파일을 컴파일하여 Cubrid에 load 합니다.
+   이 후 함수를 생성합니다.
   
 ### 3.2 OSL™ ITS DB 접속 주소 및 환경설정
   ```
-      /oslits/src/main/resources/egovframework/egovProps/globals.properties 아래와 같이 설정을 변경합니다.
+      /oslops/src/main/resources/egovframework/egovProps/globals.properties 아래와 같이 설정을 변경합니다.
       
-      Globals.oslits.driver= Your DB Driver
-      Globals.oslits.url= Your DB URL
-      Globals.oslits.username= Your DB username
-      Globals.oslits.password= Your DB password
+      Globals.lunaops.cubrid.driver= Your cubrid DB  Driver
+      Globals.lunaops.cubrid.url= Your cubrid DB URL
+      Globals.lunaops.cubrid.username= Your DB username
+      Globals.lunaops.cubrid.password= Your DB password
    ```   
 ### 3.3 OSL™ ITS 최초 시스템관리자 생성
  ```
-      /oslits/src/main/resources/egovframework/egovProps/globals.properties 아래와 같이 설정을 변경합니다.
+      /olsops/src/main/resources/egovframework/egovProps/globals.properties 아래와 같이 설정을 변경합니다.
       
       Globals.oslits.userJoin= N → 해당 항목 Y 로 변경하여 최초 시스템관리자가 회원가입할 수 있도록 설정합니다.
       
