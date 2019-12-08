@@ -28,7 +28,7 @@ SW construction and operation integrated management solution. Implement DEV-OPS,
    ```
      - JDK 1.7  or later
      - Tomcat 7.0  or later
-     - Oracle 11g r2  or later
+     - Cubrid 9.3.3  or later
    ```
    - Client 
    ```
@@ -43,24 +43,25 @@ SW construction and operation integrated management solution. Implement DEV-OPS,
  
 # 3. Install OSL ™ ITS
 
-### 3.1 Install OSL ™ ITS DB on ORACLE 11g r2
+### 3.1 Install OSL ™ ITS DB on Cubrid 9.3.3.
  
  - Install the installation scripts in the DB_install_script directory in order from number 1.
+ - Before creating the Cubrid function, compile the java file in the Cubrid Java Stored function folder and load it into Cubrid. After this, create a function.
   
 ### 3.2 OSL™ ITS DB Connection Address and Configuration
   ```
-      /oslits/src/main/resources/egovframework/egovProps/globals.properties Change the settings as shown below.
+      /oslops/src/main/resources/egovframework/egovProps/globals.properties Change the settings as shown below.
       
-      Globals.oslits.driver = Your DB Driver
-      Globals.oslits.url = Your DB URL
-      Globals.oslits.username = Your DB username
-      Globals.oslits.password = Your DB password
+    Globals.lunaops.cubrid.driver= Your cubrid DB  Driver
+    Globals.lunaops.cubrid.url= Your cubrid DB URL
+    Globals.lunaops.cubrid.username= Your DB username
+    Globals.lunaops.cubrid.password= Your DB password
    ```   
 ### 3.3 OSL™ ITS Create the first system administrator
  ```
-      /oslits/src/main/resources/egovframework/egovProps/globals.properties Change the settings as shown below
+      /opsops/src/main/resources/egovframework/egovProps/globals.properties Change the settings as shown below
       
-      Globals.oslits.userJoin= N → Change it to Y so that the first system administrator can join.
+      Globals.opsops.userJoin= N → Change it to Y so that the first system administrator can join.
       
         ㄴ The ID created through membership is automatically created with the system administrator authority of the organization.
         ㄴ After creating through the system administrator ID membership, you need to remove the membership function by changing the   setting to 'N' again.
