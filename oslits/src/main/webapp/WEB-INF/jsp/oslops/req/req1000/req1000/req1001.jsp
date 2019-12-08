@@ -1,3 +1,4 @@
+
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -11,7 +12,6 @@
 .required_info { color: red; }   
 .pop_menu_row .pop_menu_col2 .pop_radio{ line-height: 17px; padding-top: 5px;}  
 #reqDesc{ height: 200px;}
-#reqUsrNum {width: 41%;}   
 /* #reqNm { width: 100%; } */
 #btn_insert_reqContinuePopup{display:none;}
 /* 필수 입력값 */
@@ -125,7 +125,10 @@
     padding: 5px 10px;
     overflow-y: auto;
 }
-.serviceDiv_reqNm span ,.serviceDiv_reqDesc span {color: #4b73eb; font-weight: bold;}
+.serviceDiv_reqNm span ,.serviceDiv_reqDesc span {
+    color: #4b73eb;
+    font-weight: bold;
+}
 </style>
 <script>
 var url = "";
@@ -156,8 +159,8 @@ var arrChkObj = {"reqNm":{"type":"length","msg":"요청제목 500byte까지 입�
 
 // 연락처, 이메일  유효성 체크
 var saveObjectValid = {
-			"reqUsrNum":{"type":"regExp","pattern":/^([0-9]{9,11}).*$/ ,"msg":"연락처 형식이 아닙니다. (예) 01012341234", "required":true}
-			 ,"reqUsrEmail":{"type":"regExp","pattern":/^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i ,"msg":"이메일 형식이 아닙니다. <br>(예) mymail@naver.com","required":true}
+			"reqUsrNum":{"type":"regExp","pattern":/^([0-9]{3,13}).*$/ ,"msg":"연락처 형식이 아닙니다. (3~13자리) (예) 01012341234", "required":true}
+			 ,"reqUsrEmail":{"type":"regExp","pattern":/^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i ,"msg":"이메일 형식이 아닙니다.<br>(예) mymail@naver.com","required":true}
 		};
 
 function fnReqClick(thisObj){
@@ -166,6 +169,12 @@ function fnReqClick(thisObj){
 	var reqProType = $(thisObj).attr("reqprotype");
 	
 	if(reqProType == "01" || reqProType == "03"){
+		// 접수요청(reqProType = 01), 반려(reqProType = 03)에 따라 팝업 높이 변경
+		var popHeight = "925";
+		if(reqProType == "03"){
+			popHeight = "900";
+		}
+		
 		var data = {
              			"mode": "req",
              			"popupPrjId":prjId,
@@ -173,9 +182,9 @@ function fnReqClick(thisObj){
              			"reqProType": reqProType,
              			"reqPageType" : "usrReqPage"
              	}; 
-             	gfnLayerPopupOpen("/req/req1000/req1000/selectReq1002View.do", data, '640', '845','scroll');
+       gfnLayerPopupOpen("/req/req1000/req1000/selectReq1002View.do", data, '640', popHeight,'scroll');
 	}
-	if(reqProType == "02" || reqProType == "04"){
+	if(reqProType == "02" || reqProType == "04" || reqProType == "05"){
 		var data = {"mode":"newReq","popupPrjId":prjId,"reqId": reqId, "reqProType":"02"}; 
 		gfnLayerPopupOpen("/req/req4000/req4100/selectReq4104View.do", data, '1300', '850','scroll');
 	}
@@ -184,9 +193,6 @@ $(document).ready(function() {
 	
 	//프로젝트 세팅
 	$("select#viewPrjId").html($("#header_select").html());
-	
-	//프로젝트 고정
-	$("select#viewPrjId").attr("disabled","disabled");
 	
 	//유효성 체크
 	gfnInputValChk(arrChkObj);
@@ -318,6 +324,10 @@ $(document).ready(function() {
 		if(gfnRequireCheck(strFormId, strCheckObjArr, sCheckObjNmArr)){
 			return;	
 		}
+				
+		// 이메일 공백제거
+		var reqUsrEmali = $("#reqUsrEmail").val();
+		$("#reqUsrEmail").val(reqUsrEmali.trim());
 		
 		// 연락처, 이메일 유효성 검사
 		if(!gfnInputValChk(saveObjectValid)){
@@ -353,7 +363,7 @@ $(document).ready(function() {
 		
 		// 연락처, 이메일  유효성 체크
 /* 		var saveObjectValid = {
-					"reqUsrNum":{"type":"regExp","pattern":/^([0-9]{9,11}).*$/ ,"msg":"연락처 형식이 아닙니다. (예) 01012341234", "required":true}
+					"reqUsrNum":{"type":"regExp","pattern":/^([0-9]{3,13}).*$/ ,"msg":"연락처 형식이 아닙니다. (3~13자리) (예) 01012341234", "required":true}
 					 ,"reqUsrEmail":{"type":"regExp","pattern":/^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i ,"msg":"이메일 형식이 아닙니다. <br>(예) mymail@naver.com","required":true}
 		} */
 		
@@ -487,7 +497,6 @@ function fnPrjChg(thisObj){
 }
 
 </script>
-
 <div class="popup" id="reqInsertDiv">
 <form id="req1000PopupFrm" name="req1000PopupFrm" method="post">
 	<input type="hidden" name="popupType" id="popupType" value="${pageType}"/>
@@ -495,33 +504,34 @@ function fnPrjChg(thisObj){
 	<input type="hidden" name="prjId" id="prjId" value="${sessionScope.selPrjId}"/>
 	<input type="hidden" name="reqClsId" id="reqClsId" value=""/>
 	<input type="hidden" name="reqProType" id="reqProType" />
+	<input type="hidden" name="reqKey" id="reqKey" />
 	<!-- 접수유형은 01 (시스템) : 등록시 기본 접수유형 -->
 	<input type="hidden" name="reqNewType" id="reqNewType" value="01"/>
 
 	<div class="pop_title">	
 	</div>
 
-	<div class="pop_sub"> 
+	<div class="pop_sub">
+		<!-- <input id="hidden" type="radio" modifyset="false" value="01"/> -->
 		<div class="pop_menu_row pop_menu_oneRow"style="border-top: 1px solid #ddd;">
 			<div class="pop_menu_col1 pop_oneRow_col1"><label for="reqNewType">접수유형</label><span class="required_info">&nbsp;*</span></div>
 			<div class="pop_menu_col2 pop_oneRow_col2">
 				<div class="pop_radio">
-				<input id="reqNewType_stm" type="radio" modifyset="false" value="01"/><label>시스템</label>
-				<input id="reqNewType_tel" type="radio" modifyset="false" value="02"/><label>유선</label>
-				<input id="reqNewType_pub" type="radio" modifyset="false" value="03"/><label>공문</label>
-				<input id="reqNewType_self" type="radio" modifyset="false" value="04"/><label>자체식별</label>
-				<input id="reqNewType_brd" type="radio" modifyset="false" value="05"/><label>게시판</label>
-			</div>
+					<input id="reqNewType_stm" type="radio" modifyset="false" value="01"/><label>시스템</label>
+					<input id="reqNewType_tel" type="radio" modifyset="false" value="02"/><label>유선</label>
+					<input id="reqNewType_pub" type="radio" modifyset="false" value="03"/><label>공문</label>
+					<input id="reqNewType_self" type="radio" modifyset="false" value="04"/><label>자체식별</label>
+					<input id="reqNewType_brd" type="radio" modifyset="false" value="05"/><label>게시판</label>
+				</div>
 			</div>
 		</div>
-		
-		<div class="pop_menu_row">
-			<div class="pop_menu_col1"><label for="prjNm">체계 명</label></div>
+		<div class="pop_menu_row" style="border-top: 1px solid #ddd;">
+			<div class="pop_menu_col1"><label for="prjNm">대상체계</label></div>
 			<div class="pop_menu_col2">
-				<select id="viewPrjId" name="viewPrjId" modifyset="false" disabled="disabled"></select>
+				<select id="viewPrjId" name="viewPrjId" modifyset="false" onchange="fnPrjChg(this)"></select>
 			</div>
 		</div>
-		<div class="pop_menu_row">
+		<div class="pop_menu_row" style="border-top: 1px solid #ddd;">
 			<div class="pop_menu_col1 pop_menu_col1_right"><label for="reqNo">공문번호</label></div>
 			<div class="pop_menu_col2"><input id="reqNo" type="text" name="reqNo" title="공문번호"  class="readonly" readonly="readonly" placeholder="${ph_reqInfoMap.reqNo}"/></div>
 		</div>
@@ -532,7 +542,7 @@ function fnPrjChg(thisObj){
 		</div>
 
 		<div class="pop_menu_row">
-			<div class="pop_menu_col1"><label for="reqUsrNm">요청자</label></div>
+			<div class="pop_menu_col1"><label for="reqUsrNm">요청자 성명</label></div>
 			<div class="pop_menu_col2"><input id="reqUsrNm" type="text" name="reqUsrNm" title="요청자" class="readonly" readonly="readonly" value="${reqUsrInfoMap.usrNm}" /></div>
 		</div>
 		<div class="pop_menu_row">
@@ -540,19 +550,33 @@ function fnPrjChg(thisObj){
 			<div class="pop_menu_col2"><input id="reqDtm" type="text" name="reqDtm" title="요청일" class="readonly" readonly="readonly" /></div>
 		</div>
 		<div class="pop_menu_row">
-			<div class="pop_menu_col1"><label for="reqUsrDeptNm">소속</label></div>
+			<div class="pop_menu_col1"><label for="reqUsrDeptNm">요청부서</label></div>
 			<div class="pop_menu_col2"><input id="reqUsrDeptNm" type="text" name="reqUsrDeptNm" title="소속" class="readonly" readonly="readonly" value="${reqUsrInfoMap.deptNm}" /></div>
 		</div>
 		<div class="pop_menu_row">
 			<div class="pop_menu_col1 pop_menu_col1_right"><label for="reqUsrEmail">E-mail</label><span class="required_info">&nbsp;*</span></div>
 			<div class="pop_menu_col2"><input id="reqUsrEmail" type="text" name="reqUsrEmail" title="E-mail" value="${reqUsrInfoMap.email}"/></div>
 		</div>
-		<div class="pop_menu_row pop_menu_oneRow">
-			<div class="pop_menu_col1 pop_oneRow_col1"><label for="reqUsrNum">연락처</label><span class="required_info">&nbsp;*</span></div>
-			<div class="pop_menu_col2 pop_oneRow_col2"><input id="reqUsrNum" type="text" name="reqUsrNum" title="연락처" maxlength="11" value="${reqUsrInfoMap.telno}" /></div>
+		<div class="pop_menu_row ">
+			<div class="pop_menu_col1"><label for="reqUsrNum">연락처</label><span class="required_info">&nbsp;*</span></div>
+			<div class="pop_menu_col2"><input id="reqUsrNum" type="text" name="reqUsrNum" title="연락처" maxlength="13" max="11199999999" value="${reqUsrInfoMap.telno}" /></div>
 		</div>
-		
-	
+		<div class="pop_menu_row">
+			<div class="pop_menu_col1 pop_menu_col1_right"><label for="reqUsrPositionNm">직급</label></div>
+			<div class="pop_menu_col2">
+				<input id="reqUsrPositionNm" type="text" name="reqUsrPositionNm" title="직급" class="readonly" readonly="readonly" value="${reqUsrInfoMap.usrPositionNm}" />
+			</div>
+		</div>
+		<div class="pop_menu_row">
+			<div class="pop_menu_col1"></div>
+			<div class="pop_menu_col2"></div>
+		</div>
+		<div class="pop_menu_row">
+			<div class="pop_menu_col1 pop_menu_col1_right"><label for="reqUsrDutyNm">직책</label></div>
+			<div class="pop_menu_col2">
+				<input id="reqUsrDutyNm" type="text" name="reqUsrDutyNm" title="직급" class="readonly" readonly="readonly" value="${reqUsrInfoMap.usrDutyNm}" />
+			</div>
+		</div>
 		<div class="pop_note" style="margin-bottom:10px;">
 			<div class="note_title">요청 내용<span class="required_info">&nbsp;*</span></div>
 			<textarea class="input_note" title="요청 내용" name="reqDesc" id="reqDesc" rows="7" value="${req1000ReqInfo.reqDesc}"  ></textarea> <!-- placeholder="${ph_reqInfoMap.reqDesc}" -->

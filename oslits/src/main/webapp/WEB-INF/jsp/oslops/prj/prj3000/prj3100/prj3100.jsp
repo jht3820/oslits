@@ -1,9 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
-<%@ include file="/WEB-INF/jsp/oslits/top/header.jsp"%>
+<%@ include file="/WEB-INF/jsp/oslops/top/header.jsp"%>
 <jsp:include page="/WEB-INF/jsp/oslops/top/aside.jsp" />
 
-<link rel='stylesheet' href='<c:url value='/css/oslits/req.css'/>'
+<link rel='stylesheet' href='<c:url value='/css/oslops/req.css'/>'
 	type='text/css'>
 <link rel='stylesheet'
 	href='<c:url value='/css/common/fileUpload.css'/>' type='text/css'>
@@ -91,8 +91,11 @@
 						//일반 산출물간 이동인 경우
 						if ($(this).hasClass('documentFileList')) {
 							if ($(ui.item).parent().hasClass('ok_document')) {
-								$(beforeFileDiv).removeClass('okDiv');
-								$('.documentFileList').append(beforeFileDiv);
+								//확정 산출물이 존재하는 경우에만 스왑
+								if($(".ok_document").children("div.file_frame_box").length > 1){
+									$(beforeFileDiv).removeClass('okDiv');
+									$('.documentFileList').append(beforeFileDiv);
+								}
 								$(ui.item).addClass('okDiv');
 								beforeFileDiv = $('.ok_document').children(
 										'div');
@@ -133,8 +136,12 @@
 				}).disableSelection();
 	}
 	$(document).ready(function() {
+		
+		//가이드 상자 호출
+		gfnGuideStack("add",fnPrj3100GuideShow);
+		
 		//트리메뉴 도움말 클릭
-		$(".menu_tree_help").click(function() {
+		/* $(".menu_tree_help").click(function() {
 			if ($(".menu_tree_helpBox").hasClass("boxOn")) {
 				$(".menu_tree_helpBox").hide();
 				$(".menu_tree_helpBox").removeClass("boxOn");
@@ -143,7 +150,7 @@
 				$(".menu_tree_helpBox").addClass("boxOn");
 			}
 		});
-
+ */
 		
 		//유효성 체크
 		var arrChkObj = {
@@ -276,12 +283,18 @@
 	       		$('#fileListDiv').hide();
 	       		$('#btn_download_formFile').hide();
 	       		$('#btn_download_fileZip').css({ display : "inline-block" });
+	       		// 개발문서 파일 업로드 부분 가이드 hide
+	       		$('#confirmDocFile_guide').hide();
+	       		$('#docFileList_guide').hide();
         	}else{
         		btnAuthInsertYn == 'Y' ? $("[id^=btn_insert]").show() : $("[id^=btn_insert]").hide();
         		$('#fileListDiv').show();
         		$('#btn_download_formFile').show();
         		$('#btn_download_fileZip').show();
         		$('#btn_download_fileZip').css({ display : "inline-block" });
+        		// 개발문서 파일 업로드 부분 가이드 show
+	       		$('#confirmDocFile_guide').show();
+	       		$('#docFileList_guide').show();
         	}
 	
 			var zTreeObj = $.fn.zTree.getZTreeObj("prjDocJson");	
@@ -375,8 +388,9 @@
 			};
 
 			// zTree 초기화
-			zTree = $.fn.zTree
-					.init($("#prjDocJson"), setting, data.baseDocList);
+			zTree = $.fn.zTree.init($("#prjDocJson"), setting, data.baseDocList);
+			//폴더의 계층구조가 3단계가 아니면  tree전체 펼침 시에 일회적 동작 안함
+			zTree.expandAll(false);
 		});
 
 		//AJAX 전송 오류 함수
@@ -412,7 +426,16 @@
 				return false;
 			} else {
 				//hidden input value insert
-				$('#docFormFileSn').val($(obj).attr("fileSn"));
+				$('#docFileSn').val($(obj).attr("fileSn"));
+
+				// 첨부파일 ID
+				var atchFileId = $(obj).attr("atchId");
+				
+				// 산출물 정상적으로 확정되었을 경우 산출물 삭제 function 변경
+				var fileDeleteBtnObj = $(obj).parents('.file_main_box').children('.file_delete');
+				$(fileDeleteBtnObj).attr('onclick','fnFileItemDelete(this, event)');
+				// 삭제버튼에 archId 추가
+				$(fileDeleteBtnObj).attr('atchId', atchFileId);
 				toast.push(data.message);
 			}
 		});
@@ -439,7 +462,7 @@
 				return false;
 			} else {
 				//hidden input value null
-				$('#docFormFileSn').val('');
+				$('#docFileSn').val('');
 				toast.push(data.message);
 			}
 		});
@@ -487,7 +510,7 @@
 				        		$(uiItem).parent().parent().remove();
 				        		
 				        		//파일 Sn -1
-					        	fileSnVar--;
+					        	//fileSnVar--;
 				        	}else{
 				        		toast.push(data.message);
 				        	}
@@ -615,6 +638,10 @@
 				$(upFileObj).attr('atchId', data.addFileId);
 				$(upFileObj).attr('fileSn', data.addFileSn);
 
+	    		//삭제 버튼 onclick 및 atchid 세팅
+	    		$(upFileObj).siblings("#btn_delete_file").attr("onclick","fnFileItemDelete(this, event)");
+	    		$(upFileObj).siblings("#btn_delete_file").attr("atchid",data.addFileId);
+	    		
 				sortableFile();
 			}
 		});
@@ -736,6 +763,19 @@
 			ajaxObj.send();
 		}
 	}
+	
+	//가이드 상자
+	function fnPrj3100GuideShow(){
+		var mainObj = $(".main_contents");
+		
+		//mainObj가 없는경우 false return
+		if(mainObj.length == 0){
+			return false;
+		}
+		//guide box setting
+		var guideBoxInfo = globals_guideContents["prj3100"];
+		gfnGuideBoxDraw(true,mainObj,guideBoxInfo);
+	}
 
 </script>
 
@@ -743,24 +783,26 @@
 	<div class="doc_title">${sessionScope.selMenuNm }</div>
 	<div class="tab_contents menu">
 		<div class="top_control_wrap">
-			<span style="float: left;">*개발문서 파일을 관리합니다.</span> <span
-				class="menu_tree_help"><i class="fa fa-question"></i>
+		<!-- 
+			<span style="float: left;">*개발문서 파일을 관리합니다.</span> 
+			<span class="menu_tree_help"><i class="fa fa-question"></i>
 				<div class="menu_tree_helpBox">
 					<span> [좌측 트리 메뉴 기능 안내]<br /> <br /> &nbsp;-메뉴 클릭: 개발문서 상세 정보
 						보기<br /> &nbsp;-더블 클릭: 폴더형 개발문서의 경우 하위 개발문서 보기<br />
 					</span>
 				</div> 
-					</span> <span class="button_normal2" id="btn_download_fileZip" onclick="fnOslDocZipDownload()"><i class='fa fa-file-zip-o'aria-hidden='true'></i>&nbsp;확정 개발문서 전체 다운로드</span> 
-				<span class="button_normal2 btn_inquery" id="btn_search_menuInfo"><i class='fa fa-list' aria-hidden='true'></i>&nbsp;조회</span> 
-				<span class="button_normal2 btn_save" id="btn_update_menuInfo" tabindex=5><i class='fa fa-edit' aria-hidden='true'></i>&nbsp;정보 수정</span>
-				<span class="button_normal2" id="btn_download_formFile"
-				onclick='gfnFileDownload(this,true)' atchId="" fileSn=""><i
-				class='fa fa-download' aria-hidden='true'></i>&nbsp;양식 다운로드</span> <span
-				class="button_normal2" onclick="fnOslDocUploadClick()"
-				id="btn_insert_fileSelect"> <input type="file"
-				style="display: none" id="oslDocFileUpload" name="oslDocFileUpload" /><i
-				class='fa fa-upload' aria-hidden='true'></i>&nbsp;개발문서 업로드
-			</span>
+			</span> 
+			 -->
+			<div class="button_normal2" id="btn_download_fileZip" onclick="fnOslDocZipDownload()" guide="confirmFileZip" ><i class='fa fa-file-zip-o'aria-hidden='true'></i>&nbsp;확정 개발문서 전체 다운로드</div> 
+			<span class="button_normal2 btn_inquery" id="btn_search_menuInfo"><i class='fa fa-list' aria-hidden='true'></i>&nbsp;조회</span> 
+			<span class="button_normal2 btn_save" id="btn_update_menuInfo" tabindex=5><i class='fa fa-edit' aria-hidden='true'></i>&nbsp;정보 수정</span>
+			<div class="button_normal2" id="btn_download_formFile" onclick='gfnFileDownload(this,true)' atchId="" fileSn="" guide="formFileDownload">
+				<i class='fa fa-download' aria-hidden='true'></i>&nbsp;양식 다운로드
+			</div> 
+			<div class="button_normal2" onclick="fnOslDocUploadClick()" id="btn_insert_fileSelect" guide="docFileUpload" > 
+				<input type="file" style="display: none" id="oslDocFileUpload" name="oslDocFileUpload" />
+				<i class='fa fa-upload' aria-hidden='true'></i>&nbsp;개발문서 업로드
+			</div>
 		</div>
 		<div class="menu_wrap">
 			<div class="menu_ctrl_wrap">
@@ -802,7 +844,7 @@
 					</div>
 					<div class="menu_row menu_oneRow">
 						<div class="menu_col1 oneRow_col1"><label for="docFormFileId">개발문서 마감일</label></div>
-						<div class="menu_col2 oneRow_col2"><input id="docEdDtm" type="text" name="docEdDtm" class="calendar_input" disabled="disabled" readonly="readonly" tabindex=1 style="width: 41.7%;"/></div>
+						<div class="menu_col2 oneRow_col2"><input id="docEdDtm" type="text" name="docEdDtm" class="calendar_input" readonly="readonly" tabindex=1 style="width: 41.7%;"/></div>
  					</div>
 
 					<div class="menu_row menu_oneRow" style="margin-bottom: 20px; height: 70px;">
@@ -815,14 +857,15 @@
 						<div class="left_con_div" style="float: none;">
 							<span class="documentSpanImg"></span><span>확정 개발문서 목록</span>
 						</div>
-						<input type="hidden" name="docFormFileId" id="docFormFileId"
-							value="" /> <input type="hidden" name="docFormFileSn"
-							id="docFormFileSn" value="" /> <input type="hidden"
-							name="docAtchFileId" id="docAtchFileId" value="" /> <input
-							type="hidden" name="upperDocId" id="upperDocId" value="" /> <input
-							type="hidden" name="docFileSn" id="docFileSn" value="" /> <input
-							type="hidden" name="ord" id="ord" value="">
-						<div class="ok_document"></div>
+						<input type="hidden" name="docFormFileId" id="docFormFileId" value="" /> 
+						<input type="hidden" name="docFormFileSn" id="docFormFileSn" value="" /> 
+						<input type="hidden" name="docAtchFileId" id="docAtchFileId" value="" /> 
+						<input type="hidden" name="upperDocId" id="upperDocId" value="" /> 
+						<input type="hidden" name="docFileSn" id="docFileSn" value="" />
+						<input type="hidden" name="ord" id="ord" value="">
+						<div id="confirmDocFile_guide" guide="confirmDocFile" >	
+							<div class="ok_document"></div>
+						</div>
 						
 						<div class="left_con_div" style="float:none;">
 							<span class="documentSpanImg"></span><span>확정 개발문서 비고</span>
@@ -835,8 +878,9 @@
 							<span class="documentSpanImg"></span><span>개발문서 업로드 목록
 								(Drag&Drop 한번에 최대 5개 제한)</span>
 						</div>
-						<div class="documentFileList" id="documentFileList"
-							onclick="fnOslDocUploadClick()"></div>
+						<div id="docFileList_guide" guide="docFileList" >
+							<div class="documentFileList" id="documentFileList" onclick="fnOslDocUploadClick()"></div>
+						</div>
 					</div>
 				</form>
 

@@ -31,6 +31,9 @@
 //프로젝트 Id
 var prjId = "${prjId}";
 
+//제거할 이벤트 목록 배열
+var removeEventArr = ["dragenter", "dragover", "drop"];
+
 $(document).ready(function() {
 	
 	var reqId = '${param.reqId}';
@@ -56,6 +59,10 @@ $(document).ready(function() {
 		$("#reqDesc_div_txt").text("요구사항 설명");
 	}
 	
+	// 상세정보 화면이므로 파일 drag&drop 이벤트 제거
+	$.each(removeEventArr,function(idx, map){
+		$("#dragandrophandler").off(map);
+	});
 });
 
 
@@ -177,7 +184,7 @@ $(document).ready(function() {
 		</div>
 		
 		<div class="pop_menu_row">
-			<div class="pop_menu_col1"><label for="prjNm">체계명</label></div>
+			<div class="pop_menu_col1"><label for="prjNm">프로젝트명</label></div>
 			<div class="pop_menu_col2"><input id="prjNm" type="text" name="prjNm" class="readonly" readonly="readonly" value="${requestScope.prjName}" /></div>
 		</div>
 		<div class="pop_menu_row">
@@ -211,8 +218,22 @@ $(document).ready(function() {
 			<div class="pop_menu_col2"><input id="reqUsrNum" type="text" name="reqUsrNum" maxlength="11" class="readonly" readonly="readonly" style="width:100%;" /></div>
 		</div>
 		<div class="pop_menu_row">
-			<div class="pop_menu_col1 pop_menu_col1_right"><label for=regDtm>등록일</label></div>
+			<div class="pop_menu_col1 pop_menu_col1_right"><label for="reqUsrPositionCd">직급</label></div>
+			<div class="pop_menu_col2">
+				<input type="hidden" name="reqUsrPositionCd" id="reqUsrPositionCd" value="" />
+				<input id="reqUsrPositionNm" type="text" name="reqUsrPositionNm" title="직급" class="readonly" readonly="readonly" />
+			</div>
+		</div>
+		<div class="pop_menu_row">
+			<div class="pop_menu_col1"><label for=regDtm>등록일</label></div>
 			<div class="pop_menu_col2"><input id="regDtmDay" type="text" name="regDtmDay"  class="readonly" readonly="readonly" /></div>
+		</div>
+		<div class="pop_menu_row">
+			<div class="pop_menu_col1 pop_menu_col1_right"><label for="reqUsrEmail">직책</label></div>
+			<div class="pop_menu_col2">
+				<input type="hidden" name="reqUsrDutyCd" id="reqUsrDutyCd" value="" />
+				<input id="reqUsrDutyNm" type="text" name="reqUsrDutyNm" title="직책" class="readonly" readonly="readonly" />
+			</div>
 		</div>
 		<div class="pop_menu_row">
 			<div class="pop_menu_col1"><label for=reqStDtm>작업 시작일</label></div>

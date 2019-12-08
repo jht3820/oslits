@@ -7,7 +7,7 @@
 <script src="<c:url value='/js/panzoom/jquery.panzoom.min.js'/>"></script>
 <link rel='stylesheet' href='<c:url value='/css/common/spectrum.css'/>' type='text/css'>
 <link rel='stylesheet' href='<c:url value='/css/flowchart/jquery.flowchart.css'/>' type='text/css'>
-<link rel='stylesheet' href='<c:url value='/css/oslits/flw.css'/>' type='text/css'>
+<link rel='stylesheet' href='<c:url value='/css/oslops/flw.css'/>' type='text/css'>
 <script>
 //ie 함수 재정의
 if (!('remove' in Element.prototype)) {
@@ -31,19 +31,16 @@ var $flowchart;
 //선택 작업흐름 Id
 var selFlowId = null;
 
+//zoom
+var currentZoom = 1;
 $(function(){
+	//가이드 상자 호출
+	gfnGuideStack("add",fnGuideShow);
 	
-	//유효성 체크
-	var arrChkObj = {"processNm":{"type":"length","msg":"프로세스 명은 100byte까지 입력이 가능합니다.",max:100}
-					,"processDesc":{"type":"length","msg":"프로세스 설명은 4000byte까지 입력이 가능합니다.",max:4000}
-					,"processOrd":{"type":"number","msg":"프로세스 순서는 숫자만 입력 가능합니다.",min:0}
-					};
-	gfnInputValChk(arrChkObj);
-	
-	$("#previewFlowTitleBgColor").spectrum({showInput: true,chooseText: "선택",cancelText: "닫기",preferredFormat: "name",color: "#F0F0F0"});
-	$("#previewFlowTitleColor").spectrum({showInput: true,chooseText: "선택",cancelText: "닫기",preferredFormat: "name",color: "#000000"});
-	$("#previewFlowContentBgColor").spectrum({showInput: true,chooseText: "선택",cancelText: "닫기",preferredFormat: "name",color: "#FAFAFA"});
-	$("#previewFlowContentColor").spectrum({showInput: true,chooseText: "선택",cancelText: "닫기",preferredFormat: "name",color: "#000000"});
+	$("#previewFlowTitleBgColor").spectrum({showInput: true,chooseText: "선택",cancelText: "닫기",preferredFormat: "name",color: "#515769"});
+	$("#previewFlowTitleColor").spectrum({showInput: true,chooseText: "선택",cancelText: "닫기",preferredFormat: "name",color: "#FFFFFF"});
+	$("#previewFlowContentBgColor").spectrum({showInput: true,chooseText: "선택",cancelText: "닫기",preferredFormat: "name",color: "#FFFFFF"});
+	$("#previewFlowContentColor").spectrum({showInput: true,chooseText: "선택",cancelText: "닫기",preferredFormat: "name",color: "#515769"});
 	
 	//추가 항목 관리 목록
 	fnAxGrid5View();
@@ -52,82 +49,30 @@ $(function(){
 	//프로세스 목록 불러오기
 	fnProcessListAjax();
 	
+	//프로세스 조회 버튼
+	$("#btn_insert_proSelect").click(function(){
+		fnProcessListAjax();
+	});
+	
 	//프로세스 추가 버튼
 	$("#btn_insert_proInsert").click(function(){
-		//mask open
-		ax5Mask.open({
-			zIndex:90,
-			target: $("#flw_mainBox")
-		});
-		
-		popupType = "insert";
-		//등록 문구
-		$("span#processActionTypeNm").html("등록");
-		
-		//창 열기
-		$("#flw_main_middleBox_save").show();
-		//입력 포커스
-		$("#processNm").focus();
-		
-		//순서 자동입력 +1
-		$("#processOrd").val(($(".process_box").length+1));
-	});
-	
-	//프로세스 저장 버튼
-	$("#btn_insert_plcInsert").click(function(){
-		// 저장 전 유효성 체크
-		if(gfnSaveInputValChk(arrChkObj)){
-			fnProcessSaveAjax();
-		}
-	});
-	
-	//프로세스 저장 취소 버튼
-	$("#btn_insert_plcCancle").click(function(){
-		//mask 제거
-		ax5Mask.close();
-		
-		//값 초기화
-		$("#processNm").val('');
-		$("#processDesc").val('');
-		
-		//창 닫기
-		$("#flw_main_middleBox_save").hide();
+		//팝업창 오픈
+		var data = {popupGb: "insert"};
+		gfnLayerPopupOpen("/prj/prj1000/prj1100/selectPrj1105View.do", data, '550', '470','scroll');
 	});
 	
 	//프로세스 수정 버튼
 	$("#btn_update_proUpdate").click(function(){
-		//mask open
-		ax5Mask.open({
-			zIndex:90,
-			target: $("#flw_mainBox")
-		});
-		
-		popupType = "update";
-		
-		//등록 문구
-		$("span#processActionTypeNm").html("수정");
-		
-		//프로세스 설명,순서 가져오기
-		var processDesc = $(".process_box.active").attr("desc"); 
-		var processOrd = $(".process_box.active").attr("ord"); 
-		
-		//선택 프로세스 명 입력
-		$("#processNm").val($(".process_box.active").text());
-		
-		//설명 값이 있는 경우
-		if(!gfnIsNull(processDesc)){
-			//프로세스 설명 입력
-			$("#processDesc").val(decodeURI(processDesc));
-			$(".process_box.active").attr("title",decodeURI(processDesc));
+		if($(".process_box.active").length == 0){
+			jAlert("프로세스를 선택해주세요.","알림");
+			return true;	
 		}
 		
-		//순서 입력
-		$("#processOrd").val(processOrd);
+		var selProcessId = $(".process_box.active")[0].id;
 		
-		//창 열기
-		$("#flw_main_middleBox_save").show();
-		//입력 포커스
-		$("#processNm").focus();
+		//팝업창 오픈
+		var data = {processId: selProcessId , popupGb: "update"};
+		gfnLayerPopupOpen("/prj/prj1000/prj1100/selectPrj1105View.do", data, '550', '470','scroll');
 	});
 	
 	//프로세스 삭제 버튼
@@ -205,6 +150,13 @@ $(function(){
 		}
 	});
 	
+	//프로세스 복사 버튼
+	$("#btn_delete_proCopy").click(function(){
+		//팝업창 오픈
+		var data = {};
+		gfnLayerPopupOpen("/prj/prj1000/prj1100/selectPrj1104View.do", data, '1330', '970','auto');
+	});
+	
 	/************* 작업흐름 제어 시작 **/
 	//작업흐름 추가
 	$("#btn_insert_flwInsert").click(function(){
@@ -220,7 +172,7 @@ $(function(){
 		
 		//팝업창 오픈
 		var data = {processId: processId, type: "insert"};
-		gfnLayerPopupOpen("/prj/prj1000/prj1100/selectPrj1102View.do", data, '1100', '570','scroll');
+		gfnLayerPopupOpen("/prj/prj1000/prj1100/selectPrj1102View.do", data, '1100', '610','scroll');
 	});
 	
 	//작업흐름 수정
@@ -235,7 +187,7 @@ $(function(){
 		
 		//팝업창 오픈
 		var data = {processId: processId, flowId: selFlowId, type: "update"};
-		gfnLayerPopupOpen("/prj/prj1000/prj1100/selectPrj1102View.do", data, '1100', '570','scroll');
+		gfnLayerPopupOpen("/prj/prj1000/prj1100/selectPrj1102View.do", data, '1100', '610','scroll');
 	});
 	
 	//선택 작업흐름&링크 제거
@@ -309,12 +261,12 @@ $(function(){
 	$("#btn_insert_flwItemInsert").click(function(){
 		//확정 처리된 프로세스인지 확인
 		var processConfirmCd = $(".process_box.active").attr("confirm");
-		
+		/* 
 		if(processConfirmCd == "02"){
 			jAlert("확정처리된 프로세스의 작업흐름은 추가항목 관리가 불가능합니다.","알림");
 			return false;
 		}
-		
+		 */
 		//선택 작업흐름 Id
 		if(gfnIsNull(selFlowId)){
 			jAlert("작업흐름을 선택해주세요.","알림");
@@ -341,9 +293,14 @@ function fnProcessSaveAjax(){
 	}
 	
 	var processId = "";
+	var processConfirmCd = "";
 	var url = "";
+	var queryJson = {};
+	
+	
 	if(popupType == "insert"){ //삽입
 		url = "<c:url value='/prj/prj1000/prj1100/insertPrj1100ProcessInfoAjax.do'/>"
+		processConfirmCd = "01";
 	}else if(popupType == "update"){ //수정
 		url = "<c:url value='/prj/prj1000/prj1100/updatePrj1100ProcessInfoAjax.do'/>"
 		processId = $(".process_box.active").attr('id');
@@ -363,7 +320,7 @@ function fnProcessSaveAjax(){
 		//AJAX 설정
 		var ajaxObj = new gfnAjaxRequestAction(
 				{"url":url},
-				{processNm:processNm,processId:processId,processDesc: processDesc, processOrd: processOrd});
+				{processNm:processNm,processId:processId,processDesc: processDesc, processOrd: processOrd, processConfirmCd: processConfirmCd});
 		//AJAX 전송 성공 함수
 		ajaxObj.setFnSuccess(function(data){
 			data = JSON.parse(data);
@@ -463,6 +420,7 @@ function fnProcessConfirm(){
 				flowContentColor:"#ff5643",
 				flowEssentialCd:"02",
 				flowSignCd:"02",
+				flowSignStopCd:"02",
 				flowEndCd:"02",
 				flowWorkCd:"02",
 				flowRevisionCd:"02",
@@ -516,6 +474,7 @@ function fnProcessConfirm(){
 				,flowContentColor: operatorData.properties.flowContentColor
 				,flowEssentialCd: operatorData.properties.flowEssentialCd
 				,flowSignCd: operatorData.properties.flowSignCd
+				,flowSignStopCd: operatorData.properties.flowSignStopCd
 				,flowEndCd: operatorData.properties.flowEndCd
 				,flowWorkCd: operatorData.properties.flowWorkCd
 				,flowRevisionCd: operatorData.properties.flowRevisionCd
@@ -814,12 +773,13 @@ function fnProcessListAjax(){
 			}
 			//프로세스 목록이 없는 경우
 			if(data.processList.length == 0){
+				/* 
 				ax5Mask.open({
 					zIndex:90,
 					target: $("#flw_mainBox"),
 					content: "프로세스를 추가해주세요."
 				});
-				
+				 */
 				//프로세스 등록 창 오픈(취소키 제거)
 				$("#btn_insert_proInsert").click();
 				$("#btn_insert_plcCancle").hide();
@@ -839,7 +799,6 @@ function fnProcessListAjax(){
 					processJsonList[map.processId] = map.processJsonData;
 					
 					var firstClassStr = '';
-					var processConfirmChk = "";
 					var canUserEditLinks = true;
 					
 					//첫번째 프로세스 선택
@@ -863,7 +822,7 @@ function fnProcessListAjax(){
 						}
 					}
 					
-					$("#processBoxList").append('<div class="process_box '+firstClassStr+'" id="'+map.processId+'" confirm="'+map.processConfirmCd+'" desc="'+map.processDesc+'" ord="'+map.processOrd+'" title="'+decodeURI(map.processDesc)+'">'+processConfirmChk+map.processNm+'</div>');
+					$("#processBoxList").append('<div class="process_box '+firstClassStr+'" id="'+map.processId+'" confirm="'+map.processConfirmCd+'" desc="'+map.processDesc+'" ord="'+map.processOrd+'" title="'+decodeURI(map.processDesc)+'">'+map.processNm+'</div>');
 					
 					//html process box 생성 후 세팅
 					if(idx == 0){
@@ -945,26 +904,26 @@ function fnProcessListAjax(){
 								}else{
 									$("#previewFlowDpl")[0].checked = false;
 								}
-								/*if(selFlowPro.flowAuth == "on"){			//배포계획
+								if(selFlowPro.flowAuth == "on"){			//배포계획
 									$("#previewFlowAuth")[0].checked = true;
 									$(".flw_auth_frame").show();
 								}else{
 									$("#previewFlowAuth")[0].checked = false;
 									$(".flw_auth_frame").hide();
-								}*/
+								}
 								
 								//추가 항목 목록 불러오기
 								fnFlowOptList(selFlwId);
-								
+
 								//허용 역할그룹 세팅
-								//fnPreviewAuthListGrid();
+								fnPreviewAuthListGrid();
 								
 								//허용 역할그룹 목록
-								//fnPreviewAuthRefresh(selFlowId,'01',previewAuthGrid);
-								//fnPreviewAuthRefresh(selFlowId,'02',previewSignAuthGrid);
+								fnPreviewAuthRefresh(selFlowId,'01',previewAuthGrid);
+								fnPreviewAuthRefresh(selFlowId,'02',previewSignAuthGrid);
 								
 								//마스크 해제
-								$(".flw_content_mask").hide();
+								$("#flowContentMask").hide();
 								return true;
 							},
 							//작업흐름 생성
@@ -986,7 +945,7 @@ function fnProcessListAjax(){
 								fnSpectrumReset();
 								
 								//마스크 설정
-								$(".flw_content_mask").show();
+								$("#flowContentMask").show();
 								
 								selFlowId = null;
 								return true;
@@ -1262,12 +1221,81 @@ function fnColorFixReset(){
 	
 //spectrum 초기화
 function fnSpectrumReset(){
-	$("#previewFlowTitleBgColor").spectrum({showInput: true,chooseText: "선택",cancelText: "닫기",preferredFormat: "name",color: "#F0F0F0"});
-	$("#previewFlowTitleColor").spectrum({showInput: true,chooseText: "선택",cancelText: "닫기",preferredFormat: "name",color: "#000000"});
-	$("#previewFlowContentBgColor").spectrum({showInput: true,chooseText: "선택",cancelText: "닫기",preferredFormat: "name",color: "#FAFAFA"});
-	$("#previewFlowContentColor").spectrum({showInput: true,chooseText: "선택",cancelText: "닫기",preferredFormat: "name",color: "#000000"});
+	$("#previewFlowTitleBgColor").spectrum({showInput: true,chooseText: "선택",cancelText: "닫기",preferredFormat: "name",color: "#515769"});
+	$("#previewFlowTitleColor").spectrum({showInput: true,chooseText: "선택",cancelText: "닫기",preferredFormat: "name",color: "#FFFFFF"});
+	$("#previewFlowContentBgColor").spectrum({showInput: true,chooseText: "선택",cancelText: "닫기",preferredFormat: "name",color: "#FFFFFF"});
+	$("#previewFlowContentColor").spectrum({showInput: true,chooseText: "선택",cancelText: "닫기",preferredFormat: "name",color: "#515769"});
 }
 
+//역할 그룹 그리드
+function fnPreviewAuthListGrid(){
+	previewAuthGrid = new ax5.ui.grid();
+
+  previewAuthGrid.setConfig({
+      target: $('[data-ax5grid="previewAuth-grid"]'),
+      sortable:true,
+      header: {align:"center"},
+      columns: [
+       {key: "authGrpNm", label: "역할그룹 명", width: 160, align: "center"},
+       {key: "usrTypNm", label: "사용자유형", width: 120, align: "center"},
+       {key: "authGrpDesc", label: "역할그룹 설명", width: 225, align: "center"},
+       {key: "authGrpId", label: "역할그룹 Id", width: 225, align: "center",display:false}
+      ],
+      body: {
+          align: "center",
+          columnHeight: 30
+      },
+      page:{display:false}
+  });
+  
+	previewSignAuthGrid = new ax5.ui.grid();
+
+  previewSignAuthGrid.setConfig({
+      target: $('[data-ax5grid="previewSignAuth-grid"]'),
+      sortable:true,
+      header: {align:"center"},
+      columns: [
+       {key: "authGrpNm", label: "역할그룹 명", width: 160, align: "center"},
+       {key: "usrTypNm", label: "사용자유형", width: 120, align: "center"},
+       {key: "authGrpDesc", label: "역할그룹 설명", width: 225, align: "center"},
+       {key: "authGrpId", label: "역할그룹 Id", width: 225, align: "center",display:false}
+      ],
+      body: {
+          align: "center",
+          columnHeight: 30
+      },
+      page:{display:false}
+  });
+}
+
+//역할그룹 정보 조회
+function fnPreviewAuthRefresh(flowId,authGrpTargetCd,gridTarget){
+	var processId = $(".process_box.active").attr('id');
+	
+	//AJAX 설정
+	var ajaxObj = new gfnAjaxRequestAction(
+			{"url":"<c:url value='/prj/prj1000/prj1100/selectPrj1100FlowAuthGrpListAjax.do'/>","loadingShow":false},
+			{processId: processId, flowId: flowId, authGrpTargetCd: authGrpTargetCd});
+	//AJAX 전송 성공 함수
+	ajaxObj.setFnSuccess(function(data){
+		data = JSON.parse(data);
+		
+		//에러 없는경우
+		if(data.errorYN != "Y"){
+			gridTarget.setData(data.flowAuthGrpList);
+		}else{
+			toast.push(data.message);
+		}
+	});
+	
+	//AJAX 전송 오류 함수
+	ajaxObj.setFnError(function(xhr, status, err){
+		data = JSON.parse(data);
+		jAlert(data.message, "알림");
+	});
+	//AJAX 전송
+	ajaxObj.send();
+}
 //flowchart zoom
 function fnFlowChartLayerZoom(){
 	if(!gfnIsNull($flowchart)){
@@ -1281,7 +1309,7 @@ function fnFlowChartLayerZoom(){
     
 	    // Centering panzoom
 	    $flowchartDiv.panzoom('pan', 0, 0);
-	    
+	    /* 
 	    // Panzoom zoom handling...
 	    var possibleZooms = [2,1,0.75,0.5];
 	    var currentZoom = 2;
@@ -1297,8 +1325,45 @@ function fnFlowChartLayerZoom(){
 	            animate: false,
 	            focal: e
 	        });
-	    });
+	    }); */
+	    
 	}
+}
+
+//flowchart zoom function
+function fnFlowChartZoom(type){
+	var $flowchartDiv = $('#flowChartDiv');
+	
+	//줌 초기화
+	if(type == "reset"){
+		currentZoom=1;
+		$flowchartDiv.flowchart('setPositionRatio', 1);
+		$flowchartDiv.panzoom('reset');
+		return false;
+	}
+	//줌 가능한 수치
+	var possibleZooms = [2,1,0.75,0.5];
+	
+	//줌인
+	if(type == "in"){
+		currentZoom--;
+		if(currentZoom < 0){
+			currentZoom = 0;
+		}
+	}
+	//줌아웃
+	else if(type == "out"){
+		currentZoom++;
+		if(currentZoom > (possibleZooms.length-1)){
+			currentZoom = (possibleZooms.length-1);
+		}
+	}
+	
+	$flowchartDiv.flowchart('setPositionRatio', possibleZooms[currentZoom]);
+	        
+    $flowchartDiv.panzoom('zoom',(possibleZooms[currentZoom]), {
+        animate: true
+    });
 }
 
 //작업흐름 움직였을때 자동 저장
@@ -1325,6 +1390,12 @@ function fnFlowMoveSave(){
 	//AJAX 전송
 	ajaxObj.send();
 }
+//가이드 상자
+function fnGuideShow(){
+	//guide box setting - 완성후 매개변수로 전환
+	var guideBoxInfo = globals_guideContents["prj1100"];
+	gfnGuideBoxDraw(true,$("#flw_mainFrame"),guideBoxInfo);
+}
 </script>
 
 <div class="main_contents">
@@ -1350,13 +1421,20 @@ function fnFlowMoveSave(){
 			</div>
 		</div>
 	</div>
-	<div class="flw_mainFrame">
+	<div class="flw_mainFrame" id="flw_mainFrame">
+		<div class="zoomBtn" guide="zoom">
+			<span class="button_normal2" onclick="fnFlowChartZoom('reset')"><i class="fa fa-undo-alt"></i></span>
+			<span class="button_normal2" onclick="fnFlowChartZoom('in')"><i class="fa fa-plus"></i></span>
+			<span class="button_normal2" onclick="fnFlowChartZoom('out')"><i class="fa fa-minus"></i></span>
+		</div>
 		<div class="flw_mainBox" id="flw_mainBox">
 			<div class="flw_box flw_main_leftBox">
-				<div class="flw_box flw_left_topBox">
+				<div class="flw_box flw_left_topBox" guide="leftMenu">
+					<span class="button_normal2" id="btn_insert_proSelect">조회</span>
 					<span class="button_normal2" id="btn_insert_proInsert">추가</span>
 					<span class="button_normal2" id="btn_update_proUpdate">수정</span>
 					<span class="button_normal2" id="btn_delete_proDelete">삭제</span>
+					<span class="button_normal2" id="btn_delete_proCopy">복사</span>
 					<span class="button_normal2" id="btn_update_proConfirm">확정</span>
 					<span class="button_normal2" id="btn_update_proConfirmCancel">확정취소</span>
 				</div>
@@ -1370,7 +1448,7 @@ function fnFlowMoveSave(){
 				</div>
 			</div>
 			<div class="flw_box_clear"></div>
-			<div class="flw_box flw_main_middleBox">
+			<div class="flw_box flw_main_middleBox" guide="functionList">
 				<!-- <div id="flow_position">
 						
 					</div> -->
@@ -1383,8 +1461,9 @@ function fnFlowMoveSave(){
 				<span class="button_normal2" id="btn_insert_flwItemInsert"><i class="fa fa-list"></i>&nbsp;추가 항목 관리</span>
 			</div>
 			<div class="flw_box_clear"></div>
-			<div class="flw_box flw_main_bottomBox"><form name="flowInfo" id="flowInfo">
-				<div class="flw_content_mask">작업흐름을 선택해주세요.</div>
+			<div class="flw_box flw_main_bottomBox" guide="flowInfo">
+			<form name="flowInfo" id="flowInfo">
+				<div class="flw_content_mask" id="flowContentMask">작업흐름을 선택해주세요.</div>
 				<div class="flw_sub_box flw_bottom_leftBox" style="height: auto;">
 					 <div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right">
 						작업흐름 명
@@ -1404,7 +1483,7 @@ function fnFlowMoveSave(){
 						제목 배경 색상
 					</div>
 					<div class="flw_sub_box flw_sub1">
-						<input type="color" name="previewFlowTitleBgColor" id="previewFlowTitleBgColor" value="#F0F0F0" disabled="disabled"/>
+						<input type="color" name="previewFlowTitleBgColor" id="previewFlowTitleBgColor" value="#515769" disabled="disabled"/>
 					</div>
 					<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right" title="다음 작업흐름 변경시 결재를 받도록 지정합니다.">
 						결재 요청
@@ -1418,7 +1497,19 @@ function fnFlowMoveSave(){
 						제목 글씨 색상
 					</div>
 					<div class="flw_sub_box flw_sub1">
-						<input type="color" name="previewFlowTitleColor" id="previewFlowTitleColor" value="#000000" disabled="disabled"/>
+						<input type="color" name="previewFlowTitleColor" id="previewFlowTitleColor" value="#FFFFFF" disabled="disabled"/>
+					</div>
+					<div class="flw_sub_box flw_sub_title flw_sub1" title="">
+						
+					</div>
+					<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right">
+						
+					</div>
+					<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right">
+						내용 배경 색상
+					</div>
+					<div class="flw_sub_box flw_sub1">
+						<input type="color" name="previewFlowContentBgColor" id="previewFlowContentBgColor" value="#FFFFFF" disabled="disabled"/>
 					</div>
 					<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right" title="다음 작업흐름 변경시 바로 최종완료 작업흐름으로 변경이 가능하도록 합니다.">
 						종료 분기
@@ -1429,53 +1520,89 @@ function fnFlowMoveSave(){
 						</div>
 					</div>
 					<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right">
-						내용 배경 색상
+						내용 글씨 색상
 					</div>
 					<div class="flw_sub_box flw_sub1">
-						<input type="color" name="previewFlowContentBgColor" id="previewFlowContentBgColor" value="#FAFAFA" disabled="disabled"/>
+						<input type="color" name="previewFlowContentColor" id="previewFlowContentColor" value="#515769" disabled="disabled"/>
+					</div>
+					<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right" title="현재 작업흐름에서 리비전 번호를 입력 받도록 지정합니다.">
+						허용 역할
+					</div>
+					<div class="flw_sub_box flw_sub1 flw_line_right">
+						<div class="flw_chk"> 
+							<input type="checkbox" title="체크박스" name="previewFlowAuth" id="previewFlowAuth" disabled="disabled"/><label></label>
+						</div>
 					</div>
 					<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right" title="현재 작업흐름에서 작업을 추가 할 수 있도록 지정합니다.">
 						작업
 					</div>
-					<div class="flw_sub_box flw_sub1 flw_line_right">
+					<div class="flw_sub_box flw_sub1">
 						<div class="flw_chk"> 
 							<input type="checkbox" title="체크박스" name="previewFlowWork" id="previewFlowWork" disabled="disabled"/><label></label>
 						</div>
 					</div>
-					<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right">
-						내용 글씨 색상
+					<c:choose>
+						<c:when test="${empty svnkitModuleUseChk or svnkitModuleUseChk == true }">
+							<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right" title="현재 작업흐름에서 리비전 번호를 입력 받도록 지정합니다.">
+								리비전 저장
+							</div>
+							<div class="flw_sub_box flw_sub1 flw_line_right">
+								<div class="flw_chk"> 
+									<input type="checkbox" title="체크박스" name="previewFlowRevision" id="previewFlowRevision" disabled="disabled"/><label></label>
+								</div>
+							</div>
+						</c:when>
+						<c:otherwise>
+							<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right" title="현재 작업흐름에서 리비전 번호를 입력 받도록 지정합니다.">
+							</div>
+							<div class="flw_sub_box flw_sub1 flw_line_right">
+								<input type="hidden" title="체크박스" name="previewFlowRevision" id="previewFlowRevision" disabled="disabled"/>
+							</div>
+						</c:otherwise>
+					</c:choose>
+					<c:choose>
+						<c:when test="${empty jenkinsModuleUseChk or jenkinsModuleUseChk == true }">
+							<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right">
+								배포 계획 저장
+							</div>
+							<div class="flw_sub_box flw_sub1">
+								<div class="flw_chk"> 
+									<input type="checkbox" title="체크박스" name="previewFlowDpl" id="previewFlowDpl" disabled="disabled"/><label></label>
+								</div>
+							</div>
+						</c:when>
+						<c:otherwise>
+							<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right">
+							</div>
+							<div class="flw_sub_box flw_sub1">
+								<div class="flw_chk"> 
+									<input type="hidden" title="체크박스" name="previewFlowDpl" id="previewFlowDpl" class="optPreviewCdChg" opt="optDpl"/>
+								</div>
+							</div>
+						</c:otherwise>
+					</c:choose>
+					<div class="flw_sub_box flw_sub_title flw_sub1 flw_sub_desc flw_auth_frame">
+						담당자</br>허용 역할 목록
 					</div>
-					<div class="flw_sub_box flw_sub1">
-						<input type="color" name="previewFlowContentColor" id="previewFlowContentColor" value="#000000" disabled="disabled"/>
+					<div class="flw_sub_box flw_sub3 flw_sub_desc flw_line_bottom_none flw_auth_frame">
+						<div data-ax5grid="previewAuth-grid" data-ax5grid-config="{}" style="height: 100px;"></div>	
 					</div>
-					<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right" title="현재 작업흐름에서 리비전 번호를 입력 받도록 지정합니다.">
-						리비전 저장
-					</div>
-					<div class="flw_sub_box flw_sub1 flw_line_right">
-						<div class="flw_chk"> 
-							<input type="checkbox" title="체크박스" name="previewFlowRevision" id="previewFlowRevision" disabled="disabled"/><label></label>
-						</div>
-					</div>
-					<div class="flw_sub_box flw_sub_title flw_sub1 flw_line_right">
-						배포 계획 저장
-					</div>
-					<div class="flw_sub_box flw_sub1">
-						<div class="flw_chk"> 
-							<input type="checkbox" title="체크박스" name="previewFlowDpl" id="previewFlowDpl" disabled="disabled"/><label></label>
-						</div>
-					</div>
-		
 				</div>
 				<div class="flw_sub_box flw_bottom_rightBox" style="height: auto;">
 					<div class="flw_sub_box flw_sub_title flw_sub4 flw_line_left">
 						추가 항목 내용
 					</div>
-					<div class="flw_sub_box flw_sub4" style="height: 200px;">
-						<div data-ax5grid="flw-grid" data-ax5grid-config="{}" style="height: 200px;"></div>	
+					<div class="flw_sub_box flw_sub4" style="height: 240px;">
+						<div data-ax5grid="flw-grid" data-ax5grid-config="{}" style="height: 240px;"></div>	
 					</div>
-					
+					<div class="flw_sub_box flw_sub_title flw_sub1 flw_sub_desc flw_line_left flw_auth_frame">
+						결재자</br>허용 역할 목록
+					</div>
+					<div class="flw_sub_box flw_sub3 flw_sub_desc flw_line_bottom_none flw_auth_frame">
+						<div data-ax5grid="previewSignAuth-grid" data-ax5grid-config="{}" style="height: 100px;"></div>	
+					</div>
 				</div>
-			</div></form>
+			</form></div>
 		</div>
 	</div>
 </div>

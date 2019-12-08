@@ -58,8 +58,9 @@ var arrChkObj = {"blkLog":{"type":"length","msg":"차단사유는 1000byte까지
 		    		toast.push(data.message);
 		    		return;
 		    	}
-				//그리드 새로고침
-				fnAxGrid5View();
+				// 차단사유 등록 후 그리드 데이터 새로고침
+				fnInGridListSet(firstGrid.page.currentPage, $('form#searchFrm').serialize()+"&"+mySearch.getParam());
+				
 				toast.push(data.message);
 				gfnLayerPopupClose();
 			});

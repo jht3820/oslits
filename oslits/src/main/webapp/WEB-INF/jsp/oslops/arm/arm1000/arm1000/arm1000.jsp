@@ -6,7 +6,7 @@
 <html lang="ko">
 <header>
 	<title>OpenSoftLab</title>
-	<link rel='stylesheet' href='<c:url value='/css/oslits/arm.css'/>' type='text/css'>
+	<link rel='stylesheet' href='<c:url value='/css/oslops/arm.css'/>' type='text/css'>
 </header>
 <style>
 
@@ -68,7 +68,7 @@ function fnAxGrid5View_alarm(){
 					formatter:function(){
 						var armIcon = "fa-envelope-open-o";
 						//안읽은 상태
-						if(this.item.viewCheck == "N"){
+						if(this.item.viewCheck == "02"){
 							armIcon = "fa-envelope";
 						}
 						return "<i class='fa fa-lg "+armIcon+"'></i>"
@@ -162,57 +162,62 @@ function fnAxGrid5View_alarm(){
                 }
             }
         });
-        //그리드 데이터 불러오기
- 		fnInGridListSet_alarm();
+      //읽지 않은 상태의 쪽지 검색 체크
+		var viewCheck = "${viewChk}";
+		if(viewCheck != "true"){
+	        //그리드 데이터 불러오기
+	 		fnInGridListSet_alarm();
+        }
 }
 //그리드 데이터 넣는 함수
 function fnInGridListSet_alarm(_pageNo,ajaxParam){
 	
-     	/* 그리드 데이터 가져오기 */
-     	//파라미터 세팅
-     	if(gfnIsNull(ajaxParam)){
-   			ajaxParam = $('form#alarm_searchFrm').serialize();
-   		}
-     	
-     	//페이지 세팅
-     	if(!gfnIsNull(_pageNo)){
-     		ajaxParam += "&pageNo="+_pageNo;
-     	}else if(typeof alarmGrid.page.currentPage != "undefined"){
-     		ajaxParam += "&pageNo="+alarmGrid.page.currentPage;
-     	}
-     	//AJAX 설정
-		var ajaxObj = new gfnAjaxRequestAction(
-				{"url":"<c:url value='/arm/arm1000/arm1000/selectArm1000ListAjax.do'/>","loadingShow":true}
-				,ajaxParam);
-		//AJAX 전송 성공 함수
-		ajaxObj.setFnSuccess(function(data){
-			data = JSON.parse(data);
-			var list = data.list;
-			var page = data.page;
-			
-		   	alarmGrid.setData({
-		             	list:list,
-		             	page: {
-		                  currentPage: _pageNo || 0,
-		                  pageSize: page.pageSize,
-		                  totalElements: page.totalElements,
-		                  totalPages: page.totalPages
-		              	}
-		             });
-		});
+   	/* 그리드 데이터 가져오기 */
+   	//파라미터 세팅
+   	if(gfnIsNull(ajaxParam)){
+ 			ajaxParam = $('form#alarm_searchFrm').serialize();
+ 		}
+   	
+   	//페이지 세팅
+   	if(!gfnIsNull(_pageNo)){
+   		ajaxParam += "&pageNo="+_pageNo;
+   	}else if(typeof alarmGrid.page.currentPage != "undefined"){
+   		ajaxParam += "&pageNo="+alarmGrid.page.currentPage;
+   	}
+   	
+    //AJAX 설정
+	var ajaxObj = new gfnAjaxRequestAction(
+			{"url":"<c:url value='/arm/arm1000/arm1000/selectArm1000ListAjax.do'/>","loadingShow":true}
+			,ajaxParam);
+	//AJAX 전송 성공 함수
+	ajaxObj.setFnSuccess(function(data){
+		data = JSON.parse(data);
+		var list = data.list;
+		var page = data.page;
 		
-		//AJAX 전송 오류 함수
-		ajaxObj.setFnError(function(xhr, status, err){
-			//세션이 만료된 경우 로그인 페이지로 이동
-           	if(status == "999"){
-           		alert('세션이 만료되어 로그인 페이지로 이동합니다.');
-        		document.location.href="<c:url value='/cmm/cmm4000/cmm4000/selectCmm4000View.do'/>";
-        		return;
-           	}
-		});
-		
-		//AJAX 전송
-		ajaxObj.send();
+	   	alarmGrid.setData({
+	             	list:list,
+	             	page: {
+	                  currentPage: _pageNo || 0,
+	                  pageSize: page.pageSize,
+	                  totalElements: page.totalElements,
+	                  totalPages: page.totalPages
+	              	}
+	             });
+	});
+	
+	//AJAX 전송 오류 함수
+	ajaxObj.setFnError(function(xhr, status, err){
+		//세션이 만료된 경우 로그인 페이지로 이동
+       	if(status == "999"){
+       		alert('세션이 만료되어 로그인 페이지로 이동합니다.');
+    		document.location.href="<c:url value='/cmm/cmm4000/cmm4000/selectCmm4000View.do'/>";
+    		return;
+       	}
+	});
+	
+	//AJAX 전송
+	ajaxObj.send();
 }
 
 //검색 상자
@@ -273,7 +278,7 @@ function fnSearchBoxControl_alarm(){
 	                                {optionValue:'title', optionText:'제목'},
 	                                {optionValue:"content", optionText:"내용"},
 	                                {optionValue:'reqId', optionText:'요구사항 ID'},
-	                                {optionValue:'viewCheck', optionText:'읽음 상태'}
+	                                {optionValue:'viewCheck', optionText:'읽음 상태', optionCommonCode:"CMM00001"}
 	                            ],onChange: function(selectedObject, value) {
 	                            	//선택 값이 전체목록인지 확인 후 입력 상자를 readonly처리
 	    							if(!gfnIsNull(selectedObject.optionAll) && selectedObject.optionAll == true){
@@ -282,33 +287,15 @@ function fnSearchBoxControl_alarm(){
 									}else{
 										axdom("#" + alarm_Search.getItemId("searchTxt")).removeAttr("readonly");
 									}
-	                            	
+	    							
 	    							//공통코드 처리 후 select box 세팅이 필요한 경우 사용
 									if( !gfnIsNull(selectedObject.optionCommonCode) ){
 										gfnCommonSetting(alarm_Search,selectedObject.optionCommonCode,"searchCd","searchTxt");
-									} else if(value == "sprintId"){
-										//option 초기화
-										axdom("#" + alarm_Search.getItemId("searchCd")).html('');
-										//개발주기가 있는 경우 목록 조회
-										if(gfnIsNull(sprintList)){
-											axdom("#"+alarm_Search.getItemId("searchCd")).append('<option value="">없음</option>');
-										}else{
-											//목록 불러오기
-									    	axdom("#" + alarm_Search.getItemId("searchCd")).append()
-									    			.append($("<option>",{value:'', text: "전 체"}));
-											$.each(JSON.parse(sprintList),function(){
-												axdom("#"+alarm_Search.getItemId("searchCd")).append('<option value="'+this.sprintId+'">'+this.sprintNm+'</option>');	
-											});
-										}
-										axdom("#" + alarm_Search.getItemId("searchTxt")).hide();
-										axdom("#" + alarm_Search.getItemId("searchCd")).show();
 									} else {
 										//공통코드 처리(추가 selectbox 작업이 아닌 경우 type=text를 나타낸다.)
 										axdom("#" + alarm_Search.getItemId("searchTxt")).show();
 										axdom("#" + alarm_Search.getItemId("searchCd")).hide();
 									}
-	                            	
-									
 	    						}
 						},
 						{label:"", labelWidth:"", type:"inputText", width:"150", key:"searchTxt", addClass:"secondItem sendBtn", valueBoxStyle:"padding-left:0px;", value:"",
@@ -355,8 +342,8 @@ function fnSearchBoxControl_alarm(){
 		var viewCheck = "${viewChk}";
 		if(viewCheck == "true"){
 			axdom("#" + alarm_Search.getItemId("searchSelect")).val("viewCheck");
-			axdom("#" + alarm_Search.getItemId("searchTxt")).removeAttr("readonly");
-            axdom("#" + alarm_Search.getItemId("searchTxt")).val("N");
+			gfnCommonSetting(alarm_Search,"CMM00001","searchCd","searchTxt");
+            axdom("#" + alarm_Search.getItemId("searchCd")).val("02");
 			axdom("#" + alarm_Search.getItemId("arm_button_search")).click();
 		}
 	});
@@ -371,7 +358,7 @@ function fnUpdateAlarm(chkList,checkType){
 	
 	$(chkList).each(function(idx, val){
 		//이미 읽은상태인 쪽지는 넘어감
-		if(checkType == "viewCheck" && val.viewCheck == "Y"){
+		if(checkType == "viewCheck" && val.viewCheck == "01"){
 			viewCheckStr = true;
 			return true;
 		}
@@ -388,7 +375,14 @@ function fnUpdateAlarm(chkList,checkType){
 		toast.push("이미 읽은 상태의 쪽지입니다.");
 		return false;
 	}
-	params += "&"+checkType+"=Y";
+
+	var paramValue = "Y";
+	//type별 값
+	if(checkType == "viewCheck"){
+		paramValue = "01";
+	}
+	
+	params += "&"+checkType+"="+paramValue;
 	
     //AJAX 설정
 	var ajaxObj = new gfnAjaxRequestAction(
@@ -449,7 +443,7 @@ function fnArmViewOnOff(data,onOff){
 		
 		if(data.errorYn == "N"){
 			//읽음 처리 확인
-			if(data.viewAction == "Y"){
+			if(data.viewAction == "01"){
 				fnInGridListSet_alarm();
 			
 				//쪽지 카운트 재 세팅
@@ -598,10 +592,13 @@ function fnArmWriteOnOff(data, onOff){
 		        },
 		        close: function() {
 		            $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+		            // 쪽지 작성 후 쪽지의 요구사항 태그 검색 부분의 검색어 초기화
+		            $("#searchReqIds").val("");
 		        },
 		        error: function(xhr, ajaxOptions, thrownError){ alert(thrownError);  alert(xhr.responseText); }
 		    })
 		    .data('uiAutocomplete')._renderItem = function( ul, item ) {
+				
 		        return $( "<li style='cursor:hand; cursor:pointer;'></li>" )
 		            .data( "item.autocomplete", item )
 		            .append("<a>"  + unescape(item.label) + "</a>")
@@ -692,6 +689,13 @@ function fnSpanReqDetailOpen(obj){
 		viewer = "Y";
 	}
 	var data = {"mode": "arm", "popupPrjId":$(obj).attr("prj-id"),"reqPrjGrpId":$(obj).attr("prj-grp-id"), "reqId": $(obj).attr("req-id"), "viewer":viewer}; 
+	
+	// 세션에 있는 선택된프로젝트의 Id와 쪽지의 요구사항 프로젝트 Id가 다를경우 
+	// 요구사항 상세보기 팝업 호출 시 callView 값을 넘겨준다.
+	if(selPrjId != $(obj).attr("prj-id")){
+		$.extend(data, {"callView":"arm"});
+	}
+	
 	gfnLayerPopupOpen("/req/req4000/req4100/selectReq4104View.do", data, '1300', '850','scroll');
 }
 
@@ -703,6 +707,13 @@ function fnSpanReq4105Open(obj){
 	if(selPrjGrpId != $(obj).attr("prj-grp-id") || selPrjId != $(obj).attr("prj-id")){
 		viewer = "Y";
 		var data = {"mode": "arm", "popupPrjId":$(obj).attr("prj-id"),"reqPrjGrpId":$(obj).attr("prj-grp-id"), "reqId": $(obj).attr("req-id"), "viewer":viewer}; 
+		
+		// 세션에 있는 선택된프로젝트의 Id와 쪽지의 요구사항 프로젝트 Id가 다를경우 
+		// 요구사항 상세보기 팝업 호출 시 callView 값을 넘겨준다.
+		if(selPrjId != $(obj).attr("prj-id")){
+			$.extend(data, {"callView":"arm"});
+		}
+		
 		gfnLayerPopupOpen("/req/req4000/req4100/selectReq4104View.do", data, '1300', '850','scroll');
 		return false;
 	}
@@ -736,6 +747,13 @@ function fnSpanReq4108Open(obj){
   	}; 
   	gfnLayerPopupOpen("/req/req1000/req1000/selectReq1002View.do", data, '640', '920','scroll');
 }
+
+//배포계획 팝업 오픈
+function fnSpanDplDetailOpen(obj){
+	var data = {"prjId" : $(obj).attr("prj-id"), "dplId" : $(obj).attr("dpl-id")};
+	gfnLayerPopupOpen('/dpl/dpl1000/dpl1000/selectDpl1003View.do',data, "415", "690",'scroll');
+}
+
 </script>
 <div class="armHeader">
 	<span id="headerTitle">쪽지 관리</span>

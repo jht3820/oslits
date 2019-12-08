@@ -51,6 +51,11 @@ input[type="checkbox"] + label:before { margin: 0 !important; }
 .grid-cell-red{background: #f8d2cb;}
 /* 팝업창 위치 */
 .ui-draggable{ top: -3px;}
+span#fileTextSpan {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
 </style>
 
 <script>
@@ -153,7 +158,7 @@ input[type="checkbox"] + label:before { margin: 0 !important; }
 	 */
 	var fnBind = function(dataList) {
 		 
-		 //그리드 초기화
+		//그리드 초기화
 		insertGrid.setData([]);
 		 
 		var realDataList = 0;
@@ -180,6 +185,8 @@ input[type="checkbox"] + label:before { margin: 0 !important; }
 			map.reqUsrDeptNm = map.reqUsrDeptNm.trim();
 			map.reqUsrNum = map.reqUsrNum.trim();
 			map.reqUsrEmail = map.reqUsrEmail.trim();
+			map.reqUsrPositionNm = map.reqUsrPositionNm.trim();
+			map.reqUsrDutyNm = map.reqUsrDutyNm.trim();
 			
 			var reqNewType 	 = map["reqNewType"];		// 접수유형
 			var reqNo 		 = map["reqNo"];			// 공문번호
@@ -192,6 +199,8 @@ input[type="checkbox"] + label:before { margin: 0 !important; }
 			var reqUsrDeptNm = map["reqUsrDeptNm"];		// 요청자 소속명
 			var reqUsrNum 	 = map["reqUsrNum"];		// 요청자 연락처
 			var reqUsrEmail  = map["reqUsrEmail"];		// 요청자명
+			var reqUsrPositionNm  = map["reqUsrPositionNm"];	// 직급
+			var reqUsrDutyNm  = map["reqUsrDutyNm"];			// 직책
 			
 			/** 접수유형 **/
 			if( !gfnIsNull(reqNewType) ){
@@ -389,6 +398,21 @@ input[type="checkbox"] + label:before { margin: 0 !important; }
 					failMsg += "접수유형이 게시판 이거나 요청자 정보 직접입력 시, 요청자 연락처는 필수 입력값 입니다.<br>";
 				}
 				
+				// 요청자 직급 - 필수입력값이 아니므로 필수입력 체크하지 않음
+				if( !gfnIsNull(reqUsrPositionNm) ){
+					if( gfnStrByteLen(reqUsrPositionNm) > 500){
+						failChk = true;
+						failMsg += "요청자 직급의 글자 수가 최대치(500Byte)를 초과했습니다.<br>";
+					}
+				}
+				
+				// 요청자 칙책 - 필수입력값이 아니므로 필수입력 체크하지 않음
+				if( !gfnIsNull(reqUsrDutyNm) ){
+					if( gfnStrByteLen(reqUsrDutyNm) > 500){
+						failChk = true;
+						failMsg += "요청자 직책의 글자 수가 최대치(500Byte)를 초과했습니다.<br>";
+					}
+				}
 			}
 			// end 직접입력여부가 Y일 경우
 			
@@ -454,6 +478,18 @@ input[type="checkbox"] + label:before { margin: 0 !important; }
 						failMsg += "연락처 형식이 맞지 않습니다. 숫자만 입력해야 합니다. 예) 01012341234 <br>";
 	                }
 				}
+				
+				// 직급 입력 체크
+				if( !gfnIsNull(reqUsrPositionNm) ){
+					failChk = true;
+					failMsg += "요청자 정보 직접 입력하지 않을 시, 직급은 입력할 필요가 없습니다.<br>";
+				}
+				
+				// 직책 입력체크 
+				if( !gfnIsNull(reqUsrDutyNm) ){
+					failChk = true;
+					failMsg += "요청자 정보 직접 입력하지 않을 시, 직책은 입력할 필요가 없습니다.<br>";
+				}
 			}
 			// end 직접입력여부가 N일 경우
 			 	
@@ -474,7 +510,6 @@ input[type="checkbox"] + label:before { margin: 0 !important; }
 			insertGrid.addRow($.extend({}, map, {__index: undefined}));
         });
 		
-        // TODO
 		// 요청자 ID 체크 - 입력한 요청자 ID가 시스템에 등록되어 있는지 체크한다.
 		fnReqUsrIdCheck();
 		
@@ -560,7 +595,13 @@ input[type="checkbox"] + label:before { margin: 0 !important; }
 	
 	function fnFileTextSpanVal(obj){
 		var fileName = obj.value;
-		document.getElementById('fileTextSpan').innerHTML= fileName.replace("C:\\fakepath\\","")+" ("+gfnByteCalculation(obj.files[0].size)+")";	
+		// 크롬의 경우 파일 선택 창에서 취소 하면 file 정보가 사라짐
+		if(!gfnIsNull(fileName)){
+			document.getElementById('fileTextSpan').innerHTML= fileName.replace("C:\\fakepath\\","")+" ("+gfnByteCalculation(obj.files[0].size)+")";	
+		}else{
+			// 파일 정보가 사라졌을 경우 파일명 표시하는 부분 초기화
+			$("#fileTextSpan").text("");
+		}
 	}
 	
 	//axisj5 그리드
@@ -615,7 +656,15 @@ input[type="checkbox"] + label:before { margin: 0 !important; }
                     {key: "reqUsrNum", label: "연락처", width: 140, align: "left",
                     	styleClass: function () {
                         return (this.item.failRow == "Y") ? "grid-cell-red" : "";
-                        }}    
+                        }},
+                    {key: "reqUsrPositionNm", label: "직급", width: 140, align: "left",
+                    	styleClass: function () {
+                        return (this.item.failRow == "Y") ? "grid-cell-red" : "";
+                        }},
+                    {key: "reqUsrDutyNm", label: "직책", width: 140, align: "left",
+                    	styleClass: function () {
+                        return (this.item.failRow == "Y") ? "grid-cell-red" : "";
+                        }}
 	            ],
 	            body: {
 	                align: "center",

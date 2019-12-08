@@ -4,7 +4,7 @@
 <%@ include file="/WEB-INF/jsp/oslops/top/header.jsp" %>
 <jsp:include page="/WEB-INF/jsp/oslops/top/aside.jsp" />
 
-<link rel='stylesheet' href='<c:url value='/css/oslits/req.css'/>' type='text/css'>
+<link rel='stylesheet' href='<c:url value='/css/oslops/req.css'/>' type='text/css'>
 <style type="text/css">
 	.accptFont{color:#4b73eb !important;text-shadow: none !important;}
 	.rejectFont{color:#eb4b6a !important;text-shadow: none !important;}
@@ -118,6 +118,7 @@ function fnAxGrid5View(){
             header: {align:"center"},
             frozenColumnIndex: 3,
             columns: [
+				{key: "prjNm", label: "프로젝트명", width: '10%', align: "center"},
 				{key: "reqOrd", label: "순번", width: '7%', align: "center"},
 				{key: "reqProTypeNm", label: "처리유형", width: '9%', align: "center"},
 				{key: "reqNm", label: "요청 제목", width: '25%', align: "left"},
@@ -150,11 +151,11 @@ function fnAxGrid5View(){
                 			"reqPageType" : "usrReqPage"
                 	}; 
   
-                	var popHeight = "845";
+                	var popHeight = "890";
                 	
                 	// 처리유형이 반려일 경우
                 	if(reqProType == "03"){
-                		popHeight = "890";
+                		popHeight = "930";
                 	}
                 	
                 	gfnLayerPopupOpen("/req/req1000/req1000/selectReq1002View.do", data, '640', popHeight,'scroll');
@@ -299,12 +300,81 @@ function fnSearchBoxControl(){
 				theme : "AXSearch",
 				rows:[
 						{display:true, addClass:"", style:"", list:[
+							{label:"", labelWidth:"", type:"button", width:"60",style:"float:right;", key:"btn_print_newReqDemand",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-print' aria-hidden='true'></i>&nbsp;<span>프린트</span>",
+								onclick:function(){
+									$(firstGrid.exportExcel()).printThis({importCSS: false,importStyle: false,loadCSS: "/css/common/printThis.css"});
+							}},
+							{label:"", labelWidth:"", type:"button", width:"55",style:"float:right;", key:"btn_excel_newReqDemand",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-file-excel' aria-hidden='true'></i>&nbsp;<span>엑셀</span>",
+								onclick:function(){
+									// 엑셀 다운로드
+									fnExcelDownLoad();
+							}},
+							{label:"", labelWidth:"", type:"button", width:"55",style:"float:right;", key:"btn_delete_req",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-trash-alt' aria-hidden='true'></i>&nbsp;<span>삭제</span>",
+							onclick:function(){
+								var chkList = firstGrid.getList('selected');
+
+								fnDeleteReqInfo(chkList);
+							}},
+							{label:"", labelWidth:"", type:"button", width:"55",style:"float:right;", key:"btn_update_req",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-edit' aria-hidden='true'></i>&nbsp;<span>수정</span>",
+							onclick:function(){
+								var item = (!gfnIsNull(Object.keys(firstGrid.focusedColumn)))? firstGrid.list[firstGrid.focusedColumn[Object.keys(firstGrid.focusedColumn)].doindex]:null;
+								
+								if(gfnIsNull(item)){
+									toast.push('먼저 요청사항을 선택해주세요');
+									return;
+								}
+
+								var selPrjId = item.prjId;
+								var selReqId = item.reqId;
+								var reqProType = item.reqProType;
+
+								if(reqProType != "01"){
+									jAlert('접수 요청중인 요청사항만 수정 가능합니다.','알림창');
+									return false;
+								}
+								
+								var data = {
+										"popupPrjId": selPrjId,
+										"reqId": selReqId,
+										"type" : "update",
+								};
+								gfnLayerPopupOpen('/req/req1000/req1000/selectReq1001View.do',data,"640","845",null);
+							}},
+							{label:"", labelWidth:"", type:"button", width:"60",style:"float:right;", key:"btn_insert_req",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-save' aria-hidden='true'></i>&nbsp;<span>등록</span>",
+							onclick:function(){
+								var data = {
+									"type": "insert"
+								};
+								
+								gfnLayerPopupOpen('/req/req1000/req1000/selectReq1001View.do',data,"640","845",null);
+							}},
+							{label:"", labelWidth:"", type:"button",style:"float:right;", width:"55", key:"btn_search_req",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-list' aria-hidden='true'></i>&nbsp;<span>조회</span>",
+							onclick:function(){
+								/* 검색 조건 설정 후 reload */
+	 							var pars = mySearch.getParam();
+							    var ajaxParam = $('form#searchFrm').serialize();
+
+							    if(!gfnIsNull(pars)){
+							    	ajaxParam += "&"+pars;
+							    }
+								
+					            fnInGridListSet(0,ajaxParam);
+					            
+					            //폼 데이터 변경
+								$('#searchSelect').val(axdom("#" + mySearch.getItemId("searchSelect")).val());
+								$('#searchCd').val(axdom("#" + mySearch.getItemId("searchCd")).val());
+								$('#searchTxt').val(axdom("#" + mySearch.getItemId("searchTxt")).val());
+					            
+							}}							
+						]},
+						{display:true, addClass:"", style:"", list:[
 						{label:"<i class='fa fa-search'></i>&nbsp;", labelWidth:"30", type:"selectBox", width:"", key:"searchSelect", addClass:"", valueBoxStyle:"", value:"all",
 							options:[
                                 {optionValue:"0", optionText:"전체 보기",optionAll:true},
                                 {optionValue:'reqNm', optionText:'요청 제목'},
                                 {optionValue:'reqDesc', optionText:'요청 내용'},
                                 {optionValue:"reqProType", optionText:"처리유형", optionCommonCode:"REQ00008"},
+                                {optionValue:'prjNm', optionText:'프로젝트명'},
                                 {optionValue:'reqOrd', optionText:'순번'}
                                 
                             ],onChange: function(selectedObject, value){
@@ -337,16 +407,10 @@ function fnSearchBoxControl(){
 						{label:"", labelWidth:"", type:"selectBox", width:"100", key:"searchCd", addClass:"selectBox", valueBoxStyle:"padding-left:0px;", value:"01",
 							options:[]
 						},
-						{label:"기간", labelWidth:"70", type:"inputText", width:"90", key:"srchFromDt", addClass:"secondItem readonly", valueBoxStyle:"", value:defaultStDt,
-							onChange: function(){}
-							},
-						{label:"", labelWidth:"", type:"inputText", width:"90", key:"srchToDt", addClass:"secondItem readonly", valueBoxStyle:"padding-left:0px;", value:defaultEndDt,
-								AXBind:{
-									type:"twinDate", config:{
-										align:"right", valign:"top", startTargetID:"srchFromDt"
-									}
-								}
-							},
+						{label : "시작일",labelWidth : "70",type : "inputText",width : "150",key : "srchFromDt",addClass : "secondItem sendBtn",valueBoxStyle : "",value : defaultStDt,
+						},
+						{label : "종료일",labelWidth : "70",type : "inputText",width : "150",key : "srchToDt",addClass : "secondItem sendBtn",valueBoxStyle : "",value : defaultEndDt,
+						},
 						{label:"<i class='fas fa-list-ol'></i>&nbsp;목록 수&nbsp;", labelWidth:"60", type:"selectBox", width:"", key:"pageSize", addClass:"", valueBoxStyle:"", value:"30",
 							options:[
 							         	{optionValue:15, optionText:"15"},
@@ -374,72 +438,7 @@ function fnSearchBoxControl(){
 		                            ],onChange: function(selectedObject, value){
 		                            	firstGrid.setHeight(value);
 		    						}
-						},
-						{label:"", labelWidth:"", type:"button", width:"60",style:"float:right;", key:"btn_print_newReqDemand",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-print' aria-hidden='true'></i>&nbsp;<span>프린트</span>",
-							onclick:function(){
-								$(firstGrid.exportExcel()).printThis();
-						}},
-						{label:"", labelWidth:"", type:"button", width:"55",style:"float:right;", key:"btn_excel_newReqDemand",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-file-excel' aria-hidden='true'></i>&nbsp;<span>엑셀</span>",
-							onclick:function(){
-								firstGrid.exportExcel("${sessionScope.selMenuNm}.xls");
-						}},
-						{label:"", labelWidth:"", type:"button", width:"55",style:"float:right;", key:"btn_delete_req",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-trash-alt' aria-hidden='true'></i>&nbsp;<span>삭제</span>",
-						onclick:function(){
-							var chkList = firstGrid.getList('selected');
-
-							fnDeleteReqInfo(chkList);
-						}},
-						{label:"", labelWidth:"", type:"button", width:"55",style:"float:right;", key:"btn_update_req",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-edit' aria-hidden='true'></i>&nbsp;<span>수정</span>",
-						onclick:function(){
-							var item = (!gfnIsNull(Object.keys(firstGrid.focusedColumn)))? firstGrid.list[firstGrid.focusedColumn[Object.keys(firstGrid.focusedColumn)].doindex]:null;
-							
-							if(gfnIsNull(item)){
-								toast.push('먼저 요청사항을 선택해주세요');
-								return;
-							}
-
-							var selPrjId = item.prjId;
-							var selReqId = item.reqId;
-							var reqProType = item.reqProType;
-
-							if(reqProType != "01"){
-								jAlert('접수 요청중인 요청사항만 수정 가능합니다.','알림창');
-								return false;
-							}
-							
-							var data = {
-									"popupPrjId": selPrjId,
-									"reqId": selReqId,
-									"type" : "update",
-							};
-							gfnLayerPopupOpen('/req/req1000/req1000/selectReq1001View.do',data,"640","800",'scroll');
-						}},
-						{label:"", labelWidth:"", type:"button", width:"60",style:"float:right;", key:"btn_insert_req",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-save' aria-hidden='true'></i>&nbsp;<span>등록</span>",
-						onclick:function(){
-							var data = {
-								"type": "insert"
-							};
-							
-							gfnLayerPopupOpen('/req/req1000/req1000/selectReq1001View.do',data,"640","800",'scroll');
-						}},
-						{label:"", labelWidth:"", type:"button",style:"float:right;", width:"55", key:"btn_search_req",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-list' aria-hidden='true'></i>&nbsp;<span>조회</span>",
-						onclick:function(){
-							/* 검색 조건 설정 후 reload */
- 							var pars = mySearch.getParam();
-						    var ajaxParam = $('form#searchFrm').serialize();
-
-						    if(!gfnIsNull(pars)){
-						    	ajaxParam += "&"+pars;
-						    }
-							
-				            fnInGridListSet(0,ajaxParam);
-				            
-				            //폼 데이터 변경
-							$('#searchSelect').val(axdom("#" + mySearch.getItemId("searchSelect")).val());
-							$('#searchCd').val(axdom("#" + mySearch.getItemId("searchCd")).val());
-							$('#searchTxt').val(axdom("#" + mySearch.getItemId("searchTxt")).val());
-				            
-						}}
+						}
 					]}
 				]
 			});
@@ -463,12 +462,9 @@ function fnSearchBoxControl(){
 
 		//버튼 권한 확인
 		fnBtnAuthCheck(mySearch);
-		
-		
-		// 화면 로드 시 그리드 데이터 불러오기
-		// 기본 세팅된 날짜를 이용해서 요구사항 조회
-		axdom("#" + mySearch.getItemId("srchFromDt")).val();
-		axdom("#" + mySearch.getItemId("srchToDt")).val();
+
+		//기간 검색 달기
+		gfnCalRangeSet(mySearch.getItemId("srchFromDt"), mySearch.getItemId("srchToDt"));
 		
 		var pars = mySearch.getParam();
 		fnInGridListSet(0,pars);
@@ -476,10 +472,39 @@ function fnSearchBoxControl(){
 }
 
 
+/* 사용자 요구사항 등록 엑셀 다운로드 */
+function fnExcelDownLoad(){ 
+
+	var searchSelect = axdom("#" + mySearch.getItemId("searchSelect")).val();	// 검색 콤보박스
+	var searchCd = axdom("#" + mySearch.getItemId("searchCd")).val();			// 검색어 대신 콤보박스에서 선택하는 검색조건 (처리유형)
+	var searchTxt = axdom("#" + mySearch.getItemId("searchTxt")).val();			// 검색어
+	var srchFromDt = axdom("#" + mySearch.getItemId("srchFromDt")).val();		// 검색 시작일
+	var srchToDt = axdom("#" + mySearch.getItemId("srchToDt")).val();			// 검색 종료일
+	
+	var excelForm = document.getElementById("req1000_excel_down_Form");
+	
+	excelForm.searchSelect.value = searchSelect;
+	excelForm.searchTxt.value = searchTxt;
+	excelForm.searchCd.value = searchCd;
+	excelForm.srchFromDt.value = srchFromDt;
+	excelForm.srchToDt.value = srchToDt;
+	excelForm.action = "<c:url value='/req/req1000/req1000/selectReq1000ExcelList.do'/>";
+	excelForm.submit();
+	return false;
+}
+
+
 </script>
 
 
 		<div class="main_contents">
+			<form:form commandName="req1000VO" id="req1000_excel_down_Form" name="req1000_excel_down_Form" method="post" onsubmit="return false;">
+				<input type="hidden" name="searchSelect">
+				<input type="hidden" name="searchTxt">
+				<input type="hidden" name="srchFromDt">
+				<input type="hidden" name="srchToDt">
+				<input type="hidden" name="searchCd">
+			</form:form>
 			<form:form commandName="req1000VO" id="searchFrm" name="searchFrm" method="post" onsubmit="return false;">
 			</form:form>
 			<div class="req_title">${sessionScope.selMenuNm }</div>

@@ -12,10 +12,21 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<meta charset="UTF-8">
 	<!-- 모바일 : viewport 제거-->
-	<!-- <meta name="viewport" content="width=device-width, initial-scale=1.0">  -->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="viewport" content="width=device-width, user-scalable=no">
 	<!-- <meta http-equiv="X-UA-Compatible" content="IE=11"> -->
-	<meta http-equiv="x-ua-compatible" content="IE=EmulateIE10">
+	<!-- <meta http-equiv="x-ua-compatible" content="IE=EmulateIE10"> -->
 	<title>Open Soft Lab</title>
+	
+	<!-- 파비콘 -->
+	<link rel="apple-touch-icon" sizes="180x180" href="<c:url value='/images/favicon/apple-touch-icon.png'/>">
+	<link rel="icon" type="image/png" sizes="32x32" href="<c:url value='/images/favicon/favicon-32x32.png'/>">
+	<link rel="icon" type="image/png" sizes="16x16" href="<c:url value='/images/favicon/favicon-16x16.png'/>">
+	<link rel="manifest" href="<c:url value='/images/favicon/site.webmanifest'/>">
+	<link rel="mask-icon" href="<c:url value='/images/favicon/safari-pinned-tab.svg'/>" color="#5bbad5">
+	<meta name="msapplication-TileColor" content="#da532c">
+	<meta name="theme-color" content="#ffffff">
+	
 	
 	<link rel="stylesheet" href="<c:url value='/css/common/common.css'/>">
 	
@@ -42,6 +53,8 @@
 	<script type="text/javascript" src="<c:url value='/js/jspdf/jspdf.min.js'/>"></script>
 	<script type="text/javascript" src="<c:url value='/js/bluebird/bluebird.min.js'/>"></script>
 	
+	<!-- Sortable - 배포 쪽에서 사용 추후 대시보드에서 사용 예정 -->
+	<script type="text/javascript" src="<c:url value='/js/sortable/Sortable.js'/>"></script>
 	
 	<%-- <script type="text/javascript" src="<c:url value='/js/axisj/dist/ax5/ax5dialog.min.js'/>"></script> --%>
 	<script src="/js/axisj/lib/mask/ax5mask.min.js"></script>
@@ -49,6 +62,8 @@
 	<script type="text/javascript" src="<c:url value='/js/axisj/dist/ax5/ax5grid.js'/>"></script>
 	<script src="<c:url value='/js/common/common.js'/>" ></script>
 	
+	<!-- select2 -->
+	<link href="/vendors/select2/css/select2.css" rel="stylesheet">
 	
 	<style type="text/css">
 	.menu_b_two {display: none;}
@@ -69,13 +84,45 @@
 	//팝업 크기
 	var popupWidth = 1800;
 	var popupHeight = 980;
+	
+	function headerPrjListSetting(){
+		//프로젝트 목록 select2
+		$("#header_select").select2({
+			templateResult: function(state) {
+				var returnFlag = true;
+				
+				//disabled아닌 경우에만 출력
+				if(!gfnIsNull(state.element) && !gfnIsNull(state.element.disabled) && state.element.disabled == true){
+					returnFlag = false;
+				}
+				
+				if(returnFlag){
+					return state.text;
+				}
+			}
+		});
+	}
 		$(document).ready(function(){
+			//프로젝트 목록 select2
+			headerPrjListSetting();
 			
 			// 사용자 비밀번호 만료일
-			var pwExpireDay = "${sessionScope.limitDay}";
-				
-			// 사용자 비밀번호 만료일 체크
-			fnPwChangeDay(pwExpireDay);
+			var pwExpireDay = '<c:out value="${sessionScope.limitDay}"/>';
+
+			// 사용자 비밀번호 만료일 체크 - 7일보다 작으면 경고창 띄움
+			if(pwExpireDay <= 7){
+				fnPwChangeDay(pwExpireDay);
+			}
+			// 사용자 접속 IP정보
+			// 이전 접속 IP
+			var beforeIp = '<c:out value="${sessionScope.userAccessIpInfoList[1].loginIp}"/>';
+			// 현재 접속 IP
+			var currentIp = '<c:out value="${sessionScope.userAccessIpInfoList[0].loginIp}"/>';
+			
+			// 접속 IP주소가 다를경우 Alert 띄움
+			if( !gfnIsNull(beforeIp) && !gfnIsNull(currentIp) && beforeIp != currentIp){
+				fnAccessIpChk(beforeIp, currentIp);	
+			}
 			
 			//윈도우 객체
 			if (window.screen) {
@@ -163,12 +210,12 @@
 				// 부모를 찾으면 class=searchItem을 가진 div 한개만 나옴
 				$("[id^=AX][id*='btn_excel']").parents(".searchItem").hide();
 			}
-			if(btnAuthPrintYn != 'Y'){
+			//if(btnAuthPrintYn != 'Y'){
 				$("[id^=AX][id*='btn_print']").hide();
 				// 프린트버튼의 부모중 class=searchItem 를 찾아 hide 시킴
 				// 부모를 찾으면 class=searchItem을 가진 div 한개만 나옴
 				$("[id^=AX][id*='btn_print']").parents(".searchItem").hide();
-			}
+			//}
 		}
 	</script>
 	
@@ -205,13 +252,32 @@
 			if( isCookie("pwExpire") == false ){
 			
 				if( !gfnIsNull(pwExpireDay) ){
-					jAlert("비밀번호 변경주기는 6개월 입니다. \n\n 현재 비밀번호 만료일이 "+ pwExpireDay +"일 남았습니다. \n\n 비밀번호를 변경해 주세요.","알림창", function(result) {
+					jAlert("비밀번호 변경주기는 1개월 입니다. \n\n 현재 비밀번호 만료일이 "+ pwExpireDay +"일 남았습니다. \n\n 비밀번호를 변경해 주세요.","알림창", function(result) {
 						if (result) {
 							// 비밀번호 만료일 alert이 로그인 시 한번만 나타나게 하기위한 쿠키를 생성
 							setCookie("pwExpire", "expire"); 
 						}
 					});
 				}	
+			}
+		}
+		
+		/**
+		 * 사용자 접속 IP체크
+		 * @param beforeIp 이전 접속 IP
+		 * @param currentIp 현재 접속 IP
+		 */
+		function fnAccessIpChk(beforeIp, currentIp){
+
+			// 접속 IP체크 쿠키가 없을경우 
+			if( isCookie("accessIp") == false ){
+			
+				jAlert("이전 접속한 IP주소와 현재 접속한 IP주소가 다릅니다. \n접속한 IP주소를 확인해 주세요.\n\n> 이전 접속 IP : "+beforeIp+"\n> 현재 접속 IP : "+currentIp,"알림창", function(result) {
+					if (result) {
+						// 접속 IP체크 alert이 로그인 시 한번만 나타나게 하기위한 쿠키를 생성
+						setCookie("accessIp", "notEqual"); 
+					}
+				});
 			}
 		}
 		
@@ -241,7 +307,7 @@
 			var cDate = new Date();
 			cDate.setTime(cDate.getTime() + 1000*60*60*1); // 만료시간 1시간
 			document.cookie = cookieName + "=" + cookieValue + "; path=/; expires=" + cDate.toGMTString() + ";";
-		}  
+		} 
 	</script>	
 		
 </head>
@@ -323,28 +389,26 @@
 					<select class="header_select hdsel" id="header_select" onchange="fnGoPrjChg(this)">
 						<c:if test="${!empty sessionScope.prjList }">
 							<c:forEach items="${sessionScope.prjList }" var="map" varStatus="status">
-								<c:if test="${sessionScope.selPrjId == map.prjId}" >
-									<option selected value="${map.prjId}">${map.prjNm}</option>
-								</c:if>
-								<c:if test="${sessionScope.selPrjId != map.prjId}" >
-									<c:if test="${map.prjGrpCd == '01' && map.leaf == 0}">
-										<c:if test="${status.first == false}">
-											</optgroup>
-										</c:if>
-										<c:set var="optGroupChk" value="01" />
-										<optgroup label="[그룹]${map.prjNm}" value="${map.prjId}">
+								<c:if test="${map.prjGrpCd == '01'}" >
+									<c:if test="${map.leaf == 0}">
+										<optgroup label="[그룹]<c:out value='${map.prjNm}' />" data-ord="${map.ord}" value="${map.prjId}">
 									</c:if>
-									<c:if test="${map.prjGrpCd == '01' && map.leaf == 1}">
-										<optgroup label="[그룹]${map.prjNm}" value="${map.prjId}" style="display:none">
-										</optgroup>
+									<c:if test="${map.leaf > 0}">
+										<optgroup label="[그룹]<c:out value='${map.prjNm}' />" data-ord="${map.ord}" value="${map.prjId}" disabled="disabled">
 									</c:if>
-									<c:if test="${map.prjGrpCd == '02'}">
-										<c:set var="optGroupChk" value="02" />
-											<option value="${map.prjId }">${map.prjNm }</option>
-											<c:if test="${status.last == true}">
-												</optgroup>
+									<c:forEach items="${sessionScope.prjList }" var="map2" varStatus="status">
+										<c:if test="${map.prjId == map2.prjGrpId}">
+											<c:if test="${sessionScope.selPrjId == map2.prjId}" >
+												<option selected value="${map2.prjId}"><c:out value='${map2.prjNm}' /></option>
 											</c:if>
-									</c:if>
+											<c:if test="${sessionScope.selPrjId != map2.prjId}" >
+												<c:if test="${map2.prjGrpCd == '02'}">
+														<option value="${map2.prjId}" data-ord="${map2.ord}"><c:out value='${map2.prjNm}' /></option>
+												</c:if>
+											</c:if>
+										</c:if>
+									</c:forEach>
+									</optgroup>
 								</c:if>
 							</c:forEach>
 						</c:if>

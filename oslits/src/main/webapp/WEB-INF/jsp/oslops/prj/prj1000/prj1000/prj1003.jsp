@@ -17,20 +17,24 @@
 </style>
 
 <script>
+
+//유효성 체크
+var arrChkObj = {"prjNm":{"type":"length","msg":"프로젝트 ${prjGrpNm}명은 200byte까지 입력이 가능합니다.",max:200}
+				,"prjAcrm":{"type":"length","msg":"프로젝트 약어는 10byte까지 입력이 가능합니다.",max:10}
+				,"prjDesc":{"type":"length","msg":"프로젝트 설명은 4000byte까지 입력이 가능합니다.",max:4000}
+				,"ord":{"type":"number"}};
+
+// 프로젝트 약어 영문 숫자여부 체크
+var arrChkObj2 = {"prjAcrm":{"type":"english","engOption":"includeNumber"}};
+
 //생성 타입 (group - 그룹, project - 단위)
 $(document).ready(function() {
 	//그룹 or 단위
 	var type = "${type}";
 	
-	//유효성 체크
-	var arrChkObj = {"prjNm":{"type":"length","msg":"프로젝트 ${prjGrpNm}명은 200byte까지 입력이 가능합니다.",max:200}
-					,"prjAcrm":{"type":"length","msg":"프로젝트 약어는 10byte까지 입력이 가능합니다.",max:10}
-					,"prjDesc":{"type":"length","msg":"프로젝트 설명은 4000byte까지 입력이 가능합니다.",max:4000}
-					,"itemOrd":{"type":"number"}};
+	// 유효성 체크
 	gfnInputValChk(arrChkObj);
-	
-	// 프로젝트 약어 영문여부 체크
-	var arrChkObj2 = {"prjAcrm":{"type":"english"}};
+	// 프로젝트 약어 유효성 체크
 	gfnInputValChk(arrChkObj2);
 	
 	var prjGrpStartDt = "${startDt}";
@@ -40,9 +44,6 @@ $(document).ready(function() {
 	if(type == "group"){
 		//그룹 정보 숨김
 		$("#popupPrjForm .prjGrpNameSpan").hide();
-		
-		//프로젝트 유형 숨김
-		$("#popupPrjForm .prjTypeDiv").hide();
 		
 		// 프로젝트 약어 숨김
 		$("#popupPrjForm .popPrjAcrmDiv").hide();
@@ -70,9 +71,6 @@ $(document).ready(function() {
 		
 		//그룹 정보 표시
 		$("#popupPrjForm .prjGrpNameSpan").show();
-		
-		//프로젝트 유형 표시
-		$("#popupPrjForm .prjTypeDiv").show();
 		
 		//프로젝트 약어 표시
 		$("#popupPrjForm .popPrjAcrmDiv").show();
@@ -138,15 +136,25 @@ $(document).ready(function() {
 
 			// 프로젝트 약어 유효성 검증
 			var saveObjectValid = {
-						"prjAcrm":{"type":"regExp","pattern":/^[A-Z]{3,10}$/ ,"msg":"프로젝트 약어는 영문 대문자 3~10자만 사용 가능합니다.", "required":true} 
+					// 영문 대문자 또는 영문대문자+숫자 조합 입력
+					"prjAcrm":{"type":"regExp","pattern":/^(?=.*?[A-Z])(?=.*?[0-9])|[A-Z]{3,10}$/ ,"msg":"프로젝트 약어는 영문 대문자 또는 영문 대문자, 숫자 조합으로 3~10자만 사용 가능합니다.", "required":true} 
 			}
 			
 			// 약어 유효성 검사
 			if(!gfnInputValChk(saveObjectValid)){
 				return false;	
 			}
+			
+			// 등록 전 약어 유효성 검사
+			if(!gfnSaveInputValChk(saveObjectValid)){
+				return false;	
+			}
 		}
-		
+
+		// 등록 전 입력값 유효성 검사
+		if(!gfnSaveInputValChk(arrChkObj)){
+			return false;	
+		}
 		
 		//error있는경우 오류
 		if($("#popupPrjForm .inputError").length > 0){
@@ -155,10 +163,8 @@ $(document).ready(function() {
 			return false;
 		}
 		
-		// 저장 전 유효성 체크
-		if(fnSaveValChk(type)){
-			fnInsertReg();
-		}
+		// 저장
+		fnInsertReg();
 		
 	});
 	
@@ -175,22 +181,19 @@ $(document).ready(function() {
 		 // 입력된 값을 대문자로 변환
 	 	$("#prjAcrm").val(inputVal.toUpperCase());
 	});
-	
-	/* 	
-	 *	공통코드 가져올때 한번 트랜잭션으로 여러 코드 가져와서 셀렉트박스에 세팅하는 함수(사용 권장)
-	 * 	1. 공통 대분류 코드를 순서대로 배열 담기(문자열)
-	 *	2. 사용구분 저장(Y: 사용중인 코드만, N: 비사용중인 코드만, 그 외: 전체)
-	 *	3. 공통코드 적용할 select 객체 직접 배열로 저장
-	 * 	4. 공통코드 가져와 적용할 콤보타입 객체 배열 ( S:선택, A:전체(코드값 A 세팅한 조회조건용), N:전체, E:공백추가,OS:선택 값 selected, 그 외:없음 )
-	 *	5. 동기 비동기모드 선택 (true:비동기 통신, false:동기 통신)
-	 *	마스터 코드 = REQ00001:요구사항 타입, REQ00002:중요도 
-	 */
-	var mstCdStrArr = "PRJ00013";
-	var strUseYn = 'Y';
-	var arrObj = [$("select[name=prjType]")];
-	var arrComboType = ["OS"];
-	gfnGetMultiCommonCodeDataForm(mstCdStrArr, strUseYn, arrObj, arrComboType , false);
-	
+		
+	// 프로젝트 약어 focusout 이벤트
+	$("#prjAcrm").focusout(function(e){
+		var inputVal = $("#prjAcrm").val();  
+		// 입력된 값을 대문자로 변환
+	 	$("#prjAcrm").val(inputVal.toUpperCase());
+		// 숫자만 입력했는지 체크
+		if($.isNumeric($("#prjAcrm").val())){
+			jAlert("프로젝트 약어는 영문 대문자 또는 영문 대문자, 숫자 조합으로 입력해야 합니다.", "알림창");
+			$("#prjAcrm").val(''); 
+			$("#prjAcrm").focus();
+		}
+	});
 	/**
 	 * 프로젝트 생성관리 등록(insert) AJAX
 	 */
@@ -217,7 +220,7 @@ $(document).ready(function() {
 		    		
 		    		//프로젝트 생성 팝업 호출
 					var data = {type: "project"};
-					gfnLayerPopupOpen('/prj/prj1000/prj1000/selectPrj1003View.do', data, '761', '570','auto');
+					gfnLayerPopupOpen('/prj/prj1000/prj1000/selectPrj1003View.do', data, '761', '580','auto');
 		    	}else{
 		    		//프로젝트 생성 완료된경우
 		    		jAlert('프로젝트가 정상적으로 생성되었습니다.', '알림창', function( result ) {
@@ -242,55 +245,6 @@ $(document).ready(function() {
 	}
 });
 
-
-
-//프로젝트  등록 유효성 체크
-function fnSaveValChk(prjType){
-	
-	var valResult = true;
-
-	/* 필수입력값 체크 공통 호출 */
-	var strFormId = "popupPrjForm";
-	var strCheckObjArr = ["prjNm", "startDt", "endDt", "ord"];
-	var sCheckObjNmArr = ["프로젝트 명", "시작일자", "종료일자", "정렬 순서"];
-	if(gfnRequireCheck(strFormId, strCheckObjArr, sCheckObjNmArr)){
-		return false;	
-	}
-	
-	// 프로젝트 유효성
-	var arrChkObj = {"prjNm":{"type":"length","msg":"프로젝트 ${prjGrpNm}명은 200byte까지 입력이 가능합니다.",max:200}
-					,"prjAcrm":{"type":"length","msg":"프로젝트 약어는 10byte까지 입력이 가능합니다.",max:10}
-					,"prjDesc":{"type":"length","msg":"프로젝트 설명은 4000byte까지 입력이 가능합니다.",max:4000}
-					,"itemOrd":{"type":"number"}};
-	
-	// 유효성 검사
-	if(!gfnSaveInputValChk(arrChkObj)){
-		return false;	
-	}
-	
-	// 프로젝트인 경우
-	if(type == "project"){
-		// 프로젝트 약어 필수값
-		var strCheckObjArr2 = ["prjAcrm"];
-		var sCheckObjNmArr2 = ["프로젝트 약어"];
-		if(gfnRequireCheck(strFormId, strCheckObjArr2, sCheckObjNmArr2)){
-			return false;	
-		}
-		
-		// 프로젝트 약어 유효성 검증
-		var saveObjectValid = {
-					"prjAcrm":{"type":"regExp","pattern":/^[A-Z]{3,10}$/ ,"msg":"프로젝트 약어는 영문 대문자 3~10자만 사용 가능합니다.", "required":true} 
-		}
-		// 약어 유효성 검사
-		if(!gfnSaveInputValChk(saveObjectValid)){
-			return false;	
-		}
-	}
-
-
-	return valResult;
-}
-
 </script>
 
 <div class="popup">
@@ -302,6 +256,7 @@ function fnSaveValChk(prjType){
 			<input type="hidden" id="useCd" name="useCd" value="01" />
 			<input type="hidden" id="prjGrpCd" name="prjGrpCd" value="01" />
 			<input type="hidden" name="ord" id="ord" value="1">
+			<input type="hidden" name="prjType" id="prjType" value="01">
 			<div class="pop_left prjGrpNameSpan">프로젝트 그룹</div>
 			<div class="pop_right prjGrpNameSpan">
 				<!--
@@ -324,12 +279,6 @@ function fnSaveValChk(prjType){
 				<span class="fl"><input type="text" id="startDt" name="startDt" class="calendar_input" readonly="readonly" title="개발 시작일" style="height: 32px;" /></span>
 				<span class="calendar_bar fl">~</span>
 				<span class="fl"><input type="text" id="endDt" name="endDt" class="calendar_input" readonly="readonly" title="개발 종료일" style="height: 32px;"/></span>
-			</div>
-			
-			<div class="pop_left prjTypeDiv">프로젝트 유형 <span class="required_info">&nbsp;*</span></div>
-			<div class="pop_right prjTypeDiv">
-				<select class="search_select" title="셀렉트 박스" id="prjType" name="prjType" style="height: 100%;">
-						</select>
 			</div>
 			<div class="pop_left popPrjAcrmDiv">프로젝트 약어<span class="required_info">&nbsp;*</span> </div>
 			<div class="pop_right popPrjAcrmDiv">

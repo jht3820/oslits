@@ -4,7 +4,7 @@
 <%@ include file="/WEB-INF/jsp/oslops/top/header.jsp" %>
 <jsp:include page="/WEB-INF/jsp/oslops/top/aside.jsp" />
 
-<link rel='stylesheet' href='<c:url value='/css/oslits/req.css'/>' type='text/css'>
+<link rel='stylesheet' href='<c:url value='/css/oslops/req.css'/>' type='text/css'>
 <link rel='stylesheet' href='<c:url value='/css/ztree/zTreeStyle/zTreeStyle.css'/>' type='text/css'>
 <script type="text/javascript" src="/js/ztree/jquery.ztree.all.min.js"></script>
 
@@ -130,7 +130,7 @@ function fnSearchBoxControl(){
 						
 						{label:"", labelWidth:"", type:"button", width:"60",style:"float:right;", key:"btn_print_api",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-print' aria-hidden='true'></i>&nbsp;<span>프린트</span>",
 							onclick:function(){
-								$(firstGrid.exportExcel()).printThis();
+								$(firstGrid.exportExcel()).printThis({importCSS: false,importStyle: false,loadCSS: "/css/common/printThis.css"});
 						}},
 						{label:"", labelWidth:"", type:"button", width:"55",style:"float:right;", key:"btn_excel_api",valueBoxStyle:"padding:5px;", value:"<i class='fa fa-file-excel' aria-hidden='true'></i>&nbsp;<span>엑셀</span>",
 							onclick:function(){
@@ -226,17 +226,22 @@ function fnSearchBoxControl(){
 		    zTree = $.fn.zTree.init($("#prjTreeJson"), setting, data.prjList);
 		    
 		    var treeNode = [];
+		    // 프로젝트 목록이 있을 경우
 		    if(data.prjList.length>0){
 		    	treeNode =  zTree.getNodes();
-		    	if(treeNode.length>0){
+		    	// 프로젝트 트리를 모두 펼친다.
+		    	zTree.expandAll(true);
+		    	// 트리노드가 존재하고 트리노드가 1개 이상 있을경우
+		    	if(!gfnIsNull(treeNode) && treeNode.length>0){
+		    		// 첫번째 트리노드의 자식 노드를 가져온다.
 		    		var childNodes = treeNode[0].children;
-		    		if(childNodes.length>0){
+		    		// 자식노드가 존재하고, 자식노드가 1개이상 있을경우
+		    		if(!gfnIsNull(childNodes) && childNodes.length>0){
+		    			// 첫번째 자식노드를 currentNode에 담는다.
 		    			currentNode=childNodes[0];
-		    			var treeObj = $.fn.zTree.getZTreeObj("prjTreeJson");
-		    			treeObj.expandAll(true);
+		    			// 첫번째 자식노드의 프로젝트 Id를 가져와서 프로젝트에 배정된 API 목록을 조회한다.
 		    			fnInGridListSet(childNodes[0].prjId);
 		    		}
-			    	
 			    }
 		    }
 		    

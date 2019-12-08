@@ -3,11 +3,20 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html lang="ko">
 <title>OpenSoftLab</title>
+<style>
+.req4105_option_title {width: 25%;float: left;height: 50px;padding-left: 10px;line-height: 40px;background-color: #f9f9f9;border: 1px solid #ccc;font-weight: bold;border-top: none;}
+.req4105_option_all {float: left;height: 50px;line-height: 30px;width: 75%;border-bottom: 1px solid #ccc;padding: 5px;}
+.req4105_option_half {float: left;height: 50px;line-height: 30px;width: 25%;border-bottom: 1px solid #ccc;padding:5px;}
+.req4105_desc {height: 100px;}
+.req4105_file {height: 150px;}
+.req4105_clear{clear:both;}
+</style>
 <script>
 
 //프로세스, 작업흐름 Id
 var processId = "${processId}";
 var flowId = "${flowId}";
+
 
 var flwOptGrid;
 
@@ -269,9 +278,11 @@ function fnPopupFlwAxGrid5View(){
 	<div class="pop_sub" style="padding:15px;display: inline-block;">
 		<div class="flwOptBtnDiv">
 			<span class="button_normal2" id="btn_select_optSelect"><i class="fa fa-list"></i>&nbsp;조회</span>
-			<span class="button_normal2" id="btn_insert_optInsert"><i class="fa fa-plus"></i>&nbsp;추가</span>
-			<span class="button_normal2" id="btn_update_optUpdate"><i class="fa fa-edit"></i>&nbsp;수정</span>
-			<span class="button_normal2" id="btn_delete_optDelete"><i class="fa fa-times"></i>&nbsp;삭제</span>
+			<c:if test="${not empty processConfirmCd and processConfirmCd == '01' }">
+				<span class="button_normal2" id="btn_insert_optInsert"><i class="fa fa-plus"></i>&nbsp;추가</span>
+				<span class="button_normal2" id="btn_update_optUpdate"><i class="fa fa-edit"></i>&nbsp;수정</span>
+				<span class="button_normal2" id="btn_delete_optDelete"><i class="fa fa-times"></i>&nbsp;삭제</span>
+			</c:if>
 		</div>
 		<div class="flw_box_clear"></div>
 		<div class="flwOptGridDiv flw_line_right">
